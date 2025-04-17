@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online tool to compress JPG, PNG, SVG, and GIF images while maintaining quality. Reduce image file size for websites and social media.">
+    <meta name="keywords" content="image compressor, compress jpg, reduce png size, optimize images, free image tool">
+    <meta name="author" content="Image Buzz">
+    <title>Image Compress Tool | Reduce Image Size Online - Image Buzz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="brand">
+                <i class="material-icons">image</i>
+                <span>Image Buzz</span>
+            </div>
+            <h1 class="header-title">Image Compress</h1>
+            <a href="/" class="home-btn">Home</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Ad Space Top -->
+            <div class="ad-container">
+                <!-- Google AdSense Code -->
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_ID" crossorigin="anonymous"></script>
+                <!-- Ad Unit -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-YOUR_ADSENSE_ID"
+                     data-ad-slot="YOUR_AD_SLOT_ID"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+            <!-- Tool Container -->
+            <div class="tool-container">
+                <h2 class="tool-title">Compress Images Online for Free</h2>
+		<p class="supported-formats">Supports: JPG, PNG, SVG, GIF</p>
+                
+                <div class="upload-section" id="dropArea">
+                    <div class="upload-icon">
+                        <i class="material-icons">cloud_upload</i>
+                    </div>
+                    <p class="upload-text">Drag & Drop your image here</p>
+                    <p class="upload-subtext">or</p>
+                    <div>
+                        <button class="upload-btn" id="fileInputBtn">
+                            <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">upload</i>
+                            Select from Computer
+                        </button>
+                        <button class="cloud-btn" id="googleDriveBtn">
+                            <i class="fab fa-google-drive"></i> Google Drive
+                        </button>
+                        <button class="cloud-btn" id="dropboxBtn">
+                            <i class="fab fa-dropbox"></i> Dropbox
+                        </button>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/svg+xml,image/gif" style="display: none;">
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="settings-title">Compression Settings</h3>
+                    <input type="range" id="compressionLevel" class="compression-level" min="0" max="100" value="50">
+                    <div class="level-labels">
+                        <span>Low Compression</span>
+                        <span>Balanced</span>
+                        <span>High Compression</span>
+                    </div>
+                </div>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBar"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">Compressing image...</p>
+                </div>
+
+                <div class="output-section" id="outputSection">
+                    <div class="image-container">
+                        <div class="image-box">
+                            <h3>Original Image</h3>
+                            <div class="image-wrapper">
+                                <img id="originalImage" src="" alt="Original Image">
+                            </div>
+                            <p class="image-info">Size: <span id="originalSize">0 KB</span></p>
+                        </div>
+                        <div class="image-box">
+                            <h3>Compressed Image</h3>
+                            <div class="image-wrapper">
+                                <img id="compressedImage" src="" alt="Compressed Image">
+                            </div>
+                            <p class="image-info">Size: <span id="compressedSize">0 KB</span></p>
+                            <button class="download-btn" id="downloadBtn">
+                                <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">download</i>
+                                Download Compressed Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space Bottom -->
+            <div class="ad-container">
+                <!-- Google AdSense Code -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-format="autorelaxed"
+                     data-ad-client="ca-pub-YOUR_ADSENSE_ID"
+                     data-ad-slot="YOUR_AD_SLOT_ID"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">Image Buzz</div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
+            <p class="footer-copyright">© 2023 Image Buzz. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
