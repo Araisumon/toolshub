@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Easily resize, crop, flip, and rotate images with Image Buzz. Drag to crop with live previews, choose JPG, PNG, AVIF, and more, and download optimized files fast!">
+    <meta name="keywords" content="image resizer, crop image, flip image, rotate image, batch resize, JPG, PNG, WEBP, AVIF, Image Buzz">
+    <meta name="author" content="Image Buzz">
+    <meta name="robots" content="index, follow">
+    <title>Easy Image Resizer - Image Buzz</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        header {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+        }
+        .batch-preview img, #cropPreview {
+            max-width: 150px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+        .ad-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        .batch-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        #cropCanvas {
+            border: 2px dashed #666;
+            max-width: 100%;
+            cursor: move;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 10px;
+            background: #4ecdc4;
+            transition: width 0.3s;
+        }
+        .dropdown-content {
+            transition: max-height 0.3s ease-out;
+            overflow: hidden;
+        }
+        .dropdown-content.hidden {
+            max-height: 0;
+        }
+        .dropdown-content:not(.hidden) {
+            max-height: 1000px;
+        }
+        .preview-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .handle {
+            fill: rgba(255, 255, 255, 0.8);
+            stroke: #000;
+            stroke-width: 1;
+            cursor: pointer;
+        }
+        .handle:hover {
+            fill: #4ecdc4;
+        }
+        .tooltip:hover:after {
+            content: attr(title);
+            @apply absolute bg-gray-800 text-white text-sm p-2 rounded shadow-lg mt-2;
+            z-index: 10;
+        }
+        .process-ready {
+            @apply animate-pulse;
+        }
+        .loading::after {
+            content: '';
+            @apply inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Header -->
+    <header class="text-white p-4 flex justify-between items-center shadow-lg">
+        <div class="text-2xl font-bold">Image Buzz</div>
+        <div class="text-3xl font-semibold">Easy Image Resizer</div>
+        <a href="/" class="bg-white text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition">Home</a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-6">
+        <!-- Instructions -->
+        <section class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Spark Your Images to Life</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                Upload images, resize, crop, flip, or rotate with ease. Drag the live crop box, pick formats like JPG or AVIF, and preview instantly. Crop overrides resize when active. Download optimized files or a ZIP fast!
+            </p>
+        </section>
+
+        <!-- Ad Space 1 (728x90) -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:728px;height:90px"
+                 data-ad-client="ca-pub-YOUR_ADSENSE_ID"
+                 data-ad-slot="YOUR_AD_SLOT_ID"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <!-- Image Resizer Tool -->
+        <section class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Upload and Settings Section -->
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Upload & Edit Images</h2>
+                    <div class="bg-blue-600 text-white p-2 rounded-lg mb-4 hover:bg-blue-700 transition">
+                        <input type="file" id="imageInput" accept="image/*,image/tiff,image/bmp,image/heic,image/avif" multiple class="w-full text-white cursor-pointer" title="Upload one or more images" aria-label="Upload images" placeholder="Drop or click to upload images">
+                    </div>
+                    <p id="errorMessage" class="text-red-600 text-sm mb-4 hidden"></p>
+
+                    <!-- Resize Settings Dropdown -->
+                    <div class="mb-4">
+                        <button id="resizeToggle" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full text-left flex justify-between items-center hover:bg-blue-600 tooltip" title="Adjust image dimensions">
+                            Adjust Size <span>▼</span>
+                        </button>
+                        <div id="resizeSettings" class="dropdown-content hidden mt-2 p-4 border rounded">
+                            <label class="block text-gray-800 mb-2" title="Choose a common size or enter custom dimensions">Preset Sizes:</label>
+                            <select id="presetSizes" class="p-2 border rounded w-full mb-2">
+                                <option value="">Custom</option>
+                                <option value="1080,1080">Instagram Post (1080x1080)</option>
+                                <option value="1200,630">Facebook Post (1200x630)</option>
+                                <option value="1500,500">Twitter Header (1500x500)</option>
+                                <option value="0.5">50% of Original</option>
+                                <option value="0.25">25% of Original</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    <label class="block text-gray-800 mb-2" title="Set the desired width">Width:</label>
+                                    <input type="number" id="widthInput" min="1" class="p-2 border rounded w-full" placeholder="Enter width" aria-label="Width">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-gray-800 mb-2" title="Set the desired height">Height:</label>
+                                    <input type="number" id="heightInput" min="1" class="p-2 border rounded w-full" placeholder="Enter height" aria-label="Height">
+                                </div>
+                            </div>
+                            <p id="cropOverrideNote" class="text-gray-600 text-sm mt-1 hidden">Crop dimensions and settings will override these settings.</p>
+                            <div class="flex gap-2 mt-2">
+                                <select id="unitSelect" class="p-2 border rounded flex-1" title="Choose the unit for dimensions" aria-label="Unit">
+                                    <option value="px">Pixels (px)</option>
+                                    <option value="in">Inches (in)</option>
+                                    <option value="cm">Centimeters (cm)</option>
+                                    <option value="mm">Millimeters (mm)</option>
+                                </select>
+                                <input type="number" id="dpiInput" min="1" value="72" class="p-2 border rounded flex-1" placeholder="DPI" title="Set DPI for inch/cm/mm conversions" aria-label="DPI">
+                            </div>
+                            <p id="pixelInfo" class="text-gray-600 text-sm mt-1"></p>
+                            <label class="block text-gray-800 mt-2" title="Keep the image's original proportions">
+                                <input type="checkbox" id="aspectRatio" checked class="mr-2" aria-label="Maintain aspect ratio"> Maintain Aspect Ratio
+                            </label>
+                            <label class="block text-gray-800 mt-2" title="Choose how to resize the image">Resize Mode:</label>
+                            <select id="resizeMode" class="p-2 border rounded w-full" aria-label="Resize mode">
+                                <option value="fit">Fit (Scale within dimensions)</option>
+                                <option value="fill">Fill (Stretch to dimensions)</option>
+                            </select>
+                            <label class="block text-gray-800 mt-2" title="Adjust image clarity (lower for smaller files)">Quality (1-100):</label>
+                            <input type="number" id="qualityInput" min="1" max="100" value="80" class="p-2 border rounded w-full" aria-label="Quality">
+                            <label class="block text-gray-800 mt-2" title="Set a maximum file size (optional)">Target File Size (KB):</label>
+                            <input type="number" id="targetSize" min="1" class="p-2 border rounded w-full" placeholder="Optional target size" aria-label="Target file size">
+                            <label class="block text-gray-800 mt-2" title="Choose the output file format">Save As:</label>
+                            <select id="exportFormat" class="p-2 border rounded w-full" aria-label="Output format">
+                                <option value="original">Original Format</option>
+                                <option value="image/jpeg">JPG</option>
+                                <option value="image/png">PNG</option>
+                                <option value="image/webp">WEBP</option>
+                                <option value="image/tiff">TIFF</option>
+                                <option value="image/bmp">BMP</option>
+                                <option value="image/avif">AVIF</option>
+                                <option value="image/heic">HEIC</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Crop Settings Dropdown -->
+                    <div class="mb-4">
+                        <button id="cropToggle" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full text-left flex justify-between items-center hover:bg-blue-600 tooltip" title="Crop images interactively">
+                            Crop Image <span>▼</span>
+                        </button>
+                        <div id="cropSettings" class="dropdown-content hidden mt-2 p-4 border rounded">
+                            <label class="block text-gray-800 mb-2" title="Choose a crop shape or freeform">Crop Aspect Ratio:</label>
+                            <select id="cropAspect" class="p-2 border rounded w-full" aria-label="Crop aspect ratio">
+                                <option value="free">Free</option>
+                                <option value="1:1">1:1 (Square)</option>
+                                <option value="4:3">4:3</option>
+                                <option value="3:2">3:2</option>
+                                <option value="16:9">16:9</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <div id="customCrop" class="hidden mt-2 flex gap-2">
+                                <input type="number" id="cropWidth" min="1" class="p-2 border rounded flex-1" placeholder="Width" title="Custom crop width" aria-label="Custom crop width">
+                                <input type="number" id="cropHeight" min="1" class="p-2 border rounded flex-1" placeholder="Height" title="Custom crop height" aria-label="Custom crop height">
+                            </div>
+                            <label class="block text-gray-800 mt-2" title="Choose where to crop the image">Crop Position:</label>
+                            <select id="cropPosition" class="p-2 border rounded w-full" aria-label="Crop position">
+                                <option value="center">Center</option>
+                                <option value="top-left">Top-Left</option>
+                                <option value="top-right">Top-Right</option>
+                                <option value="bottom-left">Bottom-Left</option>
+                                <option value="bottom-right">Bottom-Right</option>
+                            </select>
+                            <label class="block text-gray-800 mt-2" title="Set a maximum file size (optional)">Target File Size (KB):</label>
+                            <input type="number" id="cropTargetSize" min="1" class="p-2 border rounded w-full" placeholder="Optional target size" aria-label="Crop target file size">
+                            <label class="block text-gray-800 mt-2" title="Choose the output file format">Save As:</label>
+                            <select id="cropExportFormat" class="p-2 border rounded w-full" aria-label="Crop output format">
+                                <option value="original">Original Format</option>
+                                <option value="image/jpeg">JPG</option>
+                                <option value="image/png">PNG</option>
+                                <option value="image/webp">WEBP</option>
+                                <option value="image/tiff">TIFF</option>
+                                <option value="image/bmp">BMP</option>
+                                <option value="image/avif">AVIF</option>
+                                <option value="image/heic">HEIC</option>
+                            </select>
+                            <div class="mt-2">
+                                <canvas id="cropCanvas" class="hidden" aria-label="Crop canvas"></canvas>
+                                <p id="cropSize" class="text-gray-600 text-sm mt-1"></p>
+                                <p class="text-gray-600 text-sm mt-1">Drag box or handles to crop, set size/format, or use presets.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="progress-bar" id="progressBar"></div>
+                        <p id="progressText" class="text-gray-600 text-sm mt-1">Ready to process</p>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button id="processButton" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition flex-1 process-ready" title="Apply changes and download images" aria-label="Process images">
+                            Process Images
+                        </button>
+                        <button id="resetButton" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition flex-1" title="Reset all settings" aria-label="Reset settings">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Live Preview</h2>
+                    <div class="border p-4 rounded bg-gray-50 mb-4">
+                        <div id="preview" class="batch-preview"></div>
+                        <p id="inputSize" class="text-gray-600 mt-2"></p>
+                        <div id="processTimes" class="preview-time mt-2"></div>
+                    </div>
+
+                    <!-- Flip & Rotate Settings (Always Active) -->
+                    <div class="p-4 border rounded mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Flip & Rotate</h3>
+                        <div class="flex gap-2 mb-2">
+                            <button id="flipH" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex-1 tooltip" title="Mirror image left-to-right" aria-label="Flip horizontal">Flip Horizontal</button>
+                            <button id="flipV" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex-1 tooltip" title="Mirror image top-to-bottom" aria-label="Flip vertical">Flip Vertical</button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="rotate90" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex-1 tooltip" title="Rotate 90° clockwise" aria-label="Rotate 90 degrees">Rotate 90°</button>
+                            <button id="rotate180" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex-1 tooltip" title="Rotate 180°" aria-label="Rotate 180 degrees">Rotate 180°</button>
+                            <button id="rotate270" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex-1 tooltip" title="Rotate 270° clockwise" aria-label="Rotate 270 degrees">Rotate 270°</button>
+                        </div>
+                        <label class="block text-gray-800 mt-2" title="Enter a custom rotation angle">Custom Rotate (degrees):</label>
+                        <input type="number" id="rotateInput" value="0" min="-360" max="360" class="p-2 border rounded w-full" placeholder="Enter angle" aria-label="Custom rotation angle">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="mt-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Processed Images</h2>
+                <div class="border p-4 rounded bg-gray-50">
+                    <div id="resizedImage" class="batch-preview"></div>
+                    <p id="outputSize" class="text-gray-600 mt-2"></p>
+                    <div id="downloadLinks" class="mt-4"></div>
+                    <button id="downloadZip" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition mt-4 hidden" title="Download all images as a ZIP file" aria-label="Download ZIP">
+                        Download All as ZIP
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ad Space 2 (468x60) -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:468px;height:60px"
+                 data-ad-client="ca-pub-YOUR_ADSENSE_ID"
+                 data-ad-slot="YOUR_AD_SLOT_ID"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center p-4">
+        <p>© 2025 Image Buzz. All rights reserved.</p>
+    </footer>
+
+    <!-- JSZip for ZIP downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- FileSaver for ZIP download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <!-- JavaScript -->
+    <script>
+        // DOM element references
+        const imageInput = document.getElementById('imageInput');
+        const presetSizes = document.getElementById('presetSizes');
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const unitSelect = document.getElementById('unitSelect');
+        const dpiInput = document.getElementById('dpiInput');
+        const pixelInfo = document.getElementById('pixelInfo');
+        const aspectRatio = document.getElementById('aspectRatio');
+        const resizeMode = document.getElementById('resizeMode');
+        const cropAspect = document.getElementById('cropAspect');
+        const customCrop = document.getElementById('customCrop');
+        const cropWidth = document.getElementById('cropWidth');
+        const cropHeight = document.getElementById('cropHeight');
+        const cropPosition = document.getElementById('cropPosition');
+        const cropCanvas = document.getElementById('cropCanvas');
+        const cropSize = document.getElementById('cropSize');
+        const cropOverrideNote = document.getElementById('cropOverrideNote');
+        const cropTargetSize = document.getElementById('cropTargetSize');
+        const cropExportFormat = document.getElementById('cropExportFormat');
+        const flipH = document.getElementById('flipH');
+        const flipV = document.getElementById('flipV');
+        const rotate90 = document.getElementById('rotate90');
+        const rotate180 = document.getElementById('rotate180');
+        const rotate270 = document.getElementById('rotate270');
+        const rotateInput = document.getElementById('rotateInput');
+        const qualityInput = document.getElementById('qualityInput');
+        const targetSize = document.getElementById('targetSize');
+        const exportFormat = document.getElementById('exportFormat');
+        const processButton = document.getElementById('processButton');
+        const resetButton = document.getElementById('resetButton');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const preview = document.getElementById('preview');
+        const inputSize = document.getElementById('inputSize');
+        const processTimes = document.getElementById('processTimes');
+        const resizedImage = document.getElementById('resizedImage');
+        const outputSize = document.getElementById('outputSize');
+        const downloadLinks = document.getElementById('downloadLinks');
+        const downloadZip = document.getElementById('downloadZip');
+        const resizeToggle = document.getElementById('resizeToggle');
+        const resizeSettings = document.getElementById('resizeSettings');
+        const cropToggle = document.getElementById('cropToggle');
+        const cropSettings = document.getElementById('cropSettings');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // State variables
+        let originalImages = [];
+        let resizedBlobs = [];
+        let flipHorizontal = false;
+        let flipVertical = false;
+        let cropBox = { x: 0, y: 0, width: 0, height: 0 };
+        let interactionState = null;
+        let dragStart = { x: 0, y: 0 };
+        let originalImageWidth = 0;
+        let originalImageHeight = 0;
+        const handleSize = 10;
+
+        // Sync exportFormat dropdowns
+        if (exportFormat && cropExportFormat) {
+            exportFormat.addEventListener('change', () => {
+                cropExportFormat.value = exportFormat.value;
+            });
+            cropExportFormat.addEventListener('change', () => {
+                exportFormat.value = cropExportFormat.value;
+            });
+        }
+
+        // Toggle dropdowns with mutual exclusivity for Resize and Crop only
+        function closeOtherDropdown(except) {
+            if (except !== 'resize') {
+                resizeSettings.classList.add('hidden');
+                resizeToggle.querySelector('span').textContent = '▼';
+                resizeToggle.classList.remove('border-blue-500');
+            }
+            if (except !== 'crop') {
+                cropSettings.classList.add('hidden');
+                cropToggle.querySelector('span').textContent = '▼';
+                cropToggle.classList.remove('border-blue-500');
+                cropCanvas.classList.add('hidden');
+                cropSize.textContent = '';
+                cropOverrideNote.classList.add('hidden');
+            }
+        }
+
+        if (resizeToggle && resizeSettings) {
+            resizeToggle.addEventListener('click', () => {
+                const isOpen = !resizeSettings.classList.contains('hidden');
+                closeOtherDropdown('resize');
+                if (!isOpen) {
+                    resizeSettings.classList.remove('hidden');
+                    resizeToggle.querySelector('span').textContent = '▲';
+                    resizeToggle.classList.add('border-blue-500');
+                }
+                updateLivePreview();
+            });
+        }
+
+        if (cropToggle && cropSettings) {
+            cropToggle.addEventListener('click', () => {
+                const isOpen = !cropSettings.classList.contains('hidden');
+                closeOtherDropdown('crop');
+                if (!isOpen) {
+                    cropSettings.classList.remove('hidden');
+                    cropToggle.querySelector('span').textContent = '▲';
+                    cropToggle.classList.add('border-blue-500');
+                    cropOverrideNote.classList.remove('hidden');
+                    if (originalImages.length > 0) {
+                        updateCropCanvas(originalImages[0]);
+                    }
+                }
+                updateLivePreview();
+            });
+        }
+
+        // Handle image uploads and preview
+        if (imageInput) {
+            imageInput.addEventListener('change', (e) => {
+                console.log('Image input changed');
+                errorMessage.classList.add('hidden');
+                originalImages = Array.from(e.target.files);
+                preview.innerHTML = '';
+                let totalSize = 0;
+
+                originalImages.forEach((file) => {
+                    totalSize += file.size;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = `Preview ${file.name}`;
+                        img.title = file.name;
+                        img.onerror = () => {
+                            img.src = '';
+                            img.alt = `Failed to load ${file.name}`;
+                            errorMessage.textContent = `Failed to load ${file.name}`;
+                            errorMessage.classList.remove('hidden');
+                        };
+                        preview.appendChild(img);
+                        if (preview.children.length === 1) {
+                            updateLivePreview();
+                            if (!cropSettings.classList.contains('hidden')) {
+                                updateCropCanvas(file);
+                            }
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                inputSize.textContent = `Input Size: ${(totalSize / 1024).toFixed(2)} KB`;
+                processTimes.innerHTML = '';
+                cropCanvas.classList.add('hidden');
+                cropSize.textContent = '';
+                processButton.classList.add('process-ready');
+            });
+        }
+
+        // Handle preset sizes
+        if (presetSizes) {
+            presetSizes.addEventListener('change', () => {
+                errorMessage.classList.add('hidden');
+                const value = presetSizes.value;
+                if (value) {
+                    if (value.includes(',')) {
+                        const [w, h] = value.split(',').map(Number);
+                        widthInput.value = w;
+                        heightInput.value = h;
+                        unitSelect.value = 'px';
+                    } else {
+                        const scale = parseFloat(value);
+                        if (originalImages.length > 0) {
+                            const img = new Image();
+                            img.onload = () => {
+                                widthInput.value = Math.round(img.width * scale);
+                                heightInput.value = Math.round(img.height * scale);
+                                unitSelect.value = 'px';
+                            };
+                            img.src = URL.createObjectURL(originalImages[0]);
+                        }
+                    }
+                    updatePixelInfo();
+                    updateLivePreview();
+                }
+            });
+        }
+
+        // Handle aspect ratio and inputs
+        if (widthInput) {
+            widthInput.addEventListener('input', () => {
+                errorMessage.classList.add('hidden');
+                updateHeight();
+                updateLivePreview();
+            });
+        }
+        if (heightInput) {
+            heightInput.addEventListener('input', () => {
+                errorMessage.classList.add('hidden');
+                updateWidth();
+                updateLivePreview();
+            });
+        }
+        if (unitSelect) {
+            unitSelect.addEventListener('change', () => {
+                updatePixelInfo();
+                updateLivePreview();
+            });
+        }
+        if (dpiInput) {
+            dpiInput.addEventListener('input', () => {
+                updatePixelInfo();
+                updateLivePreview();
+            });
+        }
+        if (aspectRatio) {
+            aspectRatio.addEventListener('change', updateLivePreview);
+        }
+        if (resizeMode) {
+            resizeMode.addEventListener('change', updateLivePreview);
+        }
+        if (cropAspect) {
+            cropAspect.addEventListener('change', () => {
+                customCrop.classList.toggle('hidden', cropAspect.value !== 'custom');
+                if (originalImages.length > 0) {
+                    updateCropCanvas(originalImages[0]);
+                }
+                updateLivePreview();
+            });
+        }
+        if (cropPosition) {
+            cropPosition.addEventListener('change', () => {
+                if (originalImages.length > 0) {
+                    updateCropCanvas(originalImages[0]);
+                }
+                updateLivePreview();
+            });
+        }
+        if (cropWidth) {
+            cropWidth.addEventListener('input', () => {
+                if (originalImages.length > 0) {
+                    updateCropCanvas(originalImages[0]);
+                }
+                updateLivePreview();
+            });
+        }
+        if (cropHeight) {
+            cropHeight.addEventListener('input', () => {
+                if (originalImages.length > 0) {
+                    updateCropCanvas(originalImages[0]);
+                }
+                updateLivePreview();
+            });
+        }
+        if (flipH) {
+            flipH.addEventListener('click', () => {
+                flipHorizontal = !flipHorizontal;
+                flipH.classList.toggle('bg-gray-600', flipHorizontal);
+                flipH.classList.toggle('bg-gray-500', !flipHorizontal);
+                updateLivePreview();
+            });
+        }
+        if (flipV) {
+            flipV.addEventListener('click', () => {
+                flipVertical = !flipVertical;
+                flipV.classList.toggle('bg-gray-600', flipVertical);
+                flipV.classList.toggle('bg-gray-500', !flipVertical);
+                updateLivePreview();
+            });
+        }
+        if (rotate90) {
+            rotate90.addEventListener('click', () => {
+                rotateInput.value = (parseInt(rotateInput.value) || 0) + 90;
+                updateLivePreview();
+            });
+        }
+        if (rotate180) {
+            rotate180.addEventListener('click', () => {
+                rotateInput.value = (parseInt(rotateInput.value) || 0) + 180;
+                updateLivePreview();
+            });
+        }
+        if (rotate270) {
+            rotate270.addEventListener('click', () => {
+                rotateInput.value = (parseInt(rotateInput.value) || 0) + 270;
+                updateLivePreview();
+            });
+        }
+        if (rotateInput) {
+            rotateInput.addEventListener('input', updateLivePreview);
+        }
+
+        // Reset settings
+        if (resetButton) {
+            resetButton.addEventListener('click', () => {
+                console.log('Resetting settings');
+                originalImages = [];
+                resizedBlobs = [];
+                flipHorizontal = false;
+                flipVertical = false;
+                cropBox = { x: 0, y: 0, width: 0, height: 0 };
+                imageInput.value = '';
+                widthInput.value = '';
+                heightInput.value = '';
+                unitSelect.value = 'px';
+                dpiInput.value = '72';
+                aspectRatio.checked = true;
+                resizeMode.value = 'fit';
+                qualityInput.value = '80';
+                targetSize.value = '';
+                exportFormat.value = 'original';
+                cropExportFormat.value = 'original';
+                cropAspect.value = 'free';
+                cropPosition.value = 'center';
+                cropTargetSize.value = '';
+                cropWidth.value = '';
+                cropHeight.value = '';
+                rotateInput.value = '0';
+                flipH.classList.remove('bg-gray-600');
+                flipH.classList.add('bg-gray-500');
+                flipV.classList.remove('bg-gray-600');
+                flipV.classList.add('bg-gray-500');
+                closeOtherDropdown();
+                preview.innerHTML = '';
+                inputSize.textContent = '';
+                processTimes.innerHTML = '';
+                resizedImage.innerHTML = '';
+                outputSize.textContent = '';
+                downloadLinks.innerHTML = '';
+                downloadZip.classList.add('hidden');
+                cropCanvas.classList.add('hidden');
+                cropSize.textContent = '';
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Ready to process';
+                errorMessage.classList.add('hidden');
+                processButton.classList.remove('process-ready');
+            });
+        }
+
+        function updateHeight() {
+            if (aspectRatio.checked && originalImages.length > 0) {
+                const file = originalImages[0];
+                const img = new Image();
+                img.onload = () => {
+                    const ratio = img.height / img.width;
+                    heightInput.value = Math.round(widthInput.value * ratio);
+                    updatePixelInfo();
+                };
+                img.src = URL.createObjectURL(file);
+            }
+        }
+
+        function updateWidth() {
+            if (aspectRatio.checked && originalImages.length > 0) {
+                const file = originalImages[0];
+                const img = new Image();
+                img.onload = () => {
+                    const ratio = img.width / img.height;
+                    widthInput.value = Math.round(heightInput.value * ratio);
+                    updatePixelInfo();
+                };
+                img.src = URL.createObjectURL(file);
+            }
+        }
+
+        // Convert units to pixels
+        function convertToPixels(value, unit, dpi) {
+            if (unit === 'px') return value;
+            if (unit === 'in') return value * dpi;
+            if (unit === 'cm') return value * dpi / 2.54;
+            if (unit === 'mm') return value * dpi / 25.4;
+            return value;
+        }
+
+        // Update pixel info
+        function updatePixelInfo() {
+            const width = parseFloat(widthInput.value);
+            const height = parseFloat(heightInput.value);
+            const unit = unitSelect.value;
+            const dpi = parseInt(dpiInput.value) || 72;
+            if (width && height) {
+                const pixelWidth = Math.round(convertToPixels(width, unit, dpi));
+                const pixelHeight = Math.round(convertToPixels(height, unit, dpi));
+                pixelInfo.textContent = `Pixel Size: ${pixelWidth}x${pixelHeight}px`;
+            } else {
+                pixelInfo.textContent = '';
+            }
+        }
+
+        // Interactive crop canvas
+        function updateCropCanvas(file) {
+            if (!cropCanvas) return;
+            const ctx = cropCanvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+                console.log('Crop canvas image loaded');
+                originalImageWidth = img.width;
+                originalImageHeight = img.height;
+                cropCanvas.width = Math.min(img.width, 300);
+                cropCanvas.height = cropCanvas.width * (img.height / img.width);
+                cropCanvas.classList.remove('hidden');
+
+                let cropRatio = null;
+                if (cropAspect.value === 'free') {
+                    cropBox.width = cropCanvas.width * 0.5;
+                    cropBox.height = cropCanvas.height * 0.5;
+                } else if (cropAspect.value === 'custom') {
+                    const cw = parseFloat(cropWidth.value) || 1;
+                    const ch = parseFloat(cropHeight.value) || 1;
+                    cropRatio = cw / ch;
+                } else {
+                    const [w, h] = cropAspect.value.split(':').map(Number);
+                    cropRatio = w / h;
+                }
+
+                if (cropRatio) {
+                    cropBox.width = Math.min(cropCanvas.width, cropCanvas.height * cropRatio);
+                    cropBox.height = cropBox.width / cropRatio;
+                }
+
+                // Apply crop position
+                if (cropPosition.value === 'top-left') {
+                    cropBox.x = 0;
+                    cropBox.y = 0;
+                } else if (cropPosition.value === 'top-right') {
+                    cropBox.x = cropCanvas.width - cropBox.width;
+                    cropBox.y = 0;
+                } else if (cropPosition.value === 'bottom-left') {
+                    cropBox.x = 0;
+                    cropBox.y = cropCanvas.height - cropBox.height;
+                } else if (cropPosition.value === 'bottom-right') {
+                    cropBox.x = cropCanvas.width - cropBox.width;
+                    cropBox.y = cropCanvas.height - cropBox.height;
+                } else {
+                    cropBox.x = (cropCanvas.width - cropBox.width) / 2;
+                    cropBox.y = (cropCanvas.height - cropBox.height) / 2;
+                }
+
+                function drawCrop() {
+                    ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+                    ctx.drawImage(img, 0, 0, cropCanvas.width, cropCanvas.height);
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.beginPath();
+                    ctx.rect(0, 0, cropCanvas.width, cropCanvas.height);
+                    ctx.rect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
+                    ctx.fill('evenodd');
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
+                    ctx.setLineDash([]);
+                    const handles = [
+                        { x: cropBox.x, y: cropBox.y, type: 'top-left' },
+                        { x: cropBox.x + cropBox.width, y: cropBox.y, type: 'top-right' },
+                        { x: cropBox.x, y: cropBox.y + cropBox.height, type: 'bottom-left' },
+                        { x: cropBox.x + cropBox.width, y: cropBox.y + cropBox.height, type: 'bottom-right' }
+                    ];
+                    handles.forEach(handle => {
+                        ctx.beginPath();
+                        ctx.arc(handle.x, handle.y, handleSize / 2, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                        ctx.fill();
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    });
+
+                    // Update crop dimensions display
+                    const scaledWidth = Math.round(cropBox.width * (originalImageWidth / cropCanvas.width));
+                    const scaledHeight = Math.round(cropBox.height * (originalImageHeight / cropCanvas.height));
+                    cropSize.textContent = `Crop Size: ${scaledWidth}x${scaledHeight}px`;
+                }
+
+                drawCrop();
+
+                cropCanvas.onmousedown = (e) => {
+                    const rect = cropCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const handles = [
+                        { x: cropBox.x, y: cropBox.y, type: 'top-left' },
+                        { x: cropBox.x + cropBox.width, y: cropBox.y, type: 'top-right' },
+                        { x: cropBox.x, y: cropBox.y + cropBox.height, type: 'bottom-left' },
+                        { x: cropBox.x + cropBox.width, y: cropBox.y + cropBox.height, type: 'bottom-right' }
+                    ];
+                    for (const handle of handles) {
+                        const dx = x - handle.x;
+                        const dy = y - handle.y;
+                        if (Math.sqrt(dx * dx + dy * dy) < handleSize) {
+                            interactionState = handle.type;
+                            dragStart.x = x;
+                            dragStart.y = y;
+                            return;
+                        }
+                    }
+
+                    if (x >= cropBox.x && x <= cropBox.x + cropBox.width && y >= cropBox.y && y <= cropBox.y + cropBox.height) {
+                        interactionState = 'drag';
+                        dragStart.x = x - cropBox.x;
+                        dragStart.y = y - cropBox.y;
+                    }
+                };
+
+                cropCanvas.onmousemove = (e) => {
+                    const rect = cropCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    let cursor = 'default';
+                    const handles = [
+                        { x: cropBox.x, y: cropBox.y, type: 'top-left', cursor: 'nw-resize' },
+                        { x: cropBox.x + cropBox.width, y: cropBox.y, type: 'top-right', cursor: 'ne-resize' },
+                        { x: cropBox.x, y: cropBox.y + cropBox.height, type: 'bottom-left', cursor: 'sw-resize' },
+                        { x: cropBox.x + cropBox.width, y: cropBox.y + cropBox.height, type: 'bottom-right', cursor: 'se-resize' }
+                    ];
+                    for (const handle of handles) {
+                        const dx = x - handle.x;
+                        const dy = y - handle.y;
+                        if (Math.sqrt(dx * dx + dy * dy) < handleSize) {
+                            cursor = handle.cursor;
+                            break;
+                        }
+                    }
+                    if (cursor === 'default' && x >= cropBox.x && x <= cropBox.x + cropBox.width && y >= cropBox.y && y <= cropBox.y + cropBox.height) {
+                        cursor = 'move';
+                    }
+                    cropCanvas.style.cursor = cursor;
+
+                    if (interactionState === 'drag') {
+                        cropBox.x = Math.max(0, Math.min(x - dragStart.x, cropCanvas.width - cropBox.width));
+                        cropBox.y = Math.max(0, Math.min(y - dragStart.y, cropCanvas.height - cropBox.height));
+                        drawCrop();
+                        updateLivePreview();
+                    } else if (interactionState) {
+                        let newX = cropBox.x, newY = cropBox.y, newWidth = cropBox.width, newHeight = cropBox.height;
+                        if (interactionState === 'top-left') {
+                            newWidth = cropBox.x + cropBox.width - x;
+                            newHeight = cropRatio ? newWidth / cropRatio : cropBox.y + cropBox.height - y;
+                            newX = x;
+                            newY = cropRatio ? cropBox.y + cropBox.height - newHeight : y;
+                        } else if (interactionState === 'top-right') {
+                            newWidth = x - cropBox.x;
+                            newHeight = cropRatio ? newWidth / cropRatio : cropBox.y + cropBox.height - y;
+                            newY = cropRatio ? cropBox.y + cropBox.height - newHeight : y;
+                        } else if (interactionState === 'bottom-left') {
+                            newWidth = cropBox.x + cropBox.width - x;
+                            newHeight = cropRatio ? newWidth / cropRatio : y - cropBox.y;
+                            newX = x;
+                        } else if (interactionState === 'bottom-right') {
+                            newWidth = x - cropBox.x;
+                            newHeight = cropRatio ? newWidth / cropRatio : y - cropBox.y;
+                        }
+
+                        if (newWidth >= 10 && newHeight >= 10 && newX >= 0 && newY >= 0 && newX + newWidth <= cropCanvas.width && newY + newHeight <= cropCanvas.height) {
+                            cropBox.x = newX;
+                            cropBox.y = newY;
+                            cropBox.width = newWidth;
+                            cropBox.height = newHeight;
+                        }
+
+                        drawCrop();
+                        updateLivePreview();
+                    }
+                };
+
+                cropCanvas.onmouseup = () => {
+                    interactionState = null;
+                    drawCrop();
+                    updateLivePreview();
+                };
+            };
+            img.src = URL.createObjectURL(file);
+        }
+
+        // Live preview update
+        function updateLivePreview() {
+            if (originalImages.length === 0) return;
+
+            const file = originalImages[0];
+            const img = new Image();
+            img.onload = () => {
+                console.log('Updating live preview');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Apply flip and rotate
+                let width = img.width;
+                let height = img.height;
+                let rotate = (parseInt(rotateInput.value) || 0) * Math.PI / 180;
+                if (Math.abs(parseInt(rotateInput.value) % 180) === 90) {
+                    [width, height] = [height, width];
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.translate(width / 2, height / 2);
+                ctx.rotate(rotate);
+                ctx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+                ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+                // Apply resize or crop
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+
+                if (!cropSettings.classList.contains('hidden')) {
+                    // Crop mode
+                    let cropX = cropBox.x * (img.width / cropCanvas.width);
+                    let cropY = cropBox.y * (img.height / cropCanvas.height);
+                    let cropWidth = cropBox.width * (img.width / cropCanvas.width);
+                    let cropHeight = cropBox.height * (img.height / cropCanvas.height);
+
+                    tempCanvas.width = cropWidth;
+                    tempCanvas.height = cropHeight;
+                    tempCtx.drawImage(canvas, -cropX, -cropY, img.width, img.height);
+                } else {
+                    // Resize mode
+                    let targetWidth = parseFloat(widthInput.value) || img.width;
+                    let targetHeight = parseFloat(heightInput.value) || img.height;
+                    const unit = unitSelect.value;
+                    const dpi = parseInt(dpiInput.value) || 72;
+                    targetWidth = Math.round(convertToPixels(targetWidth, unit, dpi));
+                    targetHeight = Math.round(convertToPixels(targetHeight, unit, dpi));
+
+                    let newWidth = targetWidth;
+                    let newHeight = targetHeight;
+                    if (aspectRatio.checked) {
+                        const ratio = img.width / img.height;
+                        if (targetWidth / targetHeight > ratio) {
+                            newWidth = Math.round(targetHeight * ratio);
+                        } else {
+                            newHeight = Math.round(targetWidth / ratio);
+                        }
+                    }
+                    tempCanvas.width = newWidth;
+                    tempCanvas.height = newHeight;
+                    tempCtx.drawImage(canvas, 0, 0, newWidth, newHeight);
+                }
+
+                // Update preview
+                preview.innerHTML = '';
+                const previewImg = document.createElement('img');
+                previewImg.src = tempCanvas.toDataURL();
+                previewImg.alt = 'Live Preview';
+                previewImg.title = 'Live Preview';
+                preview.appendChild(previewImg);
+            };
+            img.src = URL.createObjectURL(file);
+        }
+
+        // Process image
+        async function processImage(file, settings) {
+            const startTime = performance.now();
+            console.log('Processing image:', file.name);
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Apply flip and rotate
+                    let width = img.width;
+                    let height = img.height;
+                    let rotate = settings.rotate * Math.PI / 180;
+                    if (Math.abs(settings.rotate % 180) === 90) {
+                        [width, height] = [height, width];
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.translate(width / 2, height / 2);
+                    ctx.rotate(rotate);
+                    ctx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+                    // Create a temporary canvas for further processing
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = settings.width;
+                    tempCanvas.height = settings.height;
+
+                    // Apply resize or crop
+                    if (settings.mode === 'fit' || settings.mode === 'fill') {
+                        let newWidth = settings.width;
+                        let newHeight = settings.height;
+                        if (settings.mode === 'fit' && settings.aspectRatio) {
+                            const ratio = img.width / img.height;
+                            if (settings.width / settings.height > ratio) {
+                                newWidth = Math.round(settings.height * ratio);
+                            } else {
+                                newHeight = Math.round(settings.width / ratio);
+                            }
+                        }
+                        tempCanvas.width = newWidth;
+                        tempCanvas.height = newHeight;
+                        tempCtx.drawImage(canvas, 0, 0, newWidth, newHeight);
+                    } else if (settings.mode === 'crop') {
+                        let cropX = settings.cropX;
+                        let cropY = settings.cropY;
+                        let cropWidth = settings.width;
+                        let cropHeight = settings.height;
+
+                        tempCanvas.width = cropWidth;
+                        tempCanvas.height = cropHeight;
+                        tempCtx.drawImage(canvas, -cropX, -cropY, img.width, img.height);
+                    }
+
+                    // Handle target size and format
+                    let quality = settings.quality;
+                    let format = settings.format;
+                    // Fallback for HEIC if unsupported
+                    if (format === 'image/heic' && !tempCanvas.toBlob((blob) => {}, 'image/heic', 1)) {
+                        format = 'image/jpeg';
+                    }
+                    const maxAttempts = 10;
+                    let attempts = maxAttempts;
+                    function tryExport(currentQuality) {
+                        tempCanvas.toBlob((blob) => {
+                            if (!blob) {
+                                // Fallback case
+                                tempCanvas.toBlob((fallbackBlob) => {
+                                    const endTime = performance.now();
+                                    resolve({ blob: fallbackBlob, time: endTime - startTime });
+                                }, 'image/jpeg', currentQuality);
+                                return;
+                            }
+                            if (!settings.targetSize || blob.size / 1024 <= settings.targetSize || attempts === 0) {
+                                const endTime = performance.now();
+                                resolve({ blob, time: endTime - startTime });
+                            } else {
+                                attempts--;
+                                tryExport(currentQuality * 0.9);
+                            }
+                        }, format, currentQuality);
+                    }
+                    tryExport(quality);
+                };
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Process images
+        if (processButton) {
+            processButton.addEventListener('click', async () => {
+                errorMessage.classList.add('hidden');
+                if (originalImages.length === 0) {
+                    errorMessage.textContent = 'Please upload at least one image!';
+                    errorMessage.classList.remove('hidden');
+                    return;
+                }
+
+                let pixelWidth, pixelHeight, cropX, cropY;
+                const isCropMode = !cropSettings.classList.contains('hidden');
+                const quality = parseInt(qualityInput.value) / 100;
+                const targetSizeValue = isCropMode ? parseInt(cropTargetSize.value) || null : parseInt(targetSize.value) || null;
+                const format = isCropMode ? (cropExportFormat.value === 'original' ? originalImages[0].type : cropExportFormat.value) : (exportFormat.value === 'original' ? originalImages[0].type : exportFormat.value);
+                const rotate = parseInt(rotateInput.value) || 0;
+
+                processButton.classList.add('loading');
+                processButton.disabled = true;
+
+                if (isCropMode) {
+                    // Use crop box dimensions
+                    const img = new Image();
+                    img.onload = async () => {
+                        pixelWidth = Math.round(cropBox.width * (img.width / cropCanvas.width));
+                        pixelHeight = Math.round(cropBox.height * (img.height / cropCanvas.height));
+                        cropX = cropBox.x * (img.width / cropCanvas.width);
+                        cropY = cropBox.y * (img.height / cropCanvas.height);
+
+                        if (pixelWidth <= 0 || pixelHeight <= 0) {
+                            errorMessage.textContent = 'Invalid crop dimensions!';
+                            errorMessage.classList.remove('hidden');
+                            processButton.classList.remove('loading');
+                            processButton.disabled = false;
+                            return;
+                        }
+
+                        await processImages(pixelWidth, pixelHeight, cropX, cropY, quality, targetSizeValue, format, rotate);
+                        processButton.classList.remove('loading');
+                        processButton.disabled = false;
+                    };
+                    img.src = URL.createObjectURL(originalImages[0]);
+                } else {
+                    // Use resize settings
+                    const width = parseFloat(widthInput.value);
+                    const height = parseFloat(heightInput.value);
+                    const unit = unitSelect.value;
+                    const dpi = parseInt(dpiInput.value) || 72;
+
+                    if (!width || !height || isNaN(width) || isNaN(height)) {
+                        errorMessage.textContent = 'Please enter valid width and height!';
+                        errorMessage.classList.remove('hidden');
+                        processButton.classList.remove('loading');
+                        processButton.disabled = false;
+                        return;
+                    }
+
+                    pixelWidth = Math.round(convertToPixels(width, unit, dpi));
+                    pixelHeight = Math.round(convertToPixels(height, unit, dpi));
+                    cropX = 0;
+                    cropY = 0;
+
+                    await processImages(pixelWidth, pixelHeight, cropX, cropY, quality, targetSizeValue, format, rotate);
+                    processButton.classList.remove('loading');
+                    processButton.disabled = false;
+                }
+            });
+        }
+
+        async function processImages(pixelWidth, pixelHeight, cropX, cropY, quality, targetSizeValue, format, rotate) {
+            resizedImage.innerHTML = '';
+            downloadLinks.innerHTML = '';
+            resizedBlobs = [];
+            let totalOutputSize = 0;
+            processTimes.innerHTML = '';
+
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Processing...';
+
+            const mode = !cropSettings.classList.contains('hidden') ? 'crop' : resizeMode.value;
+
+            for (let i = 0; i < originalImages.length; i++) {
+                const file = originalImages[i];
+                const settings = {
+                    width: pixelWidth,
+                    height: pixelHeight,
+                    cropX,
+                    cropY,
+                    quality,
+                    mode,
+                    aspectRatio: aspectRatio.checked,
+                    cropPosition: cropPosition.value,
+                    rotate,
+                    targetSize: targetSizeValue,
+                    format
+                };
+
+                const result = await processImage(file, settings);
+                const { blob, time } = result;
+                const fileExtension = format === 'image/jpeg' ? 'jpg' :
+                                    format === 'image/png' ? 'png' :
+                                    format === 'image/webp' ? 'webp' :
+                                    format === 'image/tiff' ? 'tiff' :
+                                    format === 'image/bmp' ? 'bmp' :
+                                    format === 'image/avif' ? 'avif' :
+                                    format === 'image/heic' ? 'heic' : 'jpg';
+                resizedBlobs.push({ blob, name: `processed_${file.name.split('.')[0]}.${fileExtension}` });
+
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(blob);
+                img.alt = `Processed ${file.name}`;
+                img.title = `Processed ${file.name}`;
+                resizedImage.appendChild(img);
+
+                totalOutputSize += blob.size;
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `processed_${file.name.split('.')[0]}.${fileExtension}`;
+                link.className = 'bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition mr-2 mb-2 inline-block';
+                link.textContent = `Download ${file.name}`;
+                downloadLinks.appendChild(link);
+
+                const timeDiv = document.createElement('div');
+                timeDiv.textContent = `Processed ${file.name} in ${(time / 1000).toFixed(2)} seconds`;
+                processTimes.appendChild(timeDiv);
+
+                progressBar.style.width = `${((i + 1) / originalImages.length) * 100}%`;
+                progressText.textContent = `Processed ${i + 1} of ${originalImages.length} images`;
+            }
+
+            outputSize.textContent = `Output Size: ${(totalOutputSize / 1024).toFixed(2)} KB`;
+            downloadZip.classList.toggle('hidden', originalImages.length <= 1);
+        }
+
+        // Download all as ZIP
+        if (downloadZip) {
+            downloadZip.addEventListener('click', () => {
+                console.log('Generating ZIP');
+                const zip = new JSZip();
+                resizedBlobs.forEach(({ blob, name }) => {
+                    zip.file(name, blob);
+                });
+
+                zip.generateAsync({ type: 'blob' }).then((content) => {
+                    saveAs(content, 'processed_images.zip');
+                });
+            });
+        }
+    </script>
