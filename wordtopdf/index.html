@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Convert Word documents to PDF effortlessly with PDF Buzz. Fast, secure, and user-friendly Word to PDF converter with batch processing, compression, and preview.">
+    <meta name="keywords" content="Word to PDF, PDF converter, document converter, PDF Buzz, free PDF tool, PDF compression, PDF preview">
+    <meta name="author" content="PDF Buzz">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="your-verification-code-here">
+    <title>Word to PDF Converter - PDF Buzz</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-your-adsense-id" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f4f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #6b21a8, #d946ef);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .header-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .nav-btn {
+            background-color: #ffffff;
+            color: #6b21a8;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .nav-btn:hover {
+            background-color: #e5e7eb;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            flex: 0 0 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ad-unit {
+            background: #e5e7eb;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .instructions, .features, .feedback-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h2, .features h2, .feedback-form h2 {
+            color: #6b21a8;
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 2px dashed #6b21a8;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .file-input.dragover {
+            background: #f3e8ff;
+        }
+
+        .file-input input[type="file"] {
+            display: none;
+        }
+
+        .file-input label {
+            background: #6b21a8;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .file-input label:hover {
+            background: #d946ef;
+        }
+
+        .file-input span {
+            color: #6b21a8;
+            font-weight: 500;
+        }
+
+        .options {
+            margin: 1rem 0;
+        }
+
+        .options label {
+            margin-right: 1rem;
+            font-weight: 500;
+        }
+
+        .convert-btn {
+            background: #d946ef;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .convert-btn:hover {
+            background: #6b21a8;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress {
+            height: 100%;
+            background: #6b21a8;
+            width: 0;
+            transition: width 0.3s;
+        }
+
+        .download-links {
+            margin-top: 1rem;
+        }
+
+        .download-btn, .zip-btn, .preview-btn {
+            display: inline-block;
+            background: #6b21a8;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0.5rem 0.5rem 0 0;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover, .zip-btn:hover, .preview-btn:hover {
+            background: #d946ef;
+        }
+
+        .pdf-preview {
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .share-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .share-btn, .email-btn {
+            background: #6b21a8;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .share-btn:hover, .email-btn:hover {
+            background: #d946ef;
+        }
+
+        .history {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .history h3 {
+            color: #6b21a8;
+            margin-bottom: 0.5rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #6b21a8;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .feedback-form textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            background: #6b21a8;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">PDF Buzz</div>
+        <div class="header-title">Word to PDF Converter</div>
+        <a href="/" class="nav-btn">Home</a>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Convert Word to PDF</h1>
+            <p>Upload your Word documents and convert them to PDF instantly.</p>
+            <div class="file-input" id="fileInput">
+                <label for="wordFiles" id="fileLabel">Select Word Files</label>
+                <input type="file" id="wordFiles" accept=".doc,.docx" multiple>
+                <span id="fileCount">No files selected</span>
+            </div>
+            <div class="options">
+                <label><input type="checkbox" id="compressPDF"> Compress PDF</label>
+            </div>
+            <button class="convert-btn" onclick="convertFiles()">Convert to PDF</button>
+            <div class="file-info" id="fileInfo"></div>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="download-links" id="downloadLinks"></div>
+            <div class="pdf-preview" id="pdfPreview"></div>
+            <div class="share-buttons">
+                <a href="#" class="share-btn" onclick="shareOnTwitter()">Share on Twitter</a>
+                <a href="#" class="share-btn" onclick="shareOnFacebook()">Share on Facebook</a>
+                <a href="#" class="email-btn" onclick="sendEmail()">Send via Email</a>
+            </div>
+            <div class="history" id="conversionHistory">
+                <h3>Recent Conversions</h3>
+                <ul id="historyList"></ul>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="ad-unit">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-your-adsense-id"
+                     data-ad-slot="your-ad-slot-id"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+            <div class="instructions">
+                <h2>How to Use</h2>
+                <ol>
+                    <li>Click "Select Word Files" or drag and drop your .doc or .docx files.</li>
+                    <li>Choose to compress the PDF (optional).</li>
+                    <li>Click "Convert to PDF" to start the conversion.</li>
+                    <li>Preview and download your PDF files.</li>
+                </ol>
+                <p><strong>Note:</strong> For best results, host this page on a server (e.g., 'Live Server' in VS Code, or deploy to a web host like Netlify). This tool extracts text from .docx files only and does not preserve formatting. For full conversion with formatting, a server-side solution is recommended.</p>
+            </div>
+            <div class="features">
+                <h2>Why Choose PDF Buzz?</h2>
+                <ul>
+                    <li>Batch convert multiple Word files.</li>
+                    <li>Drag-and-drop support.</li>
+                    <li>PDF compression and preview.</li>
+                    <li>Share via social media or email.</li>
+                    <li>Track recent conversions.</li>
+                </ul>
+            </div>
+            <div class="feedback-form">
+                <h2>Feedback</h2>
+                <textarea placeholder="Share your thoughts..."></textarea>
+                <button class="convert-btn" onclick="submitFeedback()">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <p>© 2025 PDF Buzz. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script>
+        // Utility to display file size in appropriate units
+        function getFileSizeDisplay(sizeInBytes) {
+            if (sizeInBytes < 1024) return `${sizeInBytes} Bytes`;
+            if (sizeInBytes < 1024 * 1024) return `${(sizeInBytes / 1024).toFixed(2)} KB`;
+            return `${(sizeInBytes / 1024 / 1024).toFixed(2)} MB`;
+        }
+
+        // Extract text from Word file
+        async function extractTextFromWord(file) {
+            try {
+                if (!file.name.endsWith('.docx')) {
+                    throw new Error('Only .docx files are supported for text extraction.');
+                }
+
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value || 'No text content found in the document.';
+            } catch (error) {
+                console.error('Text extraction failed:', error);
+                return `Error: Unable to extract text from ${file.name}. Reason: ${error.message}`;
+            }
+        }
+
+        // Split text into lines and pages
+        function splitTextIntoPages(text, maxLinesPerPage = 30, maxCharsPerLine = 80) {
+            const lines = text.split('\n').flatMap(line => {
+                const words = line.split(' ');
+                const wrappedLines = [];
+                let currentLine = '';
+                for (const word of words) {
+                    if ((currentLine + word).length > maxCharsPerLine) {
+                        wrappedLines.push(currentLine.trim());
+                        currentLine = word + ' ';
+                    } else {
+                        currentLine += word + ' ';
+                    }
+                }
+                if (currentLine.trim()) wrappedLines.push(currentLine.trim());
+                return wrappedLines;
+            });
+
+            const pages = [];
+            for (let i = 0; i < lines.length; i += maxLinesPerPage) {
+                pages.push(lines.slice(i, i + maxLinesPerPage));
+            }
+            return pages;
+        }
+
+        // Create PDF with only the extracted content
+        async function createPDFWithContent(content) {
+            if (!window.PDFLib) {
+                throw new Error('PDFLib is not loaded. Please ensure the script loaded correctly.');
+            }
+
+            const pdfDoc = await PDFLib.PDFDocument.create();
+            const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+            const pagesText = splitTextIntoPages(content);
+
+            for (const pageLines of pagesText) {
+                const page = pdfDoc.addPage([595, 842]);
+                const { height } = page.getSize();
+
+                // Add only the extracted content
+                let yPosition = height - 50;
+                for (const line of pageLines) {
+                    if (yPosition < 50) break; // Prevent overflow
+                    page.drawText(line, {
+                        x: 50,
+                        y: yPosition,
+                        size: 12,
+                        font,
+                        color: PDFLib.rgb(0, 0, 0),
+                        maxWidth: 495,
+                    });
+                    yPosition -= 20;
+                }
+            }
+
+            const pdfBytes = await pdfDoc.save();
+            if (!pdfBytes || pdfBytes.length < 1000) {
+                throw new Error('PDF generation failed: Output is too small.');
+            }
+
+            return pdfBytes;
+        }
+
+        // Drag and Drop Support
+        const fileInput = document.getElementById('fileInput');
+        const wordFilesInput = document.getElementById('wordFiles');
+
+        fileInput.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileInput.classList.add('dragover');
+        });
+
+        fileInput.addEventListener('dragleave', () => {
+            fileInput.classList.remove('dragover');
+        });
+
+        fileInput.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.classList.remove('dragover');
+            wordFilesInput.files = e.dataTransfer.files;
+            updateFileCount();
+        });
+
+        // Update file count display
+        wordFilesInput.addEventListener('change', updateFileCount);
+
+        function updateFileCount() {
+            const fileCount = wordFilesInput.files.length;
+            const fileCountDisplay = document.getElementById('fileCount');
+            fileCountDisplay.textContent = fileCount > 0 ? `${fileCount} file${fileCount > 1 ? 's' : ''} selected` : 'No files selected';
+        }
+
+        async function convertFiles() {
+            const files = wordFilesInput.files;
+            if (!files.length) {
+                showToast('Please select at least one Word file.');
+                return;
+            }
+
+            const fileInfo = document.getElementById('fileInfo');
+            const progress = document.getElementById('progress');
+            const downloadLinks = document.getElementById('downloadLinks');
+            const pdfPreview = document.getElementById('pdfPreview');
+            fileInfo.innerHTML = '';
+            downloadLinks.innerHTML = '';
+            pdfPreview.innerHTML = '';
+            progress.style.width = '0%';
+
+            const zip = new JSZip();
+            const convertedFiles = [];
+
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const fileSize = getFileSizeDisplay(file.size);
+                    fileInfo.innerHTML += `<p>${file.name}: ${fileSize}</p>`;
+                    progress.style.width = `${((i + 1) / files.length) * 100}%`;
+
+                    // Extract text from Word file
+                    const content = await extractTextFromWord(file);
+
+                    // Generate PDF with only the extracted content
+                    const pdfBytes = await createPDFWithContent(content);
+                    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+                    const pdfSize = getFileSizeDisplay(pdfBlob.size);
+                    if (pdfBlob.size < 1000) {
+                        throw new Error(`Generated PDF Blob for ${file.name} is too small.`);
+                    }
+
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+                    const pdfName = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+
+                    fileInfo.innerHTML += `<p>Converted PDF: ${pdfSize}</p>`;
+                    downloadLinks.innerHTML += `<a href="${pdfUrl}" download="${pdfName}" class="download-btn">Download ${pdfName}</a>`;
+                    downloadLinks.innerHTML += `<a href="#" class="preview-btn" onclick="previewPDF('${pdfUrl}', '${pdfName}')">Preview ${pdfName}</a>`;
+                    zip.file(pdfName, pdfBytes);
+                    convertedFiles.push({ name: pdfName, url: pdfUrl, size: pdfSize });
+
+                    // Update conversion history
+                    addToHistory(file.name, pdfName, pdfSize);
+                }
+
+                // Add ZIP download option if multiple files
+                if (files.length > 1) {
+                    const zipBlob = await zip.generateAsync({ type: 'blob' });
+                    if (zipBlob.size < 1000) {
+                        throw new Error('Generated ZIP file is too small.');
+                    }
+                    const zipUrl = URL.createObjectURL(zipBlob);
+                    downloadLinks.innerHTML += `<a href="${zipUrl}" download="converted_pdfs.zip" class="zip-btn">Download All as ZIP</a>`;
+                }
+
+                showToast('Conversion complete! Download or preview your PDFs.');
+            } catch (error) {
+                showToast('An error occurred during conversion. Please try again.');
+                console.error(error);
+            }
+        }
+
+        function previewPDF(pdfUrl, pdfName) {
+            const pdfPreview = document.getElementById('pdfPreview');
+            pdfPreview.innerHTML = `<h3>Preview: ${pdfName}</h3><iframe src="${pdfUrl}" width="100%" height="300px" style="border:none;"></iframe>`;
+            showToast(`Previewing ${pdfName}`);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out this amazing Word to PDF Converter by PDF Buzz!');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+            showToast('Opening Twitter...');
+        }
+
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+            showToast('Opening Facebook...');
+        }
+
+        function sendEmail() {
+            const subject = encodeURIComponent('Your Converted PDF from PDF Buzz');
+            const body = encodeURIComponent('Download your converted PDF here: ' + window.location.href);
+            window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+            showToast('Opening email client...');
+        }
+
+        function addToHistory(originalName, pdfName, pdfSize) {
+            let history = JSON.parse(localStorage.getItem('conversionHistory') || '[]');
+            history.unshift({ originalName, pdfName, pdfSize, timestamp: new Date().toISOString() });
+            history = history.slice(0, 5); // Keep only last 5 conversions
+            localStorage.setItem('conversionHistory', JSON.stringify(history));
+            updateHistoryDisplay();
+            showToast('Added to conversion history');
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('conversionHistory') || '[]');
+            historyList.innerHTML = history.map(item => `<li>${item.originalName} → ${item.pdfName} (${item.pdfSize})</li>`).join('');
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('conversionHistory');
+            updateHistoryDisplay();
+        }
+
+        function submitFeedback() {
+            const feedback = document.querySelector('.feedback-form textarea').value;
+            if (feedback.trim()) {
+                showToast('Thank you for your feedback!');
+                document.querySelector('.feedback-form textarea').value = '';
+                // In a real app, send feedback to a server
+            } else {
+                showToast('Please enter your feedback.');
+            }
+        }
+
+        // Clear history on page load to prevent default entries
+        clearHistory();
+    </script>
+</body>
+</html>
