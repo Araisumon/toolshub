@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QX6N41VY5J');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Free online tool to convert Excel files to PDF. Convert XLS, XLSX to PDF with high quality. Batch conversion supported.">
@@ -315,15 +306,54 @@
             animation: fadeIn 0.5s ease;
         }
         
+        .recent-conversions-section {
+            display: none;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .results-title {
+        .results-title, .recent-conversions-title {
             font-size: 1.3rem;
             margin-bottom: 1rem;
             color: var(--success-color);
+        }
+        
+        .conversion-batch {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .batch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .batch-timestamp {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .batch-download-all {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .batch-download-all:hover {
+            background-color: var(--secondary-color);
         }
         
         .download-btn {
@@ -771,13 +801,6 @@
                         </select>
                     </div>
                     
-                    <div class="form-group">
-                        <label class="form-label">
-                            <input type="checkbox" id="includeGridlines" checked>
-                            Include Gridlines
-                        </label>
-                    </div>
-                    
                     <button class="convert-btn" id="convertBtn" disabled>
                         <i class="fas fa-file-pdf"></i> Convert to PDF
                     </button>
@@ -790,7 +813,7 @@
                 
                 <div class="results-section" id="resultsSection">
                     <h3 class="results-title">
-                        <i class="fas fa-check-circle"></i> Conversion Complete!
+                        <i class="fas fa-check-circle"></i> Latest Conversion
                     </h3>
                     
                     <div class="preview-section">
@@ -818,6 +841,15 @@
                     <button class="download-btn" id="downloadBtn">
                         <i class="fas fa-download"></i> Download All PDFs
                     </button>
+                </div>
+                
+                <div class="recent-conversions-section" id="recentConversionsSection">
+                    <h3 class="recent-conversions-title">
+                        <i class="fas fa-history"></i> Recent Conversions
+                    </h3>
+                    <div class="recent-conversions-list" id="recentConversionsList">
+                        <!-- Conversion history will be rendered here -->
+                    </div>
                 </div>
             </div>
             
@@ -872,13 +904,13 @@
                     <li class="step-item">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <strong>Click "Convert to PDF"</strong> and wait for the conversion to complete (usually just a few seconds).
+                            <strong>Click "Convert to PDF"</strong> and wait for the conversion to complete (usually just a few seconds). Convert again with different settings if needed.
                         </div>
                     </li>
                     <li class="step-item">
                         <div class="step-number">4</div>
                         <div class="step-content">
-                            <strong>Preview and download</strong> your PDFs individually or all at once with the "Download All" button.
+                            <strong>Preview and download</strong> your PDFs from the Latest Conversion or Recent Conversions sections.
                         </div>
                     </li>
                 </ul>
@@ -892,7 +924,7 @@
                 <a href="/privacy" class="footer-link">Privacy Policy</a>
                 <a href="/terms" class="footer-link">Terms of Service</a>
                 <a href="/contact" class="footer-link">Contact Us</a>
-                <a href="https://toolshub.cam/" class="footer-link">More Tools</a>
+                <a href="/tools" class="footer-link">More Tools</a>
             </div>
             <p class="copyright">© 2023 Buzz. All rights reserved.</p>
         </div>
@@ -911,11 +943,13 @@
             // DOM Elements
             const dropArea = document.getElementById('dropArea');
             const browseBtn = document.getElementById('browseBtn');
-            const fileInput = document.getElementById('fileInput'); // Fixed typo
+            const fileInput = document.getElementById('fileInput');
             const fileList = document.getElementById('fileList');
             const convertBtn = document.getElementById('convertBtn');
             const loader = document.getElementById('loader');
             const resultsSection = document.getElementById('resultsSection');
+            const recentConversionsSection = document.getElementById('recentConversionsSection');
+            const recentConversionsList = document.getElementById('recentConversionsList');
             const downloadBtn = document.getElementById('downloadBtn');
             const previewList = document.getElementById('previewList');
             const toast = document.getElementById('toast');
@@ -925,9 +959,11 @@
             const outputSizeStat = document.getElementById('outputSizeStat');
             const savedStat = document.getElementById('savedStat');
             
-            // Store files
+            // Store files and conversion history
             let files = [];
             let convertedFiles = [];
+            let convertedFilesHistory = [];
+            const MAX_HISTORY = 10; // Limit history to 10 batches
             
             // Event Listeners
             browseBtn.addEventListener('click', () => {
@@ -1045,6 +1081,18 @@
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
             
+            function formatTimestamp(date) {
+                return date.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+            }
+            
             function showToast(message, type = 'success', duration = 3000) {
                 toast.textContent = message;
                 toast.className = `toast ${type}`;
@@ -1064,7 +1112,7 @@
                     const arrayBuffer = await blob.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                     const page = await pdf.getPage(1);
-                    const viewport = page.getViewport({ scale: 0.3 }); // Scale for thumbnail size
+                    const viewport = page.getViewport({ scale: 0.3 });
                     
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
@@ -1116,8 +1164,82 @@
                     
                     previewList.appendChild(previewItem);
                     
-                    // Render PDF preview
                     renderPDFPreview(file.blob, canvas);
+                });
+            }
+            
+            function updateRecentConversions() {
+                if (convertedFilesHistory.length === 0) {
+                    recentConversionsSection.style.display = 'none';
+                    recentConversionsList.innerHTML = '<p>No recent conversions</p>';
+                    return;
+                }
+                
+                recentConversionsSection.style.display = 'block';
+                recentConversionsList.innerHTML = '';
+                
+                convertedFilesHistory.forEach((batch, batchIndex) => {
+                    const batchDiv = document.createElement('div');
+                    batchDiv.className = 'conversion-batch';
+                    
+                    const batchHeader = document.createElement('div');
+                    batchHeader.className = 'batch-header';
+                    
+                    const batchTimestamp = document.createElement('div');
+                    batchTimestamp.className = 'batch-timestamp';
+                    batchTimestamp.textContent = `Converted on ${batch.timestamp}`;
+                    
+                    const batchDownloadAll = document.createElement('button');
+                    batchDownloadAll.className = 'batch-download-all';
+                    batchDownloadAll.innerHTML = '<i class="fas fa-download"></i> Download All';
+                    batchDownloadAll.addEventListener('click', () => downloadBatch(batchIndex));
+                    
+                    batchHeader.appendChild(batchTimestamp);
+                    batchHeader.appendChild(batchDownloadAll);
+                    
+                    const batchPreviewList = document.createElement('div');
+                    batchPreviewList.className = 'preview-list';
+                    
+                    batch.files.forEach((file, fileIndex) => {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'preview-item';
+                        
+                        const canvas = document.createElement('canvas');
+                        canvas.className = 'preview-canvas';
+                        
+                        const previewInfo = document.createElement('div');
+                        previewInfo.className = 'preview-info';
+                        
+                        const previewName = document.createElement('div');
+                        previewName.className = 'preview-name';
+                        previewName.textContent = file.name;
+                        
+                        const previewSize = document.createElement('div');
+                        previewSize.className = 'preview-size';
+                        previewSize.textContent = formatFileSize(file.size);
+                        
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.className = 'preview-download';
+                        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+                        downloadBtn.addEventListener('click', () => {
+                            saveAs(file.blob, file.name);
+                        });
+                        
+                        previewInfo.appendChild(previewName);
+                        previewInfo.appendChild(previewSize);
+                        
+                        previewItem.appendChild(canvas);
+                        previewItem.appendChild(previewInfo);
+                        previewItem.appendChild(downloadBtn);
+                        
+                        batchPreviewList.appendChild(previewItem);
+                        
+                        renderPDFPreview(file.blob, canvas);
+                    });
+                    
+                    batchDiv.appendChild(batchHeader);
+                    batchDiv.appendChild(batchPreviewList);
+                    recentConversionsList.appendChild(batchDiv);
                 });
             }
             
@@ -1136,63 +1258,79 @@
                     let totalOutputSize = 0;
                     convertedFiles = [];
                     
-                    // Process each file
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
                         const arrayBuffer = await file.arrayBuffer();
                         const data = new Uint8Array(arrayBuffer);
-                        const workbook = XLSX.read(data, { type: 'array' });
+                        const workbook = XLSX.read(data, { type: 'array', cellText: true, cellDates: true });
                         
-                        // Get first worksheet
                         const worksheetName = workbook.SheetNames[0];
                         const worksheet = workbook.Sheets[worksheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
                         
-                        // Filter out completely empty rows
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                            header: 1, 
+                            defval: '', 
+                            raw: false,
+                            dateNF: 'yyyy-mm-dd'
+                        });
+                        
+                        console.log(`Parsed data for ${file.name}:`, jsonData);
+                        
                         const filteredData = jsonData.filter(row => {
-                            return row.some(cell => cell !== '');
+                            return Array.isArray(row) && row.some(cell => cell !== '' && cell != null);
                         });
                         
                         if (filteredData.length === 0) {
-                            throw new Error(`Worksheet "${worksheetName}" is empty`);
+                            throw new Error(`Worksheet "${worksheetName}" in ${file.name} is empty`);
                         }
                         
-                        // Create PDF
+                        const maxColumns = Math.max(...filteredData.map(row => row.length));
+                        const headers = filteredData[0].length > 0 ? filteredData[0] : Array(maxColumns).fill('Column');
+                        
+                        const bodyData = filteredData.slice(1).map(row => {
+                            return row.map(cell => {
+                                if (typeof cell === 'number' && Math.abs(cell) > 1e15) {
+                                    return cell.toLocaleString('fullwide', { useGrouping: false });
+                                }
+                                return cell == null ? '' : String(cell);
+                            });
+                        });
+                        
                         const pdf = new jsPDF({
                             orientation: document.getElementById('pageOrientation').value,
                             unit: 'mm',
                             format: document.getElementById('pageSize').value
                         });
                         
-                        // Add title
-                        pdf.setFontSize(16);
-                        pdf.text(file.name.replace(/\.[^/.]+$/, ""), 14, 10);
-                        pdf.setFontSize(10);
-                        
-                        // Convert to PDF using autoTable
                         pdf.autoTable({
-                            head: [filteredData[0]],
-                            body: filteredData.slice(1),
-                            startY: 20,
+                            head: [headers],
+                            body: bodyData,
+                            startY: 10,
                             styles: {
                                 cellPadding: 2,
                                 fontSize: 8,
                                 valign: 'middle',
                                 halign: 'left',
-                                cellWidth: 'wrap'
+                                cellWidth: 'wrap',
+                                fillColor: false,
+                                lineWidth: 0
                             },
                             headStyles: {
-                                fillColor: [67, 97, 238],
-                                textColor: 255,
+                                fillColor: false,
+                                textColor: [0, 0, 0],
                                 fontStyle: 'bold'
                             },
-                            alternateRowStyles: {
-                                fillColor: [240, 240, 240]
+                            bodyStyles: {
+                                fillColor: false
                             },
-                            showGridLines: document.getElementById('includeGridlines').checked
+                            columnStyles: {
+                                0: { cellWidth: 'auto' }
+                            },
+                            margin: { top: 10, left: 10, right: 10 },
+                            theme: 'plain',
+                            showGridLines: false
                         });
                         
-                        // Generate PDF blob
                         const pdfBlob = pdf.output('blob');
                         const pdfUrl = URL.createObjectURL(pdfBlob);
                         
@@ -1206,18 +1344,33 @@
                         totalOutputSize += pdfBlob.size;
                     }
                     
-                    // Update stats
+                    // Store in history
+                    convertedFilesHistory.unshift({
+                        id: Date.now(),
+                        timestamp: formatTimestamp(new Date()),
+                        files: convertedFiles
+                    });
+                    
+                    // Limit history
+                    if (convertedFilesHistory.length > MAX_HISTORY) {
+                        const oldBatch = convertedFilesHistory.pop();
+                        oldBatch.files.forEach(file => URL.revokeObjectURL(file.url));
+                    }
+                    
                     inputSizeStat.textContent = formatFileSize(totalInputSize);
                     outputSizeStat.textContent = formatFileSize(totalOutputSize);
-                    savedStat.textContent = Math.round((1 - (totalOutputSize / totalInputSize)) * 100) + '%';
+                    savedStat.textContent = totalInputSize > 0 ? Math.round((1 - (totalOutputSize / totalInputSize)) * 100) + '%' : '0%';
                     
                     loader.style.display = 'none';
                     resultsSection.style.display = 'block';
                     
-                    // Update preview list
                     updatePreviewList();
+                    updateRecentConversions();
                     
                     showToast(`Successfully converted ${files.length} file(s)`, 'success');
+                    
+                    // Re-enable the convert button after successful conversion
+                    convertBtn.disabled = files.length === 0;
                 } catch (error) {
                     console.error('Conversion error:', error);
                     loader.style.display = 'none';
@@ -1234,22 +1387,18 @@
                 
                 try {
                     if (convertedFiles.length === 1) {
-                        // Single file - download directly
                         const file = convertedFiles[0];
                         saveAs(file.blob, file.name);
                     } else {
-                        // Multiple files - create zip
                         showToast('Preparing ZIP file...', 'success');
                         
                         const zip = new JSZip();
                         const folder = zip.folder("converted_pdfs");
                         
-                        // Add each PDF to the zip
                         for (const file of convertedFiles) {
                             folder.file(file.name, file.blob);
                         }
                         
-                        // Generate the zip file
                         const content = await zip.generateAsync({ type: 'blob' });
                         saveAs(content, 'excel_to_pdf_conversions.zip');
                     }
@@ -1261,8 +1410,41 @@
                 }
             }
             
+            async function downloadBatch(batchIndex) {
+                const batch = convertedFilesHistory[batchIndex];
+                if (!batch || batch.files.length === 0) {
+                    showToast('No files to download', 'error');
+                    return;
+                }
+                
+                try {
+                    if (batch.files.length === 1) {
+                        const file = batch.files[0];
+                        saveAs(file.blob, file.name);
+                    } else {
+                        showToast('Preparing ZIP file...', 'success');
+                        
+                        const zip = new JSZip();
+                        const folder = zip.folder(`converted_pdfs_${batch.id}`);
+                        
+                        for (const file of batch.files) {
+                            folder.file(file.name, file.blob);
+                        }
+                        
+                        const content = await zip.generateAsync({ type: 'blob' });
+                        saveAs(content, `excel_to_pdf_conversions_${batch.id}.zip`);
+                    }
+                    
+                    showToast(`Download started`, 'success');
+                } catch (error) {
+                    console.error('Download error:', error);
+                    showToast('Error downloading files: ' + error.message, 'error');
+                }
+            }
+            
             // Initialize
             updateFileList();
+            updateRecentConversions();
         });
     </script>
 </body>
