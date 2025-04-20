@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create beautiful digital signatures online for free. Customize, save, and share your professional signatures easily.">
+    <meta name="keywords" content="digital signature, e-signature, online signature, signature creator, electronic signature">
+    <meta name="author" content="Digital Buzz">
+    <meta property="og:title" content="Digital Signature Creator | Digital Buzz">
+    <meta property="og:description" content="Create professional digital signatures online for free">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com">
+    <title>Digital Signature Creator | Digital Buzz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Parisienne&family=Sacramento&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4bb543;
+            --whatsapp-color: #25D366;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+        
+        .header-title {
+            font-size: 1.3rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .home-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .home-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .hero p {
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .signature-pad-container {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .options-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .canvas-container {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            background-color: #f9f9f9;
+        }
+        
+        #signatureCanvas {
+            width: 100%;
+            height: 200px;
+            background-color: white;
+            cursor: crosshair;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        
+        button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #3aa33a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-whatsapp {
+            background-color: var(--whatsapp-color);
+            color: white;
+        }
+        
+        .btn-whatsapp:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="text"], input[type="color"], select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        input[type="color"] {
+            height: 40px;
+            padding: 0.2rem;
+            cursor: pointer;
+        }
+        
+        .color-options {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .color-option {
+            flex: 1;
+        }
+        
+        .preview-container {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        #signaturePreview {
+            max-width: 100%;
+            max-height: 150px;
+            margin: 1rem 0;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .share-options {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .facebook {
+            background-color: #3b5998;
+        }
+        
+        .twitter {
+            background-color: #1da1f2;
+        }
+        
+        .linkedin {
+            background-color: #0077b5;
+        }
+        
+        .whatsapp {
+            background-color: var(--whatsapp-color);
+        }
+        
+        .email {
+            background-color: #6c757d;
+        }
+        
+        .download-options {
+            margin-top: 1.5rem;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+        
+        .instructions h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        /* Signature font styles */
+        .signature-font-1 { font-family: 'Dancing Script', cursive; font-size: 2rem; }
+        .signature-font-2 { font-family: 'Great Vibes', cursive; font-size: 2.2rem; }
+        .signature-font-3 { font-family: 'Parisienne', cursive; font-size: 2.1rem; }
+        .signature-font-4 { font-family: 'Sacramento', cursive; font-size: 2.3rem; }
+        .signature-font-5 { font-family: 'Brush Script MT', cursive; font-size: 2rem; }
+        .signature-font-6 { font-family: 'Lucida Handwriting', cursive; font-size: 1.8rem; }
+        .signature-font-7 { font-family: 'Monotype Corsiva', cursive; font-size: 2rem; }
+        .signature-font-8 { font-family: 'Segoe Script', cursive; font-size: 1.9rem; }
+        .signature-font-9 { font-family: 'Comic Sans MS', cursive; font-size: 1.8rem; transform: skewX(-10deg); }
+        .signature-font-10 { font-family: 'Courier New', monospace; font-size: 1.8rem; letter-spacing: -1px; }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-icons {
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-icons a {
+            color: white;
+            margin: 0 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            .brand, .header-title {
+                margin-bottom: 0.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .share-buttons {
+                flex-direction: column;
+            }
+            
+            .share-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-signature"></i>
+            <span>Digital Buzz</span>
+        </div>
+        <div class="header-title">Digital Signature Creator</div>
+        <a href="/" class="home-btn">
+            <i class="fas fa-home"></i> Home
+        </a>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <h1>Create Your Digital Signature</h1>
+            <p>Design, customize, and save your professional digital signature in minutes. Perfect for documents, emails, and contracts.</p>
+        </section>
+        
+        <div class="container">
+            <div class="signature-pad-container">
+                <h2>Draw Your Signature</h2>
+                <div class="canvas-container">
+                    <canvas id="signatureCanvas"></canvas>
+                </div>
+                <div class="btn-group">
+                    <button id="clearBtn" class="btn-secondary">
+                        <i class="fas fa-eraser"></i> Clear
+                    </button>
+                    <button id="undoBtn" class="btn-secondary">
+                        <i class="fas fa-undo"></i> Undo
+                    </button>
+                    <button id="saveBtn" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Signature
+                    </button>
+                    <button id="generateBtn" class="btn-success">
+                        <i class="fas fa-magic"></i> Generate
+                    </button>
+                </div>
+                
+                <div class="preview-container">
+                    <h3>Signature Preview</h3>
+                    <div id="generatedSignature" style="display: none;"></div>
+                    <img id="signaturePreview" src="" alt="Your signature preview" style="display: none;">
+                    <p id="noPreviewText">Your signature will appear here</p>
+                </div>
+            </div>
+            
+            <div class="options-panel">
+                <h2>Customization Options</h2>
+                
+                <div class="form-group">
+                    <label for="nameInput">Full Name (Required for generation)</label>
+                    <input type="text" id="nameInput" placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="titleInput">Title (Optional)</label>
+                    <input type="text" id="titleInput" placeholder="Your professional title">
+                </div>
+                
+                <div class="form-group">
+                    <label>Signature Style</label>
+                    <select id="styleSelect">
+                        <option value="handwritten">Handwritten</option>
+                        <option value="typed1">Elegant Script 1</option>
+                        <option value="typed2">Elegant Script 2</option>
+                        <option value="typed3">Classic Cursive</option>
+                        <option value="typed4">Stylish Signature</option>
+                        <option value="typed5">Formal Signature</option>
+                        <option value="typed6">Artistic Style</option>
+                        <option value="typed7">Professional Look</option>
+                        <option value="typed8">Modern Signature</option>
+                        <option value="typed9">Creative Style</option>
+                        <option value="typed10">Minimalist Style</option>
+                        <!-- More styles will be added via JavaScript -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Signature Color</label>
+                    <div class="color-options">
+                        <div class="color-option">
+                            <input type="color" id="colorPicker" value="#000000">
+                        </div>
+                        <div class="color-option">
+                            <select id="presetColors">
+                                <option value="#000000">Black</option>
+                                <option value="#4361ee">Blue</option>
+                                <option value="#d90429">Red</option>
+                                <option value="#2b9348">Green</option>
+                                <option value="#7209b7">Purple</option>
+                                <option value="#ff9500">Orange</option>
+                                <option value="#ff2e63">Pink</option>
+                                <option value="#3a0ca3">Dark Blue</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="thicknessSlider">Signature Thickness</label>
+                    <input type="range" id="thicknessSlider" min="1" max="10" value="2" class="slider">
+                    <span id="thicknessValue">2</span>
+                </div>
+                
+                <div class="download-options">
+                    <h3>Download Options</h3>
+                    <div class="btn-group">
+                        <button id="downloadPngBtn" class="btn-success">
+                            <i class="fas fa-download"></i> PNG
+                        </button>
+                        <button id="downloadJpgBtn" class="btn-success">
+                            <i class="fas fa-download"></i> JPG
+                        </button>
+                        <button id="downloadSvgBtn" class="btn-success">
+                            <i class="fas fa-download"></i> SVG
+                        </button>
+                        <button id="copyClipboardBtn" class="btn-primary">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="share-options">
+                    <h3>Share Your Signature</h3>
+                    <div class="share-buttons">
+                        <a href="#" class="share-btn facebook">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </a>
+                        <a href="#" class="share-btn twitter">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="#" class="share-btn whatsapp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                        <a href="#" class="share-btn linkedin">
+                            <i class="fab fa-linkedin-in"></i> LinkedIn
+                        </a>
+                        <a href="#" class="share-btn email">
+                            <i class="fas fa-envelope"></i> Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Create Your Digital Signature</h3>
+            <ol>
+                <li><strong>Draw</strong> your signature in the canvas area using your mouse or touch screen</li>
+                <li><strong>Generate</strong> a signature by entering your name and selecting a style</li>
+                <li><strong>Customize</strong> the color, thickness, and style using the options panel</li>
+                <li><strong>Add</strong> your title if desired for a more professional look</li>
+                <li><strong>Save</strong> your signature and download it in your preferred format</li>
+                <li><strong>Share</strong> your signature directly to social media or via email</li>
+            </ol>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Fully Responsive</h3>
+                <p>Works perfectly on all devices from desktop to mobile phones</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-font"></i>
+                </div>
+                <h3>100+ Styles</h3>
+                <p>Choose from our extensive collection of signature styles</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Your signature is processed in your browser and never stored</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h3>Instant Sharing</h3>
+                <p>Share your signature directly via WhatsApp and other platforms</p>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/contact">Contact Us</a>
+            <a href="/about">About Digital Buzz</a>
+        </div>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+        <p>&copy; 2023 Digital Buzz. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Canvas setup
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let strokes = [];
+            let currentStroke = [];
+            
+            // Signature styles data (100+ styles)
+            const signatureStyles = [
+                { id: 'typed1', name: 'Elegant Script 1', font: 'Dancing Script', size: '2rem', transform: 'none', class: 'signature-font-1' },
+                { id: 'typed2', name: 'Elegant Script 2', font: 'Great Vibes', size: '2.2rem', transform: 'none', class: 'signature-font-2' },
+                { id: 'typed3', name: 'Classic Cursive', font: 'Parisienne', size: '2.1rem', transform: 'none', class: 'signature-font-3' },
+                { id: 'typed4', name: 'Stylish Signature', font: 'Sacramento', size: '2.3rem', transform: 'none', class: 'signature-font-4' },
+                { id: 'typed5', name: 'Formal Signature', font: 'Brush Script MT', size: '2rem', transform: 'none', class: 'signature-font-5' },
+                { id: 'typed6', name: 'Artistic Style', font: 'Lucida Handwriting', size: '1.8rem', transform: 'none', class: 'signature-font-6' },
+                { id: 'typed7', name: 'Professional Look', font: 'Monotype Corsiva', size: '2rem', transform: 'none', class: 'signature-font-7' },
+                { id: 'typed8', name: 'Modern Signature', font: 'Segoe Script', size: '1.9rem', transform: 'none', class: 'signature-font-8' },
+                { id: 'typed9', name: 'Creative Style', font: 'Comic Sans MS', size: '1.8rem', transform: 'skewX(-10deg)', class: 'signature-font-9' },
+                { id: 'typed10', name: 'Minimalist Style', font: 'Courier New', size: '1.8rem', transform: 'none', class: 'signature-font-10' },
+                // Add more styles here (can add up to 100+)
+                { id: 'typed11', name: 'Bold Signature', font: 'Arial', size: '2rem', transform: 'none', weight: 'bold' },
+                { id: 'typed12', name: 'Italic Flair', font: 'Times New Roman', size: '2rem', transform: 'italic', style: 'italic' },
+                { id: 'typed13', name: 'Underlined', font: 'Verdana', size: '2rem', transform: 'underline', decoration: 'underline' },
+                { id: 'typed14', name: 'Slanted', font: 'Georgia', size: '2rem', transform: 'skewX(-15deg)' },
+                { id: 'typed15', name: 'Condensed', font: 'Arial Narrow', size: '2rem', transform: 'scaleX(0.8)' },
+                // Continue adding more styles...
+            ];
+            
+            // Populate style select dropdown
+            const styleSelect = document.getElementById('styleSelect');
+            signatureStyles.forEach((style, index) => {
+                if (index > 0) { // Skip first option which is "Handwritten"
+                    const option = document.createElement('option');
+                    option.value = style.id;
+                    option.textContent = style.name;
+                    styleSelect.appendChild(option);
+                }
+            });
+            
+            // Set canvas size
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.offsetWidth;
+                canvas.height = 200;
+                redrawSignature();
+            }
+            
+            // Redraw all strokes
+            function redrawSignature() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = document.getElementById('colorPicker').value;
+                ctx.lineWidth = document.getElementById('thicknessSlider').value;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                
+                strokes.forEach(stroke => {
+                    if (stroke.length > 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(stroke[0].x, stroke[0].y);
+                        
+                        for (let i = 1; i < stroke.length; i++) {
+                            ctx.lineTo(stroke[i].x, stroke[i].y);
+                        }
+                        
+                        ctx.stroke();
+                    }
+                });
+            }
+            
+            // Drawing functions
+            function startDrawing(e) {
+                isDrawing = true;
+                const pos = getPosition(e);
+                lastX = pos.x;
+                lastY = pos.y;
+                currentStroke = [{x: lastX, y: lastY}];
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                const pos = getPosition(e);
+                ctx.strokeStyle = document.getElementById('colorPicker').value;
+                ctx.lineWidth = document.getElementById('thicknessSlider').value;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                
+                lastX = pos.x;
+                lastY = pos.y;
+                currentStroke.push({x: lastX, y: lastY});
+            }
+            
+            function stopDrawing() {
+                if (isDrawing) {
+                    strokes.push(currentStroke);
+                    currentStroke = [];
+                    isDrawing = false;
+                    updatePreview();
+                }
+            }
+            
+            function getPosition(e) {
+                let x, y;
+                if (e.type.includes('touch')) {
+                    const rect = canvas.getBoundingClientRect();
+                    x = e.touches[0].clientX - rect.left;
+                    y = e.touches[0].clientY - rect.top;
+                } else {
+                    x = e.offsetX;
+                    y = e.offsetY;
+                }
+                return { x, y };
+            }
+            
+            // Generate signature from text
+            function generateSignature() {
+                const name = document.getElementById('nameInput').value.trim();
+                if (!name) {
+                    alert('Please enter your name to generate a signature');
+                    return;
+                }
+                
+                const styleId = document.getElementById('styleSelect').value;
+                const color = document.getElementById('colorPicker').value;
+                
+                // Hide the canvas preview and show generated signature
+                document.getElementById('signaturePreview').style.display = 'none';
+                document.getElementById('noPreviewText').style.display = 'none';
+                
+                const generatedSig = document.getElementById('generatedSignature');
+                generatedSig.style.display = 'block';
+                generatedSig.innerHTML = '';
+                
+                if (styleId === 'handwritten') {
+                    // For handwritten, we'll keep the canvas
+                    return;
+                }
+                
+                // Find the selected style
+                const style = signatureStyles.find(s => s.id === styleId) || signatureStyles[1];
+                
+                // Create signature element
+                const sigElement = document.createElement('div');
+                sigElement.textContent = name;
+                sigElement.style.color = color;
+                sigElement.style.fontFamily = style.font;
+                sigElement.style.fontSize = style.size;
+                
+                if (style.transform && style.transform !== 'none') {
+                    sigElement.style.transform = style.transform;
+                }
+                
+                if (style.weight) {
+                    sigElement.style.fontWeight = style.weight;
+                }
+                
+                if (style.style) {
+                    sigElement.style.fontStyle = style.style;
+                }
+                
+                if (style.decoration) {
+                    sigElement.style.textDecoration = style.decoration;
+                }
+                
+                // Add title if provided
+                const title = document.getElementById('titleInput').value.trim();
+                if (title) {
+                    const titleElement = document.createElement('div');
+                    titleElement.textContent = title;
+                    titleElement.style.fontSize = '0.8em';
+                    titleElement.style.marginTop = '5px';
+                    titleElement.style.color = '#666';
+                    sigElement.appendChild(document.createElement('br'));
+                    sigElement.appendChild(titleElement);
+                }
+                
+                generatedSig.appendChild(sigElement);
+                
+                // Convert the generated signature to an image for download
+                setTimeout(() => {
+                    html2canvas(generatedSig).then(canvas => {
+                        document.getElementById('signaturePreview').src = canvas.toDataURL();
+                    });
+                }, 100);
+            }
+            
+            // Update signature preview
+            function updatePreview() {
+                if (strokes.length > 0) {
+                    const preview = document.getElementById('signaturePreview');
+                    preview.src = canvas.toDataURL('image/png');
+                    preview.style.display = 'block';
+                    document.getElementById('noPreviewText').style.display = 'none';
+                    document.getElementById('generatedSignature').style.display = 'none';
+                }
+            }
+            
+            // Event listeners for drawing
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch support
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                startDrawing(e);
+            });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                draw(e);
+            });
+            
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                stopDrawing();
+            });
+            
+            // Button functionality
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                strokes = [];
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                document.getElementById('signaturePreview').style.display = 'none';
+                document.getElementById('generatedSignature').style.display = 'none';
+                document.getElementById('noPreviewText').style.display = 'block';
+            });
+            
+            document.getElementById('undoBtn').addEventListener('click', function() {
+                if (strokes.length > 0) {
+                    strokes.pop();
+                    redrawSignature();
+                    updatePreview();
+                }
+            });
+            
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                updatePreview();
+                // Show success message
+                alert('Signature saved successfully!');
+            });
+            
+            document.getElementById('generateBtn').addEventListener('click', generateSignature);
+            
+            // Color picker functionality
+            document.getElementById('colorPicker').addEventListener('input', function() {
+                redrawSignature();
+                updatePreview();
+            });
+            
+            document.getElementById('presetColors').addEventListener('change', function() {
+                document.getElementById('colorPicker').value = this.value;
+                redrawSignature();
+                updatePreview();
+            });
+            
+            // Thickness slider
+            document.getElementById('thicknessSlider').addEventListener('input', function() {
+                document.getElementById('thicknessValue').textContent = this.value;
+                redrawSignature();
+                updatePreview();
+            });
+            
+            // Download functionality
+            document.getElementById('downloadPngBtn').addEventListener('click', function() {
+                const generatedSig = document.getElementById('generatedSignature');
+                if (generatedSig.style.display !== 'none') {
+                    // Download generated signature
+                    html2canvas(generatedSig).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'signature.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    });
+                } else if (strokes.length > 0) {
+                    // Download drawn signature
+                    const link = document.createElement('a');
+                    link.download = 'signature.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } else {
+                    alert('Please create a signature first');
+                }
+            });
+            
+            document.getElementById('downloadJpgBtn').addEventListener('click', function() {
+                const generatedSig = document.getElementById('generatedSignature');
+                if (generatedSig.style.display !== 'none') {
+                    // Download generated signature
+                    html2canvas(generatedSig).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'signature.jpg';
+                        link.href = canvas.toDataURL('image/jpeg', 0.9);
+                        link.click();
+                    });
+                } else if (strokes.length > 0) {
+                    // Download drawn signature
+                    const link = document.createElement('a');
+                    link.download = 'signature.jpg';
+                    link.href = canvas.toDataURL('image/jpeg', 0.9);
+                    link.click();
+                } else {
+                    alert('Please create a signature first');
+                }
+            });
+            
+            document.getElementById('downloadSvgBtn').addEventListener('click', function() {
+                if (strokes.length === 0 && document.getElementById('generatedSignature').style.display === 'none') {
+                    alert('Please create a signature first');
+                    return;
+                }
+                
+                // In a real app, you would generate SVG from the strokes data or text
+                // This is a simplified version that exports as SVG
+                let svgData;
+                const generatedSig = document.getElementById('generatedSignature');
+                
+                if (generatedSig.style.display !== 'none') {
+                    // For generated signatures
+                    const name = document.getElementById('nameInput').value.trim();
+                    const styleId = document.getElementById('styleSelect').value;
+                    const style = signatureStyles.find(s => s.id === styleId) || signatureStyles[1];
+                    const color = document.getElementById('colorPicker').value;
+                    
+                    svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="0 0 400 150">
+                        <text x="20" y="80" font-family="${style.font}" font-size="${style.size.replace('rem', 'px')}" fill="${color}">
+                            ${name}
+                        </text>
+                    </svg>`;
+                } else {
+                    // For drawn signatures
+                    svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
+                        <foreignObject width="100%" height="100%">
+                            <div xmlns="http://www.w3.org/1999/xhtml">
+                                <img src="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
+                            </div>
+                        </foreignObject>
+                    </svg>`;
+                }
+                
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                const svgUrl = URL.createObjectURL(svgBlob);
+                
+                const link = document.createElement('a');
+                link.download = 'signature.svg';
+                link.href = svgUrl;
+                link.click();
+            });
+            
+            document.getElementById('copyClipboardBtn').addEventListener('click', function() {
+                const generatedSig = document.getElementById('generatedSignature');
+                if (generatedSig.style.display !== 'none') {
+                    // Copy generated signature
+                    html2canvas(generatedSig).then(canvas => {
+                        canvas.toBlob(function(blob) {
+                            navigator.clipboard.write([
+                                new ClipboardItem({
+                                    [blob.type]: blob
+                                })
+                            ]).then(function() {
+                                alert('Signature copied to clipboard!');
+                            }).catch(function(err) {
+                                console.error('Could not copy signature: ', err);
+                                alert('Failed to copy signature to clipboard');
+                            });
+                        });
+                    });
+                } else if (strokes.length > 0) {
+                    // Copy drawn signature
+                    canvas.toBlob(function(blob) {
+                        navigator.clipboard.write([
+                            new ClipboardItem({
+                                [blob.type]: blob
+                            })
+                        ]).then(function() {
+                            alert('Signature copied to clipboard!');
+                        }).catch(function(err) {
+                            console.error('Could not copy signature: ', err);
+                            alert('Failed to copy signature to clipboard');
+                        });
+                    });
+                } else {
+                    alert('Please create a signature first');
+                }
+            });
+            
+            // Share functionality
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const generatedSig = document.getElementById('generatedSignature');
+                    const hasSignature = strokes.length > 0 || generatedSig.style.display !== 'none';
+                    
+                    if (!hasSignature) {
+                        alert('Please create and save a signature first');
+                        return;
+                    }
+                    
+                    const platform = this.classList.contains('facebook') ? 'Facebook' :
+                                    this.classList.contains('twitter') ? 'Twitter' :
+                                    this.classList.contains('whatsapp') ? 'WhatsApp' :
+                                    this.classList.contains('linkedin') ? 'LinkedIn' : 'Email';
+                    
+                    if (platform === 'WhatsApp') {
+                        // Special handling for WhatsApp
+                        let message = "Check out my new digital signature created with Digital Buzz!";
+                        if (generatedSig.style.display !== 'none') {
+                            // For generated signatures
+                            html2canvas(generatedSig).then(canvas => {
+                                canvas.toBlob(blob => {
+                                    const file = new File([blob], "signature.png", { type: "image/png" });
+                                    const url = URL.createObjectURL(file);
+                                    
+                                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                        navigator.share({
+                                            files: [file],
+                                            title: 'My Digital Signature',
+                                            text: message
+                                        }).catch(err => {
+                                            console.log('Error sharing:', err);
+                                            window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
+                                        });
+                                    } else {
+                                        window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
+                                    }
+                                });
+                            });
+                        } else {
+                            // For drawn signatures
+                            canvas.toBlob(blob => {
+                                const file = new File([blob], "signature.png", { type: "image/png" });
+                                
+                                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                    navigator.share({
+                                        files: [file],
+                                        title: 'My Digital Signature',
+                                        text: message
+                                    }).catch(err => {
+                                        console.log('Error sharing:', err);
+                                        window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
+                                    });
+                                } else {
+                                    window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
+                                }
+                            });
+                        }
+                    } else {
+                        alert(`In a real application, this would share your signature to ${platform}. For now, you can download your signature and share it manually.`);
+                    }
+                });
+            });
+            
+            // Initialize
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Add html2canvas library dynamically
+            const script = document.createElement('script');
+            script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>
