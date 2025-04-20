@@ -743,9 +743,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Detect iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
             // Canvas setup
             const canvas = document.getElementById('signatureCanvas');
-            const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Optimize for frequent reads
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
             let isDrawing = false;
             let lastX = 0;
             let lastY = 0;
@@ -785,11 +788,12 @@
             // Set canvas size
             function resizeCanvas() {
                 const container = canvas.parentElement;
-                canvas.width = container.offsetWidth * window.devicePixelRatio;
-                canvas.height = 200 * window.devicePixelRatio;
+                const dpr = isIOS ? window.devicePixelRatio || 1 : window.devicePixelRatio || 2;
+                canvas.width = container.offsetWidth * dpr;
+                canvas.height = 200 * dpr;
                 canvas.style.width = `${container.offsetWidth}px`;
                 canvas.style.height = '200px';
-                ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+                ctx.scale(dpr, dpr);
                 redrawSignature();
             }
             
@@ -797,7 +801,7 @@
             function redrawSignature() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height); // Ensure white background
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.strokeStyle = document.getElementById('colorPicker').value;
                 ctx.lineWidth = document.getElementById('thicknessSlider').value;
                 ctx.lineJoin = 'round';
@@ -856,13 +860,14 @@
             
             function getPosition(e) {
                 let x, y;
+                const dpr = isIOS ? window.devicePixelRatio || 1 : window.devicePixelRatio || 2;
                 if (e.type.includes('touch')) {
                     const rect = canvas.getBoundingClientRect();
-                    x = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width / window.devicePixelRatio);
-                    y = (e.touches[0].clientY - rect.top) * (canvas.height / rect.height / window.devicePixelRatio);
+                    x = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width / dpr);
+                    y = (e.touches[0].clientY - rect.top) * (canvas.height / rect.height / dpr);
                 } else {
-                    x = e.offsetX * (canvas.width / canvas.offsetWidth / window.devicePixelRatio);
-                    y = e.offsetY * (canvas.height / canvas.offsetHeight / window.devicePixelRatio);
+                    x = e.offsetX * (canvas.width / canvas.offsetWidth / dpr);
+                    y = e.offsetY * (canvas.height / canvas.offsetHeight / dpr);
                 }
                 return { x, y };
             }
@@ -895,6 +900,7 @@
                 generatedSig.style.display = 'block';
                 generatedSig.style.backgroundColor = 'white';
                 generatedSig.style.padding = '20px';
+                generatedSig.style.width = 'fit-content';
                 generatedSig.innerHTML = '';
                 
                 if (styleId === 'handwritten') {
@@ -943,10 +949,11 @@
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: window.devicePixelRatio || 2,
+                        scale: isIOS ? 1 : window.devicePixelRatio || 2,
                         logging: false,
                         onclone: (document) => {
                             document.querySelector('#generatedSignature').style.display = 'block';
+                            document.querySelector('#generatedSignature').style.opacity = '1';
                         }
                     }).then(canvas => {
                         if (isCanvasTainted(canvas)) {
@@ -958,7 +965,7 @@
                         console.error('html2canvas error:', err);
                         alert('Failed to generate signature preview. Please try drawing a signature or selecting a different style.');
                     });
-                }, 200); // Increased delay for mobile rendering
+                }, isIOS ? 500 : 200); // Longer delay for iOS
             }
             
             // Update signature preview
@@ -1057,7 +1064,7 @@
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: window.devicePixelRatio || 2
+                        scale: isIOS ? 1 : window.devicePixelRatio || 2
                     }).then(canvas => {
                         if (isCanvasTainted(canvas)) {
                             throw new Error('Generated canvas is tainted');
@@ -1096,7 +1103,7 @@
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: window.devicePixelRatio || 2
+                        scale: isIOS ? 1 : window.devicePixelRatio || 2
                     }).then(canvas => {
                         if (isCanvasTainted(canvas)) {
                             throw new Error('Generated canvas is tainted');
@@ -1152,9 +1159,14 @@
                         </text>
                     </svg>`;
                 } else {
-                    svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}">
-                        <rect x="0" y="0" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}" fill="#ffffff"/>
-                        <image href="${canvas.toDataURL('image/png')}" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}"/>
+                    if (isCanvasTainted(canvas)) {
+                        hideLoading();
+                        alert('Canvas is tainted. Cannot download SVG.');
+                        return;
+                    }
+                    svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
+                        <rect x="0" y="0" width="${canvas.width}" height="${canvas.height}" fill="#ffffff"/>
+                        <image href="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
                     </svg>`;
                 }
                 
@@ -1176,7 +1188,7 @@
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: window.devicePixelRatio || 2
+                        scale: isIOS ? 1 : window.devicePixelRatio || 2
                     }).then(canvas => {
                         if (isCanvasTainted(canvas)) {
                             throw new Error('Generated canvas is tainted');
@@ -1268,9 +1280,15 @@
                                     this.classList.contains('linkedin') ? 'LinkedIn' : 'Email';
         
                     // Prompt user for format
-                    const format = await showFormatModal();
+                    let format = await showFormatModal();
                     if (!format) {
                         return; // User cancelled
+                    }
+        
+                    // Force PNG for iOS non-SVG sharing due to JPG issues
+                    if (isIOS && format === 'jpg') {
+                        format = 'png';
+                        alert('JPG sharing is not supported on iOS. Using PNG instead.');
                     }
         
                     showLoading();
@@ -1297,37 +1315,43 @@
                                 if (isCanvasTainted(canvas)) {
                                     throw new Error('Canvas is tainted');
                                 }
-                                svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}">
-                                    <rect x="0" y="0" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}" fill="#ffffff"/>
-                                    <image href="${canvas.toDataURL('image/png')}" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}"/>
+                                const dpr = isIOS ? window.devicePixelRatio || 1 : window.devicePixelRatio || 2;
+                                svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width / dpr}" height="${canvas.height / dpr}">
+                                    <rect x="0" y="0" width="${canvas.width / dpr}" height="${canvas.height / dpr}" fill="#ffffff"/>
+                                    <image href="${canvas.toDataURL('image/png')}" width="${canvas.width / dpr}" height="${canvas.height / dpr}"/>
                                 </svg>`;
                             }
                             
                             const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
                             file = new File([svgBlob], 'signature.svg', { type: 'image/svg+xml' });
                         } else {
-                            // Handle PNG or JPG
+                            // Handle PNG (or JPG on non-iOS)
                             let sourceCanvas;
                             if (generatedSig.style.display !== 'none') {
-                                // Force visibility and wait for DOM update
                                 generatedSig.style.display = 'block';
                                 generatedSig.style.opacity = '1';
-                                await new Promise(resolve => setTimeout(resolve, 200));
+                                generatedSig.style.position = 'absolute';
+                                generatedSig.style.left = '0';
+                                generatedSig.style.top = '0';
+                                await new Promise(resolve => setTimeout(resolve, isIOS ? 1000 : 200));
                                 
                                 sourceCanvas = await html2canvas(generatedSig, {
                                     backgroundColor: '#ffffff',
                                     useCORS: true,
-                                    scale: window.devicePixelRatio || 2,
+                                    scale: isIOS ? 1 : window.devicePixelRatio || 2,
                                     logging: false,
                                     onclone: (document) => {
-                                        document.querySelector('#generatedSignature').style.display = 'block';
+                                        const clonedSig = document.querySelector('#generatedSignature');
+                                        clonedSig.style.display = 'block';
+                                        clonedSig.style.opacity = '1';
+                                        clonedSig.style.position = 'static';
                                     }
                                 });
+                                generatedSig.style.position = 'static';
                             } else {
                                 sourceCanvas = canvas;
                             }
                             
-                            // Verify canvas content
                             if (isCanvasTainted(sourceCanvas)) {
                                 throw new Error('Canvas is tainted');
                             }
@@ -1340,19 +1364,20 @@
                             tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
                             tempCtx.drawImage(sourceCanvas, 0, 0);
                             
-                            // Check if image is blank
                             const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height).data;
-                            const isBlank = Array.from(imageData).every(pixel => pixel === 255 || pixel === 0); // Check for all white or transparent
+                            const isBlank = Array.from(imageData).every(pixel => pixel === 255 || pixel === 0);
                             if (isBlank) {
                                 throw new Error('Generated image is blank');
                             }
                             
-                            const imageBlob = await new Promise(resolve => tempCanvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
+                            const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+                            const quality = format === 'jpg' ? 0.9 : 1.0;
+                            const imageBlob = await new Promise(resolve => tempCanvas.toBlob(resolve, mimeType, quality));
                             if (!imageBlob) {
                                 throw new Error('Failed to generate image blob');
                             }
                             
-                            file = new File([imageBlob], `signature.${format}`, { type: format === 'png' ? 'image/png' : 'image/jpeg' });
+                            file = new File([imageBlob], `signature.${format}`, { type: mimeType });
                         }
         
                         // Try Web Share API
@@ -1364,14 +1389,13 @@
                                     text: message
                                 });
                                 hideLoading();
-                                return; // Successful share, exit
+                                return;
                             } catch (err) {
                                 console.error('Web Share API error:', err);
-                                // Fall through to fallback
                             }
                         }
         
-                        // Fallback: Download image and prompt manual sharing
+                        // Fallback: Download and manual sharing
                         const fileUrl = URL.createObjectURL(file);
                         const link = document.createElement('a');
                         link.href = fileUrl;
@@ -1382,7 +1406,6 @@
                         document.body.removeChild(link);
                         URL.revokeObjectURL(fileUrl);
         
-                        // Open platform-specific URL for sharing
                         let shareUrl;
                         if (platform === 'WhatsApp') {
                             shareUrl = `https://wa.me/?text=${encodeURIComponent(message + ` Please download and share the signature image manually (.${format.toUpperCase()}).`)}`;
