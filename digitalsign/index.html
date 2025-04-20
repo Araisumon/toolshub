@@ -366,7 +366,6 @@
             color: var(--dark-color);
         }
         
-        /* Signature font styles */
         .signature-font-1 { font-family: 'Dancing Script', cursive; font-size: 2rem; }
         .signature-font-2 { font-family: 'Great Vibes', cursive; font-size: 2.2rem; }
         .signature-font-3 { font-family: 'Parisienne', cursive; font-size: 2.1rem; }
@@ -412,6 +411,67 @@
             font-size: 1.2rem;
         }
         
+        /* Modal for format selection */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .modal-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .modal-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .modal-btn.cancel {
+            background-color: #6c757d;
+        }
+        
+        .modal-btn.cancel:hover {
+            background-color: #5a6268;
+        }
+        
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -437,6 +497,10 @@
             
             .share-btn {
                 justify-content: center;
+            }
+            
+            .modal-content {
+                width: 95%;
             }
         }
     </style>
@@ -515,7 +579,6 @@
                         <option value="typed8">Modern Signature</option>
                         <option value="typed9">Creative Style</option>
                         <option value="typed10">Minimalist Style</option>
-                        <!-- More styles will be added via JavaScript -->
                     </select>
                 </div>
                 
@@ -631,6 +694,19 @@
         </div>
     </main>
     
+    <!-- Modal for format selection -->
+    <div id="formatModal" class="modal">
+        <div class="modal-content">
+            <h3>Select Format to Share</h3>
+            <div class="modal-buttons">
+                <button class="modal-btn" data-format="png">PNG</button>
+                <button class="modal-btn" data-format="jpg">JPG</button>
+                <button class="modal-btn" data-format="svg">SVG</button>
+                <button class="modal-btn cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
     <footer>
         <div class="footer-links">
             <a href="/privacy">Privacy Policy</a>
@@ -645,7 +721,7 @@
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-        <p>&copy; 2023 Digital Buzz. All rights reserved.</p>
+        <p>© 2023 Digital Buzz. All rights reserved.</p>
     </footer>
 
     <script>
@@ -659,7 +735,7 @@
             let strokes = [];
             let currentStroke = [];
             
-            // Signature styles data (100+ styles)
+            // Signature styles data
             const signatureStyles = [
                 { id: 'typed1', name: 'Elegant Script 1', font: 'Dancing Script', size: '2rem', transform: 'none', class: 'signature-font-1' },
                 { id: 'typed2', name: 'Elegant Script 2', font: 'Great Vibes', size: '2.2rem', transform: 'none', class: 'signature-font-2' },
@@ -671,19 +747,17 @@
                 { id: 'typed8', name: 'Modern Signature', font: 'Segoe Script', size: '1.9rem', transform: 'none', class: 'signature-font-8' },
                 { id: 'typed9', name: 'Creative Style', font: 'Comic Sans MS', size: '1.8rem', transform: 'skewX(-10deg)', class: 'signature-font-9' },
                 { id: 'typed10', name: 'Minimalist Style', font: 'Courier New', size: '1.8rem', transform: 'none', class: 'signature-font-10' },
-                // Add more styles here (can add up to 100+)
                 { id: 'typed11', name: 'Bold Signature', font: 'Arial', size: '2rem', transform: 'none', weight: 'bold' },
                 { id: 'typed12', name: 'Italic Flair', font: 'Times New Roman', size: '2rem', transform: 'italic', style: 'italic' },
                 { id: 'typed13', name: 'Underlined', font: 'Verdana', size: '2rem', transform: 'underline', decoration: 'underline' },
                 { id: 'typed14', name: 'Slanted', font: 'Georgia', size: '2rem', transform: 'skewX(-15deg)' },
                 { id: 'typed15', name: 'Condensed', font: 'Arial Narrow', size: '2rem', transform: 'scaleX(0.8)' },
-                // Continue adding more styles...
             ];
             
             // Populate style select dropdown
             const styleSelect = document.getElementById('styleSelect');
             signatureStyles.forEach((style, index) => {
-                if (index > 0) { // Skip first option which is "Handwritten"
+                if (index > 0) {
                     const option = document.createElement('option');
                     option.value = style.id;
                     option.textContent = style.name;
@@ -782,7 +856,6 @@
                 const styleId = document.getElementById('styleSelect').value;
                 const color = document.getElementById('colorPicker').value;
                 
-                // Hide the canvas preview and show generated signature
                 document.getElementById('signaturePreview').style.display = 'none';
                 document.getElementById('noPreviewText').style.display = 'none';
                 
@@ -791,14 +864,11 @@
                 generatedSig.innerHTML = '';
                 
                 if (styleId === 'handwritten') {
-                    // For handwritten, we'll keep the canvas
                     return;
                 }
                 
-                // Find the selected style
                 const style = signatureStyles.find(s => s.id === styleId) || signatureStyles[1];
                 
-                // Create signature element
                 const sigElement = document.createElement('div');
                 sigElement.textContent = name;
                 sigElement.style.color = color;
@@ -821,7 +891,6 @@
                     sigElement.style.textDecoration = style.decoration;
                 }
                 
-                // Add title if provided
                 const title = document.getElementById('titleInput').value.trim();
                 if (title) {
                     const titleElement = document.createElement('div');
@@ -835,7 +904,6 @@
                 
                 generatedSig.appendChild(sigElement);
                 
-                // Convert the generated signature to an image for download
                 setTimeout(() => {
                     html2canvas(generatedSig).then(canvas => {
                         document.getElementById('signaturePreview').src = canvas.toDataURL();
@@ -860,7 +928,6 @@
             canvas.addEventListener('mouseup', stopDrawing);
             canvas.addEventListener('mouseout', stopDrawing);
             
-            // Touch support
             canvas.addEventListener('touchstart', function(e) {
                 e.preventDefault();
                 startDrawing(e);
@@ -895,13 +962,11 @@
             
             document.getElementById('saveBtn').addEventListener('click', function() {
                 updatePreview();
-                // Show success message
                 alert('Signature saved successfully!');
             });
             
             document.getElementById('generateBtn').addEventListener('click', generateSignature);
             
-            // Color picker functionality
             document.getElementById('colorPicker').addEventListener('input', function() {
                 redrawSignature();
                 updatePreview();
@@ -913,7 +978,6 @@
                 updatePreview();
             });
             
-            // Thickness slider
             document.getElementById('thicknessSlider').addEventListener('input', function() {
                 document.getElementById('thicknessValue').textContent = this.value;
                 redrawSignature();
@@ -924,7 +988,6 @@
             document.getElementById('downloadPngBtn').addEventListener('click', function() {
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
-                    // Download generated signature
                     html2canvas(generatedSig).then(canvas => {
                         const link = document.createElement('a');
                         link.download = 'signature.png';
@@ -932,7 +995,6 @@
                         link.click();
                     });
                 } else if (strokes.length > 0) {
-                    // Download drawn signature
                     const link = document.createElement('a');
                     link.download = 'signature.png';
                     link.href = canvas.toDataURL('image/png');
@@ -945,7 +1007,6 @@
             document.getElementById('downloadJpgBtn').addEventListener('click', function() {
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
-                    // Download generated signature
                     html2canvas(generatedSig).then(canvas => {
                         const link = document.createElement('a');
                         link.download = 'signature.jpg';
@@ -953,7 +1014,6 @@
                         link.click();
                     });
                 } else if (strokes.length > 0) {
-                    // Download drawn signature
                     const link = document.createElement('a');
                     link.download = 'signature.jpg';
                     link.href = canvas.toDataURL('image/jpeg', 0.9);
@@ -969,13 +1029,10 @@
                     return;
                 }
                 
-                // In a real app, you would generate SVG from the strokes data or text
-                // This is a simplified version that exports as SVG
                 let svgData;
                 const generatedSig = document.getElementById('generatedSignature');
                 
                 if (generatedSig.style.display !== 'none') {
-                    // For generated signatures
                     const name = document.getElementById('nameInput').value.trim();
                     const styleId = document.getElementById('styleSelect').value;
                     const style = signatureStyles.find(s => s.id === styleId) || signatureStyles[1];
@@ -987,7 +1044,6 @@
                         </text>
                     </svg>`;
                 } else {
-                    // For drawn signatures
                     svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
                         <foreignObject width="100%" height="100%">
                             <div xmlns="http://www.w3.org/1999/xhtml">
@@ -1009,7 +1065,6 @@
             document.getElementById('copyClipboardBtn').addEventListener('click', function() {
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
-                    // Copy generated signature
                     html2canvas(generatedSig).then(canvas => {
                         canvas.toBlob(function(blob) {
                             navigator.clipboard.write([
@@ -1025,7 +1080,6 @@
                         });
                     });
                 } else if (strokes.length > 0) {
-                    // Copy drawn signature
                     canvas.toBlob(function(blob) {
                         navigator.clipboard.write([
                             new ClipboardItem({
@@ -1043,69 +1097,141 @@
                 }
             });
             
+            // Modal for format selection
+            const formatModal = document.getElementById('formatModal');
+            let resolveFormatPromise = null;
+            
+            function showFormatModal() {
+                return new Promise(resolve => {
+                    resolveFormatPromise = resolve;
+                    formatModal.style.display = 'flex';
+                });
+            }
+            
+            document.querySelectorAll('.modal-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const format = this.dataset.format;
+                    formatModal.style.display = 'none';
+                    if (format) {
+                        resolveFormatPromise(format);
+                    } else {
+                        resolveFormatPromise(null); // Cancel
+                    }
+                });
+            });
+            
             // Share functionality
             document.querySelectorAll('.share-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
+                btn.addEventListener('click', async function(e) {
                     e.preventDefault();
-                    
+        
                     const generatedSig = document.getElementById('generatedSignature');
                     const hasSignature = strokes.length > 0 || generatedSig.style.display !== 'none';
-                    
+        
                     if (!hasSignature) {
                         alert('Please create and save a signature first');
                         return;
                     }
-                    
+        
                     const platform = this.classList.contains('facebook') ? 'Facebook' :
                                     this.classList.contains('twitter') ? 'Twitter' :
                                     this.classList.contains('whatsapp') ? 'WhatsApp' :
                                     this.classList.contains('linkedin') ? 'LinkedIn' : 'Email';
-                    
-                    if (platform === 'WhatsApp') {
-                        // Special handling for WhatsApp
-                        let message = "Check out my new digital signature created with Digital Buzz!";
-                        if (generatedSig.style.display !== 'none') {
-                            // For generated signatures
-                            html2canvas(generatedSig).then(canvas => {
-                                canvas.toBlob(blob => {
-                                    const file = new File([blob], "signature.png", { type: "image/png" });
-                                    const url = URL.createObjectURL(file);
-                                    
-                                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                                        navigator.share({
-                                            files: [file],
-                                            title: 'My Digital Signature',
-                                            text: message
-                                        }).catch(err => {
-                                            console.log('Error sharing:', err);
-                                            window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
-                                        });
-                                    } else {
-                                        window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
-                                    }
-                                });
-                            });
-                        } else {
-                            // For drawn signatures
-                            canvas.toBlob(blob => {
-                                const file = new File([blob], "signature.png", { type: "image/png" });
+        
+                    // Prompt user for format
+                    const format = await showFormatModal();
+                    if (!format) {
+                        return; // User cancelled
+                    }
+        
+                    const message = "Check out my new digital signature created with Digital Buzz!";
+                    let file;
+        
+                    try {
+                        if (format === 'svg') {
+                            // Handle SVG
+                            let svgData;
+                            if (generatedSig.style.display !== 'none') {
+                                const name = document.getElementById('nameInput').value.trim();
+                                const styleId = document.getElementById('styleSelect').value;
+                                const style = signatureStyles.find(s => s.id === styleId) || signatureStyles[1];
+                                const color = document.getElementById('colorPicker').value;
                                 
-                                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                                    navigator.share({
-                                        files: [file],
-                                        title: 'My Digital Signature',
-                                        text: message
-                                    }).catch(err => {
-                                        console.log('Error sharing:', err);
-                                        window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
-                                    });
-                                } else {
-                                    window.open(`https://wa.me/?text=${encodeURIComponent(message + ' ' + window.location.href)}`);
-                                }
-                            });
+                                svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="0 0 400 150">
+                                    <text x="20" y="80" font-family="${style.font}" font-size="${style.size.replace('rem', 'px')}" fill="${color}">
+                                        ${name}
+                                    </text>
+                                </svg>`;
+                            } else {
+                                svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
+                                    <foreignObject width="100%" height="100%">
+                                        <div xmlns="http://www.w3.org/1999/xhtml">
+                                            <img src="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
+                                        </div>
+                                    </foreignObject>
+                                </svg>`;
+                            }
+                            
+                            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                            file = new File([svgBlob], 'signature.svg', { type: 'image/svg+xml' });
+                        } else {
+                            // Handle PNG or JPG
+                            let imageBlob;
+                            if (generatedSig.style.display !== 'none') {
+                                const htmlCanvas = await html2canvas(generatedSig);
+                                imageBlob = await new Promise(resolve => htmlCanvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
+                            } else {
+                                imageBlob = await new Promise(resolve => canvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
+                            }
+                            file = new File([imageBlob], `signature.${format}`, { type: format === 'png' ? 'image/png' : 'image/jpeg' });
                         }
-                    } else {
-                        alert(`In a real application, this would share your signature to ${platform}. For now, you can download your signature and share it manually.`);
+        
+                        // Try Web Share API
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'My Digital Signature',
+                                    text: message
+                                });
+                                return; // Successful share, exit
+                            } catch (err) {
+                                console.error('Web Share API error:', err);
+                                // Fall through to fallback
+                            }
+                        }
+        
+                        // Fallback: Download image and prompt manual sharing
+                        const fileUrl = URL.createObjectURL(file);
+                        const link = document.createElement('a');
+                        link.href = fileUrl;
+                        link.download = `signature.${format}`;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(fileUrl);
+        
+                        // Open platform-specific URL for sharing
+                        let shareUrl;
+                        if (platform === 'WhatsApp') {
+                            shareUrl = `https://wa.me/?text=${encodeURIComponent(message + ` Please download and share the signature image manually (.${format.toUpperCase()}).`)}`;
+                        } else if (platform === 'Facebook') {
+                            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(message)}`;
+                        } else if (platform === 'Twitter') {
+                            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(window.location.href)}`;
+                        } else if (platform === 'LinkedIn') {
+                            shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent('My Digital Signature')}&summary=${encodeURIComponent(message)}`;
+                        } else if (platform === 'Email') {
+                            shareUrl = `mailto:?subject=${encodeURIComponent('My Digital Signature')}&body=${encodeURIComponent(message + `\n\nPlease see the downloaded signature image (.${format.toUpperCase()}).`)}`;
+                        }
+        
+                        window.open(shareUrl, '_blank');
+                        alert(`Your signature has been downloaded as ${format.toUpperCase()}. Please share the downloaded image manually on ${platform}.`);
+        
+                    } catch (err) {
+                        console.error('Error preparing signature for sharing:', err);
+                        alert(`Failed to share signature on ${platform}. Please download the signature and share it manually.`);
                     }
                 });
             });
