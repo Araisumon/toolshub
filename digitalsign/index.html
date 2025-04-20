@@ -861,6 +861,7 @@
                 
                 const generatedSig = document.getElementById('generatedSignature');
                 generatedSig.style.display = 'block';
+                generatedSig.style.backgroundColor = 'white'; // Ensure background for rendering
                 generatedSig.innerHTML = '';
                 
                 if (styleId === 'handwritten') {
@@ -874,6 +875,7 @@
                 sigElement.style.color = color;
                 sigElement.style.fontFamily = style.font;
                 sigElement.style.fontSize = style.size;
+                sigElement.style.padding = '10px'; // Add padding for better rendering
                 
                 if (style.transform && style.transform !== 'none') {
                     sigElement.style.transform = style.transform;
@@ -905,8 +907,16 @@
                 generatedSig.appendChild(sigElement);
                 
                 setTimeout(() => {
-                    html2canvas(generatedSig).then(canvas => {
-                        document.getElementById('signaturePreview').src = canvas.toDataURL();
+                    html2canvas(generatedSig, {
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        scale: 2 // Increase resolution for better quality
+                    }).then(canvas => {
+                        document.getElementById('signaturePreview').src = canvas.toDataURL('image/png');
+                        document.getElementById('signaturePreview').style.display = 'block';
+                    }).catch(err => {
+                        console.error('html2canvas error:', err);
+                        alert('Failed to generate signature preview.');
                     });
                 }, 100);
             }
@@ -988,11 +998,18 @@
             document.getElementById('downloadPngBtn').addEventListener('click', function() {
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
-                    html2canvas(generatedSig).then(canvas => {
+                    html2canvas(generatedSig, {
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        scale: 2
+                    }).then(canvas => {
                         const link = document.createElement('a');
                         link.download = 'signature.png';
                         link.href = canvas.toDataURL('image/png');
                         link.click();
+                    }).catch(err => {
+                        console.error('Download PNG error:', err);
+                        alert('Failed to download signature.');
                     });
                 } else if (strokes.length > 0) {
                     const link = document.createElement('a');
@@ -1007,11 +1024,18 @@
             document.getElementById('downloadJpgBtn').addEventListener('click', function() {
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
-                    html2canvas(generatedSig).then(canvas => {
+                    html2canvas(generatedSig, {
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        scale: 2
+                    }).then(canvas => {
                         const link = document.createElement('a');
                         link.download = 'signature.jpg';
                         link.href = canvas.toDataURL('image/jpeg', 0.9);
                         link.click();
+                    }).catch(err => {
+                        console.error('Download JPG error:', err);
+                        alert('Failed to download signature.');
                     });
                 } else if (strokes.length > 0) {
                     const link = document.createElement('a');
@@ -1065,7 +1089,11 @@
             document.getElementById('copyClipboardBtn').addEventListener('click', function() {
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
-                    html2canvas(generatedSig).then(canvas => {
+                    html2canvas(generatedSig, {
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        scale: 2
+                    }).then(canvas => {
                         canvas.toBlob(function(blob) {
                             navigator.clipboard.write([
                                 new ClipboardItem({
@@ -1078,6 +1106,9 @@
                                 alert('Failed to copy signature to clipboard');
                             });
                         });
+                    }).catch(err => {
+                        console.error('Copy clipboard error:', err);
+                        alert('Failed to copy signature to clipboard.');
                     });
                 } else if (strokes.length > 0) {
                     canvas.toBlob(function(blob) {
@@ -1158,17 +1189,15 @@
                                 const color = document.getElementById('colorPicker').value;
                                 
                                 svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="0 0 400 150">
+                                    <rect x="0" y="0" width="400" height="150" fill="#ffffff"/>
                                     <text x="20" y="80" font-family="${style.font}" font-size="${style.size.replace('rem', 'px')}" fill="${color}">
                                         ${name}
                                     </text>
                                 </svg>`;
                             } else {
                                 svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
-                                    <foreignObject width="100%" height="100%">
-                                        <div xmlns="http://www.w3.org/1999/xhtml">
-                                            <img src="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
-                                        </div>
-                                    </foreignObject>
+                                    <rect x="0" y="0" width="${canvas.width}" height="${canvas.height}" fill="#ffffff"/>
+                                    <image href="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
                                 </svg>`;
                             }
                             
@@ -1177,12 +1206,39 @@
                         } else {
                             // Handle PNG or JPG
                             let imageBlob;
+                            let sourceCanvas;
                             if (generatedSig.style.display !== 'none') {
-                                const htmlCanvas = await html2canvas(generatedSig);
-                                imageBlob = await new Promise(resolve => htmlCanvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
+                                // Ensure generated signature is visible and force re-render
+                                generatedSig.style.display = 'block';
+                                await new Promise(resolve => setTimeout(resolve, 100)); // Wait for DOM update
+                                sourceCanvas = await html2canvas(generatedSig, {
+                                    backgroundColor: '#ffffff',
+                                    useCORS: true,
+                                    scale: window.devicePixelRatio || 2, // Adjust for device pixel ratio
+                                    logging: true // Enable logging for debugging
+                                });
                             } else {
-                                imageBlob = await new Promise(resolve => canvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
+                                // Use the drawing canvas directly
+                                sourceCanvas = canvas;
                             }
+                            
+                            // Verify canvas content
+                            const tempImg = new Image();
+                            tempImg.src = sourceCanvas.toDataURL('image/png');
+                            tempImg.onload = () => {
+                                if (tempImg.width === 0 || tempImg.height === 0) {
+                                    console.error('Canvas produced an empty image');
+                                    alert('Error: Signature image is empty. Please try again.');
+                                    return;
+                                }
+                            };
+                            
+                            imageBlob = await new Promise(resolve => sourceCanvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
+                            
+                            if (!imageBlob) {
+                                throw new Error('Failed to generate image blob');
+                            }
+                            
                             file = new File([imageBlob], `signature.${format}`, { type: format === 'png' ? 'image/png' : 'image/jpeg' });
                         }
         
@@ -1231,7 +1287,7 @@
         
                     } catch (err) {
                         console.error('Error preparing signature for sharing:', err);
-                        alert(`Failed to share signature on ${platform}. Please download the signature and share it manually.`);
+                        alert(`Failed to share signature on ${platform}. Please download the signature and share it manually. Error: ${err.message}`);
                     }
                 });
             });
@@ -1243,6 +1299,8 @@
             // Add html2canvas library dynamically
             const script = document.createElement('script');
             script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+            script.onload = () => console.log('html2canvas loaded');
+            script.onerror = () => alert('Failed to load html2canvas library. Some features may not work.');
             document.head.appendChild(script);
         });
     </script>
