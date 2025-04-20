@@ -472,6 +472,20 @@
             background-color: #5a6268;
         }
         
+        /* Loading indicator */
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            z-index: 2000;
+            display: none;
+        }
+        
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -707,6 +721,9 @@
         </div>
     </div>
     
+    <!-- Loading indicator -->
+    <div id="loading">Generating image...</div>
+    
     <footer>
         <div class="footer-links">
             <a href="/privacy">Privacy Policy</a>
@@ -728,7 +745,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Canvas setup
             const canvas = document.getElementById('signatureCanvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Optimize for frequent reads
             let isDrawing = false;
             let lastX = 0;
             let lastY = 0;
@@ -768,14 +785,19 @@
             // Set canvas size
             function resizeCanvas() {
                 const container = canvas.parentElement;
-                canvas.width = container.offsetWidth;
-                canvas.height = 200;
+                canvas.width = container.offsetWidth * window.devicePixelRatio;
+                canvas.height = 200 * window.devicePixelRatio;
+                canvas.style.width = `${container.offsetWidth}px`;
+                canvas.style.height = '200px';
+                ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
                 redrawSignature();
             }
             
             // Redraw all strokes
             function redrawSignature() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height); // Ensure white background
                 ctx.strokeStyle = document.getElementById('colorPicker').value;
                 ctx.lineWidth = document.getElementById('thicknessSlider').value;
                 ctx.lineJoin = 'round';
@@ -836,13 +858,23 @@
                 let x, y;
                 if (e.type.includes('touch')) {
                     const rect = canvas.getBoundingClientRect();
-                    x = e.touches[0].clientX - rect.left;
-                    y = e.touches[0].clientY - rect.top;
+                    x = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width / window.devicePixelRatio);
+                    y = (e.touches[0].clientY - rect.top) * (canvas.height / rect.height / window.devicePixelRatio);
                 } else {
-                    x = e.offsetX;
-                    y = e.offsetY;
+                    x = e.offsetX * (canvas.width / canvas.offsetWidth / window.devicePixelRatio);
+                    y = e.offsetY * (canvas.height / canvas.offsetHeight / window.devicePixelRatio);
                 }
                 return { x, y };
+            }
+            
+            // Check if canvas is tainted
+            function isCanvasTainted(canvas) {
+                try {
+                    canvas.getContext('2d').getImageData(0, 0, 1, 1);
+                    return false;
+                } catch (e) {
+                    return true;
+                }
             }
             
             // Generate signature from text
@@ -861,7 +893,8 @@
                 
                 const generatedSig = document.getElementById('generatedSignature');
                 generatedSig.style.display = 'block';
-                generatedSig.style.backgroundColor = 'white'; // Ensure background for rendering
+                generatedSig.style.backgroundColor = 'white';
+                generatedSig.style.padding = '20px';
                 generatedSig.innerHTML = '';
                 
                 if (styleId === 'handwritten') {
@@ -875,7 +908,7 @@
                 sigElement.style.color = color;
                 sigElement.style.fontFamily = style.font;
                 sigElement.style.fontSize = style.size;
-                sigElement.style.padding = '10px'; // Add padding for better rendering
+                sigElement.style.lineHeight = '1.2';
                 
                 if (style.transform && style.transform !== 'none') {
                     sigElement.style.transform = style.transform;
@@ -910,26 +943,46 @@
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: 2 // Increase resolution for better quality
+                        scale: window.devicePixelRatio || 2,
+                        logging: false,
+                        onclone: (document) => {
+                            document.querySelector('#generatedSignature').style.display = 'block';
+                        }
                     }).then(canvas => {
+                        if (isCanvasTainted(canvas)) {
+                            throw new Error('Generated canvas is tainted');
+                        }
                         document.getElementById('signaturePreview').src = canvas.toDataURL('image/png');
                         document.getElementById('signaturePreview').style.display = 'block';
                     }).catch(err => {
                         console.error('html2canvas error:', err);
-                        alert('Failed to generate signature preview.');
+                        alert('Failed to generate signature preview. Please try drawing a signature or selecting a different style.');
                     });
-                }, 100);
+                }, 200); // Increased delay for mobile rendering
             }
             
             // Update signature preview
             function updatePreview() {
                 if (strokes.length > 0) {
+                    if (isCanvasTainted(canvas)) {
+                        alert('Canvas is tainted. Signature may not display correctly.');
+                        return;
+                    }
                     const preview = document.getElementById('signaturePreview');
                     preview.src = canvas.toDataURL('image/png');
                     preview.style.display = 'block';
                     document.getElementById('noPreviewText').style.display = 'none';
                     document.getElementById('generatedSignature').style.display = 'none';
                 }
+            }
+            
+            // Loading indicator functions
+            function showLoading() {
+                document.getElementById('loading').style.display = 'block';
+            }
+            
+            function hideLoading() {
+                document.getElementById('loading').style.display = 'none';
             }
             
             // Event listeners for drawing
@@ -957,6 +1010,8 @@
             document.getElementById('clearBtn').addEventListener('click', function() {
                 strokes = [];
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 document.getElementById('signaturePreview').style.display = 'none';
                 document.getElementById('generatedSignature').style.display = 'none';
                 document.getElementById('noPreviewText').style.display = 'block';
@@ -996,59 +1051,87 @@
             
             // Download functionality
             document.getElementById('downloadPngBtn').addEventListener('click', function() {
+                showLoading();
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: 2
+                        scale: window.devicePixelRatio || 2
                     }).then(canvas => {
+                        if (isCanvasTainted(canvas)) {
+                            throw new Error('Generated canvas is tainted');
+                        }
                         const link = document.createElement('a');
                         link.download = 'signature.png';
                         link.href = canvas.toDataURL('image/png');
                         link.click();
+                        hideLoading();
                     }).catch(err => {
                         console.error('Download PNG error:', err);
-                        alert('Failed to download signature.');
+                        hideLoading();
+                        alert('Failed to download signature. Please try again.');
                     });
                 } else if (strokes.length > 0) {
+                    if (isCanvasTainted(canvas)) {
+                        hideLoading();
+                        alert('Canvas is tainted. Cannot download signature.');
+                        return;
+                    }
                     const link = document.createElement('a');
                     link.download = 'signature.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
+                    hideLoading();
                 } else {
+                    hideLoading();
                     alert('Please create a signature first');
                 }
             });
             
             document.getElementById('downloadJpgBtn').addEventListener('click', function() {
+                showLoading();
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: 2
+                        scale: window.devicePixelRatio || 2
                     }).then(canvas => {
+                        if (isCanvasTainted(canvas)) {
+                            throw new Error('Generated canvas is tainted');
+                        }
                         const link = document.createElement('a');
                         link.download = 'signature.jpg';
                         link.href = canvas.toDataURL('image/jpeg', 0.9);
                         link.click();
+                        hideLoading();
                     }).catch(err => {
                         console.error('Download JPG error:', err);
-                        alert('Failed to download signature.');
+                        hideLoading();
+                        alert('Failed to download signature. Please try again.');
                     });
                 } else if (strokes.length > 0) {
+                    if (isCanvasTainted(canvas)) {
+                        hideLoading();
+                        alert('Canvas is tainted. Cannot download signature.');
+                        return;
+                    }
                     const link = document.createElement('a');
                     link.download = 'signature.jpg';
                     link.href = canvas.toDataURL('image/jpeg', 0.9);
                     link.click();
+                    hideLoading();
                 } else {
+                    hideLoading();
                     alert('Please create a signature first');
                 }
             });
             
             document.getElementById('downloadSvgBtn').addEventListener('click', function() {
+                showLoading();
                 if (strokes.length === 0 && document.getElementById('generatedSignature').style.display === 'none') {
+                    hideLoading();
                     alert('Please create a signature first');
                     return;
                 }
@@ -1063,17 +1146,15 @@
                     const color = document.getElementById('colorPicker').value;
                     
                     svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="0 0 400 150">
+                        <rect x="0" y="0" width="400" height="150" fill="#ffffff"/>
                         <text x="20" y="80" font-family="${style.font}" font-size="${style.size.replace('rem', 'px')}" fill="${color}">
                             ${name}
                         </text>
                     </svg>`;
                 } else {
-                    svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
-                        <foreignObject width="100%" height="100%">
-                            <div xmlns="http://www.w3.org/1999/xhtml">
-                                <img src="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
-                            </div>
-                        </foreignObject>
+                    svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}">
+                        <rect x="0" y="0" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}" fill="#ffffff"/>
+                        <image href="${canvas.toDataURL('image/png')}" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}"/>
                     </svg>`;
                 }
                 
@@ -1084,46 +1165,63 @@
                 link.download = 'signature.svg';
                 link.href = svgUrl;
                 link.click();
+                URL.revokeObjectURL(svgUrl);
+                hideLoading();
             });
             
             document.getElementById('copyClipboardBtn').addEventListener('click', function() {
+                showLoading();
                 const generatedSig = document.getElementById('generatedSignature');
                 if (generatedSig.style.display !== 'none') {
                     html2canvas(generatedSig, {
                         backgroundColor: '#ffffff',
                         useCORS: true,
-                        scale: 2
+                        scale: window.devicePixelRatio || 2
                     }).then(canvas => {
+                        if (isCanvasTainted(canvas)) {
+                            throw new Error('Generated canvas is tainted');
+                        }
                         canvas.toBlob(function(blob) {
                             navigator.clipboard.write([
                                 new ClipboardItem({
                                     [blob.type]: blob
                                 })
                             ]).then(function() {
+                                hideLoading();
                                 alert('Signature copied to clipboard!');
                             }).catch(function(err) {
                                 console.error('Could not copy signature: ', err);
+                                hideLoading();
                                 alert('Failed to copy signature to clipboard');
                             });
                         });
                     }).catch(err => {
                         console.error('Copy clipboard error:', err);
+                        hideLoading();
                         alert('Failed to copy signature to clipboard.');
                     });
                 } else if (strokes.length > 0) {
+                    if (isCanvasTainted(canvas)) {
+                        hideLoading();
+                        alert('Canvas is tainted. Cannot copy signature.');
+                        return;
+                    }
                     canvas.toBlob(function(blob) {
                         navigator.clipboard.write([
                             new ClipboardItem({
                                 [blob.type]: blob
                             })
                         ]).then(function() {
+                            hideLoading();
                             alert('Signature copied to clipboard!');
                         }).catch(function(err) {
                             console.error('Could not copy signature: ', err);
+                            hideLoading();
                             alert('Failed to copy signature to clipboard');
                         });
                     });
                 } else {
+                    hideLoading();
                     alert('Please create a signature first');
                 }
             });
@@ -1175,6 +1273,7 @@
                         return; // User cancelled
                     }
         
+                    showLoading();
                     const message = "Check out my new digital signature created with Digital Buzz!";
                     let file;
         
@@ -1195,9 +1294,12 @@
                                     </text>
                                 </svg>`;
                             } else {
-                                svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
-                                    <rect x="0" y="0" width="${canvas.width}" height="${canvas.height}" fill="#ffffff"/>
-                                    <image href="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
+                                if (isCanvasTainted(canvas)) {
+                                    throw new Error('Canvas is tainted');
+                                }
+                                svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}">
+                                    <rect x="0" y="0" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}" fill="#ffffff"/>
+                                    <image href="${canvas.toDataURL('image/png')}" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}"/>
                                 </svg>`;
                             }
                             
@@ -1205,36 +1307,47 @@
                             file = new File([svgBlob], 'signature.svg', { type: 'image/svg+xml' });
                         } else {
                             // Handle PNG or JPG
-                            let imageBlob;
                             let sourceCanvas;
                             if (generatedSig.style.display !== 'none') {
-                                // Ensure generated signature is visible and force re-render
+                                // Force visibility and wait for DOM update
                                 generatedSig.style.display = 'block';
-                                await new Promise(resolve => setTimeout(resolve, 100)); // Wait for DOM update
+                                generatedSig.style.opacity = '1';
+                                await new Promise(resolve => setTimeout(resolve, 200));
+                                
                                 sourceCanvas = await html2canvas(generatedSig, {
                                     backgroundColor: '#ffffff',
                                     useCORS: true,
-                                    scale: window.devicePixelRatio || 2, // Adjust for device pixel ratio
-                                    logging: true // Enable logging for debugging
+                                    scale: window.devicePixelRatio || 2,
+                                    logging: false,
+                                    onclone: (document) => {
+                                        document.querySelector('#generatedSignature').style.display = 'block';
+                                    }
                                 });
                             } else {
-                                // Use the drawing canvas directly
                                 sourceCanvas = canvas;
                             }
                             
                             // Verify canvas content
-                            const tempImg = new Image();
-                            tempImg.src = sourceCanvas.toDataURL('image/png');
-                            tempImg.onload = () => {
-                                if (tempImg.width === 0 || tempImg.height === 0) {
-                                    console.error('Canvas produced an empty image');
-                                    alert('Error: Signature image is empty. Please try again.');
-                                    return;
-                                }
-                            };
+                            if (isCanvasTainted(sourceCanvas)) {
+                                throw new Error('Canvas is tainted');
+                            }
                             
-                            imageBlob = await new Promise(resolve => sourceCanvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
+                            const tempCanvas = document.createElement('canvas');
+                            tempCanvas.width = sourceCanvas.width;
+                            tempCanvas.height = sourceCanvas.height;
+                            const tempCtx = tempCanvas.getContext('2d');
+                            tempCtx.fillStyle = '#ffffff';
+                            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                            tempCtx.drawImage(sourceCanvas, 0, 0);
                             
+                            // Check if image is blank
+                            const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height).data;
+                            const isBlank = Array.from(imageData).every(pixel => pixel === 255 || pixel === 0); // Check for all white or transparent
+                            if (isBlank) {
+                                throw new Error('Generated image is blank');
+                            }
+                            
+                            const imageBlob = await new Promise(resolve => tempCanvas.toBlob(resolve, format === 'png' ? 'image/png' : 'image/jpeg', format === 'jpg' ? 0.9 : 1.0));
                             if (!imageBlob) {
                                 throw new Error('Failed to generate image blob');
                             }
@@ -1250,6 +1363,7 @@
                                     title: 'My Digital Signature',
                                     text: message
                                 });
+                                hideLoading();
                                 return; // Successful share, exit
                             } catch (err) {
                                 console.error('Web Share API error:', err);
@@ -1283,10 +1397,12 @@
                         }
         
                         window.open(shareUrl, '_blank');
+                        hideLoading();
                         alert(`Your signature has been downloaded as ${format.toUpperCase()}. Please share the downloaded image manually on ${platform}.`);
         
                     } catch (err) {
                         console.error('Error preparing signature for sharing:', err);
+                        hideLoading();
                         alert(`Failed to share signature on ${platform}. Please download the signature and share it manually. Error: ${err.message}`);
                     }
                 });
