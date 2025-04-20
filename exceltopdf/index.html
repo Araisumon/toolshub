@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QX6N41VY5J');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Free online tool to convert Excel files to PDF. Convert XLS, XLSX to PDF with high quality. Batch conversion supported.">
@@ -24,7 +15,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <!-- PDF.js for Preview -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <style>
@@ -349,44 +339,6 @@
         .batch-timestamp {
             font-weight: 500;
             color: var(--dark-color);
-        }
-        
-        .batch-download-all {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .batch-download-all:hover {
-            background-color: var(--secondary-color);
-        }
-        
-        .download-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            margin-top: 1rem;
-        }
-        
-        .download-btn i {
-            margin-right: 8px;
-        }
-        
-        .download-btn:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .file-stats {
@@ -846,10 +798,6 @@
                             <div class="stat-label">Space Saved</div>
                         </div>
                     </div>
-                    
-                    <button class="download-btn" id="downloadBtn">
-                        <i class="fas fa-download"></i> Download All PDFs
-                    </button>
                 </div>
                 
                 <div class="recent-conversions-section" id="recentConversionsSection">
@@ -919,7 +867,7 @@
                     <li class="step-item">
                         <div class="step-number">4</div>
                         <div class="step-content">
-                            <strong>Preview and download</strong> your PDFs from the Latest Conversion or Recent Conversions sections.
+                            <strong>Preview and download</strong> your PDFs individually from the Latest Conversion or Recent Conversions sections.
                         </div>
                     </li>
                 </ul>
@@ -933,7 +881,7 @@
                 <a href="/privacy" class="footer-link">Privacy Policy</a>
                 <a href="/terms" class="footer-link">Terms of Service</a>
                 <a href="/contact" class="footer-link">Contact Us</a>
-                <a href="https://toolshub.cam" class="footer-link">More Tools</a>
+                <a href="/tools" class="footer-link">More Tools</a>
             </div>
             <p class="copyright">© 2023 Buzz. All rights reserved.</p>
         </div>
@@ -959,7 +907,6 @@
             const resultsSection = document.getElementById('resultsSection');
             const recentConversionsSection = document.getElementById('recentConversionsSection');
             const recentConversionsList = document.getElementById('recentConversionsList');
-            const downloadBtn = document.getElementById('downloadBtn');
             const previewList = document.getElementById('previewList');
             const toast = document.getElementById('toast');
             
@@ -1012,8 +959,6 @@
             });
             
             convertBtn.addEventListener('click', convertFiles);
-            
-            downloadBtn.addEventListener('click', downloadAll);
             
             // Functions
             function handleFileSelect(e) {
@@ -1198,13 +1143,7 @@
                     batchTimestamp.className = 'batch-timestamp';
                     batchTimestamp.textContent = `Converted on ${batch.timestamp}`;
                     
-                    const batchDownloadAll = document.createElement('button');
-                    batchDownloadAll.className = 'batch-download-all';
-                    batchDownloadAll.innerHTML = '<i class="fas fa-download"></i> Download All';
-                    batchDownloadAll.addEventListener('click', () => downloadBatch(batchIndex));
-                    
                     batchHeader.appendChild(batchTimestamp);
-                    batchHeader.appendChild(batchDownloadAll);
                     
                     const batchPreviewList = document.createElement('div');
                     batchPreviewList.className = 'preview-list';
@@ -1385,69 +1324,6 @@
                     loader.style.display = 'none';
                     showToast('Error converting files: ' + error.message, 'error');
                     convertBtn.disabled = false;
-                }
-            }
-            
-            async function downloadAll() {
-                if (convertedFiles.length === 0) {
-                    showToast('No files to download', 'error');
-                    return;
-                }
-                
-                try {
-                    if (convertedFiles.length === 1) {
-                        const file = convertedFiles[0];
-                        saveAs(file.blob, file.name);
-                    } else {
-                        showToast('Preparing ZIP file...', 'success');
-                        
-                        const zip = new JSZip();
-                        const folder = zip.folder("converted_pdfs");
-                        
-                        for (const file of convertedFiles) {
-                            folder.file(file.name, file.blob);
-                        }
-                        
-                        const content = await zip.generateAsync({ type: 'blob' });
-                        saveAs(content, 'excel_to_pdf_conversions.zip');
-                    }
-                    
-                    showToast(`Download started`, 'success');
-                } catch (error) {
-                    console.error('Download error:', error);
-                    showToast('Error downloading files: ' + error.message, 'error');
-                }
-            }
-            
-            async function downloadBatch(batchIndex) {
-                const batch = convertedFilesHistory[batchIndex];
-                if (!batch || batch.files.length === 0) {
-                    showToast('No files to download', 'error');
-                    return;
-                }
-                
-                try {
-                    if (batch.files.length === 1) {
-                        const file = batch.files[0];
-                        saveAs(file.blob, file.name);
-                    } else {
-                        showToast('Preparing ZIP file...', 'success');
-                        
-                        const zip = new JSZip();
-                        const folder = zip.folder(`converted_pdfs_${batch.id}`);
-                        
-                        for (const file of batch.files) {
-                            folder.file(file.name, file.blob);
-                        }
-                        
-                        const content = await zip.generateAsync({ type: 'blob' });
-                        saveAs(content, `excel_to_pdf_conversions_${batch.id}.zip`);
-                    }
-                    
-                    showToast(`Download started`, 'success');
-                } catch (error) {
-                    console.error('Download error:', error);
-                    showToast('Error downloading files: ' + error.message, 'error');
                 }
             }
             
