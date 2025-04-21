@@ -1,1 +1,24 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://Araisumon.github.io/toolshub/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://Araisumon.github.io/toolshub/page1.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  https://toolshub.cam/digitalsign/
+  https://toolshub.cam/agecalc/
+  https://toolshub.cam/exceltopdf/
+  https://toolshub.cam/imagecom/
+  https://toolshub.cam/imagecon/
+  https://toolshub.cam/imageresizer/
+  https://toolshub.cam/pdfcom/
+  https://toolshub.cam/pdfmerger/
+  https://toolshub.cam/pdfsplit/
+  https://toolshub.cam/pdftoimages/
+  https://toolshub.cam/wordtopdf/
+</urlset>
 
