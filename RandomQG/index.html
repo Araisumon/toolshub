@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Get inspired with random quotes from famous authors, thinkers, and leaders. Our generator provides fresh motivation with every click.">
+    <meta name="keywords" content="random quote generator, motivation, inspiration, famous quotes, daily quotes">
+    <meta name="author" content="Buzz">
+    <meta property="og:title" content="Random Quote Generator | Buzz">
+    <meta property="og:description" content="Discover inspiring random quotes with our generator.">
+    <meta property="og:type" content="website">
+    <title>Random Quote Generator | Buzz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4bb543;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .nav-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .quote-container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .quote-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .quote-text {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            line-height: 1.4;
+            position: relative;
+        }
+        
+        .quote-text::before, .quote-text::after {
+            content: '"';
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            opacity: 0.7;
+        }
+        
+        .quote-author {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--light-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            background-color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .instructions h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .instructions p {
+            margin-bottom: 1rem;
+        }
+        
+        .category-selector {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .category-selector select {
+            padding: 0.8rem 1.2rem;
+            border-radius: 50px;
+            border: 2px solid var(--primary-color);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .category-selector select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        .share-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .twitter {
+            background-color: #1DA1F2;
+        }
+        
+        .facebook {
+            background-color: #4267B2;
+        }
+        
+        .linkedin {
+            background-color: #0077B5;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px) scale(1.1);
+        }
+        
+        .copy-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .copy-message.show {
+            opacity: 1;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--dark-color);
+            color: white;
+            margin-top: auto;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            .brand {
+                margin-bottom: 0.5rem;
+            }
+            
+            .header-title {
+                position: static;
+                transform: none;
+                margin: 0.5rem 0;
+            }
+            
+            .quote-text {
+                font-size: 1.4rem;
+            }
+            
+            .quote-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-quote-left"></i>
+            <span>Buzz</span>
+        </div>
+        <h1 class="header-title">Random Quote Generator</h1>
+        <a href="/" class="nav-button">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+    </header>
+    
+    <main>
+        <div class="category-selector">
+            <select id="quote-category">
+                <option value="all">All Categories</option>
+                <option value="motivational">Motivational</option>
+                <option value="life">Life</option>
+                <option value="success">Success</option>
+                <option value="love">Love</option>
+                <option value="wisdom">Wisdom</option>
+                <option value="funny">Funny</option>
+            </select>
+        </div>
+        
+        <div class="quote-container fade-in">
+            <div class="spinner"></div>
+            <p class="quote-text" id="quote-text"></p>
+            <p class="quote-author" id="quote-author"></p>
+            
+            <div class="share-buttons">
+                <div class="share-btn twitter" onclick="shareOnTwitter()">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <div class="share-btn facebook" onclick="shareOnFacebook()">
+                    <i class="fab fa-facebook-f"></i>
+                </div>
+                <div class="share-btn linkedin" onclick="shareOnLinkedIn()">
+                    <i class="fab fa-linkedin-in"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="getRandomQuote()">
+                <i class="fas fa-random"></i>
+                New Quote
+            </button>
+            <button class="btn btn-secondary" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i>
+                Copy Quote
+            </button>
+            <button class="btn btn-accent" onclick="speakQuote()">
+                <i class="fas fa-volume-up"></i>
+                Speak Quote
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h2>How to Use This Quote Generator</h2>
+            <p>1. Click "New Quote" to get a fresh, random quote instantly.</p>
+            <p>2. Select a category from the dropdown to get quotes on specific topics.</p>
+            <p>3. Copy quotes to your clipboard or share them directly on social media.</p>
+            <p>4. Use the "Speak Quote" feature to listen to the quote.</p>
+            <p>Each quote is carefully selected to inspire, motivate, and provoke thought.</p>
+        </div>
+        
+        <div class="copy-message" id="copy-message">
+            Quote copied to clipboard!
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; <span id="year"></span> Buzz. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Set current year in footer
+        document.getElementById('year').textContent = new Date().getFullYear();
+        
+        // Quote database
+        const quotes = {
+            all: [
+                {
+                    text: "The only way to do great work is to love what you do.",
+                    author: "Steve Jobs"
+                },
+                {
+                    text: "Life is what happens when you're busy making other plans.",
+                    author: "John Lennon"
+                },
+                {
+                    text: "In the end, it's not the years in your life that count. It's the life in your years.",
+                    author: "Abraham Lincoln"
+                },
+                {
+                    text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+                    author: "Winston Churchill"
+                },
+                {
+                    text: "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+                    author: "Nelson Mandela"
+                },
+                {
+                    text: "The way to get started is to quit talking and begin doing.",
+                    author: "Walt Disney"
+                },
+                {
+                    text: "If life were predictable it would cease to be life, and be without flavor.",
+                    author: "Eleanor Roosevelt"
+                },
+                {
+                    text: "If you look at what you have in life, you'll always have more. If you look at what you don't have in life, you'll never have enough.",
+                    author: "Oprah Winfrey"
+                }
+            ],
+            motivational: [
+                {
+                    text: "Believe you can and you're halfway there.",
+                    author: "Theodore Roosevelt"
+                },
+                {
+                    text: "You are never too old to set another goal or to dream a new dream.",
+                    author: "C.S. Lewis"
+                },
+                {
+                    text: "The future belongs to those who believe in the beauty of their dreams.",
+                    author: "Eleanor Roosevelt"
+                },
+                {
+                    text: "It always seems impossible until it's done.",
+                    author: "Nelson Mandela"
+                }
+            ],
+            life: [
+                {
+                    text: "Life is really simple, but we insist on making it complicated.",
+                    author: "Confucius"
+                },
+                {
+                    text: "In three words I can sum up everything I've learned about life: it goes on.",
+                    author: "Robert Frost"
+                },
+                {
+                    text: "Life is 10% what happens to you and 90% how you react to it.",
+                    author: "Charles R. Swindoll"
+                }
+            ],
+            success: [
+                {
+                    text: "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful.",
+                    author: "Albert Schweitzer"
+                },
+                {
+                    text: "The only place where success comes before work is in the dictionary.",
+                    author: "Vidal Sassoon"
+                },
+                {
+                    text: "Success usually comes to those who are too busy to be looking for it.",
+                    author: "Henry David Thoreau"
+                }
+            ],
+            love: [
+                {
+                    text: "Where there is love there is life.",
+                    author: "Mahatma Gandhi"
+                },
+                {
+                    text: "The best thing to hold onto in life is each other.",
+                    author: "Audrey Hepburn"
+                },
+                {
+                    text: "Love is composed of a single soul inhabiting two bodies.",
+                    author: "Aristotle"
+                }
+            ],
+            wisdom: [
+                {
+                    text: "Knowing yourself is the beginning of all wisdom.",
+                    author: "Aristotle"
+                },
+                {
+                    text: "The only true wisdom is in knowing you know nothing.",
+                    author: "Socrates"
+                },
+                {
+                    text: "Wisdom is not a product of schooling but of the lifelong attempt to acquire it.",
+                    author: "Albert Einstein"
+                }
+            ],
+            funny: [
+                {
+                    text: "I'm not lazy, I'm on energy saving mode.",
+                    author: "Anonymous"
+                },
+                {
+                    text: "I don't need anger management. I need people to stop making me angry.",
+                    author: "Anonymous"
+                },
+                {
+                    text: "I'm not arguing, I'm just explaining why I'm right.",
+                    author: "Anonymous"
+                }
+            ]
+        };
+        
+        // Get DOM elements
+        const quoteText = document.getElementById('quote-text');
+        const quoteAuthor = document.getElementById('quote-author');
+        const quoteCategory = document.getElementById('quote-category');
+        const spinner = document.querySelector('.spinner');
+        const copyMessage = document.getElementById('copy-message');
+        
+        // Display a random quote
+        function getRandomQuote() {
+            // Show loading spinner
+            quoteText.style.display = 'none';
+            quoteAuthor.style.display = 'none';
+            spinner.style.display = 'block';
+            
+            // Get selected category
+            const category = quoteCategory.value;
+            let selectedQuotes = quotes[category];
+            
+            // If "All Categories" is selected, combine all quotes
+            if (category === 'all') {
+                selectedQuotes = [];
+                for (const key in quotes) {
+                    selectedQuotes = selectedQuotes.concat(quotes[key]);
+                }
+            }
+            
+            // Randomly select a quote
+            const randomIndex = Math.floor(Math.random() * selectedQuotes.length);
+            const randomQuote = selectedQuotes[randomIndex];
+            
+            // Add fade-in animation
+            const quoteContainer = document.querySelector('.quote-container');
+            quoteContainer.classList.remove('fade-in');
+            void quoteContainer.offsetWidth; // Trigger reflow
+            quoteContainer.classList.add('fade-in');
+            
+            // Display the quote after a short delay (for better UX)
+            setTimeout(() => {
+                quoteText.textContent = randomQuote.text;
+                quoteAuthor.textContent = `— ${randomQuote.author}`;
+                
+                // Hide spinner and show quote
+                spinner.style.display = 'none';
+                quoteText.style.display = 'block';
+                quoteAuthor.style.display = 'block';
+            }, 500);
+        }
+        
+        // Copy quote to clipboard
+        function copyToClipboard() {
+            const textToCopy = `"${quoteText.textContent}" — ${quoteAuthor.textContent.substring(2)}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Show copy message
+                copyMessage.classList.add('show');
+                
+                // Hide message after 3 seconds
+                setTimeout(() => {
+                    copyMessage.classList.remove('show');
+                }, 3000);
+            });
+        }
+        
+        // Speak the quote using Web Speech API
+        function speakQuote() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance();
+                utterance.text = `${quoteText.textContent} by ${quoteAuthor.textContent.substring(2)}`;
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Your browser doesn't support text-to-speech. Try Chrome or Edge.");
+            }
+        }
+        
+        // Share on Twitter
+        function shareOnTwitter() {
+            const text = encodeURIComponent(`"${quoteText.textContent}" — ${quoteAuthor.textContent.substring(2)}`);
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        }
+        
+        // Share on Facebook
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+        
+        // Share on LinkedIn
+        function shareOnLinkedIn() {
+            const text = encodeURIComponent(`"${quoteText.textContent}" — ${quoteAuthor.textContent.substring(2)}`);
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=Random%20Quote&summary=${text}`, '_blank');
+        }
+        
+        // Event listener for category change
+        quoteCategory.addEventListener('change', getRandomQuote);
+        
+        // Get a random quote when page loads
+        window.addEventListener('load', getRandomQuote);
+    </script>
+</body>
+</html>
