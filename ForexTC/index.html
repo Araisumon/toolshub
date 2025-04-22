@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A real-time Forex trading clock with market status, currency converter, and financial news ticker.">
+    <meta name="keywords" content="forex, trading, clock, market status, currency converter, financial news">
+    <meta name="author" content="Buzz Forex Trading Clock">
+    <meta name="robots" content="index, follow">
+    <title>Buzz Forex Trading Clock</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --accent-color: #3b82f6;
+            --light-color: #f8f9fa;
+            --dark-color: #1e293b;
+            --success-color: #16a34a;
+            --danger-color: #dc2626;
+            --market-open: #16a34a;
+            --market-closed: #dc2626;
+            --market-prepost: #d97706;
+            --ticker-bg: #1e293b;
+            --ticker-text: #ffffff;
+            --news-ticker-bg: #2d3748;
+            --news-ticker-text: #e2e8f0;
+            --clock-bg-light: #ffffff;
+            --clock-border-light: #2563eb;
+            --clock-text-light: #1e293b;
+            --clock-bg-dark: #1e293b;
+            --clock-border-dark: #3b82f6;
+            --clock-text-dark: #ffffff;
+            --clock-bg-vibrant: #ffedd5;
+            --clock-border-vibrant: #f97316;
+            --clock-text-vibrant: #c2410c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+            color: var(--dark-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .brand:hover {
+            transform: scale(1.05);
+        }
+
+        .brand i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .home-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .market-status-columns {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .market-column {
+            text-align: center;
+            position: relative;
+        }
+
+        .market-column-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .market-column h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-left: 0.5rem;
+        }
+
+        .column-status-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .market-column-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .market-column-list li {
+            padding: 0.4rem;
+            font-size: 0.85rem;
+            color: #4b5563;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .market-column-list li:hover {
+            background: #f1f5f9;
+        }
+
+        .currency-converter {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .currency-converter h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .converter-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .converter-controls input, .converter-controls select {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .converter-controls span {
+            color: #6b7280;
+        }
+
+        .converter-controls button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .converter-controls button:hover {
+            background: var(--secondary-color);
+        }
+
+        .converter-result {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .save-load-buttons {
+            display: flex;
+            gap: 1rem;
+            align-self: flex-end;
+        }
+
+        .save-setup-btn, .load-setup-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-setup-btn:hover, .load-setup-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .add-clock-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-end;
+        }
+
+        .add-clock-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .clocks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .clock-card {
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .clock-card.light {
+            background: var(--clock-bg-light);
+            border: 2px solid var(--clock-border-light);
+            color: var(--clock-text-light);
+        }
+
+        .clock-card.dark {
+            background: var(--clock-bg-dark);
+            border: 2px solid var(--clock-border-dark);
+            color: var(--clock-text-dark);
+        }
+
+        .clock-card.vibrant {
+            background: var(--clock-bg-vibrant);
+            border: 2px solid var(--clock-border-vibrant);
+            color: var(--clock-text-vibrant);
+        }
+
+        .clock-card:hover {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .clock-card.light .clock-location,
+        .clock-card.light .clock-timezone,
+        .clock-card.light .clock-display,
+        .clock-card.light .clock-date,
+        .clock-card.light .clock-format {
+            color: var(--clock-text-light);
+        }
+
+        .clock-card.dark .clock-location,
+        .clock-card.dark .clock-timezone,
+        .clock-card.dark .clock-display,
+        .clock-card.dark .clock-date,
+        .clock-card.dark .clock-format {
+            color: var(--clock-text-dark);
+        }
+
+        .clock-card.vibrant .clock-location,
+        .clock-card.vibrant .clock-timezone,
+        .clock-card.vibrant .clock-display,
+        .clock-card.vibrant .clock-date,
+        .clock-card.vibrant .clock-format {
+            color: var(--clock-text-vibrant);
+        }
+
+        .clock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .clock-location {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .clock-timezone {
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+
+        .market-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-left: 0.75rem;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .remove-clock, .share-clock, .view-history {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .remove-clock {
+            color: var(--danger-color);
+        }
+
+        .share-clock {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-right: 0.5rem;
+        }
+
+        .view-history {
+            color: #6b7280;
+            font-size: 1.3rem;
+            margin-right: 0.5rem;
+        }
+
+        .remove-clock:hover, .share-clock:hover, .view-history:hover {
+            transform: scale(1.3);
+        }
+
+        .clock-display {
+            font-weight: 700;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .clock-display.small { font-size: 1.8rem; }
+        .clock-display.medium { font-size: 2.5rem; }
+        .clock-display.large { font-size: 3.2rem; }
+
+        .clock-date {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+
+        .clock-date.small { font-size: 0.8rem; }
+        .clock-date.medium { font-size: 0.95rem; }
+        .clock-date.large { font-size: 1.1rem; }
+
+        .clock-format {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+
+        .clock-format.small { font-size: 0.75rem; }
+        .clock-format.medium { font-size: 0.9rem; }
+        .clock-format.large { font-size: 1rem; }
+
+        .analog-clock {
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .analog-clock.light { border: 8px solid var(--clock-border-light); background: var(--clock-bg-light); }
+        .analog-clock.dark { border: 8px solid var(--clock-border-dark); background: var(--clock-bg-dark); }
+        .analog-clock.vibrant { border: 8px solid var(--clock-border-vibrant); background: var(--clock-bg-vibrant); }
+
+        .analog-clock.small { width: 140px; height: 140px; }
+        .analog-clock.medium { width: 180px; height: 180px; }
+        .analog-clock.large { width: 220px; height: 220px; }
+
+        .clock-center {
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .clock-center.light { background-color: var(--clock-text-light); }
+        .clock-center.dark { background-color: var(--clock-text-dark); }
+        .clock-center.vibrant { background-color: var(--clock-text-vibrant); }
+
+        .clock-center.small { width: 8px; height: 8px; }
+        .clock-center.medium { width: 12px; height: 12px; }
+        .clock-center.large { width: 16px; height: 16px; }
+
+        .hour-hand, .minute-hand, .second-hand {
+            position: absolute;
+            left: 50%;
+            bottom: 50%;
+            transform-origin: 50% 100%;
+            border-radius: 4px;
+        }
+
+        .hour-hand.light { background-color: var(--clock-text-light); }
+        .hour-hand.dark { background-color: var(--clock-text-dark); }
+        .hour-hand.vibrant { background-color: var(--clock-text-vibrant); }
+
+        .hour-hand {
+            z-index: 5;
+        }
+
+        .hour-hand.small { width: 5px; height: 40px; margin-left: -2.5px; }
+        .hour-hand.medium { width: 7px; height: 55px; margin-left: -3.5px; }
+        .hour-hand.large { width: 9px; height: 70px; margin-left: -4.5px; }
+
+        .minute-hand.light { background-color: var(--secondary-color); }
+        .minute-hand.dark { background-color: var(--accent-color); }
+        .minute-hand.vibrant { background-color: #ea580c; }
+
+        .minute-hand {
+            z-index: 6;
+        }
+
+        .minute-hand.small { width: 3px; height: 55px; margin-left: -1.5px; }
+        .minute-hand.medium { width: 5px; height: 70px; margin-left: -2.5px; }
+        .minute-hand.large { width: 7px; height: 85px; margin-left: -3.5px; }
+
+        .second-hand {
+            background-color: var(--danger-color);
+            z-index: 7;
+        }
+
+        .second-hand.small { width: 2px; height: 60px; margin-left: -1px; }
+        .second-hand.medium { width: 3px; height: 75px; margin-left: -1.5px; }
+        .second-hand.large { width: 4px; height: 90px; margin-left: -2px; }
+
+        .clock-numbers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            font-weight: bold;
+        }
+
+        .clock-numbers.light { color: var(--clock-text-light); }
+        .clock-numbers.dark { color: var(--clock-text-dark); }
+        .clock-numbers.vibrant { color: var(--clock-text-vibrant); }
+
+        .clock-numbers.small { font-size: 0.7rem; }
+        .clock-numbers.medium { font-size: 0.9rem; }
+        .clock-numbers.large { font-size: 1.1rem; }
+
+        .clock-numbers span {
+            position: absolute;
+            display: block;
+            text-align: center;
+        }
+
+        .clock-numbers.small span { width: 16px; height: 16px; line-height: 16px; }
+        .clock-numbers.medium span { width: 20px; height: 20px; line-height: 20px; }
+        .clock-numbers.large span { width: 24px; height: 24px; line-height: 24px; }
+
+        .clock-settings {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .clock-settings button {
+            background-color: #e2e8f0;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .clock-settings button:hover {
+            background-color: #d1d5db;
+            transform: translateY(-2px);
+        }
+
+        .clock-settings button.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .blog-preview {
+            margin-bottom: 3rem;
+        }
+
+        .blog-preview h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .blog-posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .blog-post-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .blog-post-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-post-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .blog-post-card p {
+            color: #4b5563;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .blog-post-card a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .blog-post-card a:hover {
+            text-decoration: underline;
+        }
+
+        .news-ticker-container {
+            background: var(--news-ticker-bg);
+            color: var(--news-ticker-text);
+            padding: 0.8rem 0;
+            position: fixed;
+            bottom: 3rem;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 99;
+        }
+
+        .news-ticker {
+            display: flex;
+            animation: ticker 60s linear infinite;
+            white-space: nowrap;
+        }
+
+        .news-ticker-item {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 2rem;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .news-ticker-item i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .news-ticker-item .share-news {
+            margin-left: 0.5rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease;
+        }
+
+        .news-ticker-item .share-news:hover {
+            transform: scale(1.2);
+        }
+
+        .ticker-container {
+            background: var(--ticker-bg);
+            color: var(--ticker-text);
+            padding: 1rem 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 99;
+        }
+
+        .ticker {
+            display: flex;
+            animation: ticker 45s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .ticker-item span {
+            margin: 0 0.5rem;
+        }
+
+        .price-up {
+            color: var(--success-color);
+        }
+
+        .price-down {
+            color: var(--danger-color);
+        }
+
+        .chat-widget {
+            position: fixed;
+            bottom: 6rem;
+            right: 1rem;
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.8rem;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 1rem;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chat-body {
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .chat-message span {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 0.5rem;
+            border-top: 1px solid #d1d5db;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px 0 0 4px;
+            font-size: 0.9rem;
+        }
+
+        .chat-input button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .chat-toggle {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            margin: 10% auto;
+            padding: 1.5rem;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .modal-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content th, .modal-content td {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            text-align: left;
+        }
+
+        .modal-content th {
+            background: #f1f5f9;
+            color: var(--primary-color);
+        }
+
+        footer {
+            background: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2.5rem;
+            margin-top: 2rem;
+            margin-bottom: 6rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                display: none;
+            }
+
+            .brand {
+                font-size: 1.8rem;
+            }
+
+            .clock-display.small { font-size: 1.6rem; }
+            .clock-display.medium { font-size: 2.2rem; }
+            .clock-display.large { font-size: 2.8rem; }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .save-load-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .save-setup-btn, .load-setup-btn {
+                width: 100%;
+            }
+
+            .add-clock-btn {
+                width: 100%;
+            }
+
+            .ticker-item {
+                font-size: 0.9rem;
+                margin: 0 1rem;
+            }
+
+            .news-ticker-item {
+                font-size: 0.85rem;
+                margin: 0 1rem;
+            }
+
+            .market-status-columns {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .market-column {
+                text-align: left;
+            }
+
+            .market-column-header {
+                justify-content: flex-start;
+            }
+
+            .market-column h3 {
+                font-size: 0.95rem;
+            }
+
+            .market-column-list li {
+                font-size: 0.8rem;
+            }
+
+            .clocks-container {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            }
+
+            .converter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .blog-posts {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-widget {
+                width: 90%;
+                right: 5%;
+            }
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-clock"></i> Buzz Forex
+        </div>
+        <div class="header-title">Forex Trading Clock</div>
+        <a href="#" class="home-btn"><i class="fas fa-home"></i> Home</a>
+    </header>
+
+    <main>
+        <section class="market-status-columns">
+            <div class="market-column">
+                <div class="market-column-header">
+                    <div class="column-status-color" style="background-color: var(--market-prepost);"></div>
+                    <h3>Pre/Post Market</h3>
+                </div>
+                <ul class="market-column-list" id="pre-market-list"></ul>
+            </div>
+            <div class="market-column">
+                <div class="market-column-header">
+                    <div class="column-status-color" style="background-color: var(--market-open);"></div>
+                    <h3>Open Market</h3>
+                </div>
+                <ul class="market-column-list" id="open-list"></ul>
+            </div>
+            <div class="market-column">
+                <div class="market-column-header">
+                    <div class="column-status-color" style="background-color: var(--market-closed);"></div>
+                    <h3>Close Market</h3>
+                </div>
+                <ul class="market-column-list" id="close-list"></ul>
+            </div>
+        </section>
+
+        <section class="currency-converter">
+            <h2>Currency Converter</h2>
+            <div class="converter-controls">
+                <input type="number" id="amount" value="1" min="0" step="0.01">
+                <select id="from-currency">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="JPY">JPY</option>
+                </select>
+                <span>to</span>
+                <select id="to-currency">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="JPY">JPY</option>
+                </select>
+                <button id="convert-btn">Convert</button>
+            </div>
+            <div class="converter-result">
+                <span id="converted-amount">0.00</span> <span id="to-currency-display">USD</span>
+            </div>
+        </section>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="timezone-select">Financial Center</label>
+                <select id="timezone-select">
+                    <option value="">Select a market</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="clock-type">Clock Type</label>
+                <select id="clock-type">
+                    <option value="digital">Digital</option>
+                    <option value="analog">Analog</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="time-format">Time Format</label>
+                <select id="time-format">
+                    <option value="12h">12-hour</option>
+                    <option value="24h">24-hour</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="clock-size">Clock Size</label>
+                <select id="clock-size">
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="clock-theme">Clock Theme</label>
+                <select id="clock-theme">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="vibrant">Vibrant</option>
+                </select>
+            </div>
+            <div class="save-load-buttons">
+                <button class="save-setup-btn" id="save-setup">Save Setup</button>
+                <button class="load-setup-btn" id="load-setup">Load Setup</button>
+            </div>
+            <button class="add-clock-btn" id="add-clock">Add Clock</button>
+        </div>
+
+        <div class="clocks-container" id="clocks-container"></div>
+
+        <section class="blog-preview">
+            <h2>Latest Forex Insights</h2>
+            <div class="blog-posts">
+                <div class="blog-post-card">
+                    <h3>Mastering Forex Market Hours for Optimal Trading</h3>
+                    <p>Understand the overlap of global market sessions to time your trades effectively and capitalize on high volatility periods.</p>
+                    <a href="https://www.forexfactory.com/news" target="_blank">Read More</a>
+                </div>
+                <div class="blog-post-card">
+                    <h3>Key Currency Pairs to Watch in 2025</h3>
+                    <p>Explore the top currency pairs like EUR/USD and USD/JPY, and learn what drives their movements in today’s markets.</p>
+                    <a href="https://www.forexfactory.com/news" target="_blank">Read More</a>
+                </div>
+                <div class="blog-post-card">
+                    <h3>Effective Risk Management in Forex Trading</h3>
+                    <p>Discover strategies to protect your capital, including stop-loss orders and position sizing, for sustainable trading success.</p>
+                    <a href="https://www.forexfactory.com/news" target="_blank">Read More</a>
+                </div>
+                <div class="blog-post-card">
+                    <h3>Trading Forex on News Releases</h3>
+                    <p>Learn how to navigate economic data releases and central bank announcements to profit from market-moving events.</p>
+                    <a href="https://www.forexfactory.com/news" target="_blank">Read More</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="news-ticker-container">
+        <div class="news-ticker" id="news-ticker"></div>
+    </div>
+
+    <div class="ticker-container">
+        <div class="ticker" id="market-ticker"></div>
+    </div>
+
+    <div class="chat-widget" id="chat-widget">
+        <div class="chat-header">
+            <h3>Live Chat</h3>
+            <button class="chat-close">×</button>
+        </div>
+        <div class="chat-body" id="chat-body"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-message" placeholder="Type a message...">
+            <button id="send-message">Send</button>
+        </div>
+    </div>
+
+    <button class="chat-toggle" id="chat-toggle"><i class="fas fa-comment"></i></button>
+
+    <div class="modal" id="history-modal">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h3>Market History</h3>
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">About Us</a>
+            <a href="#">Contact</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+        <p>© 2025 Buzz Forex Trading Clock. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const forexMarkets = [
+            { 
+                name: "New York (NYSE)", 
+                value: "America/New_York",
+                open: { hour: 9, minute: 30 },
+                close: { hour: 16, minute: 0 },
+                preMarket: { hour: 4, minute: 0 },
+                postMarket: { hour: 20, minute: 0 }
+            },
+            { 
+                name: "London (LSE)", 
+                value: "Europe/London",
+                open: { hour: 8, minute: 0 },
+                close: { hour: 16, minute: 30 },
+                preMarket: { hour: 7, minute: 0 },
+                postMarket: { hour: 18, minute: 0 }
+            },
+            { 
+                name: "Tokyo (TSE)", 
+                value: "Asia/Tokyo",
+                open: { hour: 9, minute: 0 },
+                close: { hour: 15, minute: 0 },
+                preMarket: { hour: 7, minute: 0 },
+                postMarket: { hour: 17, minute: 0 }
+            },
+            { 
+                name: "Sydney (ASX)", 
+                value: "Australia/Sydney",
+                open: { hour: 10, minute: 0 },
+                close: { hour: 16, minute: 0 },
+                preMarket: { hour: 7, minute: 0 },
+                postMarket: { hour: 18, minute: 0 }
+            },
+            { 
+                name: "Frankfurt (FWB)", 
+                value: "Europe/Berlin",
+                open: { hour: 9, minute: 0 },
+                close: { hour: 17, minute: 30 },
+                preMarket: { hour: 8, minute: 0 },
+                postMarket: { hour: 19, minute: 0 }
+            },
+            { 
+                name: "Hong Kong (HKEX)", 
+                value: "Asia/Hong_Kong",
+                open: { hour: 9, minute: 30 },
+                close: { hour: 16, minute: 0 },
+                preMarket: { hour: 8, minute: 0 },
+                postMarket: { hour: 17, minute: 0 }
+            },
+            { 
+                name: "Shanghai (SSE)", 
+                value: "Asia/Shanghai",
+                open: { hour: 9, minute: 30 },
+                close: { hour: 15, minute: 0 },
+                preMarket: { hour: 8, minute: 0 },
+                postMarket: { hour: 16, minute: 0 }
+            }
+        ];
+
+        const marketData = [
+            { name: "EUR/USD", type: "forex", price: 1.1850, change: 0.0020 },
+            { name: "GBP/USD", type: "forex", price: 1.3920, change: -0.0015 },
+            { name: "USD/JPY", type: "forex", price: 108.75, change: 0.10 },
+            { name: "AUD/USD", type: "forex", price: 0.7750, change: 0.0008 },
+            { name: "S&P 500", type: "index", price: 4520.75, change: 15.25 },
+            { name: "FTSE 100", type: "index", price: 7230.50, change: -10.30 },
+            { name: "Nikkei 225", type: "index", price: 29500.25, change: 200.75 },
+            { name: "DAX 40", type: "index", price: 15850.80, change: -25.60 },
+            { name: "Hang Seng", type: "index", price: 25200.40, change: 100.20 }
+        ];
+
+        const fxNews = [
+            { headline: "EUR/USD Climbs as ECB Signals Steady Rates" },
+            { headline: "USD/JPY Falls Amid US Inflation Data Release" },
+            { headline: "GBP/USD Steady as UK GDP Growth Meets Expectations" },
+            { headline: "AUD/USD Rises on Strong Australian Employment Data" },
+            { headline: "Forex Markets Brace for Upcoming Fed Meeting Minutes" },
+            { headline: "EUR/GBP Dips as Eurozone PMI Data Disappoints" },
+            { headline: "USD/CAD Gains on Rising Oil Prices" }
+        ];
+
+        const historicalData = {
+            "America/New_York": [
+                { date: "2025-04-21", status: "Open", time: "09:30" },
+                { date: "2025-04-21", status: "Close", time: "16:00" },
+                { date: "2025-04-20", status: "Pre-Market", time: "04:00" }
+            ],
+            "Europe/London": [
+                { date: "2025-04-21", status: "Open", time: "08:00" },
+                { date: "2025-04-21", status: "Close", time: "16:30" },
+                { date: "2025-04-20", status: "Post-Market", time: "18:00" }
+            ],
+            "Asia/Tokyo": [
+                { date: "2025-04-21", status: "Open", time: "09:00" },
+                { date: "2025-04-21", status: "Close", time: "15:00" },
+                { date: "2025-04-20", status: "Pre-Market", time: "07:00" }
+            ],
+            "Australia/Sydney": [
+                { date: "2025-04-21", status: "Open", time: "10:00" },
+                { date: "2025-04-21", status: "Close", time: "16:00" },
+                { date: "2025-04-20", status: "Post-Market", time: "18:00" }
+            ],
+            "Europe/Berlin": [
+                { date: "2025-04-21", status: "Open", time: "09:00" },
+                { date: "2025-04-21", status: "Close", time: "17:30" },
+                { date: "2025-04-20", status: "Pre-Market", time: "08:00" }
+            ],
+            "Asia/Hong_Kong": [
+                { date: "2025-04-21", status: "Open", time: "09:30" },
+                { date: "2025-04-21", status: "Close", time: "16:00" },
+                { date: "2025-04-20", status: "Post-Market", time: "17:00" }
+            ],
+            "Asia/Shanghai": [
+                { date: "2025-04-21", status: "Open", time: "09:30" },
+                { date: "2025-04-21", status: "Close", time: "15:00" },
+                { date: "2025-04-20", status: "Pre-Market", time: "08:00" }
+            ]
+        };
+
+        const timezoneSelect = document.getElementById('timezone-select');
+        const clockTypeSelect = document.getElementById('clock-type');
+        const timeFormatSelect = document.getElementById('time-format');
+        const clockSizeSelect = document.getElementById('clock-size');
+        const clockThemeSelect = document.getElementById('clock-theme');
+        const addClockBtn = document.getElementById('add-clock');
+        const saveSetupBtn = document.getElementById('save-setup');
+        const loadSetupBtn = document.getElementById('load-setup');
+        const clocksContainer = document.getElementById('clocks-container');
+        const tickerContainer = document.getElementById('market-ticker');
+        const newsTickerContainer = document.getElementById('news-ticker');
+        const preMarketList = document.getElementById('pre-market-list');
+        const openList = document.getElementById('open-list');
+        const closeList = document.getElementById('close-list');
+        const historyModal = document.getElementById('history-modal');
+        const historyTableBody = document.querySelector('#history-table tbody');
+        const chatWidget = document.getElementById('chat-widget');
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatClose = document.querySelector('.chat-close');
+        const chatBody = document.getElementById('chat-body');
+        const chatMessageInput = document.getElementById('chat-message');
+        const sendMessageBtn = document.getElementById('send-message');
+        const convertBtn = document.getElementById('convert-btn');
+
+        let previousMarketStatuses = {};
+
+        function populateMarkets() {
+            forexMarkets.forEach(market => {
+                const option = document.createElement('option');
+                option.value = market.value;
+                option.textContent = market.name;
+                timezoneSelect.appendChild(option);
+            });
+        }
+
+        function updateMarketStatusColumns() {
+            const now = new Date();
+            preMarketList.innerHTML = '';
+            openList.innerHTML = '';
+            closeList.innerHTML = '';
+
+            forexMarkets.forEach(market => {
+                const options = {
+                    timeZone: market.value,
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: false
+                };
+                const timeStr = now.toLocaleTimeString('en-US', options);
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                
+                const marketOpenTime = market.open.hour * 60 + market.open.minute;
+                const marketCloseTime = market.close.hour * 60 + market.close.minute;
+                const currentTime = hours * 60 + minutes;
+                const preMarketStart = market.preMarket.hour * 60 + market.preMarket.minute;
+                const postMarketEnd = market.postMarket.hour * 60 + market.postMarket.minute;
+
+                let currentStatus;
+                const listItem = document.createElement('li');
+                listItem.textContent = market.name;
+
+                if (currentTime >= marketOpenTime && currentTime < marketCloseTime) {
+                    currentStatus = 'open';
+                    openList.appendChild(listItem);
+                } else if ((currentTime >= preMarketStart && currentTime < marketOpenTime) || 
+                           (currentTime >= marketCloseTime && currentTime < postMarketEnd)) {
+                    currentStatus = 'prepost';
+                    preMarketList.appendChild(listItem);
+                } else {
+                    currentStatus = 'close';
+                    closeList.appendChild(listItem);
+                }
+                console.log(`${market.name} - Current Time: ${hours}:${minutes}, Status: ${currentStatus}`);
+
+                previousMarketStatuses[market.value] = currentStatus;
+
+                const clocks = clocksContainer.querySelectorAll('.clock-card');
+                clocks.forEach(clock => {
+                    if (clock.dataset.timezone === market.value) {
+                        const marketIndicator = clock.querySelector('.market-indicator');
+                        marketIndicator.style.backgroundColor = 
+                            currentStatus === 'open' ? 'var(--market-open)' :
+                            currentStatus === 'prepost' ? 'var(--market-prepost)' :
+                            'var(--market-closed)';
+                        marketIndicator.title = 
+                            currentStatus === 'open' ? 'Open Market' :
+                            currentStatus === 'prepost' ? 'Pre/Post Market' :
+                            'Close Market';
+                    }
+                });
+            });
+        }
+
+        function updateCurrencyConverter() {
+            const amountInput = document.getElementById('amount');
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+            const convertedAmount = document.getElementById('converted-amount');
+            const toCurrencyDisplay = document.getElementById('to-currency-display');
+
+            const rates = { USD: 1, EUR: 0.92, GBP: 0.79, JPY: 145.32 };
+            const amount = parseFloat(amountInput.value) || 0;
+            const rate = rates[toCurrency] / rates[fromCurrency];
+            const result = (amount * rate).toFixed(2);
+
+            convertedAmount.textContent = result;
+            toCurrencyDisplay.textContent = toCurrency;
+        }
+
+        function setupCurrencyConverter() {
+            convertBtn.addEventListener('click', updateCurrencyConverter);
+        }
+
+        function updateMarketTicker() {
+            tickerContainer.innerHTML = '';
+            marketData.forEach(item => {
+                const changeClass = item.change >= 0 ? 'price-up' : 'price-down';
+                const changeSymbol = item.change >= 0 ? '▲' : '▼';
+                const itemElement = document.createElement('div');
+                itemElement.className = 'ticker-item';
+                itemElement.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>${item.type === 'forex' ? item.price.toFixed(4) : item.price.toFixed(2)}</span>
+                    <span class="${changeClass}">${changeSymbol} ${Math.abs(item.type === 'forex' ? item.change.toFixed(4) : item.change.toFixed(2))}</span>
+                `;
+                tickerContainer.appendChild(itemElement);
+            });
+            marketData.forEach(item => {
+                const change = (Math.random() - 0.5) * (item.type === 'forex' ? 0.005 : 50);
+                item.price += change;
+                item.change = change;
+            });
+        }
+
+        function updateNewsTicker() {
+            newsTickerContainer.innerHTML = '';
+            fxNews.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'news-ticker-item';
+                itemElement.innerHTML = `
+                    <i class="fas fa-bullhorn"></i>
+                    <span>${item.headline}</span>
+                    <i class="fas fa-share-alt share-news" data-headline="${item.headline}"></i>
+                `;
+                newsTickerContainer.appendChild(itemElement);
+            });
+
+            document.querySelectorAll('.share-news').forEach(button => {
+                button.addEventListener('click', () => {
+                    const headline = button.dataset.headline;
+                    const shareText = `${headline} - Check it out on Buzz Forex Trading Clock!`;
+                    const shareUrl = window.location.href;
+                    shareContent(shareText, shareUrl);
+                });
+            });
+        }
+
+        function shareContent(text, url) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Buzz Forex Trading Clock',
+                    text: text,
+                    url: url
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                alert('Sharing is not supported on this device. Copy this link: ' + url);
+            }
+        }
+
+        function addClock(source) {
+            if (clocksContainer.children.length >= 5) {
+                alert('You can only add up to 5 clocks at a time. Remove one to add another.');
+                return;
+            }
+            
+            let timezone;
+            if (source === 'local') {
+                timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const localMarket = forexMarkets.find(market => market.value === timezone);
+                if (!localMarket) return;
+            } else {
+                timezone = timezoneSelect.value;
+                if (!timezone) {
+                    alert('Please select a financial center first');
+                    return;
+                }
+            }
+            
+            const existingClocks = Array.from(clocksContainer.children);
+            if (existingClocks.some(clock => clock.dataset.timezone === timezone)) {
+                alert('This market is already displayed');
+                return;
+            }
+            
+            const clockType = clockTypeSelect.value;
+            const timeFormat = timeFormatSelect.value;
+            const clockSize = clockSizeSelect.value;
+            const clockTheme = clockThemeSelect.value;
+            const market = forexMarkets.find(m => m.value === timezone);
+            
+            const clockCard = document.createElement('div');
+            clockCard.className = `clock-card fade-in ${clockSize} ${clockTheme}`;
+            clockCard.dataset.timezone = timezone;
+            clockCard.dataset.clockType = clockType;
+            clockCard.dataset.timeFormat = timeFormat;
+            clockCard.dataset.clockSize = clockSize;
+            clockCard.dataset.clockTheme = clockTheme;
+            
+            const numberStyles = clockSize === 'small' ? 
+                'top: 8px; left: 50%; transform: translateX(-50%);|top: 50%; right: 8px; transform: translateY(-50%);|bottom: 8px; left: 50%; transform: translateX(-50%);|top: 50%; left: 8px; transform: translateY(-50%);' :
+                clockSize === 'medium' ? 
+                'top: 10px; left: 50%; transform: translateX(-50%);|top: 50%; right: 10px; transform: translateY(-50%);|bottom: 10px; left: 50%; transform: translateX(-50%);|top: 50%; left: 10px; transform: translateY(-50%);' :
+                'top: 12px; left: 50%; transform: translateX(-50%);|top: 50%; right: 12px; transform: translateY(-50%);|bottom: 12px; left: 50%; transform: translateX(-50%);|top: 50%; left: 12px; transform: translateY(-50%);';
+            const numberStylesArray = numberStyles.split('|');
+            
+            clockCard.innerHTML = `
+                <div class="clock-header">
+                    <div>
+                        <div class="clock-location">${market ? market.name : timezone.split('/').pop().replace('_', ' ')} 
+                            <span class="market-indicator"></span>
+                        </div>
+                        <div class="clock-timezone">${timezone}</div>
+                    </div>
+                    <div>
+                        <button class="view-history" title="View market history"><i class="fas fa-history"></i></button>
+                        <button class="share-clock" title="Share market status"><i class="fas fa-share-alt"></i></button>
+                        <button class="remove-clock" title="Remove clock">×</button>
+                    </div>
+                </div>
+                ${clockType !== 'analog' ? `
+                <div class="clock-display ${clockSize}">00:00:00</div>
+                <div class="clock-date ${clockSize}">Loading date...</div>
+                <div class="clock-format ${clockSize}">${timeFormat === '12h' ? '12-hour format' : '24-hour format'}</div>
+                ` : ''}
+                ${clockType !== 'digital' ? `
+                <div class="analog-clock ${clockSize} ${clockTheme}">
+                    <div class="clock-numbers ${clockSize} ${clockTheme}">
+                        <span style="${numberStylesArray[0]}">12</span>
+                        <span style="${numberStylesArray[1]}">3</span>
+                        <span style="${numberStylesArray[2]}">6</span>
+                        <span style="${numberStylesArray[3]}">9</span>
+                    </div>
+                    <div class="clock-center ${clockSize} ${clockTheme}"></div>
+                    <div class="hour-hand ${clockSize} ${clockTheme}"></div>
+                    <div class="minute-hand ${clockSize} ${clockTheme}"></div>
+                    <div class="second-hand ${clockSize} ${clockTheme}"></div>
+                </div>
+                ` : ''}
+                <div class="clock-settings">
+                    <button class="toggle-digital" data-type="digital">Digital</button>
+                    <button class="toggle-analog" data-type="analog">Analog</button>
+                    <button class="toggle-format" data-format="${timeFormat === '12h' ? '24h' : '12h'}">
+                        Switch to ${timeFormat === '12h' ? '24-hour' : '12-hour'}
+                    </button>
+                </div>
+            `;
+            
+            const removeBtn = clockCard.querySelector('.remove-clock');
+            removeBtn.addEventListener('click', () => {
+                clockCard.classList.add('fade-out');
+                setTimeout(() => clockCard.remove(), 500);
+            });
+            
+            clockCard.querySelector('.toggle-digital').addEventListener('click', function() {
+                clockCard.dataset.clockType = this.dataset.type;
+                updateClockDisplay(clockCard);
+            });
+            
+            clockCard.querySelector('.toggle-analog').addEventListener('click', function() {
+                clockCard.dataset.clockType = this.dataset.type;
+                updateClockDisplay(clockCard);
+            });
+            
+            clockCard.querySelector('.toggle-format').addEventListener('click', function() {
+                clockCard.dataset.timeFormat = this.dataset.format;
+                this.dataset.format = this.dataset.format === '12h' ? '24h' : '12h';
+                this.textContent = `Switch to ${this.dataset.format === '12h' ? '24-hour' : '12-hour'}`;
+                updateClock(clockCard);
+            });
+
+            clockCard.querySelector('.share-clock').addEventListener('click', () => {
+                const marketName = market.name;
+                const status = clockCard.querySelector('.market-indicator').title;
+                const shareText = `${marketName} is currently in ${status} - Check it on Buzz Forex Trading Clock!`;
+                const shareUrl = window.location.href;
+                shareContent(shareText, shareUrl);
+            });
+
+            clockCard.querySelector('.view-history').addEventListener('click', () => {
+                showMarketHistory(timezone);
+            });
+            
+            clocksContainer.appendChild(clockCard);
+            updateClock(clockCard);
+            
+            if (source !== 'local') {
+                timezoneSelect.value = '';
+            }
+        }
+
+        function updateClockDisplay(clockCard) {
+            const clockType = clockCard.dataset.clockType;
+            const clockSize = clockCard.dataset.clockSize;
+            const clockTheme = clockCard.dataset.clockTheme;
+            const numberStyles = clockSize === 'small' ? 
+                'top: 8px; left: 50%; transform: translateX(-50%);|top: 50%; right: 8px; transform: translateY(-50%);|bottom: 8px; left: 50%; transform: translateX(-50%);|top: 50%; left: 8px; transform: translateY(-50%);' :
+                clockSize === 'medium' ? 
+                'top: 10px; left: 50%; transform: translateX(-50%);|top: 50%; right: 10px; transform: translateY(-50%);|bottom: 10px; left: 50%; transform: translateX(-50%);|top: 50%; left: 10px; transform: translateY(-50%);' :
+                'top: 12px; left: 50%; transform: translateX(-50%);|top: 50%; right: 12px; transform: translateY(-50%);|bottom: 12px; left: 50%; transform: translateX(-50%);|top: 50%; left: 12px; transform: translateY(-50%);';
+            const numberStylesArray = numberStyles.split('|');
+            
+            const existingDisplay = clockCard.querySelector('.clock-display');
+            const existingDate = clockCard.querySelector('.clock-date');
+            const existingFormat = clockCard.querySelector('.clock-format');
+            const existingAnalog = clockCard.querySelector('.analog-clock');
+            if (existingDisplay) existingDisplay.remove();
+            if (existingDate) existingDate.remove();
+            if (existingFormat) existingFormat.remove();
+            if (existingAnalog) existingAnalog.remove();
+            
+            const content = `
+                ${clockType !== 'analog' ? `
+                <div class="clock-display ${clockSize}">00:00:00</div>
+                <div class="clock-date ${clockSize}">Loading date...</div>
+                <div class="clock-format ${clockSize}">${clockCard.dataset.timeFormat === '12h' ? '12-hour format' : '24-hour format'}</div>
+                ` : ''}
+                ${clockType !== 'digital' ? `
+                <div class="analog-clock ${clockSize} ${clockTheme}">
+                    <div class="clock-numbers ${clockSize} ${clockTheme}">
+                        <span style="${numberStylesArray[0]}">12</span>
+                        <span style="${numberStylesArray[1]}">3</span>
+                        <span style="${numberStylesArray[2]}">6</span>
+                        <span style="${numberStylesArray[3]}">9</span>
+                    </div>
+                    <div class="clock-center ${clockSize} ${clockTheme}"></div>
+                    <div class="hour-hand ${clockSize} ${clockTheme}"></div>
+                    <div class="minute-hand ${clockSize} ${clockTheme}"></div>
+                    <div class="second-hand ${clockSize} ${clockTheme}"></div>
+                </div>
+                ` : ''}
+            `;
+            
+            const settingsDiv = clockCard.querySelector('.clock-settings');
+            settingsDiv.insertAdjacentHTML('beforebegin', content);
+            
+            const toggleDigitalBtn = clockCard.querySelector('.toggle-digital');
+            const toggleAnalogBtn = clockCard.querySelector('.toggle-analog');
+            
+            toggleDigitalBtn.classList.remove('active');
+            toggleAnalogBtn.classList.remove('active');
+            
+            if (clockType === 'digital') {
+                toggleDigitalBtn.classList.add('active');
+            } else if (clockType === 'analog') {
+                toggleAnalogBtn.classList.add('active');
+            }
+            
+            clockCard.className = `clock-card fade-in ${clockSize} ${clockTheme}`;
+            updateClock(clockCard);
+        }
+
+        function updateClockTheme() {
+            const theme = clockThemeSelect.value;
+            const clocks = clocksContainer.querySelectorAll('.clock-card');
+            clocks.forEach(clock => {
+                clock.className = `clock-card fade-in ${clock.dataset.clockSize} ${theme}`;
+                clock.dataset.clockTheme = theme;
+                updateClockDisplay(clock);
+            });
+        }
+
+        function updateClock(clockCard) {
+            const timezone = clockCard.dataset.timezone;
+            const timeFormat = clockCard.dataset.timeFormat;
+            const clockType = clockCard.dataset.clockType;
+
+            const now = new Date();
+            const options = {
+                timeZone: timezone,
+                hour12: timeFormat === '12h',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+            };
+            const dateOptions = {
+                timeZone: timezone,
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+
+            if (clockType !== 'analog') {
+                const time = now.toLocaleTimeString('en-US', options);
+                const date = now.toLocaleDateString('en-US', dateOptions);
+                const display = clockCard.querySelector('.clock-display');
+                const dateDisplay = clockCard.querySelector('.clock-date');
+                if (display) display.textContent = time;
+                if (dateDisplay) dateDisplay.textContent = date;
+            }
+
+            if (clockType !== 'digital') {
+                const hours = now.toLocaleString('en-US', { timeZone: timezone, hour: 'numeric', hour12: false });
+                const minutes = now.toLocaleString('en-US', { timeZone: timezone, minute: 'numeric' });
+                const seconds = now.toLocaleString('en-US', { timeZone: timezone, second: 'numeric' });
+
+                const hourHand = clockCard.querySelector('.hour-hand');
+                const minuteHand = clockCard.querySelector('.minute-hand');
+                const secondHand = clockCard.querySelector('.second-hand');
+
+                const hourDeg = (parseInt(hours) % 12 + parseInt(minutes) / 60) * 30;
+                const minuteDeg = (parseInt(minutes) + parseInt(seconds) / 60) * 6;
+                const secondDeg = parseInt(seconds) * 6;
+
+                if (hourHand) hourHand.style.transform = `rotate(${hourDeg}deg)`;
+                if (minuteHand) minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+                if (secondHand) secondHand.style.transform = `rotate(${secondDeg}deg)`;
+            }
+        }
+
+        function updateAllClocks() {
+            const clocks = clocksContainer.querySelectorAll('.clock-card');
+            clocks.forEach(clock => updateClock(clock));
+        }
+
+        function saveSetup() {
+            const clocks = clocksContainer.querySelectorAll('.clock-card');
+            const setup = Array.from(clocks).map(clock => ({
+                timezone: clock.dataset.timezone,
+                clockType: clock.dataset.clockType,
+                timeFormat: clock.dataset.timeFormat,
+                clockSize: clock.dataset.clockSize,
+                clockTheme: clock.dataset.clockTheme
+            }));
+            localStorage.setItem('clockSetup', JSON.stringify(setup));
+            alert('Setup saved!');
+        }
+
+        function loadSetup() {
+            const setup = JSON.parse(localStorage.getItem('clockSetup'));
+            if (setup && setup.length > 0) {
+                clocksContainer.innerHTML = '';
+                setup.forEach(clock => {
+                    timezoneSelect.value = clock.timezone;
+                    clockTypeSelect.value = clock.clockType;
+                    timeFormatSelect.value = clock.timeFormat;
+                    clockSizeSelect.value = clock.clockSize;
+                    clockThemeSelect.value = clock.clockTheme;
+                    addClock();
+                });
+                alert('Setup loaded!');
+            } else {
+                alert('No saved setup found.');
+            }
+        }
+
+        function showMarketHistory(timezone) {
+            const history = historicalData[timezone] || [];
+            historyTableBody.innerHTML = '';
+            history.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${entry.status}</td>
+                    <td>${entry.time}</td>
+                `;
+                historyTableBody.appendChild(row);
+            });
+            historyModal.style.display = 'block';
+            document.querySelector('.modal-close').addEventListener('click', () => {
+                historyModal.style.display = 'none';
+            });
+        }
+
+        function toggleChat() {
+            chatWidget.style.display = chatWidget.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function sendMessage() {
+            const messageText = chatMessageInput.value.trim();
+            if (messageText) {
+                const message = document.createElement('div');
+                message.className = 'chat-message';
+                message.innerHTML = `<span>You:</span> ${messageText}`;
+                chatBody.appendChild(message);
+                chatMessageInput.value = '';
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                setTimeout(() => {
+                    const reply = document.createElement('div');
+                    reply.className = 'chat-message';
+                    reply.innerHTML = `<span>Bot:</span> Thanks for your message! How can I assist you with Forex trading today?`;
+                    chatBody.appendChild(reply);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }, 1000);
+            }
+        }
+
+        populateMarkets();
+        addClock('local');
+        updateMarketStatusColumns();
+        setupCurrencyConverter();
+        updateMarketTicker();
+        updateNewsTicker();
+
+        setInterval(updateAllClocks, 1000);
+        setInterval(updateMarketStatusColumns, 60000);
+        setInterval(updateMarketTicker, 10000);
+        setInterval(updateNewsTicker, 30000);
+
+        addClockBtn.addEventListener('click', () => addClock());
+        saveSetupBtn.addEventListener('click', saveSetup);
+        loadSetupBtn.addEventListener('click', loadSetup);
+        chatToggle.addEventListener('click', toggleChat);
+        chatClose.addEventListener('click', toggleChat);
+        sendMessageBtn.addEventListener('click', sendMessage);
+        chatMessageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
