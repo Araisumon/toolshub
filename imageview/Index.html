@@ -443,7 +443,7 @@
 
             <div class="zoom-controls">
                 <i class="fas fa-search-minus"></i>
-                <input type="range" min="10" max="400" value="100" class="zoom-slider" id="zoom-slider">
+                <input type="range" min="10" max="200" value="100" class="zoom-slider" id="zoom-slider">
                 <i class="fas fa-search-plus"></i>
             </div>
 
@@ -474,7 +474,7 @@
                         <i class="fas fa-search"></i>
                     </div>
                     <h3 class="feature-title">Precision Zoom</h3>
-                    <p class="feature-desc">Zoom in up to 400% with smooth scaling to examine fine details in your images.</p>
+                    <p class="feature-desc">Zoom in up to 200% with smooth scaling to examine fine details in your images.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -640,27 +640,30 @@
 
             // Zoom functionality
             function zoomImage(zoomFactor, centerX, centerY) {
-    const newScale = scale * zoomFactor;
-    
-    // Update zoom range to allow up to 400% (4x)
-    if (newScale < 0.1 || newScale > 4) return;
-    
-    // Rest of the function remains the same...
-    if (centerX === undefined || centerY === undefined) {
-        centerX = imageContainer.clientWidth / 2;
-        centerY = imageContainer.clientHeight / 2;
-    }
-    
-    const relX = (centerX - translateX) / scale;
-    const relY = (centerY - translateY) / scale;
-    
-    translateX = centerX - relX * newScale;
-    translateY = centerY - relY * newScale;
-    
-    scale = newScale;
-    zoomSlider.value = Math.round(scale * 100);
-    updateImageTransform();
-}
+                // Calculate new scale
+                const newScale = scale * zoomFactor;
+                
+                // Limit zoom range
+                if (newScale < 0.1 || newScale > 3) return;
+                
+                // If no center point provided, use image center
+                if (centerX === undefined || centerY === undefined) {
+                    centerX = imageContainer.clientWidth / 2;
+                    centerY = imageContainer.clientHeight / 2;
+                }
+                
+                // Calculate the position relative to the image
+                const relX = (centerX - translateX) / scale;
+                const relY = (centerY - translateY) / scale;
+                
+                // Calculate new translation to zoom toward the point
+                translateX = centerX - relX * newScale;
+                translateY = centerY - relY * newScale;
+                
+                scale = newScale;
+                zoomSlider.value = Math.round(scale * 100);
+                updateImageTransform();
+            }
 
             // Event listeners for zoom buttons
             zoomInBtn.addEventListener('click', () => zoomImage(1.2));
@@ -768,18 +771,18 @@
 
             // Double-click to zoom in/out
             displayedImage.addEventListener('dblclick', function(e) {
-    const rect = displayedImage.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    if (scale > 1.1) {
-        resetImageState();
-    } else {
-        // Zoom to 400% on first double-click, then 400% on next
-        const targetScale = scale === 1 ? 2 : 4;
-        zoomImage(targetScale / scale, x, y);
-    }
-});
+                const rect = displayedImage.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (scale > 1.1) {
+                    // If zoomed in, zoom out to fit
+                    resetImageState();
+                } else {
+                    // If not zoomed in, zoom toward click point
+                    zoomImage(2, x, y);
+                }
+            });
         });
     </script>
 </body>
