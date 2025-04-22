@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Test and improve your typing speed with our free typing speed tester. Check WPM, accuracy, and track your progress.">
+    <meta name="keywords" content="typing test, typing speed, WPM, words per minute, typing practice, keyboard test">
+    <title>Buzz Typing Speed Tester | Improve Your Typing Skills</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --error-color: #ef233c;
+            --warning-color: #ff9e00;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        .brand span {
+            color: var(--accent-color);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .home-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .home-btn:hover {
+            background-color: #d91a6d;
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .instructions {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .instructions h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .instructions ul {
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+        
+        .time-selector, .theme-selector, .difficulty-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        select, button {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus, button:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .start-btn {
+            background-color: var(--success-color);
+        }
+        
+        .start-btn:hover {
+            background-color: #3ab7d8;
+        }
+        
+        .reset-btn {
+            background-color: var(--warning-color);
+        }
+        
+        .reset-btn:hover {
+            background-color: #e68f00;
+        }
+        
+        .test-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .test-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            min-height: 150px;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #fafafa;
+            overflow-wrap: break-word;
+        }
+        
+        .test-text span {
+            position: relative;
+        }
+        
+        .test-text span.current {
+            background-color: #e0e7ff;
+            border-left: 2px solid var(--primary-color);
+        }
+        
+        .test-text span.correct {
+            color: #10b981;
+        }
+        
+        .test-text span.incorrect {
+            color: var(--error-color);
+            text-decoration: underline;
+        }
+        
+        .test-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .test-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            outline: none;
+        }
+        
+        .results {
+            display: none;
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .results h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .progress-container {
+            margin-top: 2rem;
+        }
+        
+        .progress-container h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .history {
+            margin-top: 2rem;
+        }
+        
+        .history h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f1f3f5;
+        }
+        
+        .share-btns {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+        
+        .share-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .twitter {
+            background-color: #1da1f2;
+        }
+        
+        .facebook {
+            background-color: #4267b2;
+        }
+        
+        .linkedin {
+            background-color: #0077b5;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        footer p {
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .header-title {
+                order: -1;
+            }
+            
+            .brand, .header-title {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .test-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Themes */
+        .theme-light {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        .theme-dark {
+            --primary-color: #7209b7;
+            --secondary-color: #560bad;
+            --accent-color: #f72585;
+            --light-color: #212529;
+            --dark-color: #f8f9fa;
+            background-color: #121212;
+            color: #f8f9fa;
+        }
+        
+        .theme-dark .test-container,
+        .theme-dark .results,
+        .theme-dark .instructions,
+        .theme-dark .stat-card {
+            background-color: #1e1e1e;
+            color: #f8f9fa;
+        }
+        
+        .theme-dark .test-text {
+            background-color: #2d2d2d;
+            border-color: #333;
+        }
+        
+        .theme-dark th {
+            background-color: #2d2d2d;
+        }
+        
+        .theme-dark tr:hover {
+            background-color: #333;
+        }
+        
+        .theme-dark .test-input {
+            background-color: #2d2d2d;
+            color: #f8f9fa;
+            border-color: #333;
+        }
+        
+        .theme-sepia {
+            --primary-color: #d4a373;
+            --secondary-color: #a68a64;
+            --accent-color: #c08552;
+            --light-color: #f5ebe0;
+            --dark-color: #5c5344;
+            background-color: #f5ebe0;
+            color: #5c5344;
+        }
+        
+        .theme-sepia .test-container,
+        .theme-sepia .results,
+        .theme-sepia .instructions,
+        .theme-sepia .stat-card {
+            background-color: #e3d5ca;
+        }
+        
+        .theme-sepia .test-text {
+            background-color: #d5bdaf;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <header>
+        <div class="brand">Buzz<span>Type</span></div>
+        <h1 class="header-title">Typing Speed Tester</h1>
+        <a href="/" class="home-btn">Home</a>
+    </header>
+    
+    <div class="container">
+        <section class="instructions">
+            <h2>How to Use the Typing Speed Tester</h2>
+            <ul>
+                <li>Select your preferred test duration and difficulty level</li>
+                <li>Click "Start Test" when you're ready</li>
+                <li>Type the text displayed above the input box as quickly and accurately as possible</li>
+                <li>Errors will be highlighted in red - correct them with backspace</li>
+                <li>Your results will be displayed when the time is up</li>
+                <li>Try to beat your previous scores and improve your typing speed!</li>
+            </ul>
+        </section>
+        
+        <div class="test-controls">
+            <div class="time-selector">
+                <label for="test-time">Test Duration:</label>
+                <select id="test-time">
+                    <option value="30">30 seconds</option>
+                    <option value="60" selected>1 minute</option>
+                    <option value="180">3 minutes</option>
+                    <option value="300">5 minutes</option>
+                </select>
+            </div>
+            
+            <div class="difficulty-selector">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="expert">Expert</option>
+                </select>
+            </div>
+            
+            <div class="theme-selector">
+                <label for="theme">Theme:</label>
+                <select id="theme">
+                    <option value="light" selected>Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="sepia">Sepia</option>
+                </select>
+            </div>
+            
+            <button id="start-btn" class="start-btn">Start Test</button>
+            <button id="reset-btn" class="reset-btn">Reset</button>
+            
+            <div class="tooltip">
+                <span>ℹ️</span>
+                <span class="tooltiptext">WPM = (Correct Characters / 5) / (Time in Minutes)</span>
+            </div>
+        </div>
+        
+        <div class="test-container">
+            <div id="test-text" class="test-text">
+                Select your test duration and click "Start Test" to begin. The text to type will appear here.
+            </div>
+            <textarea id="test-input" class="test-input" placeholder="Start typing here when the test begins..." disabled></textarea>
+            <div id="timer">Time remaining: <span id="time">01:00</span></div>
+        </div>
+        
+        <div id="results" class="results">
+            <h2>Your Typing Results</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Words Per Minute</h3>
+                    <p id="wpm">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Accuracy</h3>
+                    <p id="accuracy">0%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Correct Characters</h3>
+                    <p id="correct-chars">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Errors</h3>
+                    <p id="errors">0</p>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <h3>Your Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-bar"></div>
+                </div>
+                <p>Keep practicing to improve your typing speed!</p>
+            </div>
+            
+            <div class="history">
+                <h3>Your Recent Tests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>WPM</th>
+                            <th>Accuracy</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table">
+                        <!-- History will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="share-btns">
+                <a href="#" class="share-btn twitter" id="twitter-share">
+                    <span>Share on Twitter</span>
+                </a>
+                <a href="#" class="share-btn facebook" id="facebook-share">
+                    <span>Share on Facebook</span>
+                </a>
+                <a href="#" class="share-btn linkedin" id="linkedin-share">
+                    <span>Share on LinkedIn</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+            <a href="#">About</a>
+        </div>
+        <p>&copy; 2023 BuzzType. All rights reserved.</p>
+        <p>Improve your typing skills with our free typing speed tester.</p>
+    </footer>
+    
+    <script>
+        // DOM Elements
+        const testTextElement = document.getElementById('test-text');
+        const testInputElement = document.getElementById('test-input');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const timerElement = document.getElementById('time');
+        const resultsElement = document.getElementById('results');
+        const wpmElement = document.getElementById('wpm');
+        const accuracyElement = document.getElementById('accuracy');
+        const correctCharsElement = document.getElementById('correct-chars');
+        const errorsElement = document.getElementById('errors');
+        const progressBarElement = document.getElementById('progress-bar');
+        const historyTableElement = document.getElementById('history-table');
+        const testTimeSelect = document.getElementById('test-time');
+        const difficultySelect = document.getElementById('difficulty');
+        const themeSelect = document.getElementById('theme');
+        
+        // Test variables
+        let testStarted = false;
+        let timer;
+        let timeLeft;
+        let startTime;
+        let endTime;
+        let currentCharIndex = 0;
+        let errors = 0;
+        let testText = '';
+        let testHistory = JSON.parse(localStorage.getItem('typingTestHistory')) || [];
+        
+        // Sample texts for different difficulty levels
+        const sampleTexts = {
+            easy: [
+                "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet.",
+                "Learning to type quickly and accurately is an essential skill in today's digital world. Practice makes perfect.",
+                "The sun was shining brightly as the children played in the park. Birds were singing in the trees nearby."
+            ],
+            medium: [
+                "According to recent studies, the average typing speed is around 40 words per minute. Professional typists can reach speeds of 65 to 75 WPM.",
+                "The development of the QWERTY keyboard layout in the 1870s was designed to prevent mechanical typewriter jams by separating commonly used letter pairs.",
+                "In the realm of digital communication, typing proficiency significantly impacts productivity. Efficient typing can save hours of work time over weeks and months."
+            ],
+            hard: [
+                "The Dvorak Simplified Keyboard, patented in 1936 by August Dvorak, was designed to increase typing efficiency by placing the most commonly used letters in the home row where they are more easily accessible.",
+                "Cognitive research suggests that touch typing (typing without looking at the keyboard) engages procedural memory, allowing skilled typists to achieve speeds exceeding 100 words per minute with high accuracy.",
+                "The world record for typing speed on an alphanumeric keyboard is 216 words per minute, achieved by Barbara Blackburn in 2005 using the Dvorak Simplified Keyboard layout."
+            ],
+            expert: [
+                "The phenomenon of muscle memory in typing is a result of procedural learning, where repeated practice leads to the automation of motor skills. This explains why experienced typists can type without conscious attention to individual keystrokes.",
+                "Quantitative analysis of keystroke dynamics reveals that typing patterns are as unique as fingerprints, with inter-key latency and pressure patterns forming biometric identifiers that can be used for authentication purposes.",
+                "The cognitive load theory posits that typing while composing original text imposes a higher mental workload than transcription typing, as it requires simultaneous engagement of working memory for both linguistic formulation and motor execution."
+            ]
+        };
+        
+        // Initialize
+        updateHistoryTable();
+        
+        // Event Listeners
+        startBtn.addEventListener('click', startTest);
+        resetBtn.addEventListener('click', resetTest);
+        testInputElement.addEventListener('input', checkTyping);
+        testInputElement.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && testStarted) {
+                if (currentCharIndex > 0) {
+                    const charElements = testTextElement.querySelectorAll('span');
+                    const currentCharElement = charElements[currentCharIndex - 1];
+                    
+                    // Only count as error correction if the character was incorrect
+                    if (currentCharElement.classList.contains('incorrect')) {
+                        errors--;
+                        errorsElement.textContent = errors;
+                    }
+                    
+                    currentCharElement.classList.remove('correct', 'incorrect', 'current');
+                    currentCharIndex--;
+                    charElements[currentCharIndex].classList.add('current');
+                }
+            }
+        });
+        
+        themeSelect.addEventListener('change', changeTheme);
+        
+        // Functions
+        function startTest() {
+            if (testStarted) return;
+            
+            testStarted = true;
+            testInputElement.disabled = false;
+            testInputElement.focus();
+            
+            // Get selected difficulty and generate test text
+            const difficulty = difficultySelect.value;
+            testText = getRandomText(difficulty);
+            
+            // Display test text with spans for each character
+            testTextElement.innerHTML = '';
+            testText.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                testTextElement.appendChild(span);
+            });
+            
+            // Highlight first character
+            testTextElement.querySelectorAll('span')[0].classList.add('current');
+            
+            // Set up timer
+            timeLeft = parseInt(testTimeSelect.value);
+            updateTimerDisplay();
+            
+            startTime = new Date();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    endTest();
+                }
+            }, 1000);
+            
+            // Reset counters
+            currentCharIndex = 0;
+            errors = 0;
+            testInputElement.value = '';
+            
+            // UI updates
+            startBtn.disabled = true;
+            resultsElement.style.display = 'none';
+        }
+        
+        function getRandomText(difficulty) {
+            const texts = sampleTexts[difficulty];
+            return texts[Math.floor(Math.random() * texts.length)];
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function checkTyping(e) {
+            if (!testStarted) return;
+            
+            const inputText = e.target.value;
+            const currentChar = inputText[inputText.length - 1];
+            const charElements = testTextElement.querySelectorAll('span');
+            
+            // Check if we've reached the end of the test text
+            if (currentCharIndex >= testText.length) {
+                return;
+            }
+            
+            // Get current character element
+            const currentCharElement = charElements[currentCharIndex];
+            
+            // Remove current class from previous character
+            currentCharElement.classList.remove('current');
+            
+            // Check if typed character matches
+            if (currentChar === testText[currentCharIndex]) {
+                currentCharElement.classList.add('correct');
+            } else {
+                currentCharElement.classList.add('incorrect');
+                errors++;
+                errorsElement.textContent = errors;
+            }
+            
+            // Move to next character
+            currentCharIndex++;
+            
+            // Add current class to next character if exists
+            if (currentCharIndex < testText.length) {
+                charElements[currentCharIndex].classList.add('current');
+            } else {
+                // Reached end of text
+                endTest();
+            }
+        }
+        
+        function endTest() {
+            clearInterval(timer);
+            testStarted = false;
+            testInputElement.disabled = true;
+            startBtn.disabled = false;
+            
+            endTime = new Date();
+            const timeTaken = (testTimeSelect.value - timeLeft) || 1; // Avoid division by zero
+            
+            // Calculate results
+            const correctChars = currentCharIndex - errors;
+            const accuracy = (correctChars / currentCharIndex * 100).toFixed(1);
+            const wpm = Math.round((correctChars / 5) / (timeTaken / 60));
+            
+            // Display results
+            wpmElement.textContent = wpm;
+            accuracyElement.textContent = `${accuracy}%`;
+            correctCharsElement.textContent = correctChars;
+            errorsElement.textContent = errors;
+            
+            // Update progress bar (simple example - could be more sophisticated)
+            const progress = Math.min(wpm / 100 * 100, 100); // Assuming 100 WPM is "full"
+            progressBarElement.style.width = `${progress}%`;
+            
+            // Save to history
+            const testResult = {
+                date: new Date().toLocaleString(),
+                wpm: wpm,
+                accuracy: accuracy,
+                duration: `${testTimeSelect.value} seconds`,
+                difficulty: difficultySelect.value
+            };
+            
+            testHistory.unshift(testResult);
+            if (testHistory.length > 5) testHistory.pop();
+            localStorage.setItem('typingTestHistory', JSON.stringify(testHistory));
+            
+            updateHistoryTable();
+            
+            // Show results
+            resultsElement.style.display = 'block';
+            
+            // Set up share buttons
+            setupShareButtons(wpm, accuracy);
+        }
+        
+        function updateHistoryTable() {
+            historyTableElement.innerHTML = '';
+            
+            testHistory.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.date}</td>
+                    <td>${result.wpm}</td>
+                    <td>${result.accuracy}%</td>
+                    <td>${result.duration}</td>
+                `;
+                historyTableElement.appendChild(row);
+            });
+        }
+        
+        function setupShareButtons(wpm, accuracy) {
+            const shareText = `I just scored ${wpm} WPM with ${accuracy}% accuracy on BuzzType typing test! Can you beat my score?`;
+            const shareUrl = window.location.href;
+            
+            document.getElementById('twitter-share').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+            document.getElementById('facebook-share').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+            document.getElementById('linkedin-share').href = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent('My Typing Test Results')}&summary=${encodeURIComponent(shareText)}`;
+        }
+        
+        function resetTest() {
+            clearInterval(timer);
+            testStarted = false;
+            testInputElement.disabled = true;
+            testInputElement.value = '';
+            startBtn.disabled = false;
+            
+            testTextElement.innerHTML = 'Select your test duration and click "Start Test" to begin. The text to type will appear here.';
+            timerElement.textContent = '01:00';
+            resultsElement.style.display = 'none';
+        }
+        
+        function changeTheme() {
+            document.body.className = `theme-${themeSelect.value}`;
+        }
+    </script>
+</body>
+</html>
