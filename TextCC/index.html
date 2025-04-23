@@ -1,0 +1,1224 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online tool to convert, clean, and format text with history and undo/redo. Earn points and badges while transforming, sharing, or analyzing text. Perfect for writers, students, and professionals.">
+    <meta name="keywords" content="text converter, text cleaner, case converter, text formatter, text history, undo redo, gamification, uppercase, lowercase, title case, text sharing, text download">
+    <meta name="author" content="Buzz">
+    <meta property="og:title" content="Buzz Text Case Converter - Gamified Text Tool with History">
+    <meta property="og:description" content="Convert, clean, share, and track your text history with Buzz's gamified text case converter.">
+    <meta property="og:image" content="https://www.yourwebsite.com/images/text-converter.jpg">
+    <meta property="og:url" content="https://www.yourwebsite.com/text-case-converter">
+    <title>Text Case Converter | Buzz - Convert, Clean, and Track History</title>
+    <link rel="canonical" href="https://www.yourwebsite.com/text-case-converter" />
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #28a745;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #00d4ff, #3a0ca3);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .home-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .home-btn:hover {
+            background-color: #d91a6d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            gap: 1.5rem;
+        }
+        
+        main {
+            flex: 3;
+        }
+        
+        .gamification-sidebar {
+            flex: 1;
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 5rem;
+            max-height: calc(100vh - 6rem);
+            overflow-y: auto;
+        }
+        
+        .gamification-sidebar h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .points, .badges, .progress, .leaderboard {
+            margin-bottom: 1.5rem;
+        }
+        
+        .points-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+        
+        .badges-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .badge {
+            background-color: var(--light-color);
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: var(--dark-color);
+        }
+        
+        .badge.earned {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .progress-bar {
+            background-color: #e9ecef;
+            border-radius: 5px;
+            height: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background-color: var(--primary-color);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .leaderboard-list {
+            list-style: none;
+        }
+        
+        .leaderboard-item {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .converter-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .instructions {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .instructions h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            resize: vertical;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            transition: border 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .transform-buttons, .action-buttons {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .transform-buttons {
+            grid-template-columns: repeat(6, 1fr);
+            background-color: var(--light-color);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+        
+        .action-buttons {
+            grid-template-columns: repeat(7, 1fr);
+            justify-content: center;
+        }
+        
+        .advanced-tools {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .advanced-tools h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .advanced-tools-content {
+            display: none;
+        }
+        
+        .advanced-tools-content.active {
+            display: block;
+        }
+        
+        .advanced-tools-content .btn {
+            margin: 0.5rem 0;
+        }
+        
+        .find-replace {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .find-replace input {
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .history-panel {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .history-panel h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.75rem;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
+        }
+        
+        .history-item button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .history-item button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-accent {
+            background-color: var(--accent-color);
+        }
+        
+        .btn-accent:hover {
+            background-color: #d91a6d;
+        }
+        
+        .btn-clear {
+            background-color: #dc3545;
+        }
+        
+        .btn-clear:hover {
+            background-color: #bb2d3b;
+        }
+        
+        .tooltip-wrapper {
+            position: relative;
+        }
+        
+        .tooltip-wrapper .btn {
+            width: 100%;
+        }
+        
+        .tooltip-wrapper:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-color);
+            color: white;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 10;
+            margin-bottom: 0.4rem;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        
+        .tooltip-wrapper:hover::after {
+            opacity: 1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+        
+        .tutorial-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .tutorial-modal button {
+            margin: 0.4rem;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tutorial-modal button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .stat-item {
+            flex: 1 1 150px;
+            text-align: center;
+            padding: 0.5rem;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .additional-features {
+            margin-top: 3rem;
+        }
+        
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .feature-card button {
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .feature-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            margin-top: 3rem;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+        
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .gamification-sidebar {
+                max-height: none;
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .header-title {
+                margin: 0.5rem 0;
+                order: 2;
+            }
+            
+            .logo {
+                align-self: flex-start;
+                order: 1;
+            }
+            
+            .home-btn {
+                align-self: flex-end;
+                margin-top: 0.5rem;
+                order: 3;
+            }
+            
+            .transform-buttons,
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .tooltip-wrapper:hover::after {
+                max-width: 200px;
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Buzz<span>.</span></a>
+        <div class="header-title">Text Case Converter</div>
+        <a href="/" class="home-btn">Home</a>
+    </header>
+    
+    <div class="container">
+        <main>
+            <div class="converter-container">
+                <h1>Convert, Clean, and Track History</h1>
+                
+                <div class="instructions">
+                    <h3>How to use this tool:</h3>
+                    <p>1. Paste or type your text in the box below<br>
+                    2. Use conversion or cleaning buttons to transform your text<br>
+                    3. Share, download, or copy the result<br>
+                    4. Track history and use undo/redo<br>
+                    5. Earn points and badges for actions<br>
+                    6. Take a tour for a quick guide</p>
+                    <button class="btn btn-secondary" onclick="startTutorial()">Take a Tour</button>
+                </div>
+                
+                <textarea id="inputText" placeholder="Type or paste your text here..."></textarea>
+                
+                <div class="controls">
+                    <div class="transform-buttons">
+                        <div class="tooltip-wrapper" data-tooltip="Converts all text to UPPERCASE ✨ +10 points">
+                            <button class="btn" onclick="convertToUpperCase()">UPPERCASE</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Converts all text to lowercase ✨ +10 points">
+                            <button class="btn" onclick="convertToLowerCase()">lowercase</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Capitalizes the first letter of each word ✨ +10 points">
+                            <button class="btn" onclick="convertToTitleCase()">Title Case</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Capitalizes the first letter of each sentence ✨ +10 points">
+                            <button class="btn" onclick="convertToSentenceCase()">Sentence case</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Removes extra spaces ✨ +10 points">
+                            <button class="btn" onclick="removeExtraSpaces()">Remove Spaces</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Strips HTML tags ✨ +10 points">
+                            <button class="btn" onclick="stripHTML()">Strip HTML</button>
+                        </div>
+                    </div>
+                    <div class="advanced-tools">
+                        <h3 onclick="toggleAdvancedTools()">Advanced Tools ▼</h3>
+                        <div class="advanced-tools-content">
+                            <div class="tooltip-wrapper" data-tooltip="Replaces line breaks with spaces ✨ +10 points">
+                                <button class="btn" onclick="removeLineBreaks()">Remove Line Breaks</button>
+                            </div>
+                            <div class="find-replace">
+                                <input id="findText" placeholder="Find...">
+                                <input id="replaceText" placeholder="Replace with...">
+                                <button class="btn" onclick="findAndReplace()">Find/Replace ✨ +10 points</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <div class="tooltip-wrapper" data-tooltip="Shares the text on Twitter ✨ +20 points">
+                            <button class="btn btn-accent" onclick="shareToTwitter()">Share to Twitter</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Downloads the text as a .txt file ✨ +20 points">
+                            <button class="btn btn-accent" onclick="downloadAsText()">Download Text</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Copies a shareable link to the text ✨ +20 points">
+                            <button class="btn btn-accent" onclick="generateShareableLink()">Share Link</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Copies the text to your clipboard ✨ +20 points">
+                            <button class="btn btn-accent" onclick="copyToClipboard()">Copy Text</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Undo last action ✨ +10 points">
+                            <button class="btn" onclick="undo()">Undo</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Redo last undone action ✨ +10 points">
+                            <button class="btn" onclick="redo()">Redo</button>
+                        </div>
+                        <div class="tooltip-wrapper" data-tooltip="Clears all text in the input area ✨ +10 points">
+                            <button class="btn btn-clear" onclick="clearText()">Clear All</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="charCount">0</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="wordCount">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="lineCount">0</div>
+                        <div class="stat-label">Lines</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="spaceCount">0</div>
+                        <div class="stat-label">Spaces</div>
+                    </div>
+                </div>
+                
+                <div class="history-panel">
+                    <h3>Text History</h3>
+                    <div id="historyList"></div>
+                </div>
+            </div>
+            
+            <div class="additional-features">
+                <h2>More Useful Text Tools</h2>
+                <p>Explore our collection of free text manipulation tools to enhance your writing:</p>
+                
+                <div class="feature-cards">
+                    <div class="feature-card">
+                        <h3>Text Reverser</h3>
+                        <p>Reverse your text character by character or word by word with our easy-to-use tool.</p>
+                        <button class="btn" style="margin-top: 1rem;" onclick="reverseText()">Try It Now</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Word Counter</h3>
+                        <p>Get detailed statistics about your text including word frequency and character distribution.</p>
+                        <button class="btn" style="margin-top: 1rem;" onclick="showWordStats()">Analyze Text</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Lorem Ipsum Generator</h3>
+                        <p>Generate placeholder text for your designs and mockups in various lengths and styles.</p>
+                        <button class="btn" style="margin-top: 1rem;" onclick="generateLoremIpsum()">Generate Text</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <aside class="gamification-sidebar">
+            <h3>Your Progress</h3>
+            <div class="points">
+                <p>Points: <span class="points-value" id="points">0</span></p>
+            </div>
+            <div class="badges">
+                <h4>Badges</h4>
+                <div class="badges-list" id="badges"></div>
+            </div>
+            <div class="progress">
+                <h4>Session Progress</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <p><span id="actions">0</span>/10 actions</p>
+            </div>
+            <div class="leaderboard">
+                <h4>Leaderboard</h4>
+                <ul class="leaderboard-list">
+                    <li class="leaderboard-item">TextWizard - 250 points</li>
+                    <li class="leaderboard-item">WordNinja - 200 points</li>
+                    <li class="leaderboard-item">FormatPro - 150 points</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+    
+    <footer>
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/contact">Contact Us</a>
+            <a href="/about">About Buzz</a>
+        </div>
+        <p>© <span id="currentYear"></span> Buzz. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Gamification Logic
+        let points = parseInt(localStorage.getItem('points')) || 0;
+        let actions = parseInt(localStorage.getItem('actions')) || 0;
+        let badges = JSON.parse(localStorage.getItem('badges')) || [];
+        
+        const badgeDefinitions = [
+            { name: 'Text Master', criteria: () => actions >= 10 },
+            { name: 'Social Star', criteria: () => localStorage.getItem('sharedTwitter') },
+            { name: 'Clean Pro', criteria: () => actions >= 5 && (localStorage.getItem('usedSpaces') || localStorage.getItem('usedHTML')) },
+            { name: 'Time Traveler', criteria: () => localStorage.getItem('usedHistory') }
+        ];
+        
+        function updateGamification(actionType) {
+            const pointValues = {
+                conversion: 10,
+                cleaning: 10,
+                sharing: 20,
+                download: 20,
+                copy: 20,
+                clear: 10,
+                undo: 10,
+                redo: 10,
+                history: 10
+            };
+            const earnedPoints = pointValues[actionType] || 10;
+            points += earnedPoints;
+            actions++;
+            
+            badgeDefinitions.forEach(badge => {
+                if (badge.criteria() && !badges.includes(badge.name)) {
+                    badges.push(badge.name);
+                    showNotification(`Badge Earned: ${badge.name}!`);
+                }
+            });
+            
+            localStorage.setItem('points', points);
+            localStorage.setItem('actions', actions);
+            localStorage.setItem('badges', JSON.stringify(badges));
+            if (actionType === 'sharing') localStorage.setItem('sharedTwitter', 'true');
+            if (actionType === 'cleaning' && actionType.includes('Spaces')) localStorage.setItem('usedSpaces', 'true');
+            if (actionType === 'cleaning' && actionType.includes('HTML')) localStorage.setItem('usedHTML', 'true');
+            if (actionType === 'history') localStorage.setItem('usedHistory', 'true');
+            
+            document.getElementById('points').textContent = points;
+            document.getElementById('actions').textContent = actions;
+            document.getElementById('progressFill').style.width = `${Math.min((actions / 10) * 100, 100)}%`;
+            updateBadges();
+            
+            showNotification(`+${earnedPoints} points!`);
+            
+            if (actions >= 5) {
+                points += 50;
+                localStorage.setItem('points', points);
+                document.getElementById('points').textContent = points;
+                showNotification('Session Complete! +50 Bonus Points!');
+            }
+        }
+        
+        function updateBadges() {
+            const badgesList = document.getElementById('badges');
+            badgesList.innerHTML = '';
+            badgeDefinitions.forEach(badge => {
+                const badgeEl = document.createElement('div');
+                badgeEl.className = `badge ${badges.includes(badge.name) ? 'earned' : ''}`;
+                badgeEl.textContent = badge.name;
+                badgesList.appendChild(badgeEl);
+            });
+        }
+        
+        function showNotification(message) {
+            let notification = document.querySelector('.notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.className = 'notification';
+                document.body.appendChild(notification);
+            }
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // Text History and Undo/Redo
+        let history = JSON.parse(localStorage.getItem('textHistory')) || [];
+        let undoStack = [];
+        let redoStack = [];
+        
+        function saveHistory(actionType) {
+            const text = document.getElementById('inputText').value;
+            history.unshift({
+                text,
+                action: actionType,
+                timestamp: new Date().toLocaleString()
+            });
+            if (history.length > 10) history.pop();
+            localStorage.setItem('textHistory', JSON.stringify(history));
+            updateHistoryUI();
+            undoStack.push({ text, action: actionType });
+            redoStack = [];
+        }
+        
+        function updateHistoryUI() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            history.forEach((entry, index) => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <span>${entry.action} - ${entry.timestamp}</span>
+                    <button onclick="revertHistory(${index})">Revert</button>
+                `;
+                historyList.appendChild(item);
+            });
+        }
+        
+        function revertHistory(index) {
+            const entry = history[index];
+            document.getElementById('inputText').value = entry.text;
+            updateTextStats();
+            updateGamification('history');
+            saveHistory(`Revert to ${entry.action}`);
+        }
+        
+        function undo() {
+            if (undoStack.length < 1) return;
+            const currentText = document.getElementById('inputText').value;
+            const lastState = undoStack.pop();
+            redoStack.push({ text: currentText, action: lastState.action });
+            document.getElementById('inputText').value = lastState.text;
+            updateTextStats();
+            updateGamification('undo');
+            saveHistory('Undo');
+        }
+        
+        function redo() {
+            if (redoStack.length < 1) return;
+            const currentText = document.getElementById('inputText').value;
+            const nextState = redoStack.pop();
+            undoStack.push({ text: currentText, action: nextState.action });
+            document.getElementById('inputText').value = nextState.text;
+            updateTextStats();
+            updateGamification('redo');
+            saveHistory('Redo');
+        }
+        
+        // Text Processing Functions
+        document.getElementById('inputText').addEventListener('input', function() {
+            updateTextStats();
+        });
+        
+        function updateTextStats() {
+            const text = document.getElementById('inputText').value;
+            document.getElementById('charCount').textContent = text.length;
+            const words = text.trim() === '' ? [] : text.trim().split(/\s+/);
+            document.getElementById('wordCount').textContent = words.length;
+            const lines = text.trim() === '' ? 0 : text.split('\n').length;
+            document.getElementById('lineCount').textContent = lines;
+            const spaces = (text.match(/ /g) || []).length;
+            document.getElementById('spaceCount').textContent = spaces;
+        }
+        
+        function convertToUpperCase() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('UPPERCASE');
+            textArea.value = textArea.value.toUpperCase();
+            updateTextStats();
+            updateGamification('conversion');
+        }
+        
+        function convertToLowerCase() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('lowercase');
+            textArea.value = textArea.value.toLowerCase();
+            updateTextStats();
+            updateGamification('conversion');
+        }
+        
+        function convertToTitleCase() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('Title Case');
+            textArea.value = textArea.value.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+            updateTextStats();
+            updateGamification('conversion');
+        }
+        
+        function convertToSentenceCase() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('Sentence case');
+            let text = textArea.value.toLowerCase();
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+            text = text.replace(/\.\s+([a-z])/g, match => match.toUpperCase());
+            textArea.value = text;
+            updateTextStats();
+            updateGamification('conversion');
+        }
+        
+        function removeExtraSpaces() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('Remove Spaces');
+            textArea.value = textArea.value.replace(/\s+/g, ' ').trim();
+            updateTextStats();
+            updateGamification('cleaning');
+        }
+        
+        function stripHTML() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('Strip HTML');
+            textArea.value = textArea.value.replace(/<[^>]+>/g, '');
+            updateTextStats();
+            updateGamification('cleaning');
+        }
+        
+        function removeLineBreaks() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('Remove Line Breaks');
+            textArea.value = textArea.value.replace(/\n+/g, ' ').trim();
+            updateTextStats();
+            updateGamification('cleaning');
+        }
+        
+        function findAndReplace() {
+            const textArea = document.getElementById('inputText');
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            if (!findText) {
+                alert('Please enter text to find.');
+                return;
+            }
+            saveHistory('Find/Replace');
+            const regex = new RegExp(findText, 'g');
+            textArea.value = textArea.value.replace(regex, replaceText);
+            updateTextStats();
+            updateGamification('cleaning');
+        }
+        
+        // Social Sharing and Export Features
+        function shareToTwitter() {
+            const text = encodeURIComponent(document.getElementById('inputText').value.slice(0, 280));
+            const url = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(window.location.href)}`;
+            window.open(url, '_blank');
+            saveHistory('Share to Twitter');
+            updateGamification('sharing');
+        }
+        
+        function downloadAsText() {
+            const text = document.getElementById('inputText').value;
+            if (!text.trim()) {
+                alert('Please enter some text to download.');
+                return;
+            }
+            saveHistory('Download Text');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'converted_text.txt';
+            link.click();
+            updateGamification('download');
+        }
+        
+        function generateShareableLink() {
+            const text = encodeURIComponent(document.getElementById('inputText').value);
+            if (!text.trim()) {
+                alert('Please enter some text to share.');
+                return;
+            }
+            saveHistory('Share Link');
+            const url = `${window.location.href}?text=${text}`;
+            navigator.clipboard.write(url).then(() => {
+                alert('Shareable link copied to clipboard!');
+                updateGamification('sharing');
+            }).catch(() => {
+                alert('Failed to copy link. Please try again.');
+            });
+        }
+        
+        // Load text and data on page load
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('text')) {
+                document.getElementById('inputText').value = decodeURIComponent(params.get('text'));
+                updateTextStats();
+            }
+            document.getElementById('points').textContent = points;
+            document.getElementById('actions').textContent = actions;
+            document.getElementById('progressFill').style.width = `${Math.min((actions / 10) * 100, 100)}%`;
+            updateBadges();
+            updateHistoryUI();
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        };
+        
+        // Interactive Tutorial
+        function startTutorial() {
+            const steps = [
+                { element: '#inputText', text: 'Paste or type your text here.' },
+                { element: '.controls', text: 'Use these buttons to convert, clean, or share your text and earn points!' },
+                { element: '.history-panel', text: 'View and revert to previous text states here.' },
+                { element: '.gamification-sidebar', text: 'Track your points, badges, and progress here.' },
+                { element: '.stats', text: 'View real-time statistics about your text.' }
+            ];
+            let currentStep = 0;
+            const modal = document.createElement('div');
+            modal.className = 'tutorial-modal';
+            modal.innerHTML = `
+                <p id="tutorial-text"></p>
+                <button onclick="nextTutorialStep()">Next</button>
+                <button onclick="closeTutorial()">Close</button>
+            `;
+            document.body.appendChild(modal);
+            
+            function showStep() {
+                if (currentStep < steps.length) {
+                    const { element, text } = steps[currentStep];
+                    document.getElementById('tutorial-text').textContent = text;
+                    const target = document.querySelector(element);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else {
+                    closeTutorial();
+                }
+            }
+            
+            window.nextTutorialStep = () => {
+                currentStep++;
+                showStep();
+            };
+            
+            window.closeTutorial = () => {
+                modal.remove();
+                window.nextTutorialStep = null;
+                window.closeTutorial = null;
+            };
+            
+            showStep();
+        }
+        
+        function copyToClipboard() {
+            const textArea = document.getElementById('inputText');
+            textArea.select();
+            document.execCommand('copy');
+            saveHistory('Copy Text');
+            const originalText = textArea.value;
+            textArea.value = "Text copied to clipboard!";
+            setTimeout(() => {
+                textArea.value = originalText;
+            }, 1500);
+            updateGamification('copy');
+        }
+        
+        function clearText() {
+            const textArea = document.getElementById('inputText');
+            if (textArea.value.trim() !== '') {
+                saveHistory('Clear All');
+                textArea.style.transition = 'all 0.3s ease';
+                textArea.style.backgroundColor = '#ffebee';
+                setTimeout(() => {
+                    textArea.value = '';
+                    textArea.style.backgroundColor = '';
+                    updateTextStats();
+                    const originalPlaceholder = textArea.placeholder;
+                    textArea.placeholder = "Text cleared! Ready for new input...";
+                    setTimeout(() => {
+                        textArea.placeholder = originalPlaceholder;
+                    }, 2000);
+                    updateGamification('clear');
+                }, 300);
+            }
+        }
+        
+        // Additional Features
+        function reverseText() {
+            const textArea = document.getElementById('inputText');
+            saveHistory('Reverse Text');
+            textArea.value = textArea.value.split('').reverse().join('');
+            updateTextStats();
+            updateGamification('conversion');
+        }
+        
+        function showWordStats() {
+            const text = document.getElementById('inputText').value;
+            const words = text.trim() === '' ? [] : text.trim().split(/\s+/);
+            const wordFrequency = {};
+            words.forEach(word => {
+                word = word.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+                if (word) {
+                    wordFrequency[word] = (wordFrequency[word] || 0) + 1;
+                }
+            });
+            const sortedWords = Object.keys(wordFrequency).sort((a, b) => wordFrequency[b] - wordFrequency[a]);
+            let stats = "Word Frequency:\n\n";
+            sortedWords.slice(0, 10).forEach(word => {
+                stats += `${word}: ${wordFrequency[word]} occurrence(s)\n`;
+            });
+            alert(stats);
+            saveHistory('Word Stats');
+            updateGamification('conversion');
+        }
+        
+        function generateLoremIpsum() {
+            const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+            const textArea = document.getElementById('inputText');
+            saveHistory('Lorem Ipsum');
+            textArea.value = lorem;
+            updateTextStats();
+            updateGamification('conversion');
+        }
+        
+        // Advanced Tools Toggle
+        function toggleAdvancedTools() {
+            const content = document.querySelector('.advanced-tools-content');
+            const header = document.querySelector('.advanced-tools h3');
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                header.textContent = 'Advanced Tools ▼';
+            } else {
+                content.classList.add('active');
+                header.textContent = 'Advanced Tools ▲';
+            }
+        }
+    </script>
+</body>
+</html>
