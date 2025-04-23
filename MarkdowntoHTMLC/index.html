@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online tool to convert Markdown to HTML instantly. Perfect for developers, bloggers, and content creators.">
+    <meta name="keywords" content="markdown, html, converter, web development, tool">
+    <meta name="author" content="Buzz">
+    <title>Markdown to HTML Converter | Buzz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --twitter-blue: #1DA1F2;
+            --facebook-blue: #4267B2;
+            --linkedin-blue: #0077B5;
+            --reddit-orange: #FF5700;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .home-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .home-btn:hover {
+            background-color: #d91a6d;
+            transform: translateY(-2px);
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .intro-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .intro-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .intro-section p {
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-cheatsheet {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .converter-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .converter-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .editor-panel, .preview-panel {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .panel-title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .action-btn {
+            background-color: var(--light-color);
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            margin-left: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            background-color: #e9ecef;
+        }
+        
+        .action-btn i {
+            margin-right: 0.3rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a56e8;
+        }
+        
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background-color: #e5177e;
+        }
+        
+        #markdown-input {
+            flex-grow: 1;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            resize: none;
+            margin-bottom: 1rem;
+            background-color: #f8f9fa;
+        }
+        
+        #html-output {
+            flex-grow: 1;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+        
+        .features-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-card h3 i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+        
+        .share-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .share-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .share-section h3 i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+        
+        .share-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .share-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .share-btn i {
+            margin-right: 0.5rem;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .twitter-btn {
+            background-color: var(--twitter-blue);
+        }
+        
+        .facebook-btn {
+            background-color: var(--facebook-blue);
+        }
+        
+        .linkedin-btn {
+            background-color: var(--linkedin-blue);
+        }
+        
+        .reddit-btn {
+            background-color: var(--reddit-orange);
+        }
+        
+        .email-btn {
+            background-color: #666666;
+        }
+        
+        .copy-link-btn {
+            background-color: var(--success-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .sample-markdown {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .sample-markdown code {
+            background-color: #f0f0f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        .copy-success {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: fadeIn 0.3s;
+            z-index: 1000;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .word-count {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-code"></i>
+            <span>Buzz</span>
+        </div>
+        <h1 class="header-title">Markdown to HTML</h1>
+        <a href="/" class="home-btn">
+            <i class="fas fa-home"></i> Home
+        </a>
+    </header>
+    
+    <main>
+        <section class="intro-section">
+            <h2>Convert Markdown to HTML Instantly</h2>
+            <p>Paste your Markdown content in the left editor and see the HTML output in real-time on the right. Our converter supports all standard Markdown syntax with additional enhancements.</p>
+            
+            <div class="markdown-cheatsheet">
+                <h3><i class="fas fa-lightbulb"></i> Markdown Quick Reference</h3>
+                <p><strong>Headers:</strong> <code># H1</code>, <code>## H2</code>, <code>### H3</code></p>
+                <p><strong>Emphasis:</strong> <code>*italic*</code>, <code>**bold**</code>, <code>~~strikethrough~~</code></p>
+                <p><strong>Lists:</strong> <code>- Item 1</code>, <code>1. Item 1</code></p>
+                <p><strong>Links:</strong> <code>[text](url)</code>, <code>&lt;https://example.com&gt;</code></p>
+                <p><strong>Images:</strong> <code>![alt](image-url)</code></p>
+            </div>
+            
+            <p class="tooltip">Need help? <span class="tooltiptext">Try our interactive tutorial by clicking the 'Help' button below!</span> <i class="fas fa-question-circle"></i></p>
+        </section>
+        
+        <div class="converter-container">
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">Markdown Input</h3>
+                    <div>
+                        <button class="action-btn btn-primary" id="clear-markdown">
+                            <i class="fas fa-trash-alt"></i> Clear
+                        </button>
+                        <button class="action-btn" id="sample-markdown">
+                            <i class="fas fa-magic"></i> Sample
+                        </button>
+                    </div>
+                </div>
+                <textarea id="markdown-input" placeholder="Type or paste your Markdown here..."></textarea>
+                <div class="word-count" id="word-count">0 words, 0 characters</div>
+            </div>
+            
+            <div class="preview-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">HTML Output</h3>
+                    <div>
+                        <button class="action-btn" id="copy-html">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                        <button class="action-btn btn-accent" id="download-html">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+                <div id="html-output"></div>
+            </div>
+        </div>
+        
+        <section class="share-section">
+            <h3><i class="fas fa-share-alt"></i> Share Your Conversion</h3>
+            <div class="share-buttons">
+                <a href="#" class="share-btn twitter-btn" id="share-twitter">
+                    <i class="fab fa-twitter"></i> Twitter
+                </a>
+                <a href="#" class="share-btn facebook-btn" id="share-facebook">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+                <a href="#" class="share-btn linkedin-btn" id="share-linkedin">
+                    <i class="fab fa-linkedin-in"></i> LinkedIn
+                </a>
+                <a href="#" class="share-btn reddit-btn" id="share-reddit">
+                    <i class="fab fa-reddit-alien"></i> Reddit
+                </a>
+                <a href="#" class="share-btn email-btn" id="share-email">
+                    <i class="fas fa-envelope"></i> Email
+                </a>
+                <button class="share-btn copy-link-btn" id="copy-link">
+                    <i class="fas fa-link"></i> Copy Link
+                </button>
+            </div>
+        </section>
+        
+        <section class="features-section">
+            <div class="feature-card">
+                <h3><i class="fas fa-bolt"></i> Real-time Conversion</h3>
+                <p>See your Markdown transform into HTML instantly as you type. No need to press any convert button.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-expand"></i> Full Markdown Support</h3>
+                <p>Supports all standard Markdown syntax including tables, code blocks, blockquotes, and more.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-mobile-alt"></i> Fully Responsive</h3>
+                <p>Works perfectly on all devices from desktop to mobile. Convert Markdown on the go!</p>
+            </div>
+        </section>
+        
+        <div class="copy-success" id="copy-success">
+            <i class="fas fa-check-circle"></i> HTML copied to clipboard!
+        </div>
+        
+        <div class="modal" id="share-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modal-title">Share Your Conversion</h3>
+                    <button class="close-modal" id="close-modal">&times;</button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <p>Share your Markdown to HTML conversion with others!</p>
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label for="share-message" style="display: block; margin-bottom: 0.5rem;">Custom Message:</label>
+                        <textarea id="share-message" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; min-height: 80px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="action-btn" id="cancel-share">Cancel</button>
+                    <button class="action-btn btn-primary" id="confirm-share">Share</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 Buzz - Markdown to HTML Converter. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart" style="color: var(--accent-color);"></i> for developers</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // DOM Elements
+        const markdownInput = document.getElementById('markdown-input');
+        const htmlOutput = document.getElementById('html-output');
+        const clearMarkdownBtn = document.getElementById('clear-markdown');
+        const sampleMarkdownBtn = document.getElementById('sample-markdown');
+        const copyHtmlBtn = document.getElementById('copy-html');
+        const downloadHtmlBtn = document.getElementById('download-html');
+        const copySuccess = document.getElementById('copy-success');
+        const wordCount = document.getElementById('word-count');
+        const shareModal = document.getElementById('share-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const cancelShareBtn = document.getElementById('cancel-share');
+        const confirmShareBtn = document.getElementById('confirm-share');
+        const shareMessage = document.getElementById('share-message');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        
+        // Share buttons
+        const shareTwitterBtn = document.getElementById('share-twitter');
+        const shareFacebookBtn = document.getElementById('share-facebook');
+        const shareLinkedinBtn = document.getElementById('share-linkedin');
+        const shareRedditBtn = document.getElementById('share-reddit');
+        const shareEmailBtn = document.getElementById('share-email');
+        const copyLinkBtn = document.getElementById('copy-link');
+        
+        // Sample Markdown
+        const sampleMarkdown = `# Welcome to Markdown Converter
+
+## This is a sample Markdown
+
+**Bold text** and *italic text* with ~~strikethrough~~.
+
+### Lists
+- Unordered item 1
+- Unordered item 2
+  - Nested item
+
+1. Ordered item 1
+2. Ordered item 2
+
+### Links and Images
+[Visit Google](https://www.google.com)
+
+![Markdown Logo](https://markdown-here.com/img/icon256.png)
+
+### Code
+\`\`\`javascript
+function helloWorld() {
+  console.log("Hello, world!");
+}
+\`\`\`
+
+> Blockquotes are handy for quotes or emphasis.
+
+### Tables
+| Syntax      | Description |
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
+`;
+
+        // Initialize with sample markdown
+        markdownInput.value = sampleMarkdown;
+        updateOutput();
+        
+        // Current share platform
+        let currentSharePlatform = null;
+        
+        // Event Listeners
+        markdownInput.addEventListener('input', updateOutput);
+        clearMarkdownBtn.addEventListener('click', clearMarkdown);
+        sampleMarkdownBtn.addEventListener('click', loadSampleMarkdown);
+        copyHtmlBtn.addEventListener('click', copyHtml);
+        downloadHtmlBtn.addEventListener('click', downloadHtml);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelShareBtn.addEventListener('click', closeModal);
+        confirmShareBtn.addEventListener('click', confirmShare);
+        
+        // Share button event listeners
+        shareTwitterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prepareShare('twitter');
+        });
+        
+        shareFacebookBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prepareShare('facebook');
+        });
+        
+        shareLinkedinBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prepareShare('linkedin');
+        });
+        
+        shareRedditBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prepareShare('reddit');
+        });
+        
+        shareEmailBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prepareShare('email');
+        });
+        
+        copyLinkBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            copyPageLink();
+        });
+        
+        // Functions
+        function updateOutput() {
+            const markdownText = markdownInput.value;
+            htmlOutput.innerHTML = marked.parse(markdownText);
+            updateWordCount(markdownText);
+        }
+        
+        function clearMarkdown() {
+            markdownInput.value = '';
+            updateOutput();
+        }
+        
+        function loadSampleMarkdown() {
+            markdownInput.value = sampleMarkdown;
+            updateOutput();
+        }
+        
+        function copyHtml() {
+            const htmlText = htmlOutput.innerHTML;
+            navigator.clipboard.writeText(htmlText).then(() => {
+                showCopySuccess('HTML copied to clipboard!');
+            });
+        }
+        
+        function downloadHtml() {
+            const htmlText = htmlOutput.innerHTML;
+            const blob = new Blob([htmlText], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted-markdown.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function showCopySuccess(message) {
+            copySuccess.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            copySuccess.style.display = 'block';
+            setTimeout(() => {
+                copySuccess.style.display = 'none';
+            }, 3000);
+        }
+        
+        function updateWordCount(text) {
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const characters = text.length;
+            wordCount.textContent = `${words} words, ${characters} characters`;
+        }
+        
+        function prepareShare(platform) {
+            currentSharePlatform = platform;
+            
+            // Set modal content based on platform
+            switch(platform) {
+                case 'twitter':
+                    modalTitle.textContent = 'Share on Twitter';
+                    shareMessage.value = 'Check out this Markdown to HTML converter!';
+                    break;
+                case 'facebook':
+                    modalTitle.textContent = 'Share on Facebook';
+                    shareMessage.value = 'I just converted Markdown to HTML using this awesome tool!';
+                    break;
+                case 'linkedin':
+                    modalTitle.textContent = 'Share on LinkedIn';
+                    shareMessage.value = 'Professional developers might find this Markdown to HTML converter useful:';
+                    break;
+                case 'reddit':
+                    modalTitle.textContent = 'Share on Reddit';
+                    shareMessage.value = 'Found this helpful Markdown to HTML converter:';
+                    break;
+                case 'email':
+                    modalTitle.textContent = 'Share via Email';
+                    shareMessage.value = `Hi,\n\nI thought you might find this Markdown to HTML converter useful:\n\n${window.location.href}\n\nIt's a great tool for converting Markdown syntax to HTML quickly and easily.`;
+                    break;
+            }
+            
+            shareModal.style.display = 'flex';
+        }
+        
+        function closeModal() {
+            shareModal.style.display = 'none';
+            currentSharePlatform = null;
+        }
+        
+        function confirmShare() {
+            const message = shareMessage.value;
+            const url = window.location.href;
+            let shareUrl = '';
+            
+            switch(currentSharePlatform) {
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'linkedin':
+                    shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'reddit':
+                    shareUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(message)}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'email':
+                    shareUrl = `mailto:?subject=Markdown%20to%20HTML%20Converter&body=${encodeURIComponent(message)}`;
+                    window.location.href = shareUrl;
+                    break;
+            }
+            
+            closeModal();
+        }
+        
+        function copyPageLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showCopySuccess('Link copied to clipboard!');
+            });
+        }
+        
+        // Enable marked.js options
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            smartypants: true
+        });
+    </script>
+</body>
+</html>
