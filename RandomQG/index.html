@@ -1,31 +1,67 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QX6N41VY5J');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Get inspired with random quotes from famous authors, thinkers, and leaders. Our generator provides fresh motivation with every click.">
-    <meta name="keywords" content="random quote generator, motivation, inspiration, famous quotes, daily quotes">
+    <meta name="description" content="Get inspired with a daily quote in your local language and random quotes in multiple languages from famous authors. Share the inspiration with our generator.">
+    <meta name="keywords" content="random quote generator, daily quote, multilingual quotes, local language quotes, motivation, inspiration, famous quotes">
     <meta name="author" content="Buzz">
-    <meta property="og:title" content="Random Quote Generator | Buzz">
-    <meta property="og:description" content="Discover inspiring random quotes with our generator.">
+    <meta property="og:title" content="Multilingual Random Quote Generator | Buzz">
+    <meta property="og:description" content="Discover a daily quote in your local language and inspiring random quotes in multiple languages with our generator.">
     <meta property="og:type" content="website">
-    <title>Random Quote Generator | Buzz</title>
-    <!-- Standard -->
-<link rel="icon" href="/toolshub.ico" type="image/x-icon">
-<!-- Optional: For better browser support -->
-<link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
+    <title>Multilingual Random Quote Generator | Buzz</title>
+    <link rel="icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500&family=Noto+Serif+Bengali:wght@300;400;500&family=Noto+Sans+Devanagari:wght@300;400;500&family=Noto+Sans+Hebrew:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -35,14 +71,13 @@
             --light-color: #f8f9fa;
             --dark-color: #212529;
             --success-color: #4bb543;
+            --error-color: #e63946;
         }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f5f7fa;
@@ -52,7 +87,18 @@
             display: flex;
             flex-direction: column;
         }
-        
+        .lang-arabic {
+            font-family: 'Noto Sans Arabic', sans-serif;
+        }
+        .lang-bengali {
+            font-family: 'Noto Serif Bengali', sans-serif;
+        }
+        .lang-hindi {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        .lang-hebrew {
+            font-family: 'Noto Sans Hebrew', sans-serif;
+        }
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
@@ -64,19 +110,16 @@
             position: relative;
             z-index: 100;
         }
-        
         .brand {
             font-size: 1.8rem;
             font-weight: 700;
             display: flex;
             align-items: center;
         }
-        
         .brand i {
             margin-right: 0.5rem;
             color: var(--accent-color);
         }
-        
         .header-title {
             font-size: 1.5rem;
             font-weight: 600;
@@ -84,7 +127,6 @@
             left: 50%;
             transform: translateX(-50%);
         }
-        
         .nav-button {
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
@@ -98,12 +140,10 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
         .nav-button:hover {
             background-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
-        
         main {
             flex: 1;
             display: flex;
@@ -115,7 +155,48 @@
             margin: 0 auto;
             width: 100%;
         }
-        
+        .quote-of-day {
+            background-color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        .quote-of-day.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+        .quote-of-day h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        #daily-quote {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        #daily-quote::before, #daily-quote::after {
+            content: '"';
+            color: var(--primary-color);
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+        #daily-author {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+        #daily-language {
+            font-size: 1rem;
+            color: var(--primary-color);
+            margin-top: 0.5rem;
+        }
         .quote-container {
             background-color: white;
             border-radius: 16px;
@@ -128,12 +209,14 @@
             transition: all 0.3s ease;
             text-align: center;
         }
-        
+        .quote-container.rtl {
+            direction: rtl;
+            text-align: right;
+        }
         .quote-container:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
-        
         .quote-text {
             font-size: 1.8rem;
             font-weight: 500;
@@ -142,21 +225,18 @@
             line-height: 1.4;
             position: relative;
         }
-        
         .quote-text::before, .quote-text::after {
             content: '"';
             color: var(--primary-color);
             font-size: 2.5rem;
             opacity: 0.7;
         }
-        
         .quote-author {
             font-size: 1.2rem;
             font-style: italic;
             color: var(--secondary-color);
             margin-bottom: 2rem;
         }
-        
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -164,7 +244,6 @@
             justify-content: center;
             margin-top: 2rem;
         }
-        
         .btn {
             padding: 0.8rem 1.8rem;
             border: none;
@@ -176,38 +255,31 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
         .btn-primary {
             background-color: var(--primary-color);
             color: white;
         }
-        
         .btn-primary:hover {
             background-color: var(--secondary-color);
             transform: translateY(-2px);
         }
-        
         .btn-secondary {
             background-color: white;
             color: var(--primary-color);
             border: 2px solid var(--primary-color);
         }
-        
         .btn-secondary:hover {
             background-color: var(--light-color);
             transform: translateY(-2px);
         }
-        
         .btn-accent {
             background-color: var(--accent-color);
             color: white;
         }
-        
         .btn-accent:hover {
             opacity: 0.9;
             transform: translateY(-2px);
         }
-        
         .instructions {
             background-color: white;
             border-radius: 16px;
@@ -217,23 +289,25 @@
             max-width: 800px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
-        
         .instructions h2 {
             color: var(--primary-color);
             margin-bottom: 1rem;
             font-size: 1.5rem;
         }
-        
         .instructions p {
             margin-bottom: 1rem;
         }
-        
-        .category-selector {
+        .selector-container {
+            display: flex;
+            gap: 1rem;
             margin: 1.5rem 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .category-selector, .language-selector {
             text-align: center;
         }
-        
-        .category-selector select {
+        .category-selector select, .language-selector select {
             padding: 0.8rem 1.2rem;
             border-radius: 50px;
             border: 2px solid var(--primary-color);
@@ -244,19 +318,16 @@
             outline: none;
             transition: all 0.3s ease;
         }
-        
-        .category-selector select:focus {
+        .category-selector select:focus, .language-selector select:focus {
             border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
-        
         .share-buttons {
             display: flex;
             gap: 1rem;
             justify-content: center;
             margin-top: 1.5rem;
         }
-        
         .share-btn {
             width: 40px;
             height: 40px;
@@ -269,29 +340,23 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
         .twitter {
             background-color: #1DA1F2;
         }
-        
         .facebook {
             background-color: #4267B2;
         }
-        
         .linkedin {
             background-color: #0077B5;
         }
-        
         .share-btn:hover {
             transform: translateY(-3px) scale(1.1);
         }
-        
-        .copy-message {
+        .copy-message, .error-message {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: var(--success-color);
             color: white;
             padding: 0.8rem 1.5rem;
             border-radius: 50px;
@@ -300,11 +365,15 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
-        .copy-message.show {
+        .copy-message {
+            background-color: var(--success-color);
+        }
+        .error-message {
+            background-color: var(--error-color);
+        }
+        .copy-message.show, .error-message.show {
             opacity: 1;
         }
-        
         footer {
             text-align: center;
             padding: 1.5rem;
@@ -312,54 +381,46 @@
             color: white;
             margin-top: auto;
         }
-        
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
                 padding: 1rem;
                 text-align: center;
             }
-            
             .brand {
                 margin-bottom: 0.5rem;
             }
-            
             .header-title {
                 position: static;
                 transform: none;
                 margin: 0.5rem 0;
             }
-            
-            .quote-text {
+            .quote-text, #daily-quote {
                 font-size: 1.4rem;
             }
-            
-            .quote-container {
+            .quote-container, .quote-of-day {
                 padding: 2rem 1.5rem;
             }
-            
             .controls {
                 flex-direction: column;
                 align-items: center;
             }
-            
             .btn {
                 width: 100%;
                 justify-content: center;
             }
+            .selector-container {
+                flex-direction: column;
+                align-items: center;
+            }
         }
-        
-        /* Animation */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
         .fade-in {
             animation: fadeIn 0.6s ease forwards;
         }
-        
-        /* Loading spinner */
         .spinner {
             display: none;
             width: 40px;
@@ -370,7 +431,6 @@
             animation: spin 1s ease-in-out infinite;
             margin: 2rem auto;
         }
-        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -382,31 +442,50 @@
             <i class="fas fa-quote-left"></i>
             <span>Buzz</span>
         </div>
-        <h1 class="header-title">Random Quote Generator</h1>
+        <h1 class="header-title">Multilingual Random Quote Generator</h1>
         <a href="/" class="nav-button">
             <i class="fas fa-home"></i>
             <span>Home</span>
         </a>
     </header>
-    
     <main>
-        <div class="category-selector">
-            <select id="quote-category">
-                <option value="all">All Categories</option>
-                <option value="motivational">Motivational</option>
-                <option value="life">Life</option>
-                <option value="success">Success</option>
-                <option value="love">Love</option>
-                <option value="wisdom">Wisdom</option>
-                <option value="funny">Funny</option>
-            </select>
+        <div class="quote-of-day fade-in">
+            <h2>Quote of the Day</h2>
+            <p id="daily-quote"></p>
+            <p id="daily-author"></p>
+            <p id="daily-language"></p>
         </div>
-        
+        <div class="selector-container">
+            <div class="language-selector">
+                <select id="quote-language">
+                    <option value="all">All Languages</option>
+                    <option value="english">English</option>
+                    <option value="spanish">Spanish</option>
+                    <option value="french">French</option>
+                    <option value="german">German</option>
+                    <option value="chinese">Chinese</option>
+                    <option value="bengali">Bengali</option>
+                    <option value="hindi">Hindi</option>
+                    <option value="arabic">Arabic</option>
+                    <option value="hebrew">Hebrew</option>
+                </select>
+            </div>
+            <div class="category-selector">
+                <select id="quote-category">
+                    <option value="all">All Categories</option>
+                    <option value="motivational">Motivational</option>
+                    <option value="life">Life</option>
+                    <option value="success">Success</option>
+                    <option value="love">Love</option>
+                    <option value="wisdom">Wisdom</option>
+                    <option value="funny">Funny</option>
+                </select>
+            </div>
+        </div>
         <div class="quote-container fade-in">
             <div class="spinner"></div>
             <p class="quote-text" id="quote-text"></p>
             <p class="quote-author" id="quote-author"></p>
-            
             <div class="share-buttons">
                 <div class="share-btn twitter" onclick="shareOnTwitter()">
                     <i class="fab fa-twitter"></i>
@@ -419,7 +498,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="controls">
             <button class="btn btn-primary" onclick="getRandomQuote()">
                 <i class="fas fa-random"></i>
@@ -434,256 +512,601 @@
                 Speak Quote
             </button>
         </div>
-        
         <div class="instructions">
             <h2>How to Use This Quote Generator</h2>
-            <p>1. Click "New Quote" to get a fresh, random quote instantly.</p>
-            <p>2. Select a category from the dropdown to get quotes on specific topics.</p>
-            <p>3. Copy quotes to your clipboard or share them directly on social media.</p>
-            <p>4. Use the "Speak Quote" feature to listen to the quote.</p>
+            <p>1. Check the Quote of the Day, displayed in a language based on your location, for daily inspiration.</p>
+            <p>2. Select a language from the language dropdown to view quotes in that language.</p>
+            <p>3. Choose a category from the category dropdown to get quotes on specific topics.</p>
+            <p>4. Click "New Quote" to get a fresh, random quote instantly.</p>
+            <p>5. Copy quotes to your clipboard or share them directly on social media.</p>
+            <p>6. Use the "Speak Quote" feature to listen to the quote. For Bengali, Arabic, and Hebrew, an English voice may be used if native voices are unavailable. For best results, use Chrome or Edge and ensure language voices are installed on your device.</p>
             <p>Each quote is carefully selected to inspire, motivate, and provoke thought.</p>
         </div>
-        
         <div class="copy-message" id="copy-message">
             Quote copied to clipboard!
         </div>
+        <div class="error-message" id="error-message">
+            Text-to-speech not supported for this language.
+        </div>
     </main>
-    
     <footer>
-        <p>&copy; <span id="year"></span> Buzz. All rights reserved.</p>
+        <p>© <span id="year"></span> Buzz. All rights reserved.</p>
     </footer>
-    
     <script>
         // Set current year in footer
         document.getElementById('year').textContent = new Date().getFullYear();
-        
-        // Quote database
+        // Quote database with multilingual support
         const quotes = {
-            all: [
-                {
-                    text: "The only way to do great work is to love what you do.",
-                    author: "Steve Jobs"
-                },
-                {
-                    text: "Life is what happens when you're busy making other plans.",
-                    author: "John Lennon"
-                },
-                {
-                    text: "In the end, it's not the years in your life that count. It's the life in your years.",
-                    author: "Abraham Lincoln"
-                },
-                {
-                    text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-                    author: "Winston Churchill"
-                },
-                {
-                    text: "The greatest glory in living lies not in never falling, but in rising every time we fall.",
-                    author: "Nelson Mandela"
-                },
-                {
-                    text: "The way to get started is to quit talking and begin doing.",
-                    author: "Walt Disney"
-                },
-                {
-                    text: "If life were predictable it would cease to be life, and be without flavor.",
-                    author: "Eleanor Roosevelt"
-                },
-                {
-                    text: "If you look at what you have in life, you'll always have more. If you look at what you don't have in life, you'll never have enough.",
-                    author: "Oprah Winfrey"
-                }
-            ],
-            motivational: [
-                {
-                    text: "Believe you can and you're halfway there.",
-                    author: "Theodore Roosevelt"
-                },
-                {
-                    text: "You are never too old to set another goal or to dream a new dream.",
-                    author: "C.S. Lewis"
-                },
-                {
-                    text: "The future belongs to those who believe in the beauty of their dreams.",
-                    author: "Eleanor Roosevelt"
-                },
-                {
-                    text: "It always seems impossible until it's done.",
-                    author: "Nelson Mandela"
-                }
-            ],
-            life: [
-                {
-                    text: "Life is really simple, but we insist on making it complicated.",
-                    author: "Confucius"
-                },
-                {
-                    text: "In three words I can sum up everything I've learned about life: it goes on.",
-                    author: "Robert Frost"
-                },
-                {
-                    text: "Life is 10% what happens to you and 90% how you react to it.",
-                    author: "Charles R. Swindoll"
-                }
-            ],
-            success: [
-                {
-                    text: "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful.",
-                    author: "Albert Schweitzer"
-                },
-                {
-                    text: "The only place where success comes before work is in the dictionary.",
-                    author: "Vidal Sassoon"
-                },
-                {
-                    text: "Success usually comes to those who are too busy to be looking for it.",
-                    author: "Henry David Thoreau"
-                }
-            ],
-            love: [
-                {
-                    text: "Where there is love there is life.",
-                    author: "Mahatma Gandhi"
-                },
-                {
-                    text: "The best thing to hold onto in life is each other.",
-                    author: "Audrey Hepburn"
-                },
-                {
-                    text: "Love is composed of a single soul inhabiting two bodies.",
-                    author: "Aristotle"
-                }
-            ],
-            wisdom: [
-                {
-                    text: "Knowing yourself is the beginning of all wisdom.",
-                    author: "Aristotle"
-                },
-                {
-                    text: "The only true wisdom is in knowing you know nothing.",
-                    author: "Socrates"
-                },
-                {
-                    text: "Wisdom is not a product of schooling but of the lifelong attempt to acquire it.",
-                    author: "Albert Einstein"
-                }
-            ],
-            funny: [
-                {
-                    text: "I'm not lazy, I'm on energy saving mode.",
-                    author: "Anonymous"
-                },
-                {
-                    text: "I don't need anger management. I need people to stop making me angry.",
-                    author: "Anonymous"
-                },
-                {
-                    text: "I'm not arguing, I'm just explaining why I'm right.",
-                    author: "Anonymous"
-                }
-            ]
+            english: {
+                all: [
+                    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+                    { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+                    { text: "In the end, it's not the years in your life that count. It's the life in your years.", author: "Abraham Lincoln" },
+                    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+                    { text: "Do not wait to strike till the iron is hot; but make it hot by striking.", author: "William Butler Yeats" }
+                ],
+                motivational: [
+                    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+                    { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+                    { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+                    { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" }
+                ],
+                life: [
+                    { text: "Life is really simple, but we insist on making it complicated.", author: "Confucius" },
+                    { text: "In three words I can sum up everything I've learned about life: it goes on.", author: "Robert Frost" },
+                    { text: "Life is either a daring adventure or nothing at all.", author: "Helen Keller" },
+                    { text: "The purpose of life is to live it, to taste experience to the utmost.", author: "Ralph Waldo Emerson" }
+                ],
+                success: [
+                    { text: "Success is not the key to happiness. Happiness is the key to success.", author: "Albert Schweitzer" },
+                    { text: "The only place where success comes before work is in the dictionary.", author: "Vidal Sassoon" },
+                    { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+                    { text: "The secret of success is to do the common thing uncommonly well.", author: "John D. Rockefeller" }
+                ],
+                love: [
+                    { text: "Where there is love there is life.", author: "Mahatma Gandhi" },
+                    { text: "The best thing to hold onto in life is each other.", author: "Audrey Hepburn" },
+                    { text: "Love recognizes no barriers. It jumps hurdles, leaps fences, penetrates walls.", author: "Maya Angelou" }
+                ],
+                wisdom: [
+                    { text: "Knowing yourself is the beginning of all wisdom.", author: "Aristotle" },
+                    { text: "The only true wisdom is in knowing you know nothing.", author: "Socrates" },
+                    { text: "The mind is everything. What you think you become.", author: "Buddha" }
+                ],
+                funny: [
+                    { text: "I'm not lazy, I'm on energy saving mode.", author: "Anonymous" },
+                    { text: "I'm not arguing, I'm just explaining why I'm right.", author: "Anonymous" },
+                    { text: "Many lack originality, which is why they lack originality.", author: "Anonymous" },
+                    { text: "I'm not clumsy, the floor just loves me too much.", author: "Anonymous" }
+                ]
+            },
+            spanish: {
+                all: [
+                    { text: "La única forma de hacer un gran trabajo es amar lo que haces.", author: "Steve Jobs" },
+                    { text: "La vida es lo que pasa mientras estás ocupado haciendo otros planes.", author: "John Lennon" },
+                    { text: "El futuro pertenece a quienes creen en la belleza de sus sueños.", author: "Eleanor Roosevelt" },
+                    { text: "No esperes a que el hierro esté caliente; hazlo caliente golpeando.", author: "William Butler Yeats" }
+                ],
+                motivational: [
+                    { text: "Cree que puedes y ya estás a medio camino.", author: "Theodore Roosevelt" },
+                    { text: "Nunca eres demasiado viejo para establecer una nueva meta o soñar un nuevo sueño.", author: "C.S. Lewis" },
+                    { text: "El único límite para nuestra realización del mañana serán nuestras dudas de hoy.", author: "Franklin D. Roosevelt" },
+                    { text: "Comienza donde estás. Usa lo que tienes. Haz lo que puedas.", author: "Arthur Ashe" }
+                ],
+                life: [
+                    { text: "La vida es realmente simple, pero insistimos en hacerla complicada.", author: "Confucius" },
+                    { text: "En tres palabras puedo resumir todo lo que he aprendido sobre la vida: sigue adelante.", author: "Robert Frost" },
+                    { text: "La vida es una aventura audaz o nada en absoluto.", author: "Helen Keller" },
+                    { text: "El propósito de la vida es vivirla, experimentar al máximo.", author: "Ralph Waldo Emerson" }
+                ],
+                success: [
+                    { text: "El éxito no es la clave de la felicidad. La felicidad es la clave del éxito.", author: "Albert Schweitzer" },
+                    { text: "El éxito no es definitivo, el fracaso no es fatal: es el coraje para continuar lo que cuenta.", author: "Winston Churchill" },
+                    { text: "El secreto del éxito es hacer lo común de manera extraordinaria.", author: "John D. Rockefeller" }
+                ],
+                love: [
+                    { text: "Donde hay amor, hay vida.", author: "Mahatma Gandhi" },
+                    { text: "El amor no reconoce barreras. Salta obstáculos, cruza vallas, atraviesa muros.", author: "Maya Angelou" }
+                ],
+                wisdom: [
+                    { text: "Conocerte a ti mismo es el comienzo de toda sabiduría.", author: "Aristotle" },
+                    { text: "La mente lo es todo. Lo que piensas, te conviertes.", author: "Buda" }
+                ],
+                funny: [
+                    { text: "No estoy perezoso, estoy en modo de ahorro de energía.", author: "Anónimo" },
+                    { text: "Muchos carecen de originalidad, por eso carecen de originalidad.", author: "Anónimo" },
+                    { text: "No soy torpe, el suelo simplemente me ama demasiado.", author: "Anónimo" }
+                ]
+            },
+            french: {
+                all: [
+                    { text: "La seule façon de faire du bon travail est d'aimer ce que vous faites.", author: "Steve Jobs" },
+                    { text: "La vie est ce qui arrive quand vous êtes occupé à faire d'autres projets.", author: "John Lennon" },
+                    { text: "L’avenir appartient à ceux qui croient en la beauté de leurs rêves.", author: "Eleanor Roosevelt" },
+                    { text: "N’attendez pas que le fer soit chaud ; rendez-le chaud en frappant.", author: "William Butler Yeats" }
+                ],
+                motivational: [
+                    { text: "Croyez que vous pouvez et vous êtes à mi-chemin.", author: "Theodore Roosevelt" },
+                    { text: "La seule limite à notre réalisation de demain sera nos doutes d’aujourd’hui.", author: "Franklin D. Roosevelt" },
+                    { text: "Commencez où vous êtes. Utilisez ce que vous avez. Faites ce que vous pouvez.", author: "Arthur Ashe" }
+                ],
+                life: [
+                    { text: "La vie est vraiment simple, mais nous insistons pour la compliquer.", author: "Confucius" },
+                    { text: "La vie est soit une aventure audacieuse, soit rien du tout.", author: "Helen Keller" },
+                    { text: "Le but de la vie est de la vivre, de goûter l’expérience au maximum.", author: "Ralph Waldo Emerson" }
+                ],
+                success: [
+                    { text: "Le succès n’est pas la clé du bonheur. Le bonheur est la clé du succès.", author: "Albert Schweitzer" },
+                    { text: "Le succès n’est pas final, l’échec n’est pas fatal : c’est le courage de continuer qui compte.", author: "Winston Churchill" },
+                    { text: "Le secret du succès est de faire les choses ordinaires extraordinairement bien.", author: "John D. Rockefeller" }
+                ],
+                love: [
+                    { text: "Là où il y a de l'amour, il y a de la vie.", author: "Mahatma Gandhi" },
+                    { text: "L’amour ne reconnaît pas de barrières. Il saute les obstacles, franchit les clôtures, perce les murs.", author: "Maya Angelou" }
+                ],
+                wisdom: [
+                    { text: "Se connaître soi-même est le début de toute sagesse.", author: "Aristotle" },
+                    { text: "L’esprit est tout. Ce que vous pensez, vous le devenez.", author: "Bouddha" }
+                ],
+                funny: [
+                    { text: "Je ne suis pas paresseux, je suis en mode économie d'énergie.", author: "Anonyme" },
+                    { text: "Beaucoup manquent d’originalité, c’est pourquoi ils manquent d’originalité.", author: "Anonyme" },
+                    { text: "Je ne suis pas maladroit, le sol m’aime juste trop.", author: "Anonyme" }
+                ]
+            },
+            german: {
+                all: [
+                    { text: "Der einzige Weg, großartige Arbeit zu leisten, ist zu lieben, was du tust.", author: "Steve Jobs" },
+                    { text: "Das Leben ist das, was passiert, während du beschäftigt bist, andere Pläne zu machen.", author: "John Lennon" },
+                    { text: "Die Zukunft gehört denen, die an die Schönheit ihrer Träume glauben.", author: "Eleanor Roosevelt" },
+                    { text: "Warte nicht, bis das Eisen heiß ist; mache es heiß durch Schlagen.", author: "William Butler Yeats" }
+                ],
+                motivational: [
+                    { text: "Glaube, dass du es kannst, und du bist schon auf halbem Weg.", author: "Theodore Roosevelt" },
+                    { text: "Die einzige Grenze für unsere Verwirklichung von morgen sind unsere Zweifel von heute.", author: "Franklin D. Roosevelt" },
+                    { text: "Beginne, wo du bist. Nutze, was du hast. Tue, was du kannst.", author: "Arthur Ashe" }
+                ],
+                life: [
+                    { text: "Das Leben ist wirklich einfach, aber wir bestehen darauf, es kompliziert zu machen.", author: "Confucius" },
+                    { text: "Das Leben ist entweder ein kühnes Abenteuer oder gar nichts.", author: "Helen Keller" },
+                    { text: "Der Sinn des Lebens ist, es zu leben, Erfahrungen bis zum Äußersten auszukosten.", author: "Ralph Waldo Emerson" }
+                ],
+                success: [
+                    { text: "Erfolg ist nicht der Schlüssel zum Glück. Glück ist der Schlüssel zum Erfolg.", author: "Albert Schweitzer" },
+                    { text: "Erfolg ist nicht endgültig, Scheitern ist nicht fatal: Es ist der Mut, weiterzumachen, der zählt.", author: "Winston Churchill" },
+                    { text: "Das Geheimnis des Erfolgs ist, das Gewöhnliche ungewöhnlich gut zu tun.", author: "John D. Rockefeller" }
+                ],
+                love: [
+                    { text: "Wo Liebe ist, ist Leben.", author: "Mahatma Gandhi" },
+                    { text: "Liebe kennt keine Barrieren. Sie überspringt Hürden, durchbricht Zäune, dringt durch Wände.", author: "Maya Angelou" }
+                ],
+                wisdom: [
+                    { text: "Sich selbst zu kennen ist der Anfang aller Weisheit.", author: "Aristotle" },
+                    { text: "Der Geist ist alles. Was du denkst, wirst du.", author: "Buddha" }
+                ],
+                funny: [
+                    { text: "Ich bin nicht faul, ich bin im Energiesparmodus.", author: "Anonym" },
+                    { text: "Vielen fehlt Originalität, deshalb fehlt ihnen Originalität.", author: "Anonym" },
+                    { text: "Ich bin nicht tollpatschig, der Boden liebt mich einfach zu sehr.", author: "Anonym" }
+                ]
+            },
+            chinese: {
+                all: [
+                    { text: "做出伟大工作的唯一方法是热爱你所做的事。", author: "史蒂夫·乔布斯" },
+                    { text: "生活是你忙于制定其他计划时发生的事情。", author: "约翰·列侬" },
+                    { text: "未来属于那些相信自己梦想之美的人。", author: "埃莉诺·罗斯福" },
+                    { text: "不要等到铁热了再去敲打；通过敲打让它变热。", author: "威廉·巴特勒·叶芝" }
+                ],
+                motivational: [
+                    { text: "相信你能行，你就已经成功了一半。", author: "西奥多·罗斯福" },
+                    { text: "我们对明天的实现唯一限制是我们今天的怀疑。", author: "富兰克林·罗斯福" },
+                    { text: "从你所在的地方开始。用你拥有的。做你能做的。", author: "阿瑟·阿什" }
+                ],
+                life: [
+                    { text: "生活其实很简单，但我们坚持让它变得复杂。", author: "孔子" },
+                    { text: "生活要么是一场大胆的冒险，要么什么都不是。", author: "海伦·凯勒" },
+                    { text: "生活的目的是去活它，尽情体验。", author: "拉尔夫·沃尔多·爱默生" }
+                ],
+                success: [
+                    { text: "成功不是幸福的关键。幸福是成功的关键。", author: "阿尔伯特·施韦泽" },
+                    { text: "成功不是终点，失败不是致命的：继续前行的勇气才重要。", author: "温斯顿·丘吉尔" },
+                    { text: "成功的秘诀是将平凡之事做得非凡。", author: "约翰·洛克菲勒" }
+                ],
+                love: [
+                    { text: "有爱的地方就有生活。", author: "圣雄甘地" },
+                    { text: "爱不承认障碍。它跳过障碍，跃过围栏，穿透墙壁。", author: "玛雅·安杰洛" }
+                ],
+                wisdom: [
+                    { text: "认识自己是一切智慧的开始。", author: "亚里士多德" },
+                    { text: "心即一切。你所想，即你所成。", author: "佛陀" }
+                ],
+                funny: [
+                    { text: "我不是懒惰，我在节能模式。", author: "匿名" },
+                    { text: "许多人缺乏原创性，这就是他们缺乏原创性的原因。", author: "匿名" },
+                    { text: "我不是笨拙，地板只是太爱我了。", author: "匿名" }
+                ]
+            },
+            bengali: {
+                all: [
+                    { text: "মহান কাজ করার একমাত্র উপায় হল আপনি যা করেন তা ভালোবাসা।", author: "স্টিভ জবস", transliteration: "Mohan kaj korar ekmatro upay holo apni ja koren ta bhalobasha." },
+                    { text: "জীবন হল যা ঘটে যখন আপনি অন্য পরিকল্পনা করতে ব্যস্ত থাকেন।", author: "জন লেনন", transliteration: "Jibon holo ja ghote jokhon apni onno porikolpona korte byasto thaken." },
+                    { text: "ভবিষ্যৎ তাদের জন্য যারা তাদের স্বপ্নের সৌন্দর্যে বিশ্বাস করে।", author: "এলিনর রুজভেল্ট", transliteration: "Bhabishyat tader janya jara tader swopner soundarye bishwas kore." },
+                    { text: "লোহা গরম না হওয়া পর্যন্ত অপেক্ষা করবেন না; আঘাত করে এটিকে গরম করুন।", author: "উইলিয়াম বাটলার ইয়েটস", transliteration: "Loha gorom na howa porjonto opekkha korben na; aghat kore etike gorom korun." }
+                ],
+                motivational: [
+                    { text: "বিশ্বাস করুন আপনি পারেন এবং আপনি অর্ধেক পথ অতিক্রম করেছেন।", author: "থিওডোর রুজভেল্ট", transliteration: "Bishwas korun apni paren ebong apni ordhek poth otikrom korechen." },
+                    { text: "আমাদের আগামীকালের উপলব্ধির একমাত্র সীমা হল আজকের সন্দেহ।", author: "ফ্র্যাঙ্কলিন ডি. রুজভেল্ট", transliteration: "Amader agamikalyer upolobdhir ekmatro sima holo ajker sondeho." },
+                    { text: "যেখানে আছেন সেখান থেকে শুরু করুন। যা আছে তা ব্যবহার করুন। যা পারেন তা করুন।", author: "আর্থার অ্যাশ", transliteration: "Jekhane achen sekhane theke shuru korun. Ja ache ta byabohar korun. Ja paren ta korun." }
+                ],
+                life: [
+                    { text: "জীবন সত্যিই সহজ, কিন্তু আমরা এটিকে জটিল করতে জোর দিই।", author: "কনফুসিয়াস", transliteration: "Jibon sotyi sohoj, kintu amra etike jotil korte jor dei." },
+                    { text: "জীবন হয় একটি সাহসী অভিযান, নয়তো কিছুই নয়।", author: "হেলেন কেলার", transliteration: "Jibon hoy ekti sahosi abhijan, noyto kichhui noy." },
+                    { text: "জীবনের উদ্দেশ্য হল এটি বেঁচে থাকা, অভিজ্ঞতাকে পূর্ণভাবে উপভোগ করা।", author: "রালফ ওয়াল্ডো এমারসন", transliteration: "Jiboner uddeshyo holo eti benche thaka, abhigyatake purnobhabe upobhog kora." }
+                ],
+                success: [
+                    { text: "সাফল্য সুখের চাবিকাঠি নয়। সুখই সাফল্যের চাবিকাঠি।", author: "আলবার্ট শোয়েটজার", transliteration: "Sapholyo sukher chabikathi noy. Sukhi sapholyer chabikathi." },
+                    { text: "সাফল্য চূড়ান্ত নয়, ব্যর্থতা মারাত্মক নয়: চালিয়ে যাওয়ার সাহসই গুরুত্বপূর্ণ।", author: "উইনস্টন চার্চিল", transliteration: "Sapholyo churanto noy, byarthota maratmok noy: chaliye jawar sahosi gurutwopurno." },
+                    { text: "সাফল্যের রহস্য হল সাধারণ কাজ অসাধারণভাবে করা।", author: "জন ডি. রকফেলার", transliteration: "Sapholyer rohosyo holo sadharon kaj asadharonbhabe kora." }
+                ],
+                love: [
+                    { text: "যেখানে ভালোবাসা আছে, সেখানে জীবন আছে।", author: "মহাত্মা গান্ধী", transliteration: "Jekhane bhalobasha ache, sekhane jibon ache." },
+                    { text: "ভালোবাসা কোনো বাধা মানে না। এটি বাধা অতিক্রম করে, বেড়া লাফায়, দেয়াল ভেদ করে।", author: "মায়া অ্যাঞ্জেলো", transliteration: "Bhalobasha kono badha mane na. Eti badha otikrom kore, bera laphay, deyal bhed kore." }
+                ],
+                wisdom: [
+                    { text: "নিজেকে জানা হল সকল জ্ঞানের শুরু।", author: "অ্যারিস্টটল", transliteration: "Nijeke jana holo sokol gyaner shuru." },
+                    { text: "মনই সবকিছু। আপনি যা ভাবেন তাই হয়ে উঠেন।", author: "বুদ্ধ", transliteration: "Monoi sobkichu. Apni ja bhaben tai hoye uthen." }
+                ],
+                funny: [
+                    { text: "আমি অলস নই, আমি শক্তি সঞ্চয় মোডে আছি।", author: "অজ্ঞাত", transliteration: "Ami olos noi, ami shokti shonchoy mode achi." },
+                    { text: "অনেকের মৌলিকতার অভাব, তাই তাদের মৌলিকতার অভাব।", author: "অজ্ঞাত", transliteration: "Aneker mouliktar abhab, tai tader mouliktar abhab." },
+                    { text: "আমি অগোছালো নই, মেঝে আমাকে খুব বেশি ভালোবাসে।", author: "অজ্ঞাত", transliteration: "Ami agochhalo noi, mejhe amake khub beshi bhalobashe." }
+                ]
+            },
+            hindi: {
+                all: [
+                    { text: "महान कार्य करने का एकमात्र तरीका है कि आप जो करते हैं उससे प्यार करें।", author: "स्टीव जॉब्स" },
+                    { text: "जीवन वह है जो तब होता है जब आप अन्य योजनाएँ बनाने में व्यस्त होते हैं।", author: "जॉन लेनन" },
+                    { text: "भविष्य उनका है जो अपने सपनों की सुंदरता पर विश्वास करते हैं।", author: "एलिनोर रूजवेल्ट" },
+                    { text: "लोहे के गर्म होने की प्रतीक्षा न करें; इसे हथौड़े से गर्म करें।", author: "विलियम बटलर येट्स" }
+                ],
+                motivational: [
+                    { text: "विश्वास करें कि आप कर सकते हैं और आप आधे रास्ते पर हैं।", author: "थियोडोर रूजवेल्ट" },
+                    { text: "हमारे कल की प्राप्ति की एकमात्र सीमा आज के हमारे संदेह हैं।", author: "फ्रैंकलिन डी. रूजवेल्ट" },
+                    { text: "जहाँ हैं, वहीं से शुरू करें। जो है, उसका उपयोग करें। जो कर सकते हैं, करें।", author: "आर्थर ऐश" }
+                ],
+                life: [
+                    { text: "जीवन वास्तव में सरल है, लेकिन हम इसे जटिल बनाने पर जोर देते हैं।", author: "कन्फ्यूशियस" },
+                    { text: "जीवन या तो एक साहसी साहसिक कार्य है या फिर कुछ भी नहीं।", author: "हेलेन केलर" },
+                    { text: "जीवन का उद्देश्य इसे जीना है, अनुभव को पूरी तरह से चखना है।", author: "राल्फ वाल्डो इमर्सन" }
+                ],
+                success: [
+                    { text: "सफलता खुशी की कुंजी नहीं है। खुशी सफलता की कुंजी है।", author: "अल्बर्ट श्वेत्ज़र" },
+                    { text: "सफलता अंतिम नहीं है, असफलता घातक नहीं है: आगे बढ़ने का साहस ही मायने रखता है।", author: "विंस्टन चर्चिल" },
+                    { text: "सफलता का रहस्य साधारण चीजों को असाधारण रूप से करना है।", author: "जॉन डी. रॉकफेलर" }
+                ],
+                love: [
+                    { text: "जहाँ प्यार है, वहाँ जीवन है।", author: "महात्मा गांधी" },
+                    { text: "प्रेम कोई बाधा नहीं मानता। यह रुकावटों को लांघता है, बाड़ को पार करता है, दीवारों को भेदता है।", author: "माया एंजेलो" }
+                ],
+                wisdom: [
+                    { text: "खुद को जानना सभी ज्ञान की शुरुआत है।", author: "अरस्तू" },
+                    { text: "मन ही सब कुछ है। आप जो सोचते हैं, वही बन जाते हैं।", author: "बुद्ध" }
+                ],
+                funny: [
+                    { text: "मैं आलसी नहीं हूँ, मैं ऊर्जा बचत मोड में हूँ।", author: "अज्ञात" },
+                    { text: "कई लोगों में मौलिकता की कमी है, यही कारण है कि उनमें मौलिकता की कमी है।", author: "अज्ञात" },
+                    { text: "मैं अनाड़ी नहीं हूँ, फर्श मुझे बहुत प्यार करता है।", author: "अज्ञात" }
+                ]
+            },
+            arabic: {
+                all: [
+                    { text: "الطريقة الوحيدة للقيام بعمل عظيم هي أن تحب ما تفعله.", author: "ستيف جوبز", transliteration: "Altariqa alwahida lilqiam biamal azim hiya an tuhibb ma tafaluh." },
+                    { text: "الحياة هي ما يحدث عندما تكون مشغولاً بصنع خطط أخرى.", author: "جون لينون", transliteration: "Alhayat hiya ma yahduth aindama takun mashghulan bisun' khutat ukhra." },
+                    { text: "المستقبل لمن يؤمنون بجمال أحلامهم.", author: "إليانور روزفلت", transliteration: "Almustaqbal liman yu’minun bijamal ahlamihim." },
+                    { text: "لا تنتظر حتى يصبح الحديد ساخنًا؛ اجعله ساخنًا بالضرب.", author: "ويليام بتلر ييتس", transliteration: "La tantazir hatta yasbah alhadid sakhinan; ij’alhu sakhinan bialdarb." }
+                ],
+                motivational: [
+                    { text: "صدّق أنك تستطيع وسوف تكون في منتصف الطريق.", author: "ثيودور روزفلت", transliteration: "Saddiq annaka tastati' wasawf takun fi muntasaf attariq." },
+                    { text: "الحد الوحيد لتحقيق غدنا هو شكوكنا اليوم.", author: "فرانكلين روزفلت", transliteration: "Alhadd alwahid litahqiq ghadina huwa shukukuna alyawm." },
+                    { text: "ابدأ من حيث أنت. استخدم ما لديك. افعل ما تستطيع.", author: "آرثر آش", transliteration: "Ibda min hayth anta. Istakhdim ma ladayk. Af’al ma tastati’." }
+                ],
+                life: [
+                    { text: "الحياة بسيطة حقًا، لكننا نصر على تعقيدها.", author: "كونفوشيوس", transliteration: "Alhayat basita haqqan, lakinna nasirr ealaa ta'qidiha." },
+                    { text: "الحياة إما مغامرة جريئة أو لا شيء على الإطلاق.", author: "هيلين كيلر", transliteration: "Alhayat ima mughamara jari’a aw la shay’ ala al’itlaq." },
+                    { text: "هدف الحياة هو عيشها، تذوق التجربة إلى أقصى حد.", author: "رالف والدو إيمرسون", transliteration: "Hadaf alhayat huwa ‘ayshaha, tadhawwuq attajarib ila aqsaa hadd." }
+                ],
+                success: [
+                    { text: "النجاح ليس مفتاح السعادة. السعادة هي مفتاح النجاح.", author: "ألبرت شفايتزر", transliteration: "Alnajah laysa miftah alssa'ada. Alssa'ada hiya miftah alnajah." },
+                    { text: "النجاح ليس نهائيًا، الفشل ليس قاتلاً: الشجاعة للاستمرار هي التي تهم.", author: "ونستون تشرشل", transliteration: "Alnajah laysa nihaiyyan, al-fashal laysa qatilan: ash-shaja’a lilistimrar hiya allati tahumm." },
+                    { text: "سر النجاح هو أداء الأمور العادية بطريقة غير عادية.", author: "جون روكفلر", transliteration: "Sirru an-najah huwa ada’ al-umur al-’adiyya bitariqa ghayr ‘adiyya." }
+                ],
+                love: [
+                    { text: "حيث يوجد الحب توجد الحياة.", author: "مهاتما غاندي", transliteration: "Hayth yujad alhubb tujad alhayat." },
+                    { text: "الحب لا يعترف بالحواجز. يقفز فوق العقبات، يتجاوز الأسوار، يخترق الجدران.", author: "مايا أنجيلو", transliteration: "Alhubb la ya’tarif bilhawajiz. Yaqfuz fawqa al’aqabat, yatajawaz al-aswar, yakhtariq al-jidran." }
+                ],
+                wisdom: [
+                    { text: "معرفة نفسك هي بداية كل حكمة.", author: "أرسطو", transliteration: "Ma’rifat nafsik hiya bidayat kull hikma." },
+                    { text: "العقل هو كل شيء. ما تفكر فيه، تصبح عليه.", author: "بوذا", transliteration: "Al’aql huwa kull shay’. Ma tufakkir fihi, tasbah ‘alayhi." }
+                ],
+                funny: [
+                    { text: "لست كسولًا، أنا في وضع توفير الطاقة.", author: "مجهول", transliteration: "Lastu kasulan, ana fi wadi’ tawfir attaqa." },
+                    { text: "الكثيرون يفتقرون إلى الأصالة، ولهذا يفتقرون إلى الأصالة.", author: "مجهول", transliteration: "Alkathirun yaftaqirun ila al-asala, walidha yaftaqirun ila al-asala." },
+                    { text: "أنا لست أخرق، الأرضية فقط تحبني كثيرًا.", author: "مجهول", transliteration: "Ana lastu akhraq, al-ardiyya faqat tuhibbuni kathiran." }
+                ]
+            },
+            hebrew: {
+                all: [
+                    { text: "הדרך היחידה לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה.", author: "סטיב ג'ובס", transliteration: "Haderekh hayekhida la’asot avoda nehederet hi le’ehov et ma she’ata ose." },
+                    { text: "החיים הם מה שקורה כשאתה עסוק בתכנון תוכניות אחרות.", author: "ג'ון לנון", transliteration: "Hakhayim hem ma shekore kshe’ata asuk betikhnun tokhniyot akherot." },
+                    { text: "העתיד שייך לאלה שמאמינים ביופי של חלומותיהם.", author: "אלינור רוזוולט", transliteration: "Ha’atid shayakh la’ele shema’aminim beyofi shel khalomoteihem." },
+                    { text: "אל תחכה עד שהברזל יהיה חם; הפוך אותו לחם על ידי הכאה.", author: "ויליאם בטלר ייטס", transliteration: "Al takhe ad shehabarzel yihye kham; hafokh oto lekham al yedei haka’a." }
+                ],
+                motivational: [
+                    { text: "האמן שאתה יכול ואתה כבר בחצי הדרך.", author: "תיאודור רוזוולט", transliteration: "Ha’amen she’ata yakhol ve’ata kvar bekhetsi haderekh." },
+                    { text: "הגבול היחיד למימוש המחר שלנו יהיה הספקות שלנו היום.", author: "פרנקלין רוזוולט", transliteration: "Hagvul hayakhid lemimush hamakhar shelanu yihye hasfekot shelanu hayom." },
+                    { text: "התחל מאיפה שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול.", author: "ארתור אש", transliteration: "Hat’khel me’ayfo she’ata nimtsa. Hishtamesh bama sheyesh lekha. Aseh ma she’ata yakhol." }
+                ],
+                life: [
+                    { text: "החיים ממש פשוטים, אבל אנחנו מתעקשים לסבך אותם.", author: "קונפוציוס", transliteration: "Hakhayim mamash pshutim, aval anakhnu mit’akshim lesabekh otam." },
+                    { text: "החיים הם או הרפתקה נועזת או כלום.", author: "הלן קלר", transliteration: "Hakhayim hem o harpatka no’azet o klum." },
+                    { text: "מטרת החיים היא לחיות אותם, לטעום את החוויה עד תום.", author: "ראלף וולדו אמרסון", transliteration: "Matrat hakhayim hi lakhyot otam, lit’om et hakhavaya ad tom." }
+                ],
+                success: [
+                    { text: "הצלחה אינה המפתח לאושר. אושר הוא המפתח להצלחה.", author: "אלברט שווייצר", transliteration: "Hatslakha eina hamafteakh le’osher. Osher hu hamafteakh lehatslakha." },
+                    { text: "הצלחה אינה סופית, כישלון אינו קטלני: האומץ להמשיך הוא שחשוב.", author: "וינסטון צ’רצ’יל", transliteration: "Hatslakha eina sofiyot, kishalon eino katlani: ha’ometz lehamshikh hu shekhavu." },
+                    { text: "סוד ההצלחה הוא לעשות את הדברים הרגילים בצורה יוצאת דופן.", author: "ג’ון רוקפלר", transliteration: "Sod hahatslakha hu la’asot et hadvarim haregiliyim betsura yotset dofen." }
+                ],
+                love: [
+                    { text: "במקום שבו יש אהבה, יש חיים.", author: "מהטמה גנדי", transliteration: "Bamakom shebo yesh ahava, yesh khayim." },
+                    { text: "אהבה אינה מכירה במחסומים. היא קופצת מעל מכשולים, עוברת גדרות, חודרת דרך קירות.", author: "מאיה אנג’לו", transliteration: "Ahava eina makira bemakhshomim. Hi kofetzet me’al mikhsholim, ovret gderot, khoderet derekh kirot." }
+                ],
+                wisdom: [
+                    { text: "להכיר את עצמך זהו תחילת כל החוכמה.", author: "אריסטו", transliteration: "Lehakir et atsmecha zehu tkhilat kol hakhokhma." },
+                    { text: "הנפש היא הכל. מה שאתה חושב, אתה הופך להיות.", author: "בודהה", transliteration: "Hanefesh hi hakol. Ma she’ata khoshev, ata hofekh lihiyot." }
+                ],
+                funny: [
+                    { text: "אני לא עצלן, אני במצב חיסכון באנרגיה.", author: "אלמוני", transliteration: "Ani lo atslan, ani bematsav khisakhon be’energia." },
+                    { text: "לרבים חסרה מקוריות, ולכן חסרה להם מקוריות.", author: "אלמוני", transliteration: "Larabim khasra makoriyut, velakhen khasra lahem makoriyut." },
+                    { text: "אני לא מגושם, הרצפה פשוט אוהבת אותי יותר מדי.", author: "אלמוני", transliteration: "Ani lo megusham, haritsfa pashut ohevet oti yoter midai." }
+                ]
+            }
         };
-        
         // Get DOM elements
         const quoteText = document.getElementById('quote-text');
         const quoteAuthor = document.getElementById('quote-author');
-        const quoteCategory = document.getElementById('quote-category');
+        const quoteContainer = document.querySelector('.quote-container');
+        const languageSelect = document.getElementById('quote-language');
+        const categorySelect = document.getElementById('quote-category');
         const spinner = document.querySelector('.spinner');
         const copyMessage = document.getElementById('copy-message');
-        
-        // Display a random quote
+        const errorMessage = document.getElementById('error-message');
+        const dailyQuote = document.getElementById('daily-quote');
+        const dailyAuthor = document.getElementById('daily-author');
+        const dailyLanguage = document.getElementById('daily-language');
+        const dailyContainer = document.querySelector('.quote-of-day');
+        // Initialize quote on page load
+        window.onload = () => {
+            detectUserLanguage().then(() => {
+                displayQuoteOfTheDay();
+                getRandomQuote();
+            });
+        };
+        // Language detection
+        function detectUserLanguage() {
+            return new Promise((resolve) => {
+                const supportedLanguages = ['english', 'spanish', 'french', 'german', 'chinese', 'bengali', 'hindi', 'arabic', 'hebrew'];
+                const languageMap = {
+                    'en': 'english',
+                    'es': 'spanish',
+                    'fr': 'french',
+                    'de': 'german',
+                    'zh': 'chinese',
+                    'bn': 'bengali',
+                    'hi': 'hindi',
+                    'ar': 'arabic',
+                    'he': 'hebrew'
+                };
+                const countryLanguageMap = {
+                    'US': 'english',
+                    'GB': 'english',
+                    'CA': 'english', // English as default, could be 'french' in Quebec
+                    'ES': 'spanish',
+                    'MX': 'spanish',
+                    'AR': 'spanish',
+                    'FR': 'french',
+                    'DE': 'german',
+                    'CN': 'chinese',
+                    'BD': 'bengali',
+                    'IN': 'hindi', // Hindi as default, could vary
+                    'SA': 'arabic',
+                    'EG': 'arabic',
+                    'IL': 'hebrew'
+                };
+                // Step 1: Check navigator.language
+                let userLanguage = navigator.language.split('-')[0]; // e.g., 'es' from 'es-ES'
+                let selectedLanguage = languageMap[userLanguage] || 'english';
+                window.detectedLanguage = selectedLanguage;
+                // Step 2: Use Geolocation for refinement if needed
+                if (navigator.geolocation && ['en', 'es', 'fr'].includes(userLanguage)) { // Refine for ambiguous languages
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            // Mock country code for testing (replace with actual API in production if server-side)
+                            // For client-side, we assume a static mapping or skip
+                            // Here, we proceed without actual country code due to client-side constraint
+                            resolve();
+                        },
+                        () => {
+                            // Geolocation denied or unavailable, use browser language
+                            resolve();
+                        },
+                        { timeout: 5000 }
+                    );
+                } else {
+                    resolve();
+                }
+            });
+        }
+        // Quote of the Day
+        function getQuoteOfTheDay() {
+            const date = new Date().toISOString().split('T')[0];
+            const hash = date.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+            const selectedLanguage = window.detectedLanguage || 'english';
+            const availableQuotes = quotes[selectedLanguage].all;
+            const index = hash % availableQuotes.length;
+            return { ...availableQuotes[index], language: selectedLanguage };
+        }
+        function displayQuoteOfTheDay() {
+            const quote = getQuoteOfTheDay();
+            dailyQuote.textContent = quote.text;
+            dailyAuthor.textContent = `— ${quote.author}`;
+            dailyLanguage.textContent = `Language: ${quote.language.charAt(0).toUpperCase() + quote.language.slice(1)}`;
+            // Handle RTL and language-specific fonts
+            dailyContainer.classList.remove('rtl', 'lang-arabic', 'lang-bengali', 'lang-hindi', 'lang-hebrew');
+            if (['arabic', 'hebrew'].includes(quote.language)) {
+                dailyContainer.classList.add('rtl');
+                dailyContainer.classList.add('lang-' + quote.language);
+            } else if (['bengali', 'hindi'].includes(quote.language)) {
+                dailyContainer.classList.add('lang-' + quote.language);
+            }
+            // Track view in Google Analytics
+            gtag('event', 'quote_of_day_viewed', { quote_text: quote.text, language: quote.language });
+        }
+        // Function to get a random quote
         function getRandomQuote() {
-            // Show loading spinner
+            spinner.style.display = 'block';
             quoteText.style.display = 'none';
             quoteAuthor.style.display = 'none';
-            spinner.style.display = 'block';
-            
-            // Get selected category
-            const category = quoteCategory.value;
-            let selectedQuotes = quotes[category];
-            
-            // If "All Categories" is selected, combine all quotes
-            if (category === 'all') {
-                selectedQuotes = [];
-                for (const key in quotes) {
-                    selectedQuotes = selectedQuotes.concat(quotes[key]);
-                }
+            const language = languageSelect.value;
+            const category = categorySelect.value;
+            let availableQuotes = [];
+            // Handle language and category selection
+            if (language === 'all' && category === 'all') {
+                Object.keys(quotes).forEach(lang => {
+                    availableQuotes = availableQuotes.concat(quotes[lang].all);
+                });
+            } else if (language === 'all') {
+                Object.keys(quotes).forEach(lang => {
+                    availableQuotes = availableQuotes.concat(quotes[lang][category]);
+                });
+            } else if (category === 'all') {
+                availableQuotes = quotes[language].all;
+            } else {
+                availableQuotes = quotes[language][category];
             }
-            
-            // Randomly select a quote
-            const randomIndex = Math.floor(Math.random() * selectedQuotes.length);
-            const randomQuote = selectedQuotes[randomIndex];
-            
-            // Add fade-in animation
-            const quoteContainer = document.querySelector('.quote-container');
+            // Select a random quote
+            if (availableQuotes.length === 0) {
+                quoteText.textContent = 'No quotes available for this selection.';
+                quoteAuthor.textContent = '';
+                spinner.style.display = 'none';
+                quoteText.style.display = 'block';
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * availableQuotes.length);
+            const selectedQuote = availableQuotes[randomIndex];
+            // Update UI
+            quoteText.textContent = selectedQuote.text;
+            quoteAuthor.textContent = `— ${selectedQuote.author}`;
+            // Handle RTL languages
+            if (['arabic', 'hebrew'].includes(language) && language !== 'all') {
+                quoteContainer.classList.add('rtl');
+                quoteContainer.classList.add('lang-' + language);
+            } else if (language === 'bengali' || language === 'hindi') {
+                quoteContainer.classList.remove('rtl');
+                quoteContainer.classList.add('lang-' + language);
+            } else {
+                quoteContainer.classList.remove('rtl');
+                quoteContainer.classList.remove('lang-arabic', 'lang-bengali', 'lang-hindi', 'lang-hebrew');
+            }
+            // Show quote with animation
             quoteContainer.classList.remove('fade-in');
             void quoteContainer.offsetWidth; // Trigger reflow
             quoteContainer.classList.add('fade-in');
-            
-            // Display the quote after a short delay (for better UX)
-            setTimeout(() => {
-                quoteText.textContent = randomQuote.text;
-                quoteAuthor.textContent = `— ${randomQuote.author}`;
-                
-                // Hide spinner and show quote
-                spinner.style.display = 'none';
-                quoteText.style.display = 'block';
-                quoteAuthor.style.display = 'block';
-            }, 500);
+            spinner.style.display = 'none';
+            quoteText.style.display = 'block';
+            quoteAuthor.style.display = 'block';
+            // Track quote generation
+            gtag('event', 'quote_generated', { language: language, category: category });
         }
-        
         // Copy quote to clipboard
         function copyToClipboard() {
-            const textToCopy = `"${quoteText.textContent}" — ${quoteAuthor.textContent.substring(2)}`;
-            
+            const textToCopy = `${quoteText.textContent} ${quoteAuthor.textContent}`;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                // Show copy message
                 copyMessage.classList.add('show');
-                
-                // Hide message after 3 seconds
-                setTimeout(() => {
-                    copyMessage.classList.remove('show');
-                }, 3000);
+                setTimeout(() => copyMessage.classList.remove('show'), 2000);
             });
         }
-        
-        // Speak the quote using Web Speech API
+        // Helper function to sanitize and truncate text for sharing
+        function prepareShareText() {
+            if (!quoteText.textContent || quoteText.textContent === 'No quotes available for this selection.') {
+                alert('Please generate a quote before sharing.');
+                return null;
+            }
+            let text = `${quoteText.textContent} ${quoteAuthor.textContent}`;
+            // Sanitize text: replace curly quotes and em-dashes
+            text = text.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[\u2013\u2014]/g, '-');
+            return text;
+        }
+        // Share functions
+        function shareOnTwitter() {
+            const text = prepareShareText();
+            if (!text) return;
+            // Truncate to fit within 280 characters, reserving space for attribution and URL
+            const maxLength = 280 - (23 + 1 + 16); // URL (23) + space (1) + "Via @BuzzQuotes" (16)
+            let shareText = text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+            shareText = encodeURIComponent(`${shareText}\nVia @BuzzQuotes https://www.toolshub.cam`);
+            window.open(`https://twitter.com/intent/tweet?text=${shareText}`, '_blank', 'width=600,height=400');
+        }
+        function shareOnFacebook() {
+            const text = prepareShareText();
+            if (!text) return;
+            const shareText = encodeURIComponent(text);
+            window.open(`https://www.facebook.com/sharer/sharer.php?quote=${shareText}`, '_blank', 'width=600,height=400');
+        }
+        function shareOnLinkedIn() {
+            const text = prepareShareText();
+            if (!text) return;
+            const shareText = encodeURIComponent(text);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=https://www.toolshub.cam&title=Inspiring Quote&summary=${shareText}`, '_blank', 'width=600,height=400');
+        }
+        // Speak quote
         function speakQuote() {
+            const text = quoteText.textContent;
+            const language = languageSelect.value;
+            const utterance = new SpeechSynthesisUtterance();
+            // Set language for speech
+            const langMap = {
+                english: 'en-US',
+                spanish: 'es-ES',
+                french: 'fr-FR',
+                german: 'de-DE',
+                chinese: 'zh-CN',
+                bengali: 'bn-BD',
+                hindi: 'hi-IN',
+                arabic: 'ar-SA',
+                hebrew: 'he-IL'
+            };
+            utterance.text = text;
+            utterance.lang = langMap[language] || 'en-US';
+            // For Bengali, Arabic, and Hebrew, use transliteration if available
+            if (['bengali', 'arabic', 'hebrew'].includes(language)) {
+                const availableQuotes = quotes[language][categorySelect.value] || quotes[language].all;
+                const selectedQuote = availableQuotes.find(q => q.text === text);
+                if (selectedQuote && selectedQuote.transliteration) {
+                    utterance.text = selectedQuote.transliteration;
+                    utterance.lang = 'en-US';
+                }
+            }
+            // Check if speech synthesis is supported
             if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance();
-                utterance.text = `${quoteText.textContent} by ${quoteAuthor.textContent.substring(2)}`;
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
                 window.speechSynthesis.speak(utterance);
             } else {
-                alert("Your browser doesn't support text-to-speech. Try Chrome or Edge.");
+                errorMessage.classList.add('show');
+                setTimeout(() => errorMessage.classList.remove('show'), 3000);
             }
         }
-        
-        // Share on Twitter
-        function shareOnTwitter() {
-            const text = encodeURIComponent(`"${quoteText.textContent}" — ${quoteAuthor.textContent.substring(2)}`);
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-        }
-        
-        // Share on Facebook
-        function shareOnFacebook() {
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
-        }
-        
-        // Share on LinkedIn
-        function shareOnLinkedIn() {
-            const text = encodeURIComponent(`"${quoteText.textContent}" — ${quoteAuthor.textContent.substring(2)}`);
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=Random%20Quote&summary=${text}`, '_blank');
-        }
-        
-        // Event listener for category change
-        quoteCategory.addEventListener('change', getRandomQuote);
-        
-        // Get a random quote when page loads
-        window.addEventListener('load', getRandomQuote);
+        // Add event listeners for dropdowns
+        languageSelect.addEventListener('change', getRandomQuote);
+        categorySelect.addEventListener('change', getRandomQuote);
     </script>
 </body>
 </html>
