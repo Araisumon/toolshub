@@ -56,7 +56,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="ToolsHub offers 100+ free online tools for developers, designers, and marketers. Compress images, merge PDFs, generate QR codes, calculate ages, and more in seconds—no signup needed!">
-    <meta name="keywords" content="image tools, PDF tools, age calculator, word to PDF, excel to PDF, powerpoint to PDF, compress images, convert PDF, merge PDF, split PDF, resize images, digital signature creator, qr code generator, typing speed tester, word character counter, image viewer, random quote generator, forex trading clock, color picker, text case converter, markdown to HTML converter, base64 encoder decoder, budget calculator, color palette generator, ip location finder, pomodoro timer, free online tools">
+    <meta name="keywords" content="image tools, PDF tools, age calculator, word to PDF, excel to PDF, powerpoint to PDF, compress images, convert PDF, merge PDF, split PDF, resize images, digital signature creator, qr code generator, typing speed tester, word character counter, image viewer, random quote generator, forex trading clock, color picker, text case converter, markdown to HTML converter, base64 encoder decoder, budget calculator, color palette generator, ip location finder, pomodoro timer, unit converter, free online tools">
     <meta name="author" content="ToolsHub">
     <!-- Open Graph Tags -->
     <meta property="og:title" content="ToolsHub - Free Online Tools for Everyone">
@@ -85,8 +85,6 @@
             --border-radius: 8px;
             --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
-
-            /* Theme-specific variables */
             --background-color: #ffffff;
             --text-color: #212529;
             --gray-color: #6c757d;
@@ -380,8 +378,10 @@
             max-width: 400px;
         }
 
-        .tools-search input {
-            width: 100%;
+        .tools-search input, .tools-filter select {
+            min-height: 44px;
+            min-width: 100%;
+            touch-action: manipulation;
             padding: 10px;
             border: 1px solid var(--gray-color);
             border-radius: var(--border-radius);
@@ -394,15 +394,6 @@
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 5px rgba(67, 97, 238, 0.3);
-        }
-
-        .tools-filter select {
-            padding: 10px;
-            border: 1px solid var(--gray-color);
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            background: var(--card-background);
-            color: var(--text-color);
         }
 
         .tools-filter select:focus {
@@ -787,10 +778,10 @@
             <h2>Popular Tools</h2>
             <div class="tools-controls">
                 <div class="tools-search">
-                    <input type="text" id="toolSearch" placeholder="Search tools (e.g., PDF Compressor)" aria-label="Search tools">
+                    <input type="text" id="toolSearch" placeholder="Search tools (e.g., PDF Compressor)" aria-label="Search tools" role="searchbox">
                 </div>
                 <div class="tools-filter">
-                    <select id="toolFilter" aria-label="Filter tools by category">
+                    <select id="toolFilter" aria-label="Filter tools by category" role="listbox">
                         <option value="all">All Tools</option>
                         <option value="image">Image Tools</option>
                         <option value="pdf">PDF Tools</option>
@@ -1000,6 +991,14 @@
                     <p>Boost productivity with timed work sessions.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
+                <a href="/unitconverter/" class="tool-card" data-category="calculator">
+                    <div class="tool-icon">
+                        <i class="material-icons">swap_horiz</i>
+                    </div>
+                    <h3>Unit Converter</h3>
+                    <p>Convert units like length, weight, and more.</p>
+                    <span class="tool-btn">Use Tool</span>
+                </a>
             </div>
         </div>
     </section>
@@ -1113,6 +1112,7 @@
                         <li><a href="/colorpalettegen">Color Palette Generator</a></li>
                         <li><a href="/iplocationfinder">IP Location Finder</a></li>
                         <li><a href="/pomodorotimer">Pomodoro Timer</a></li>
+                        <li><a href="/unitconverter">Unit Converter</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -1146,14 +1146,12 @@
             const themes = ['light', 'dark', 'high-contrast', 'modern'];
             let currentThemeIndex = 0;
 
-            // Detect system preference and load saved theme
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
             currentThemeIndex = themes.indexOf(savedTheme);
             document.body.className = `theme-${savedTheme}`;
             updateThemeButton(savedTheme);
 
-            // Listen for system theme changes
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
                 const newTheme = e.matches ? 'dark' : 'light';
                 if (!localStorage.getItem('theme')) {
@@ -1172,7 +1170,6 @@
                     updateThemeButton(newTheme);
                 });
 
-                // Keyboard accessibility
                 themeToggleBtn.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -1235,7 +1232,7 @@
                     });
                 }
 
-                toolSearch.addEventListener('input', filterTools);
+                toolSearch.addEventListener('keyup', filterTools);
                 toolFilter.addEventListener('change', filterTools);
             } else {
                 console.warn('Tool search/filter elements not found.');
@@ -1254,7 +1251,6 @@
                     console.warn('Mobile menu button or navbar not found.');
                 }
 
-                // Smooth Scrolling for Anchor Links
                 const anchors = document.querySelectorAll('a[href^="#"]');
                 anchors.forEach(anchor => {
                     anchor.addEventListener('click', (e) => {
@@ -1274,7 +1270,6 @@
                     });
                 });
 
-                // Close mobile menu when clicking on a link
                 const navLinks = document.querySelectorAll('.navbar a');
                 if (navbar) {
                     navLinks.forEach(link => {
@@ -1288,7 +1283,6 @@
                     console.warn('Navbar not found for nav links.');
                 }
 
-                // Section Navigation Active State
                 const sectionNavLinks = document.querySelectorAll('.section-nav-link');
                 const sections = document.querySelectorAll('section[id="features"], section[id="testimonials"], section[id="cta"]');
 
@@ -1313,10 +1307,9 @@
                 }
 
                 window.addEventListener('scroll', updateActiveNavLink);
-                updateActiveNavLink(); // Initial call
+                updateActiveNavLink();
             });
 
-            // Handle window resize
             window.addEventListener('resize', () => {
                 const navbar = document.getElementById('navbar');
                 if (navbar && window.innerWidth > 768) {
