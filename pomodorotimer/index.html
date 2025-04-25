@@ -1,0 +1,1570 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Boost productivity with Buzz Pomodoro Timer - customizable work/break intervals with task tracking and analytics">
+    <meta name="keywords" content="pomodoro timer, productivity tool, focus timer, time management, work timer, break timer">
+    <meta name="author" content="Buzz Productivity Tools">
+    <title>Buzz Pomodoro Timer - Enhance Your Productivity | Buzz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Light Theme (default) */
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --work-color: #f94144;
+            --short-break-color: #43aa8b;
+            --long-break-color: #577590;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --background: #f5f7fa;
+            --text: #212529;
+            --card-bg: #ffffff;
+            --header-text: #ffffff;
+            --footer-bg: #212529;
+            --footer-text: #ffffff;
+            --instruction-bg: #e9f5ff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #5a7bff;
+            --primary-dark: #4a6bff;
+            --secondary: #4f46e5;
+            --accent: #60a5fa;
+            --light: #374151;
+            --dark: #d1d5db;
+            --success: #22d3ee;
+            --danger: #f87171;
+            --warning: #facc15;
+            --work-color: #ef4444;
+            --short-break-color: #34d399;
+            --long-break-color: #60a5fa;
+            --background: #1f2937;
+            --text: #d1d5db;
+            --card-bg: #374151;
+            --header-text: #d1d5db;
+            --footer-bg: #111827;
+            --footer-text: #d1d5db;
+            --instruction-bg: #4b5563;
+        }
+
+        [data-theme="sepia"] {
+            --primary: #8b5e3c;
+            --primary-dark: #7a4f32;
+            --secondary: #6b4e31;
+            --accent: #a67b5b;
+            --light: #f4e4bc;
+            --dark: #3c2f2f;
+            --success: #2a9d8f;
+            --danger: #e76f51;
+            --warning: #e9c46a;
+            --work-color: #d00000;
+            --short-break-color: #2a9d8f;
+            --long-break-color: #457b9d;
+            --background: #f4ecd8;
+            --text: #3c2f2f;
+            --card-bg: #f4e4bc;
+            --header-text: #f4e4bc;
+            --footer-bg: #3c2f2f;
+            --footer-text: #f4e4bc;
+            --instruction-bg: #e6d4a3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--header-text);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .home-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--header-text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .home-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .theme-toggle-container {
+            padding: 1rem 2rem;
+            text-align: right;
+        }
+
+        .theme-toggle-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle-btn i {
+            margin-right: 0.5rem;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .timer-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--light);
+            color: var(--text);
+        }
+
+        .mode-btn.active {
+            color: white;
+        }
+
+        .mode-btn.work.active {
+            background-color: var(--work-color);
+        }
+
+        .mode-btn.short-break.active {
+            background-color: var(--short-break-color);
+        }
+
+        .mode-btn.long-break.active {
+            background-color: var(--long-break-color);
+        }
+
+        .timer-display {
+            font-size: 6rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            font-family: 'Poppins', monospace;
+            color: var(--text);
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .start-btn {
+            background-color: var(--success);
+            color: white;
+            min-width: 120px;
+        }
+
+        .start-btn:hover {
+            background-color: #3ab7d8;
+            transform: translateY(-2px);
+        }
+
+        .pause-btn {
+            background-color: var(--warning);
+            color: white;
+            display: none;
+        }
+
+        .pause-btn:hover {
+            background-color: #e68a19;
+            transform: translateY(-2px);
+        }
+
+        .reset-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background-color: #e51777;
+            transform: translateY(-2px);
+        }
+
+        .settings-btn {
+            background-color: var(--light);
+            color: var(--text);
+        }
+
+        .settings-btn:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .settings-panel {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .settings-panel h3 {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .setting-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .setting-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .setting-item input, .setting-item select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+        }
+
+        .save-settings {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-settings:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .features-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-card h3 i {
+            margin-right: 0.5rem;
+        }
+
+        .task-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .task-container h3 {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .task-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .task-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+        }
+
+        .add-task-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-task-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .task-checkbox {
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .task-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .task-btn:hover {
+            color: var(--primary);
+        }
+
+        .stats-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stats-container h3 {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            background-color: var(--light);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        footer {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .instructions {
+            background-color: var(--instruction-bg);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                display: none;
+            }
+
+            .timer-display {
+                font-size: 4rem;
+            }
+
+            .timer-controls {
+                flex-wrap: wrap;
+            }
+
+            .control-btn {
+                flex: 1 0 45%;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 1rem;
+            }
+
+            .brand {
+                font-size: 1.5rem;
+            }
+
+            .home-btn span {
+                display: none;
+            }
+
+            .home-btn i {
+                margin-right: 0;
+            }
+
+            .timer-display {
+                font-size: 3rem;
+            }
+
+            .mode-buttons {
+                flex-direction: column;
+            }
+
+            .control-btn {
+                flex: 1 0 100%;
+            }
+
+            .theme-toggle-container {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-stopwatch"></i>
+            <span>Buzz</span>
+        </div>
+        <h1 class="header-title">Pomodoro Timer</h1>
+        <a href="/" class="home-btn">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+    </header>
+
+    <div class="theme-toggle-container">
+        <button class="theme-toggle-btn" id="theme-toggle-header-btn">
+            <i class="fas fa-sun"></i>
+            <span>Theme: Light</span>
+        </button>
+    </div>
+
+    <main>
+        <div class="instructions">
+            <h3>How to Use the Pomodoro Timer</h3>
+            <p>1. Select a mode (Work, Short Break, Long Break).<br>
+               2. Set your task and click Start to begin.<br>
+               3. Work for 25 minutes, then take a 5-minute break.<br>
+               4. After 4 work sessions, take a longer 15-minute break.</p>
+        </div>
+
+        <div class="timer-container">
+            <div class="mode-buttons">
+                <button class="mode-btn work active" data-mode="work">Work</button>
+                <button class="mode-btn short-break" data-mode="short-break">Short Break</button>
+                <button class="mode-btn long-break" data-mode="long-break">Long Break</button>
+            </div>
+
+            <div class="timer-display" id="timer">25:00</div>
+
+            <div class="timer-controls">
+                <button class="control-btn start-btn" id="start-btn">
+                    <i class="fas fa-play"></i>
+                    <span>Start</span>
+                </button>
+                <button class="control-btn pause-btn" id="pause-btn">
+                    <i class="fas fa-pause"></i>
+                    <span>Pause</span>
+                </button>
+                <button class="control-btn reset-btn" id="reset-btn">
+                    <i class="fas fa-redo"></i>
+                    <span>Reset</span>
+                </button>
+                <button class="control-btn settings-btn" id="settings-btn">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
+
+            <div class="settings-panel" id="settings-panel">
+                <h3>Timer Settings</h3>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <label for="work-duration">Work Duration (minutes)</label>
+                        <input type="number" id="work-duration" min="1" max="60" value="25">
+                    </div>
+                    <div class="setting-item">
+                        <label for="short-break-duration">Short Break (minutes)</label>
+                        <input type="number" id="short-break-duration" min="1" max="30" value="5">
+                    </div>
+                    <div class="setting-item">
+                        <label for="long-break-duration">Long Break (minutes)</label>
+                        <input type="number" id="long-break-duration" min="1" max="60" value="15">
+                    </div>
+                    <div class="setting-item">
+                        <label for="pomodoro-count">Pomodoros Before Long Break</label>
+                        <input type="number" id="pomodoro-count" min="1" max="10" value="4">
+                    </div>
+                </div>
+                <button class="save-settings" id="save-settings">Save Settings</button>
+            </div>
+        </div>
+
+        <div class="task-container">
+            <h3><i class="fas fa-tasks"></i> Task List</h3>
+            <div class="task-input">
+                <input type="text" id="task-input" placeholder="Add a new task...">
+                <button class="add-task-btn" id="add-task-btn">Add</button>
+            </div>
+            <ul class="task-list" id="task-list"></ul>
+        </div>
+
+        <div class="stats-container">
+            <h3><i class="fas fa-chart-line"></i> Productivity Stats</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="pomodoros-completed">0</div>
+                    <div class="stat-label">Pomodoros Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="tasks-completed">0</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-focus-time">0</div>
+                    <div class="stat-label">Total Focus Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="current-streak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-container">
+            <div class="feature-card">
+                <h3><i class="fas fa-bell"></i> Notifications</h3>
+                <p>Get desktop notifications when your timer completes, even if you're on another tab.</p>
+                <button class="control-btn" id="enable-notifications" style="margin-top: 1rem;">
+                    <i class="fas fa-bell"></i>
+                    <span>Enable Notifications</span>
+                </button>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-music"></i> Focus Sounds</h3>
+                <p>Enhance concentration with ambient sounds. Choose from rain, white noise, or coffee shop.</p>
+                <div class="setting-group" style="margin-top: 1rem;">
+                    <div class="setting-item">
+                        <label for="enable-ambient-sounds">Enable Ambient Sounds</label>
+                        <input type="checkbox" id="enable-ambient-sounds">
+                    </div>
+                    <div class="setting-item">
+                        <label for="sound-select">Sound Type</label>
+                        <select id="sound-select" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius);">
+                            <option value="none">No Sound</option>
+                            <option value="rain">Rain</option>
+                            <option value="white-noise">White Noise</option>
+                            <option value="coffee-shop">Coffee Shop</option>
+                            <option value="forest">Forest</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="sound-volume">Volume</label>
+                        <input type="range" id="sound-volume" min="0" max="1" step="0.1" value="0.5">
+                    </div>
+                </div>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-cloud"></i> Sync Across Devices</h3>
+                <p>Create an account to save your tasks, settings, and stats across all your devices.</p>
+                <button class="control-btn" style="margin-top: 1rem; background-color: var(--primary); color: white;">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up Free</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <div class="notification" id="notification">
+        Timer completed! Time for a break.
+    </div>
+
+    <footer>
+        <p>© 2023 Buzz Productivity Tools. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsPanel = document.getElementById('settings-panel');
+        const saveSettingsBtn = document.getElementById('save-settings');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const taskInput = document.getElementById('task-input');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const taskList = document.getElementById('task-list');
+        const notification = document.getElementById('notification');
+        const enableNotificationsBtn = document.getElementById('enable-notifications');
+        const soundSelect = document.getElementById('sound-select');
+        const soundVolume = document.getElementById('sound-volume');
+        const enableAmbientSounds = document.getElementById('enable-ambient-sounds');
+        const themeToggleBtn = document.getElementById('theme-toggle-header-btn');
+        
+        // Stats elements
+        const pomodorosCompletedEl = document.getElementById('pomodoros-completed');
+        const tasksCompletedEl = document.getElementById('tasks-completed');
+        const totalFocusTimeEl = document.getElementById('total-focus-time');
+        const currentStreakEl = document.getElementById('current-streak');
+
+        // Timer variables
+        let timer;
+        let timeLeft = 25 * 60; // 25 minutes in seconds
+        let isRunning = false;
+        let currentMode = 'work';
+        let pomodoroCount = 0;
+        
+        // Stats variables
+        let stats = {
+            pomodorosCompleted: 0,
+            tasksCompleted: 0,
+            totalFocusMinutes: 0,
+            currentStreak: 0,
+            lastCompletedDate: null
+        };
+
+        // Theme variables
+        const themes = ['light', 'dark', 'sepia'];
+        let currentThemeIndex = 0;
+
+        // Sound variables
+        let audioContext;
+        let backgroundGainNode;
+        let backgroundSource;
+
+        // Load stats from localStorage
+        try {
+            if (localStorage.getItem('pomodoroStats')) {
+                stats = JSON.parse(localStorage.getItem('pomodoroStats'));
+                updateStatsDisplay();
+            }
+        } catch (e) {
+            showNotification('Unable to load stats. Local storage may be disabled.');
+        }
+
+        // Timer settings
+        let settings = {
+            workDuration: 25,
+            shortBreakDuration: 5,
+            longBreakDuration: 15,
+            pomodorosBeforeLongBreak: 4
+        };
+
+        // Load settings from localStorage
+        try {
+            if (localStorage.getItem('pomodoroSettings')) {
+                settings = JSON.parse(localStorage.getItem('pomodoroSettings'));
+                document.getElementById('work-duration').value = settings.workDuration;
+                document.getElementById('short-break-duration').value = settings.shortBreakDuration;
+                document.getElementById('long-break-duration').value = settings.longBreakDuration;
+                document.getElementById('pomodoro-count').value = settings.pomodorosBeforeLongBreak;
+            }
+        } catch (e) {
+            showNotification('Unable to load settings. Local storage may be disabled.');
+        }
+
+        // Load theme from localStorage
+        try {
+            const savedTheme = localStorage.getItem('pomodoroTheme');
+            if (savedTheme && themes.includes(savedTheme)) {
+                currentThemeIndex = themes.indexOf(savedTheme);
+                document.body.setAttribute('data-theme', savedTheme);
+                updateThemeButton();
+            }
+        } catch (e) {
+            showNotification('Unable to load theme. Local storage may be disabled.');
+        }
+
+        // Initialize timer display
+        updateTimerDisplay();
+
+        // Event Listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        settingsBtn.addEventListener('click', toggleSettingsPanel);
+        saveSettingsBtn.addEventListener('click', saveSettings);
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => switchMode(button.dataset.mode));
+        });
+        addTaskBtn.addEventListener('click', addTask);
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+        enableNotificationsBtn.addEventListener('click', requestNotificationPermission);
+        soundSelect.addEventListener('change', changeBackgroundSound);
+        soundVolume.addEventListener('input', updateBackgroundVolume);
+        enableAmbientSounds.addEventListener('change', changeBackgroundSound);
+        themeToggleBtn.addEventListener('click', toggleTheme);
+
+        // Load tasks from localStorage
+        loadTasks();
+
+        // Functions
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update document title
+            const modeText = {
+                'work': 'Work Time',
+                'short-break': 'Short Break',
+                'long-break': 'Long Break'
+            }[currentMode];
+            document.title = `${minutes}:${seconds.toString().padStart(2, '0')} - ${modeText} | Buzz Pomodoro`;
+        }
+
+        function startTimer() {
+            console.log('Starting timer, timeLeft:', timeLeft);
+            if (!isRunning) {
+                isRunning = true;
+                startBtn.style.display = 'none';
+                pauseBtn.style.display = 'flex';
+                
+                timer = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        console.log('Timer reached zero, calling timerComplete');
+                        timerComplete();
+                    }
+                }, 1000);
+                
+                // Start ambient background sound if enabled and selected
+                startBackgroundSound();
+            }
+        }
+
+        function pauseTimer() {
+            console.log('Pausing timer');
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+                startBtn.style.display = 'flex';
+                pauseBtn.style.display = 'none';
+                
+                // Pause background sound
+                stopBackgroundSound();
+            }
+        }
+
+        function resetTimer() {
+            console.log('Resetting timer');
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.style.display = 'flex';
+            pauseBtn.style.display = 'none';
+            
+            // Reset time based on current mode
+            switch(currentMode) {
+                case 'work':
+                    timeLeft = settings.workDuration * 60;
+                    break;
+                case 'short-break':
+                    timeLeft = settings.shortBreakDuration * 60;
+                    break;
+                case 'long-break':
+                    timeLeft = settings.longBreakDuration * 60;
+                    break;
+            }
+            
+            updateTimerDisplay();
+            
+            // Stop background sound
+            stopBackgroundSound();
+        }
+
+        function timerComplete() {
+            console.log('Timer completed, mode:', currentMode);
+            isRunning = false;
+            startBtn.style.display = 'flex';
+            pauseBtn.style.display = 'none';
+            
+            // Show notification
+            showNotification(currentMode === 'work' ? 'Work timer complete! Time for a break. Completion chime played!' : 'Break over! Time to get back to work. Completion chime played!');
+            
+            // Play completion sound
+            playCompletionSound();
+            
+            // Update stats if work session completed
+            if (currentMode === 'work') {
+                stats.pomodorosCompleted++;
+                stats.totalFocusMinutes += settings.workDuration;
+                pomodoroCount++;
+                
+                // Check for streak
+                const today = new Date().toDateString();
+                if (stats.lastCompletedDate !== today) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    
+                    if (stats.lastCompletedDate === yesterday.toDateString()) {
+                        stats.currentStreak++;
+                    } else if (stats.lastCompletedDate !== today) {
+                        stats.currentStreak = 1;
+                    }
+                    
+                    stats.lastCompletedDate = today;
+                }
+                
+                saveStats();
+                updateStatsDisplay();
+            }
+            
+            // Switch mode automatically
+            if (currentMode === 'work') {
+                if (pomodoroCount >= settings.pomodorosBeforeLongBreak) {
+                    switchMode('long-break');
+                    pomodoroCount = 0;
+                } else {
+                    switchMode('short-break');
+                }
+            } else {
+                switchMode('work');
+            }
+            
+            resetTimer();
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update active button
+            modeButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.dataset.mode === mode) {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Update timer color based on mode
+            timerDisplay.style.color = getModeColor(mode);
+            
+            // Reset timer with new duration
+            resetTimer();
+        }
+
+        function getModeColor(mode) {
+            switch(mode) {
+                case 'work':
+                    return 'var(--work-color)';
+                case 'short-break':
+                    return 'var(--short-break-color)';
+                case 'long-break':
+                    return 'var(--long-break-color)';
+                default:
+                    return 'var(--text)';
+            }
+        }
+
+        function toggleSettingsPanel() {
+            settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function saveSettings() {
+            const workDuration = parseInt(document.getElementById('work-duration').value);
+            const shortBreakDuration = parseInt(document.getElementById('short-break-duration').value);
+            const longBreakDuration = parseInt(document.getElementById('long-break-duration').value);
+            const pomodoroCount = parseInt(document.getElementById('pomodoro-count').value);
+
+            // Validate inputs
+            if (isNaN(workDuration) || workDuration <= 0) {
+                showNotification('Work duration must be a positive number!');
+                return;
+            }
+            if (isNaN(shortBreakDuration) || shortBreakDuration <= 0) {
+                showNotification('Short break duration must be a positive number!');
+                return;
+            }
+            if (isNaN(longBreakDuration) || longBreakDuration <= 0) {
+                showNotification('Long break duration must be a positive number!');
+                return;
+            }
+            if (isNaN(pomodoroCount) || pomodoroCount <= 0) {
+                showNotification('Pomodoros before long break must be a positive number!');
+                return;
+            }
+
+            settings.workDuration = workDuration;
+            settings.shortBreakDuration = shortBreakDuration;
+            settings.longBreakDuration = longBreakDuration;
+            settings.pomodorosBeforeLongBreak = pomodoroCount;
+            
+            try {
+                localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+            } catch (e) {
+                showNotification('Unable to save settings. Local storage may be disabled.');
+            }
+            settingsPanel.style.display = 'none';
+            resetTimer();
+            
+            showNotification('Settings saved successfully!');
+        }
+
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+            
+            // Show desktop notification if permission granted
+            if (Notification.permission === 'granted') {
+                new Notification('Buzz Pomodoro Timer', {
+                    body: message
+                });
+            }
+        }
+
+        function requestNotificationPermission() {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showNotification('Notifications enabled! You\'ll now get alerts when your timer completes.');
+                        enableNotificationsBtn.textContent = 'Notifications Enabled';
+                        enableNotificationsBtn.disabled = true;
+                    }
+                });
+            } else {
+                showNotification('Notifications are already enabled!');
+            }
+        }
+
+        function playCompletionSound() {
+            console.log('Playing completion sound (chime) at timer completion');
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [
+                    { freq: 440, duration: 0.2 }, // A4
+                    { freq: 554.37, duration: 0.2 }, // C#5
+                    { freq: 659.25, duration: 0.3 } // E5
+                ];
+
+                let currentTime = audioContext.currentTime;
+
+                notes.forEach(note => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(note.freq, currentTime);
+                    gainNode.gain.setValueAtTime(0.5, currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start(currentTime);
+                    oscillator.stop(currentTime + note.duration);
+                    
+                    currentTime += note.duration;
+                });
+
+                // Close audio context after playback
+                setTimeout(() => {
+                    audioContext.close().catch(e => console.error('Error closing audio context:', e));
+                }, currentTime * 1000 + 100);
+            } catch (e) {
+                console.error('Error playing completion sound:', e);
+                showNotification('Unable to play completion sound.');
+            }
+        }
+
+        function startBackgroundSound() {
+            if (!enableAmbientSounds.checked) {
+                console.log('Ambient sounds disabled');
+                return;
+            }
+            const soundType = soundSelect.value;
+            if (soundType === 'none') {
+                console.log('No ambient sound selected');
+                return;
+            }
+
+            console.log('Starting ambient sound:', soundType);
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                // Stop any existing background sound
+                stopBackgroundSound();
+
+                backgroundGainNode = audioContext.createGain();
+                backgroundGainNode.gain.setValueAtTime(soundVolume.value, audioContext.currentTime);
+                backgroundGainNode.connect(audioContext.destination);
+
+                switch (soundType) {
+                    case 'rain':
+                        backgroundSource = createRainSound();
+                        break;
+                    case 'white-noise':
+                        backgroundSource = createWhiteNoise();
+                        break;
+                    case 'coffee-shop':
+                        backgroundSource = createCoffeeShopSound();
+                        break;
+                    case 'forest':
+                        backgroundSource = createForestSound();
+                        break;
+                }
+
+                backgroundSource.connect(backgroundGainNode);
+                backgroundSource.start();
+            } catch (e) {
+                console.error('Error starting background sound:', e);
+                showNotification('Unable to start background sound.');
+            }
+        }
+
+        function stopBackgroundSound() {
+            console.log('Stopping ambient sound');
+            if (backgroundSource) {
+                backgroundSource.stop();
+                backgroundSource.disconnect();
+                backgroundSource = null;
+            }
+            if (backgroundGainNode) {
+                backgroundGainNode.disconnect();
+                backgroundGainNode = null;
+            }
+        }
+
+        function createWhiteNoise() {
+            const bufferSize = 2 * audioContext.sampleRate;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            return source;
+        }
+
+        function createRainSound() {
+            const source = createWhiteNoise();
+            const lowPass = audioContext.createBiquadFilter();
+            lowPass.type = 'lowpass';
+            lowPass.frequency.setValueAtTime(1000, audioContext.currentTime);
+            source.connect(lowPass);
+            lowPass.connect(backgroundGainNode);
+            return source;
+        }
+
+        function createCoffeeShopSound() {
+            const bufferSize = 2 * audioContext.sampleRate;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = buffer.getChannelData(0);
+
+            // Brown noise (more low frequencies)
+            let lastOut = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                output[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = output[i];
+                output[i] *= 3.5; // Amplify
+            }
+
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+
+            const lowPass = audioContext.createBiquadFilter();
+            lowPass.type = 'lowpass';
+            lowPass.frequency.setValueAtTime(800, audioContext.currentTime);
+            source.connect(lowPass);
+            lowPass.connect(backgroundGainNode);
+
+            return source;
+        }
+
+        function createForestSound() {
+            const source = createCoffeeShopSound(); // Base brown noise
+
+            // Add periodic bird chirps (lower frequency and volume to avoid chime confusion)
+            const chirpInterval = setInterval(() => {
+                if (!isRunning || !enableAmbientSounds.checked) return;
+                const chirp = audioContext.createOscillator();
+                const chirpGain = audioContext.createGain();
+                chirp.type = 'sine';
+                chirp.frequency.setValueAtTime(1000 + Math.random() * 500, audioContext.currentTime);
+                chirpGain.gain.setValueAtTime(0.05, audioContext.currentTime);
+                chirpGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+                chirp.connect(chirpGain);
+                chirpGain.connect(audioContext.destination);
+
+                chirp.start();
+                chirp.stop(audioContext.currentTime + 0.2);
+            }, 3000 + Math.random() * 2000);
+
+            // Stop chirps when sound stops
+            source.onended = () => clearInterval(chirpInterval);
+
+            return source;
+        }
+
+        function changeBackgroundSound() {
+            if (isRunning) {
+                startBackgroundSound();
+            }
+        }
+
+        function updateBackgroundVolume() {
+            if (backgroundGainNode) {
+                backgroundGainNode.gain.setValueAtTime(soundVolume.value, audioContext.currentTime);
+            }
+        }
+
+        function toggleTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            const newTheme = themes[currentThemeIndex];
+            document.body.setAttribute('data-theme', newTheme);
+            updateThemeButton();
+            try {
+                localStorage.setItem('pomodoroTheme', newTheme);
+            } catch (e) {
+                showNotification('Unable to save theme. Local storage may be disabled.');
+            }
+        }
+
+        function updateThemeButton() {
+            const theme = themes[currentThemeIndex];
+            const themeIcons = {
+                'light': 'fa-sun',
+                'dark': 'fa-moon',
+                'sepia': 'fa-book'
+            };
+            const themeNames = {
+                'light': 'Light',
+                'dark': 'Dark',
+                'sepia': 'Sepia'
+            };
+            themeToggleBtn.innerHTML = `
+                <i class="fas ${themeIcons[theme]}"></i>
+                <span>Theme: ${themeNames[theme]}</span>
+            `;
+        }
+
+        function addTask() {
+            let taskText = taskInput.value.trim();
+            if (taskText) {
+                // Sanitize task input to prevent XSS
+                taskText = taskText.replace(/</g, '<').replace(/>/g, '>');
+                const taskId = Date.now();
+                const taskItem = document.createElement('li');
+                taskItem.className = 'task-item';
+                taskItem.dataset.id = taskId;
+                taskItem.innerHTML = `
+                    <div class="task-info">
+                        <input type="checkbox" class="task-checkbox" id="task-${taskId}">
+                        <span class="task-text">${taskText}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="task-btn edit-btn"><i class="fas fa-edit"></i></button>
+                        <button class="task-btn delete-btn"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                
+                taskList.appendChild(taskItem);
+                taskInput.value = '';
+                
+                // Add event listeners to new task buttons
+                const checkbox = taskItem.querySelector('.task-checkbox');
+                const editBtn = taskItem.querySelector('.edit-btn');
+                const deleteBtn = taskItem.querySelector('.delete-btn');
+                
+                checkbox.addEventListener('change', function() {
+                    const taskTextEl = this.nextElementSibling;
+                    taskTextEl.classList.toggle('completed');
+                    stats.tasksCompleted += this.checked ? 1 : -1;
+                    if (stats.tasksCompleted < 0) stats.tasksCompleted = 0;
+                    saveStats();
+                    updateStatsDisplay();
+                    saveTasks();
+                });
+                
+                editBtn.addEventListener('click', function() {
+                    const taskTextEl = this.parentElement.previousElementSibling.querySelector('.task-text');
+                    let newText = prompt('Edit task:', taskTextEl.textContent);
+                    if (newText !== null) {
+                        newText = newText.replace(/</g, '<').replace(/>/g, '>');
+                        taskTextEl.textContent = newText;
+                        saveTasks();
+                    }
+                });
+                
+                deleteBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to delete this task?')) {
+                        const isCompleted = taskItem.querySelector('.task-checkbox').checked;
+                        if (isCompleted) stats.tasksCompleted--;
+                        if (stats.tasksCompleted < 0) stats.tasksCompleted = 0;
+                        taskItem.remove();
+                        saveTasks();
+                        saveStats();
+                        updateStatsDisplay();
+                    }
+                });
+                
+                saveTasks();
+            }
+        }
+
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll('.task-item').forEach(item => {
+                tasks.push({
+                    id: item.dataset.id,
+                    text: item.querySelector('.task-text').textContent,
+                    completed: item.querySelector('.task-checkbox').checked
+                });
+            });
+            
+            try {
+                localStorage.setItem('pomodoroTasks', JSON.stringify(tasks));
+            } catch (e) {
+                showNotification('Unable to save tasks. Local storage may be disabled.');
+            }
+        }
+
+        function loadTasks() {
+            try {
+                const savedTasks = localStorage.getItem('pomodoroTasks');
+                if (savedTasks) {
+                    const tasks = JSON.parse(savedTasks);
+                    stats.tasksCompleted = tasks.filter(task => task.completed).length;
+                    tasks.forEach(task => {
+                        const taskItem = document.createElement('li');
+                        taskItem.className = 'task-item';
+                        taskItem.dataset.id = task.id;
+                        taskItem.innerHTML = `
+                            <div class="task-info">
+                                <input type="checkbox" class="task-checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
+                                <span class="task-text ${task.completed ? 'completed' : ''}">${task.text}</span>
+                            </div>
+                            <div class="task-actions">
+                                <button class="task-btn edit-btn"><i class="fas fa-edit"></i></button>
+                                <button class="task-btn delete-btn"><i class="fas fa-trash"></i></button>
+                            </div>
+                        `;
+                        
+                        taskList.appendChild(taskItem);
+                        
+                        // Add event listeners to loaded task buttons
+                        const checkbox = taskItem.querySelector('.task-checkbox');
+                        const editBtn = taskItem.querySelector('.edit-btn');
+                        const deleteBtn = taskItem.querySelector('.delete-btn');
+                        
+                        checkbox.addEventListener('change', function() {
+                            const taskTextEl = this.nextElementSibling;
+                            taskTextEl.classList.toggle('completed');
+                            stats.tasksCompleted += this.checked ? 1 : -1;
+                            if (stats.tasksCompleted < 0) stats.tasksCompleted = 0;
+                            saveStats();
+                            updateStatsDisplay();
+                            saveTasks();
+                        });
+                        
+                        editBtn.addEventListener('click', function() {
+                            const taskTextEl = this.parentElement.previousElementSibling.querySelector('.task-text');
+                            let newText = prompt('Edit task:', taskTextEl.textContent);
+                            if (newText !== null) {
+                                newText = newText.replace(/</g, '<').replace(/>/g, '>');
+                                taskTextEl.textContent = newText;
+                                saveTasks();
+                            }
+                        });
+                        
+                        deleteBtn.addEventListener('click', function() {
+                            if (confirm('Are you sure you want to delete this task?')) {
+                                const isCompleted = taskItem.querySelector('.task-checkbox').checked;
+                                if (isCompleted) stats.tasksCompleted--;
+                                if (stats.tasksCompleted < 0) stats.tasksCompleted = 0;
+                                taskItem.remove();
+                                saveTasks();
+                                saveStats();
+                                updateStatsDisplay();
+                            }
+                        });
+                    });
+                    updateStatsDisplay();
+                }
+            } catch (e) {
+                showNotification('Unable to load tasks. Local storage may be disabled.');
+            }
+        }
+
+        function saveStats() {
+            try {
+                localStorage.setItem('pomodoroStats', JSON.stringify(stats));
+            } catch (e) {
+                showNotification('Unable to save stats. Local storage may be disabled.');
+            }
+        }
+
+        function updateStatsDisplay() {
+            pomodorosCompletedEl.textContent = stats.pomodorosCompleted;
+            tasksCompletedEl.textContent = stats.tasksCompleted;
+            totalFocusTimeEl.textContent = stats.totalFocusMinutes;
+            currentStreakEl.textContent = stats.currentStreak;
+        }
+
+        // Check for notification permission on load
+        if (Notification.permission === 'granted') {
+            enableNotificationsBtn.textContent = 'Notifications Enabled';
+            enableNotificationsBtn.disabled = true;
+        }
+    </script>
+</body>
+</html>
