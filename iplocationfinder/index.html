@@ -1,0 +1,1104 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free IP Location Finder tool - Check your IP address details, geolocation, ISP, and more. Discover if an IP is real or fake with our advanced verification.">
+    <meta name="keywords" content="IP location, IP checker, IP tracker, geolocation, IP details, IP verification">
+    <meta name="author" content="Buzz">
+    <title>IP Location Finder | Buzz - Track & Verify IP Addresses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #ef233c;
+            --background-color: #f5f7ff;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --footer-bg: #212529;
+            --footer-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1a1a1a;
+            --card-background: #2c2c2c;
+            --text-color: #e0e0e0;
+            --footer-bg: #111111;
+            --footer-text: #cccccc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .home-btn, .theme-toggle {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle {
+            background-color: #6c757d;
+        }
+
+        .home-btn:hover, .theme-toggle:hover {
+            background-color: #d91a6d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle:hover {
+            background-color: #5a6268;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #ip-input {
+            flex-grow: 1;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+
+        #ip-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        #search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 1.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        #search-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #search-btn.loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+            position: absolute;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .my-ip-btn {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            border: 1px solid #e0e0e0;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .my-ip-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .result-container {
+            display: none;
+        }
+
+        .ip-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-card {
+            background-color: var(--light-color);
+            border-radius: 8px;
+            padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-card h3 {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-card p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .map-container {
+            height: 400px;
+            margin-top: 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .verification, .threat-detection, .fun-facts {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .valid {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success-color);
+        }
+
+        .invalid {
+            background-color: rgba(239, 35, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .threat-detection.safe {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success-color);
+        }
+
+        .threat-detection.dangerous {
+            background-color: rgba(239, 35, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .fun-facts {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .copy-btn, .share-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .share-btn {
+            background-color: var(--accent-color);
+        }
+
+        .copy-btn:hover, .share-btn:hover {
+            background-color: #3aa8d0;
+        }
+
+        .share-btn:hover {
+            background-color: #d91a6d;
+        }
+
+        .copy-btn.copied, .share-btn.shared {
+            background-color: #28a745;
+        }
+
+        .history-container {
+            margin-top: 2rem;
+        }
+
+        .history-container h2 {
+            margin-bottom: 1rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-history-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history-btn:hover {
+            background-color: #d91a6d;
+        }
+
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .history-item {
+            background-color: var(--light-color);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .history-item h3 {
+            font-size: 1rem;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .history-item p {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .feature-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .feature-card p {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .instructions {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .instructions h3 {
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .instructions ol {
+            padding-left: 1.2rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--footer-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-icons a {
+            color: var(--footer-text);
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+
+            .brand, .header-title {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            #search-btn {
+                padding: 0.8rem 1.2rem;
+            }
+
+            .ip-details, .history-list {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Buzz</span>
+        </div>
+        <h1 class="header-title">IP Location Finder</h1>
+        <div>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
+            <a href="/" class="home-btn">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Find IP Location Information</h2>
+            <p>Enter any IP address to check its geolocation and detailed information</p>
+
+            <div class="search-container">
+                <input type="text" id="ip-input" placeholder="Enter IP address (e.g., 8.8.8.8)" aria-label="IP address input">
+                <button id="search-btn" aria-label="Search IP">Search</button>
+            </div>
+
+            <button class="my-ip-btn" id="my-ip-btn" aria-label="Use my IP address">
+                <i class="fas fa-location-arrow"></i> Use My IP Address
+            </button>
+
+            <div class="instructions">
+                <h3>How to use:</h3>
+                <ol>
+                    <li>Enter any IPv4 or IPv6 address in the search box</li>
+                    <li>Click "Search" or press Enter to get location details</li>
+                    <li>Click "Use My IP Address" to check your own IP information</li>
+                    <li>View results including location, ISP, and verification status</li>
+                </ol>
+            </div>
+
+            <div class="result-container" id="result-container" aria-live="polite">
+                <h2>IP Address Details</h2>
+                <div class="verification" id="verification-status">
+                    <i class="fas fa-shield-alt"></i>
+                    <span id="verification-text">Verifying IP address...</span>
+                </div>
+
+                <div class="threat-detection" id="threat-detection">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="threat-text">Checking IP for threats...</span>
+                </div>
+
+                <div class="ip-details">
+                    <div class="detail-card">
+                        <h3>IP Address</h3>
+                        <p id="ip-address">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h3>Location</h3>
+                        <p id="location">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h3>City</h3>
+                        <p id="city">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h3>Region</h3>
+                        <p id="region">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h3>Country</h3>
+                        <p id="country">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h3>Postal Code</h3>
+                        <p id="postal">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h3>Timezone</h3>
+                        <p id="timezone">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h3>ISP</h3>
+                        <p id="isp">-</p>
+                    </div>
+                </div>
+
+                <div class="fun-facts" id="fun-facts">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="fun-facts-text">Fetching fun facts...</span>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="copy-btn" id="copy-btn" aria-label="Copy results">
+                        <i class="fas fa-copy"></i> Copy Results
+                    </button>
+                    <button class="share-btn" id="share-btn" aria-label="Share results">
+                        <i class="fas fa-share-alt"></i> Share Results
+                    </button>
+                </div>
+
+                <div class="map-container">
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="history-container" id="history-container">
+                <div class="history-header">
+                    <h2>Recent Searches</h2>
+                    <button class="clear-history-btn" id="clear-history-btn">Clear History</button>
+                </div>
+                <div class="history-list" id="history-list"></div>
+            </div>
+        </div>
+
+        <h2>More Useful Features</h2>
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-globe-americas"></i>
+                <h3>Global Coverage</h3>
+                <p>Access IP data from millions of locations worldwide with our comprehensive database.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Fast Results</h3>
+                <p>Get instant IP location information with our optimized search technology.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-virus"></i>
+                <h3>Security Check</h3>
+                <p>Identify potentially malicious IP addresses with our verification system.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-history"></i>
+                <h3>Search History</h3>
+                <p>View your recent IP searches for quick reference.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Analytics</h3>
+                <p>Coming soon: Track IP usage patterns with our analytics dashboard.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bell"></i>
+                <h3>Alerts</h3>
+                <p>Coming soon: Set up notifications for specific IP address activities.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+            <a href="#">API</a>
+        </div>
+
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+        </div>
+
+        <p>© <script>document.write(new Date().getFullYear())</script> Buzz IP Location Finder. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ipInput = document.getElementById('ip-input');
+            const searchBtn = document.getElementById('search-btn');
+            const myIpBtn = document.getElementById('my-ip-btn');
+            const resultContainer = document.getElementById('result-container');
+            const verificationStatus = document.getElementById('verification-status');
+            const verificationText = document.getElementById('verification-text');
+            const threatDetection = document.getElementById('threat-detection');
+            const threatText = document.getElementById('threat-text');
+            const funFacts = document.getElementById('fun-facts');
+            const funFactsText = document.getElementById('fun-facts-text');
+            const copyBtn = document.getElementById('copy-btn');
+            const shareBtn = document.getElementById('share-btn');
+            const historyContainer = document.getElementById('history-container');
+            const historyList = document.getElementById('history-list');
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            const themeToggle = document.getElementById('theme-toggle');
+            let map = null;
+            let marker = null;
+
+            // Initialize Leaflet map
+            function initMap(lat = 0, lng = 0) {
+                if (map) {
+                    map.remove();
+                }
+                map = L.map('map', {
+                    zoomControl: true,
+                    scrollWheelZoom: false
+                }).setView([lat, lng], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    maxZoom: 18
+                }).addTo(map);
+                if (lat !== 0 || lng !== 0) {
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+                    marker = L.marker([lat, lng]).addTo(map);
+                    marker.bindPopup('IP Location').openPopup();
+                    map.flyTo([lat, lng], 12, { duration: 1.5 });
+                }
+            }
+
+            // Initialize map with default view
+            initMap();
+
+            // Dark Mode Toggle
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.innerHTML = newTheme === 'dark' ?
+                    '<i class="fas fa-sun"></i> Light Mode' :
+                    '<i class="fas fa-moon"></i> Dark Mode';
+            }
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            themeToggle.innerHTML = savedTheme === 'dark' ?
+                '<i class="fas fa-sun"></i> Light Mode' :
+                '<i class="fas fa-moon"></i> Dark Mode';
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Load and display search history
+            function loadSearchHistory() {
+                const searches = JSON.parse(localStorage.getItem('ipSearches') || '[]');
+                historyList.innerHTML = '';
+                searches.forEach(search => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <h3>${search.ip}</h3>
+                        <p>${search.data.city}, ${search.data.country_name}</p>
+                        <p>${new Date(search.timestamp).toLocaleString()}</p>
+                    `;
+                    item.addEventListener('click', () => {
+                        ipInput.value = search.ip;
+                        fetchIPInfo(search.ip);
+                    });
+                    historyList.appendChild(item);
+                });
+                historyContainer.style.display = searches.length ? 'block' : 'none';
+            }
+
+            // Save search to history
+            function saveSearch(ip, data) {
+                const searches = JSON.parse(localStorage.getItem('ipSearches') || '[]');
+                searches.unshift({ ip, data, timestamp: new Date().toISOString() });
+                localStorage.setItem('ipSearches', JSON.stringify(searches.slice(0, 10)));
+                loadSearchHistory();
+            }
+
+            // Clear search history
+            clearHistoryBtn.addEventListener('click', () => {
+                localStorage.removeItem('ipSearches');
+                loadSearchHistory();
+            });
+
+            // Check if auto-fetch is enabled
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auto') === 'true') {
+                fetchMyIP();
+            }
+
+            // Event listeners
+            searchBtn.addEventListener('click', searchIP);
+            myIpBtn.addEventListener('click', fetchMyIP);
+            const debouncedSearch = debounce(searchIP, 500);
+            ipInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    debouncedSearch();
+                }
+            });
+
+            copyBtn.addEventListener('click', () => {
+                const data = {
+                    ip: document.getElementById('ip-address').textContent,
+                    city: document.getElementById('city').textContent,
+                    region: document.getElementById('region').textContent,
+                    country: document.getElementById('country').textContent,
+                    postal: document.getElementById('postal').textContent,
+                    timezone: document.getElementById('timezone').textContent,
+                    isp: document.getElementById('isp').textContent
+                };
+                const text = `
+IP Address: ${data.ip}
+City: ${data.city}
+Region: ${data.region}
+Country: ${data.country}
+Postal Code: ${data.postal}
+Timezone: ${data.timezone}
+ISP: ${data.isp}
+                `.trim();
+                navigator.clipboard.writeText(text).then(() => {
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Results';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    showError('Failed to copy results');
+                });
+            });
+
+            shareBtn.addEventListener('click', () => {
+                const data = {
+                    ip: document.getElementById('ip-address').textContent,
+                    city: document.getElementById('city').textContent,
+                    country: document.getElementById('country').textContent
+                };
+                const shareText = `Check out this IP location: ${data.ip} is in ${data.city}, ${data.country}!`;
+                const shareUrl = window.location.href;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'IP Location Finder Result',
+                        text: shareText,
+                        url: shareUrl
+                    }).then(() => {
+                        shareBtn.classList.add('shared');
+                        shareBtn.innerHTML = '<i class="fas fa-check"></i> Shared!';
+                        setTimeout(() => {
+                            shareBtn.classList.remove('shared');
+                            shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share Results';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to share:', err);
+                        showError('Failed to share results');
+                    });
+                } else {
+                    navigator.clipboard.writeText(shareText + ' ' + shareUrl).then(() => {
+                        shareBtn.classList.add('shared');
+                        shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied Link!';
+                        setTimeout(() => {
+                            shareBtn.classList.remove('shared');
+                            shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share Results';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy share link:', err);
+                        showError('Failed to share results');
+                    });
+                }
+            });
+
+            // Validate IP address
+            function isValidIP(ip) {
+                const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))$/;
+                return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+            }
+
+            // Search for IP information
+            function searchIP() {
+                const ip = ipInput.value.trim();
+                if (!ip) {
+                    showError('Please enter an IP address');
+                    return;
+                }
+                if (!isValidIP(ip)) {
+                    showError('Invalid IP address format');
+                    return;
+                }
+                fetchIPInfo(ip);
+            }
+
+            // Fetch user's own IP
+            function fetchMyIP() {
+                searchBtn.classList.add('loading');
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+                        ipInput.value = data.ip;
+                        fetchIPInfo(data.ip);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching IP:', error);
+                        showError('Could not fetch your IP address. Please try again or enter manually.');
+                    })
+                    .finally(() => {
+                        searchBtn.classList.remove('loading');
+                    });
+            }
+
+            // Fetch IP information from freeipapi.com
+            function fetchIPInfo(ip) {
+                resultContainer.style.display = 'block';
+                verificationStatus.className = 'verification';
+                verificationText.textContent = 'Fetching IP information...';
+                threatDetection.className = 'threat-detection';
+                threatText.textContent = 'Checking IP for threats...';
+                funFacts.className = 'fun-facts';
+                funFactsText.textContent = 'Fetching fun facts...';
+                searchBtn.classList.add('loading');
+
+                // Clear previous results
+                document.querySelectorAll('.detail-card p').forEach(card => {
+                    card.textContent = '-';
+                });
+
+                fetch(`https://freeipapi.com/api/json/${ip}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('API request failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const mappedData = {
+                            ip: data.ipAddress || ip,
+                            city: data.cityName || 'Unknown',
+                            region: data.regionName || 'Unknown',
+                            country_name: data.countryName || 'Unknown',
+                            country_code: data.countryCode || 'Unknown',
+                            postal: data.zipCode || 'N/A',
+                            timezone: data.timeZone || 'N/A',
+                            org: data.isp || 'Unknown',
+                            latitude: data.latitude || 0,
+                            longitude: data.longitude || 0,
+                            is_valid: data.latitude !== null && data.longitude !== null && !ip.startsWith('192.168.') && !ip.startsWith('10.') && !ip.startsWith('172.') && ip !== '127.0.0.1'
+                        };
+                        updateIPInfo(mappedData);
+                        checkIPThreat(ip);
+                        fetchFunFacts(mappedData.country_code);
+                        saveSearch(ip, mappedData);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching IP info:', error);
+                        showError('Could not fetch IP information. Please try again.');
+                        threatText.textContent = 'Threat check unavailable';
+                        funFactsText.textContent = 'Fun facts unavailable';
+                    })
+                    .finally(() => {
+                        searchBtn.classList.remove('loading');
+                    });
+            }
+
+            // Check IP for threats using AbuseIPDB
+            function checkIPThreat(ip) {
+                const apiKey = 'YOUR_ABUSEIPDB_API_KEY'; // Replace with your free AbuseIPDB API key
+                fetch(`https://api.abuseipdb.com/api/v2/check?ipAddress=${ip}&maxAgeInDays=90`, {
+                    headers: {
+                        'Key': apiKey,
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.data && data.data.abuseConfidenceScore > 0) {
+                            threatDetection.className = 'threat-detection dangerous';
+                            threatText.textContent = `Threat Detected! Abuse Confidence: ${data.data.abuseConfidenceScore}%`;
+                        } else {
+                            threatDetection.className = 'threat-detection safe';
+                            threatText.textContent = 'No Threats Detected';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking IP threat:', error);
+                        threatText.textContent = 'Threat check unavailable';
+                    });
+            }
+
+            // Fetch fun facts about the country
+            function fetchFunFacts(countryCode) {
+                fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            const country = data[0];
+                            const population = country.population.toLocaleString();
+                            const currency = Object.values(country.currencies || {})[0]?.name || 'N/A';
+                            const capital = country.capital?.[0] || 'N/A';
+                            funFactsText.textContent = `Did you know? ${country.name.common} has a population of ${population}, its capital is ${capital}, and its currency is ${currency}.`;
+                        } else {
+                            funFactsText.textContent = 'Fun facts unavailable';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching fun facts:', error);
+                        funFactsText.textContent = 'Fun facts unavailable';
+                    });
+            }
+
+            // Update UI with IP information
+            function updateIPInfo(data) {
+                document.getElementById('ip-address').textContent = data.ip;
+                document.getElementById('location').textContent = `${data.city}, ${data.region}`;
+                document.getElementById('city').textContent = data.city;
+                document.getElementById('region').textContent = data.region;
+                document.getElementById('country').textContent = data.country_name;
+                document.getElementById('postal').textContent = data.postal;
+                document.getElementById('timezone').textContent = data.timezone;
+                document.getElementById('isp').textContent = data.org;
+
+                // Update verification status
+                verificationStatus.className = 'verification';
+                if (data.is_valid) {
+                    verificationStatus.className = 'verification valid';
+                    verificationStatus.innerHTML = '<i class="fas fa-check-circle"></i> <span>This appears to be a valid public IP address</span>';
+                } else {
+                    verificationStatus.className = 'verification invalid';
+                    if (data.ip.startsWith('192.168.') || data.ip.startsWith('10.') || data.ip.startsWith('172.')) {
+                        verificationStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>Private IP Range - Not routable on public internet</span>';
+                    } else if (data.ip === '127.0.0.1') {
+                        verificationStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>Localhost IP - Refers to your own device</span>';
+                    } else {
+                        verificationStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>This IP may be reserved, malformed, or potentially suspicious</span>';
+                    }
+                }
+
+                // Update map
+                initMap(data.latitude, data.longitude);
+            }
+
+            // Show error message
+            function showError(message) {
+                verificationStatus.className = 'verification invalid';
+                verificationText.textContent = message;
+                resultContainer.style.display = 'block';
+                document.querySelectorAll('.detail-card p').forEach(card => {
+                    card.textContent = '-';
+                });
+                initMap(0, 0);
+            }
+
+            // Load search history on page load
+            loadSearchHistory();
+        });
+    </script>
+</body>
+</html>
