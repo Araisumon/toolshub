@@ -1,0 +1,50 @@
+<article class="post-card{% if include.featured %} featured{% endif %}">
+  <div class="post-card-image">
+    <a href="{{ post.url | relative_url }}">
+      <img 
+        class="lazy" 
+        data-src="{% if post.image %}{{ post.image }}{% else %}/assets/images/default-post.jpg{% endif %}" 
+        alt="{{ post.title | escape }}"
+        loading="lazy"
+      >
+    </a>
+  </div>
+  
+  <div class="post-card-content">
+    <div class="post-card-meta">
+      <span class="post-date">
+        <i class="far fa-calendar-alt"></i>
+        {{ post.date | date: "%b %d, %Y" }}
+      </span>
+      
+      {% if post.categories %}
+        <span class="post-category">
+          {{ post.categories | first }}
+        </span>
+      {% endif %}
+    </div>
+    
+    <h3 class="post-card-title">
+      <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+    </h3>
+    
+    <p class="post-card-excerpt">
+      {% if post.excerpt %}
+        {{ post.excerpt | strip_html | truncatewords: 20 }}
+      {% else %}
+        {{ post.content | strip_html | truncatewords: 20 }}
+      {% endif %}
+    </p>
+    
+    <div class="post-card-footer">
+      <a href="{{ post.url | relative_url }}" class="read-more">
+        Read more <i class="fas fa-arrow-right"></i>
+      </a>
+      
+      <span class="reading-time">
+        <i class="far fa-clock"></i>
+        <!-- Filled by JavaScript -->
+      </span>
+    </div>
+  </div>
+</article>
