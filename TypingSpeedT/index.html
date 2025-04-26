@@ -1,608 +1,687 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QX6N41VY5J');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Test and improve your typing speed with our free typing speed tester. Check WPM, accuracy, and track your progress.">
-    <meta name="keywords" content="typing test, typing speed, WPM, words per minute, typing practice, keyboard test">
+    <meta name="description" content="Test and improve your typing speed with our advanced typing speed tester. Practice with timed tests, games, and track your progress.">
+    <meta name="keywords" content="typing test, typing speed, WPM, typing practice, typing games">
     <title>Buzz Typing Speed Tester | Improve Your Typing Skills</title>
-    <!-- Standard -->
-<link rel="icon" href="/toolshub.ico" type="image/x-icon">
-<!-- Optional: For better browser support -->
-<link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --accent-color: #f72585;
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
             --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --success-color: #4cc9f0;
-            --error-color: #ef233c;
-            --warning-color: #ff9e00;
+            --dark-color: #202124;
+            --header-bg: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            --correct-color: #34a853;
+            --incorrect-color: #ea4335;
+            --current-color: #4285f4;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background-color: #f5f7fa;
-            color: var(--dark-color);
+            font-family: var(--font-main);
             line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #f5f5f5;
+            transition: background-color 0.3s;
+            padding-bottom: 100px; /* Prevent content overlap with fixed footer */
         }
-        
+
+        .dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+            --light-color: #1e1e1e;
+            --dark-color: #f8f9fa;
+        }
+
         header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--header-bg);
             color: white;
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
-        
+
         .brand {
             font-size: 1.8rem;
             font-weight: bold;
-            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
         }
-        
+
         .brand span {
-            color: var(--accent-color);
+            color: #fbbc05;
         }
-        
+
+        .logo {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
         .header-title {
             font-size: 1.5rem;
             text-align: center;
             flex-grow: 1;
         }
-        
+
         .home-btn {
-            background-color: var(--accent-color);
+            background-color: rgba(255, 255, 255, 0.2);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s ease;
-            text-decoration: none;
+            transition: background-color 0.3s;
         }
-        
+
         .home-btn:hover {
-            background-color: #d91a6d;
-            transform: translateY(-2px);
+            background-color: rgba(255, 255, 255, 0.3);
         }
-        
+
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 2rem auto;
-            padding: 0 1.5rem;
+            padding: 0 1rem;
         }
-        
-        .instructions {
+
+        .panel {
             background-color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
         }
-        
-        .instructions h2 {
-            color: var(--primary-color);
+
+        .dark-mode .panel {
+            background-color: var(--light-color);
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+        }
+
+        h1, h2, h3 {
             margin-bottom: 1rem;
+            color: var(--primary-color);
         }
-        
-        .instructions ul {
-            padding-left: 1.5rem;
+
+        .dark-mode h1, .dark-mode h2, .dark-mode h3 {
+            color: #8ab4f8;
         }
-        
-        .instructions li {
-            margin-bottom: 0.5rem;
+
+        .instructions {
+            background-color: var(--light-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
         }
-        
+
         .test-controls {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             align-items: center;
         }
-        
-        .time-selector, .theme-selector, .difficulty-selector {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
+
         select, button {
             padding: 0.5rem 1rem;
-            border-radius: 5px;
+            border-radius: 4px;
             border: 1px solid #ddd;
-            background-color: white;
+            font-family: inherit;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
-        
-        select:focus, button:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
-        }
-        
+
         button {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            font-weight: bold;
+            transition: background-color 0.3s;
         }
-        
+
         button:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
+            background-color: #3367d6;
         }
-        
-        .start-btn {
-            background-color: var(--success-color);
+
+        .dark-mode button {
+            background-color: #8ab4f8;
+            color: #202124;
         }
-        
-        .start-btn:hover {
-            background-color: #3ab7d8;
+
+        .dark-mode button:hover {
+            background-color: #a6c4f8;
         }
-        
-        .reset-btn {
-            background-color: var(--warning-color);
-        }
-        
-        .reset-btn:hover {
-            background-color: #e68f00;
-        }
-        
-        .test-container {
-            background-color: white;
-            border-radius: 10px;
-            padding: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+        .test-display {
             margin-bottom: 2rem;
         }
-        
+
         .test-text {
             font-size: 1.2rem;
             line-height: 1.8;
-            margin-bottom: 1.5rem;
-            min-height: 150px;
+            margin-bottom: 1rem;
             padding: 1rem;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            background-color: #fafafa;
-            overflow-wrap: break-word;
+            background-color: var(--light-color);
+            border-radius: 8px;
+            min-height: 120px;
+            position: relative;
         }
-        
+
         .test-text span {
             position: relative;
         }
-        
-        .test-text span.current {
-            background-color: #e0e7ff;
-            border-left: 2px solid var(--primary-color);
-        }
-        
+
         .test-text span.correct {
-            color: #10b981;
+            color: var(--correct-color);
         }
-        
+
         .test-text span.incorrect {
-            color: var(--error-color);
+            color: var(--incorrect-color);
             text-decoration: underline;
         }
-        
+
+        .test-text span.current {
+            background-color: var(--current-color);
+            color: white;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
         .test-input {
             width: 100%;
             padding: 1rem;
             font-size: 1.2rem;
             border: 2px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 1rem;
-            transition: all 0.3s ease;
+            font-family: inherit;
         }
-        
+
         .test-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
             outline: none;
+            border-color: var(--primary-color);
         }
-        
+
         .results {
             display: none;
-            background-color: white;
-            border-radius: 10px;
-            padding: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
-        
-        .results h2 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background-color: #f8f9fa;
-            border-radius: 8px;
+            background-color: var(--light-color);
             padding: 1.5rem;
+            border-radius: 8px;
             text-align: center;
+        }
+
+        .results h3 {
+            margin-bottom: 1.5rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            flex: 1;
+            min-width: 120px;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-        
-        .stat-card h3 {
-            color: var(--secondary-color);
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
+
+        .dark-mode .stat {
+            background-color: #2d2d2d;
         }
-        
-        .stat-card p {
+
+        .stat-value {
             font-size: 2rem;
             font-weight: bold;
-            color: var(--dark-color);
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
         }
-        
-        .progress-container {
+
+        .dark-mode .stat-value {
+            color: #8ab4f8;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .dark-mode .stat-label {
+            color: #aaa;
+        }
+
+        .game-container {
+            display: none;
             margin-top: 2rem;
         }
-        
-        .progress-container h3 {
-            color: var(--secondary-color);
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
         }
-        
-        .progress-bar {
-            height: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            margin-bottom: 0.5rem;
+
+        .game-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .lives {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .dark-mode .lives {
+            color: #8ab4f8;
+        }
+
+        .game-area {
+            position: relative;
+            height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
             overflow: hidden;
         }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        .history {
-            margin-top: 2rem;
-        }
-        
-        .history h3 {
-            color: var(--secondary-color);
-            margin-bottom: 1rem;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            background-color: #f8f9fa;
+
+        .falling-word {
+            position: absolute;
+            font-size: 1.2rem;
             font-weight: bold;
+            white-space: nowrap;
+            user-select: none;
+            transition: top 0.1s linear;
         }
-        
-        tr:hover {
-            background-color: #f1f3f5;
-        }
-        
-        .share-btns {
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
             justify-content: center;
-        }
-        
-        .share-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            display: flex;
             align-items: center;
-            gap: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .mute-toggle {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: var(--primary-color);
             color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        
-        .twitter {
-            background-color: #1da1f2;
-        }
-        
-        .facebook {
-            background-color: #4267b2;
-        }
-        
-        .linkedin {
-            background-color: #0077b5;
-        }
-        
-        footer {
-            background-color: var(--dark-color);
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            margin-top: 2rem;
-        }
-        
-        footer p {
-            margin-bottom: 1rem;
-        }
-        
-        .footer-links {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
         }
-        
-        .footer-links a {
-            color: white;
-            text-decoration: none;
-        }
-        
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-        
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            .header-title {
-                order: -1;
-            }
-            
-            .brand, .header-title {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .test-controls {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Themes */
-        .theme-light {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --accent-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-        
-        .theme-dark {
-            --primary-color: #7209b7;
-            --secondary-color: #560bad;
-            --accent-color: #f72585;
-            --light-color: #212529;
-            --dark-color: #f8f9fa;
-            background-color: #121212;
-            color: #f8f9fa;
-        }
-        
-        .theme-dark .test-container,
-        .theme-dark .results,
-        .theme-dark .instructions,
-        .theme-dark .stat-card {
-            background-color: #1e1e1e;
-            color: #f8f9fa;
-        }
-        
-        .theme-dark .test-text {
-            background-color: #2d2d2d;
-            border-color: #333;
-        }
-        
-        .theme-dark th {
-            background-color: #2d2d2d;
-        }
-        
-        .theme-dark tr:hover {
-            background-color: #333;
-        }
-        
-        .theme-dark .test-input {
-            background-color: #2d2d2d;
-            color: #f8f9fa;
-            border-color: #333;
-        }
-        
-        .theme-sepia {
-            --primary-color: #d4a373;
-            --secondary-color: #a68a64;
-            --accent-color: #c08552;
-            --light-color: #f5ebe0;
-            --dark-color: #5c5344;
-            background-color: #f5ebe0;
-            color: #5c5344;
-        }
-        
-        .theme-sepia .test-container,
-        .theme-sepia .results,
-        .theme-sepia .instructions,
-        .theme-sepia .stat-card {
-            background-color: #e3d5ca;
-        }
-        
-        .theme-sepia .test-text {
-            background-color: #d5bdaf;
-        }
-        
+
         .tooltip {
             position: relative;
             display: inline-block;
-            cursor: pointer;
+            cursor: help;
         }
-        
+
         .tooltip .tooltiptext {
             visibility: hidden;
             width: 200px;
-            background-color: #333;
+            background-color: #555;
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 0.5rem;
+            padding: 5px;
             position: absolute;
             z-index: 1;
             bottom: 125%;
             left: 50%;
-            transform: translateX(-50%);
+            margin-left: -100px;
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 0.9rem;
         }
-        
+
         .tooltip:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
         }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .level-notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            z-index: 10;
+            display: none;
+            text-align: center;
+        }
+
+        footer {
+            background: var(--header-bg);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+
+        footer .footer-links {
+            margin-bottom: 0.5rem;
+        }
+
+        footer .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        footer .footer-links a:hover {
+            color: #fbbc05;
+        }
+
+        footer .copyright {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        footer .tagline {
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .brand {
+                margin-bottom: 0.5rem;
+            }
+
+            .header-title {
+                margin-bottom: 0.5rem;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .stat {
+                width: 100%;
+            }
+
+            footer .footer-links a {
+                margin: 0 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            footer .copyright, footer .tagline {
+                font-size: 0.8rem;
+            }
+        }
+
+        @keyframes correctFlash {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(52, 168, 83, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        .correct-flash {
+            animation: correctFlash 0.5s;
+        }
+
+        @keyframes incorrectFlash {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(234, 67, 53, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        .incorrect-flash {
+            animation: incorrectFlash 0.5s;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .dark-mode .progress-container {
+            background-color: #2d2d2d;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .leaderboard {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .leaderboard th, .leaderboard td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .leaderboard th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .leaderboard tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .dark-mode .leaderboard tr:nth-child(even) {
+            background-color: #2d2d2d;
+        }
+
+        .leaderboard tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dark-mode .leaderboard tr:hover {
+            background-color: #3d3d3d;
+        }
     </style>
 </head>
-<body class="theme-light">
+<body>
     <header>
-        <div class="brand">Buzz<span>Type</span></div>
-        <h1 class="header-title">Typing Speed Tester</h1>
+        <div class="brand">
+            <div class="logo">✍️</div>
+            <div>Buzz<span>Type</span></div>
+        </div>
+        <div class="header-title">Typing Speed Tester</div>
         <a href="/" class="home-btn">Home</a>
     </header>
-    
+
     <div class="container">
-        <section class="instructions">
-            <h2>How to Use the Typing Speed Tester</h2>
-            <ul>
-                <li>Select your preferred test duration and difficulty level</li>
-                <li>Click "Start Test" when you're ready</li>
-                <li>Type the text displayed above the input box as quickly and accurately as possible</li>
-                <li>Errors will be highlighted in red - correct them with backspace</li>
-                <li>Your results will be displayed when the time is up</li>
-                <li>Try to beat your previous scores and improve your typing speed!</li>
-            </ul>
-        </section>
-        
-        <div class="test-controls">
-            <div class="time-selector">
-                <label for="test-time">Test Duration:</label>
-                <select id="test-time">
-                    <option value="30">30 seconds</option>
-                    <option value="60" selected>1 minute</option>
-                    <option value="180">3 minutes</option>
-                    <option value="300">5 minutes</option>
-                </select>
-            </div>
-            
-            <div class="difficulty-selector">
-                <label for="difficulty">Difficulty:</label>
-                <select id="difficulty">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="hard">Hard</option>
-                    <option value="expert">Expert</option>
-                </select>
-            </div>
-            
-            <div class="theme-selector">
-                <label for="theme">Theme:</label>
-                <select id="theme">
-                    <option value="light" selected>Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="sepia">Sepia</option>
-                </select>
-            </div>
-            
-            <button id="start-btn" class="start-btn">Start Test</button>
-            <button id="reset-btn" class="reset-btn">Reset</button>
-            
-            <div class="tooltip">
-                <span>ℹ️</span>
-                <span class="tooltiptext">WPM = (Correct Characters / 5) / (Time in Minutes)</span>
-            </div>
+        <div class="instructions">
+            <h3>How to Use the Typing Speed Tester</h3>
+            <p>1. Select your preferred test duration and click "Start Test".</p>
+            <p>2. Type the text displayed above the input box as quickly and accurately as possible.</p>
+            <p>3. Errors will be highlighted in red - correct them with backspace.</p>
+            <p>4. After the test, your typing speed (WPM), accuracy, and other stats will be displayed.</p>
+            <p>5. Try our typing games for a fun way to improve your skills!</p>
         </div>
-        
-        <div class="test-container">
-            <div id="test-text" class="test-text">
-                Select your test duration and click "Start Test" to begin. The text to type will appear here.
-            </div>
-            <textarea id="test-input" class="test-input" placeholder="Start typing here when the test begins..." disabled></textarea>
-            <div id="timer">Time remaining: <span id="time">01:00</span></div>
+
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('speed-test')">Speed Test</div>
+            <div class="tab" onclick="switchTab('word-game')">Word Game</div>
+            <div class="tab" onclick="switchTab('falling-game')">Falling Words</div>
         </div>
-        
-        <div id="results" class="results">
-            <h2>Your Typing Results</h2>
-            <div class="stats">
-                <div class="stat-card">
-                    <h3>Words Per Minute</h3>
-                    <p id="wpm">0</p>
+
+        <div id="speed-test" class="tab-content active">
+            <div class="panel">
+                <h2>Typing Speed Test</h2>
+                <div class="test-controls">
+                    <select id="test-duration">
+                        <option value="30">30 seconds</option>
+                        <option value="60" selected>1 minute</option>
+                        <option value="180">3 minutes</option>
+                        <option value="300">5 minutes</option>
+                    </select>
+                    <select id="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    <button id="start-test">Start Test</button>
+                    <button id="new-text" disabled>New Text</button>
                 </div>
-                <div class="stat-card">
-                    <h3>Accuracy</h3>
-                    <p id="accuracy">0%</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
                 </div>
-                <div class="stat-card">
-                    <h3>Correct Characters</h3>
-                    <p id="correct-chars">0</p>
+                <div class="test-display">
+                    <div class="test-text" id="test-text"></div>
+                    <textarea class="test-input" id="test-input" placeholder="Start typing here when the test begins..." disabled></textarea>
                 </div>
-                <div class="stat-card">
-                    <h3>Errors</h3>
-                    <p id="errors">0</p>
+                <div class="results" id="results">
+                    <h3>Your Typing Results</h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-value" id="wpm">0</div>
+                            <div class="stat-label">Words Per Minute</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="correct-chars">0</div>
+                            <div class="stat-label">Correct Characters</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="incorrect-chars">0</div>
+                            <div class="stat-label">Incorrect Characters</div>
+                        </div>
+                    </div>
+                    <button id="save-result">Save Result</button>
+                    <div id="saved-message" style="display:none; color:var(--correct-color); margin-top:1rem;">
+                        Result saved to your history!
+                    </div>
                 </div>
             </div>
-            
-            <div class="progress-container">
-                <h3>Your Progress</h3>
-                <div class="progress-bar">
-                    <div class="progress" id="progress-bar"></div>
-                </div>
-                <p>Keep practicing to improve your typing speed!</p>
-            </div>
-            
-            <div class="history">
-                <h3>Your Recent Tests</h3>
-                <table>
+
+            <div class="panel">
+                <h2>Your Typing History</h2>
+                <table class="leaderboard" id="leaderboard">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -611,300 +690,874 @@
                             <th>Duration</th>
                         </tr>
                     </thead>
-                    <tbody id="history-table">
-                        <!-- History will be populated here -->
-                    </tbody>
+                    <tbody id="history-body"></tbody>
                 </table>
             </div>
-            
-            <div class="share-btns">
-                <a href="#" class="share-btn twitter" id="twitter-share">
-                    <span>Share on Twitter</span>
-                </a>
-                <a href="#" class="share-btn facebook" id="facebook-share">
-                    <span>Share on Facebook</span>
-                </a>
-                <a href="#" class="share-btn linkedin" id="linkedin-share">
-                    <span>Share on LinkedIn</span>
-                </a>
+        </div>
+
+        <div id="word-game" class="tab-content">
+            <div class="panel">
+                <h2>Word Challenge Game</h2>
+                <p>Type as many words as you can before the timer runs out. Each correct word earns you points!</p>
+                <div class="test-controls">
+                    <select id="word-game-duration">
+                        <option value="30">30 seconds</option>
+                        <option value="60" selected>1 minute</option>
+                        <option value="120">2 minutes</option>
+                        <option value="180">3 minutes</option>
+                    </select>
+                    <select id="word-game-difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    <button id="start-word-game">Start Game</button>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="word-game-progress-bar"></div>
+                </div>
+                <div class="game-container" id="word-game-container">
+                    <div class="game-header">
+                        <div>Time: <span id="word-game-time">60</span>s</div>
+                        <div class="game-score">Score: <span id="word-game-score">0</span></div>
+                    </div>
+                    <div class="test-display">
+                        <div class="test-text" id="word-game-text"></div>
+                        <textarea class="test-input" id="word-game-input" placeholder="Type the word above..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="falling-game" class="tab-content">
+            <div class="panel">
+                <h2>Falling Words Game</h2>
+                <p>Type the words before they reach the bottom of the screen. Each correct word gives you points!</p>
+                <div class="test-controls">
+                    <select id="falling-game-duration">
+                        <option value="30">30 seconds</option>
+                        <option value="60" selected>1 minute</option>
+                        <option value="120">2 minutes</option>
+                        <option value="180">3 minutes</option>
+                    </select>
+                    <select id="falling-game-difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    <button id="start-falling-game">Start Game</button>
+                    <button id="pause-falling-game" disabled>Pause</button>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="falling-game-progress-bar"></div>
+                </div>
+                <div class="game-container" id="falling-game-container">
+                    <div class="game-header">
+                        <div>Time: <span id="falling-game-time">60</span>s</div>
+                        <div class="game-score">Score: <span id="falling-game-score">0</span></div>
+                        <div>Level: <span id="falling-game-level">1</span></div>
+                        <div class="lives">Lives: <span id="falling-game-lives">3</span></div>
+                    </div>
+                    <div class="game-area" id="falling-game-area">
+                        <div class="level-notification" id="level-notification"></div>
+                    </div>
+                    <input type="text" class="test-input" id="falling-game-input" placeholder="Type the falling words...">
+                </div>
             </div>
         </div>
     </div>
-    
+
+    <div class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+        🌓
+    </div>
+    <div class="mute-toggle" id="mute-toggle" title="Toggle sound">
+        🔊
+    </div>
+
     <footer>
         <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Contact Us</a>
-            <a href="#">About</a>
+            <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/terms-of-service">Terms of Service</a>
+            <a href="/contact-us">Contact Us</a>
+            <a href="/about">About</a>
         </div>
-        <p>&copy; 2023 BuzzType. All rights reserved.</p>
-        <p>Improve your typing skills with our free typing speed tester.</p>
+        <div class="copyright">
+            © 2023 BuzzType. All rights reserved.
+        </div>
+        <div class="tagline">
+            Improve your typing skills with our free typing speed tester.
+        </div>
     </footer>
-    
+
     <script>
-        // DOM Elements
-        const testTextElement = document.getElementById('test-text');
-        const testInputElement = document.getElementById('test-input');
-        const startBtn = document.getElementById('start-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const timerElement = document.getElementById('time');
-        const resultsElement = document.getElementById('results');
-        const wpmElement = document.getElementById('wpm');
-        const accuracyElement = document.getElementById('accuracy');
-        const correctCharsElement = document.getElementById('correct-chars');
-        const errorsElement = document.getElementById('errors');
-        const progressBarElement = document.getElementById('progress-bar');
-        const historyTableElement = document.getElementById('history-table');
-        const testTimeSelect = document.getElementById('test-time');
-        const difficultySelect = document.getElementById('difficulty');
-        const themeSelect = document.getElementById('theme');
-        
-        // Test variables
-        let testStarted = false;
-        let timer;
-        let timeLeft;
-        let startTime;
-        let endTime;
-        let currentCharIndex = 0;
-        let errors = 0;
-        let testText = '';
-        let testHistory = JSON.parse(localStorage.getItem('typingTestHistory')) || [];
-        
-        // Sample texts for different difficulty levels
-        const sampleTexts = {
-            easy: [
-                "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet.",
-                "Learning to type quickly and accurately is an essential skill in today's digital world. Practice makes perfect.",
-                "The sun was shining brightly as the children played in the park. Birds were singing in the trees nearby."
-            ],
-            medium: [
-                "According to recent studies, the average typing speed is around 40 words per minute. Professional typists can reach speeds of 65 to 75 WPM.",
-                "The development of the QWERTY keyboard layout in the 1870s was designed to prevent mechanical typewriter jams by separating commonly used letter pairs.",
-                "In the realm of digital communication, typing proficiency significantly impacts productivity. Efficient typing can save hours of work time over weeks and months."
-            ],
-            hard: [
-                "The Dvorak Simplified Keyboard, patented in 1936 by August Dvorak, was designed to increase typing efficiency by placing the most commonly used letters in the home row where they are more easily accessible.",
-                "Cognitive research suggests that touch typing (typing without looking at the keyboard) engages procedural memory, allowing skilled typists to achieve speeds exceeding 100 words per minute with high accuracy.",
-                "The world record for typing speed on an alphanumeric keyboard is 216 words per minute, achieved by Barbara Blackburn in 2005 using the Dvorak Simplified Keyboard layout."
-            ],
-            expert: [
-                "The phenomenon of muscle memory in typing is a result of procedural learning, where repeated practice leads to the automation of motor skills. This explains why experienced typists can type without conscious attention to individual keystrokes.",
-                "Quantitative analysis of keystroke dynamics reveals that typing patterns are as unique as fingerprints, with inter-key latency and pressure patterns forming biometric identifiers that can be used for authentication purposes.",
-                "The cognitive load theory posits that typing while composing original text imposes a higher mental workload than transcription typing, as it requires simultaneous engagement of working memory for both linguistic formulation and motor execution."
-            ]
-        };
-        
-        // Initialize
-        updateHistoryTable();
-        
-        // Event Listeners
-        startBtn.addEventListener('click', startTest);
-        resetBtn.addEventListener('click', resetTest);
-        testInputElement.addEventListener('input', checkTyping);
-        testInputElement.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && testStarted) {
-                if (currentCharIndex > 0) {
-                    const charElements = testTextElement.querySelectorAll('span');
-                    const currentCharElement = charElements[currentCharIndex - 1];
-                    
-                    // Only count as error correction if the character was incorrect
-                    if (currentCharElement.classList.contains('incorrect')) {
-                        errors--;
-                        errorsElement.textContent = errors;
-                    }
-                    
-                    currentCharElement.classList.remove('correct', 'incorrect', 'current');
-                    currentCharIndex--;
-                    charElements[currentCharIndex].classList.add('current');
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const elements = {
+                testText: document.getElementById('test-text'),
+                testInput: document.getElementById('test-input'),
+                results: document.getElementById('results'),
+                startTest: document.getElementById('start-test'),
+                newText: document.getElementById('new-text'),
+                saveResult: document.getElementById('save-result'),
+                savedMessage: document.getElementById('saved-message'),
+                testDuration: document.getElementById('test-duration'),
+                difficulty: document.getElementById('difficulty'),
+                progressBar: document.getElementById('progress-bar'),
+                wpm: document.getElementById('wpm'),
+                accuracy: document.getElementById('accuracy'),
+                correctChars: document.getElementById('correct-chars'),
+                incorrectChars: document.getElementById('incorrect-chars'),
+                historyBody: document.getElementById('history-body'),
+                themeToggle: document.getElementById('theme-toggle'),
+                muteToggle: document.getElementById('mute-toggle'),
+                wordGameContainer: document.getElementById('word-game-container'),
+                wordGameText: document.getElementById('word-game-text'),
+                wordGameInput: document.getElementById('word-game-input'),
+                wordGameTime: document.getElementById('word-game-time'),
+                wordGameScore: document.getElementById('word-game-score'),
+                startWordGame: document.getElementById('start-word-game'),
+                wordGameDuration: document.getElementById('word-game-duration'),
+                wordGameDifficulty: document.getElementById('word-game-difficulty'),
+                wordGameProgressBar: document.getElementById('word-game-progress-bar'),
+                fallingGameContainer: document.getElementById('falling-game-container'),
+                fallingGameArea: document.getElementById('falling-game-area'),
+                fallingGameInput: document.getElementById('falling-game-input'),
+                fallingGameTime: document.getElementById('falling-game-time'),
+                fallingGameScore: document.getElementById('falling-game-score'),
+                fallingGameLevel: document.getElementById('falling-game-level'),
+                fallingGameLives: document.getElementById('falling-game-lives'),
+                fallingGameDuration: document.getElementById('falling-game-duration'),
+                fallingGameDifficulty: document.getElementById('falling-game-difficulty'),
+                startFallingGame: document.getElementById('start-falling-game'),
+                pauseFallingGame: document.getElementById('pause-falling-game'),
+                levelNotification: document.getElementById('level-notification'),
+                fallingGameProgressBar: document.getElementById('falling-game-progress-bar')
+            };
+
+            // Game variables
+            let currentWord = '';
+            let wordGameInterval = null;
+            let wordGameSeconds = 60;
+            let wordGamePoints = 0;
+            let wordGameDuration = 60;
+            let fallingWords = [];
+            let fallingGameSeconds = 60;
+            let fallingGamePoints = 0;
+            let fallingGameCurrentLevel = 1;
+            let fallingGameLives = 3;
+            let fallingGameRunning = false;
+            let lastFrameTime = null;
+            let animationFrameId = null;
+            let isPaused = false;
+            let fallingGameDuration = 60;
+            let isMuted = false;
+
+            // Sound effects are disabled to prevent errors due to missing audio files.
+            // To enable sound, follow these steps:
+            // 1. Create a 'sounds/' folder in your project directory.
+            // 2. Add the following audio files: correct.wav, miss.wav, levelUp.wav, gameOver.wav.
+            // 3. Uncomment the 'sounds' object and 'playSound' function below.
+            // 4. Uncomment the calls to 'playSound' throughout the code (search for 'playSound').
+            /*
+            const sounds = {
+                correct: new Audio('sounds/correct.wav'),
+                miss: new Audio('sounds/miss.wav'),
+                levelUp: new Audio('sounds/levelUp.wav'),
+                gameOver: new Audio('sounds/gameOver.wav')
+            };
+            */
+
+            // Play sound with error handling (currently disabled)
+            /*
+            function playSound(sound) {
+                if (isMuted) return;
+                sound.currentTime = 0;
+                sound.play().catch(error => {
+                    console.error(`Failed to play sound: ${sound.src}`, error);
+                });
+            }
+            */
+
+            // Test variables
+            let testRunning = false;
+            let testStartTime = null;
+            let testEndTime = null;
+            let testInterval = null;
+            let testDuration = 60;
+            let correctChars = 0;
+            let incorrectChars = 0;
+            let totalChars = 0;
+            let currentText = '';
+            let currentPosition = 0;
+
+            // Theme toggle
+            try {
+                elements.themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-mode');
+                    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+                });
+
+                if (localStorage.getItem('darkMode') === 'true') {
+                    document.body.classList.add('dark-mode');
                 }
+            } catch (e) {
+                console.error('Error setting up theme toggle:', e);
+            }
+
+            // Mute toggle (UI preserved, but no functionality without sound)
+            try {
+                elements.muteToggle.addEventListener('click', () => {
+                    isMuted = !isMuted;
+                    elements.muteToggle.textContent = isMuted ? '🔇' : '🔊';
+                    localStorage.setItem('isMuted', isMuted);
+                });
+
+                if (localStorage.getItem('isMuted') === 'true') {
+                    isMuted = true;
+                    elements.muteToggle.textContent = '🔇';
+                }
+            } catch (e) {
+                console.error('Error setting up mute toggle:', e);
+            }
+
+            // Tab switching
+            window.switchTab = function(tabId) {
+                try {
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                    const targetTab = document.getElementById(tabId);
+                    if (targetTab) targetTab.classList.add('active');
+                    document.querySelectorAll('.tab').forEach(tab => {
+                        if (tab.textContent.toLowerCase().includes(tabId.replace('-', ' '))) {
+                            tab.classList.add('active');
+                        }
+                    });
+
+                    if (testRunning) endTest();
+                    if (wordGameInterval) stopWordGame();
+                    if (fallingGameRunning) stopFallingGame();
+                } catch (e) {
+                    console.error('Error switching tab:', e);
+                }
+            };
+
+            // Tooltips
+            function setupTooltips() {
+                try {
+                    document.querySelectorAll('.tooltip').forEach(el => {
+                        const tooltipText = el.getAttribute('data-tooltip');
+                        if (tooltipText) {
+                            const tooltipSpan = document.createElement('span');
+                            tooltipSpan.className = 'tooltiptext';
+                            tooltipSpan.textContent = tooltipText;
+                            el.appendChild(tooltipSpan);
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error setting up tooltips:', e);
+                }
+            }
+
+            // Typing Speed Test
+            function startTest() {
+                try {
+                    testRunning = true;
+                    testDuration = parseInt(elements.testDuration.value) || 60;
+                    elements.testInput.disabled = false;
+                    elements.testInput.value = '';
+                    elements.testInput.focus();
+                    elements.startTest.disabled = true;
+                    elements.newText.disabled = true;
+                    elements.testDuration.disabled = true;
+                    elements.difficulty.disabled = true;
+                    elements.results.style.display = 'none';
+
+                    if (!currentText) generateNewText();
+
+                    correctChars = 0;
+                    incorrectChars = 0;
+                    totalChars = 0;
+                    currentPosition = 0;
+
+                    testStartTime = new Date().getTime();
+                    testEndTime = testStartTime + (testDuration * 1000);
+
+                    updateTestTextDisplay();
+                    elements.progressBar.style.width = '0%';
+
+                    testInterval = setInterval(() => {
+                        const currentTime = new Date().getTime();
+                        const elapsed = currentTime - testStartTime;
+                        const remaining = testEndTime - currentTime;
+
+                        elements.progressBar.style.width = `${(elapsed / (testDuration * 1000)) * 100}%`;
+
+                        if (remaining <= 0) endTest();
+                    }, 100);
+                } catch (e) {
+                    console.error('Error starting test:', e);
+                }
+            }
+
+            function generateNewText() {
+                try {
+                    const difficulty = elements.difficulty.value;
+                    let text = '';
+
+                    if (difficulty === 'easy') {
+                        const sentences = [
+                            "The quick brown fox jumps over the lazy dog.",
+                            "Pack my box with five dozen liquor jugs.",
+                            "How vexingly quick daft zebras jump!",
+                            "Bright vixens jump; dozy fowl quack.",
+                            "The five boxing wizards jump quickly."
+                        ];
+                        text = sentences[Math.floor(Math.random() * sentences.length)];
+                    } else if (difficulty === 'medium') {
+                        const sentences = [
+                            "The explorer was frozen in his big kayak just after making queer discoveries.",
+                            "Whenever the black fox jumped the squirrel gazed suspiciously.",
+                            "We promptly judged antique ivory buckles for the next prize.",
+                            "A quick movement of the enemy will jeopardize six gunboats.",
+                            "The wizard quickly jinxed the gnomes before they vaporized."
+                        ];
+                        text = sentences[Math.floor(Math.random() * sentences.length)];
+                    } else {
+                        const paragraphs = [
+                            "The juxtaposition of quantum mechanics and classical physics perplexes even the most astute physicists.",
+                            "Paleoanthropologists meticulously excavate fossilized remains to reconstruct hominin evolution.",
+                            "Cryptocurrencies leverage blockchain technology to enable decentralized transactions.",
+                            "The Renaissance witnessed an unprecedented flourishing of art, science, and humanism.",
+                            "Machine learning algorithms have achieved remarkable success in pattern recognition tasks."
+                        ];
+                        text = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+                    }
+
+                    currentText = text;
+                    elements.testText.textContent = text;
+                    currentPosition = 0;
+                    updateTestTextDisplay();
+                } catch (e) {
+                    console.error('Error generating new text:', e);
+                }
+            }
+
+            function updateTestTextDisplay() {
+                try {
+                    let html = '';
+                    for (let i = 0; i < currentText.length; i++) {
+                        let char = currentText[i];
+                        let spanClass = i < currentPosition ? 'correct' : i === currentPosition ? 'current' : '';
+                        if (i < currentPosition && elements.testInput.value.length > 0) {
+                            const typedChar = elements.testInput.value[i - currentPosition];
+                            if (typedChar !== char) spanClass = 'incorrect';
+                        }
+                        html += `<span class="${spanClass}">${char}</span>`;
+                    }
+                    elements.testText.innerHTML = html;
+
+                    const currentSpan = elements.testText.querySelector('.current');
+                    if (currentSpan) {
+                        currentSpan.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }
+                } catch (e) {
+                    console.error('Error updating test text display:', e);
+                }
+            }
+
+            function endTest() {
+                try {
+                    testRunning = false;
+                    clearInterval(testInterval);
+                    elements.testInput.disabled = true;
+                    elements.startTest.disabled = false;
+                    elements.newText.disabled = false;
+                    elements.testDuration.disabled = false;
+                    elements.difficulty.disabled = false;
+
+                    const minutes = testDuration / 60;
+                    const words = correctChars / 5;
+                    const wpm = Math.round(words / minutes) || 0;
+                    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
+
+                    elements.wpm.textContent = wpm;
+                    elements.accuracy.textContent = `${accuracy}%`;
+                    elements.correctChars.textContent = correctChars;
+                    elements.incorrectChars.textContent = incorrectChars;
+                    elements.results.style.display = 'block';
+
+                    saveResult(wpm, accuracy, testDuration);
+                } catch (e) {
+                    console.error('Error ending test:', e);
+                }
+            }
+
+            function saveResult(wpm, accuracy, duration) {
+                try {
+                    const history = JSON.parse(localStorage.getItem('typingHistory') || '[]');
+                    const now = new Date();
+                    history.push({
+                        date: now.toISOString(),
+                        wpm,
+                        accuracy,
+                        duration,
+                        displayDate: now.toLocaleDateString()
+                    });
+
+                    if (history.length > 10) history.shift();
+                    localStorage.setItem('typingHistory', JSON.stringify(history));
+                    loadHistory();
+                } catch (e) {
+                    console.error('Error saving result:', e);
+                }
+            }
+
+            function loadHistory() {
+                try {
+                    const history = JSON.parse(localStorage.getItem('typingHistory') || '[]');
+                    elements.historyBody.innerHTML = '';
+                    history.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.displayDate}</td>
+                            <td>${item.wpm}</td>
+                            <td>${item.accuracy}%</td>
+                            <td>${item.duration}s</td>
+                        `;
+                        elements.historyBody.appendChild(row);
+                    });
+                } catch (e) {
+                    console.error('Error loading history:', e);
+                }
+            }
+
+            // Word Game
+            function startWordGame() {
+                try {
+                    elements.wordGameContainer.style.display = 'block';
+                    wordGameDuration = parseInt(elements.wordGameDuration.value) || 60;
+                    wordGameSeconds = wordGameDuration;
+                    wordGamePoints = 0;
+                    elements.wordGameInput.value = '';
+                    elements.wordGameInput.disabled = false;
+                    elements.wordGameInput.focus();
+                    elements.startWordGame.disabled = true;
+                    elements.wordGameDuration.disabled = true;
+                    elements.wordGameDifficulty.disabled = true;
+
+                    updateWordGameDisplay();
+                    generateNewWord();
+
+                    elements.wordGameProgressBar.style.width = '0%';
+
+                    wordGameInterval = setInterval(() => {
+                        wordGameSeconds--;
+                        elements.wordGameTime.textContent = wordGameSeconds;
+                        const elapsed = wordGameDuration - wordGameSeconds;
+                        elements.wordGameProgressBar.style.width = `${(elapsed / wordGameDuration) * 100}%`;
+                        if (wordGameSeconds <= 0) stopWordGame();
+                    }, 1000);
+                } catch (e) {
+                    console.error('Error starting word game:', e);
+                }
+            }
+
+            function stopWordGame() {
+                try {
+                    clearInterval(wordGameInterval);
+                    elements.wordGameInput.disabled = true;
+                    elements.startWordGame.disabled = false;
+                    elements.wordGameDuration.disabled = false;
+                    elements.wordGameDifficulty.disabled = false;
+                    wordGameInterval = null;
+
+                    const highScore = localStorage.getItem('wordGameHighScore') || 0;
+                    if (wordGamePoints > highScore) {
+                        localStorage.setItem('wordGameHighScore', wordGamePoints);
+                    }
+                } catch (e) {
+                    console.error('Error stopping word game:', e);
+                }
+            }
+
+            function generateNewWord() {
+                try {
+                    const difficulty = elements.wordGameDifficulty.value;
+                    let words;
+
+                    if (difficulty === 'easy') {
+                        words = [
+                            'cat', 'dog', 'sun', 'hat', 'run', 'pen',
+                            'bat', 'map', 'cup', 'fox', 'log', 'net',
+                            'bit', 'jam', 'lip', 'sad', 'top', 'web'
+                        ];
+                    } else if (difficulty === 'medium') {
+                        words = [
+                            'apple', 'banana', 'cherry', 'dragon', 'elephant', 'fountain',
+                            'giraffe', 'happiness', 'illusion', 'jazz', 'kangaroo', 'lighthouse',
+                            'mountain', 'notebook', 'octopus', 'penguin', 'quasar', 'rainbow'
+                        ];
+                    } else {
+                        words = [
+                            'xylophone', 'yesterday', 'zeppelin', 'adventure', 'butterfly', 'chocolate',
+                            'discovery', 'enigmatic', 'formidable', 'gregarious', 'holographic', 'inquisitive',
+                            'juxtaposition', 'kaleidoscope', 'labyrinthine', 'magnificent', 'nebulous', 'orchestrate'
+                        ];
+                    }
+
+                    currentWord = words[Math.floor(Math.random() * words.length)];
+                    elements.wordGameText.textContent = currentWord;
+                } catch (e) {
+                    console.error('Error generating new word:', e);
+                }
+            }
+
+            function updateWordGameDisplay() {
+                try {
+                    elements.wordGameTime.textContent = wordGameSeconds;
+                    elements.wordGameScore.textContent = wordGamePoints;
+                } catch (e) {
+                    console.error('Error updating word game display:', e);
+                }
+            }
+
+            // Falling Words Game
+            function startFallingGame() {
+                try {
+                    elements.fallingGameContainer.style.display = 'block';
+                    fallingGameDuration = parseInt(elements.fallingGameDuration.value) || 60;
+                    fallingGameSeconds = fallingGameDuration;
+                    fallingGamePoints = 0;
+                    fallingGameCurrentLevel = 1;
+                    fallingGameLives = 3;
+                    elements.fallingGameInput.value = '';
+                    elements.fallingGameInput.disabled = false;
+                    elements.fallingGameInput.focus();
+                    elements.startFallingGame.disabled = true;
+                    elements.pauseFallingGame.disabled = false;
+                    elements.fallingGameDuration.disabled = true;
+                    elements.fallingGameDifficulty.disabled = true;
+                    elements.pauseFallingGame.textContent = 'Pause';
+                    elements.fallingGameArea.innerHTML = '';
+                    elements.fallingGameProgressBar.style.width = '0%';
+                    fallingWords = [];
+                    fallingGameRunning = true;
+                    isPaused = false;
+
+                    updateFallingGameDisplay();
+
+                    lastFrameTime = performance.now();
+                    gameLoop(lastFrameTime);
+                } catch (e) {
+                    console.error('Error starting falling game:', e);
+                }
+            }
+
+            function gameLoop(currentTime) {
+                if (!fallingGameRunning || isPaused) return;
+
+                try {
+                    const deltaTime = (currentTime - lastFrameTime) / 1000;
+                    lastFrameTime = currentTime;
+
+                    fallingGameSeconds -= deltaTime;
+                    elements.fallingGameTime.textContent = Math.max(0, Math.round(fallingGameSeconds));
+
+                    // Update progress bar
+                    const elapsed = fallingGameDuration - fallingGameSeconds;
+                    elements.fallingGameProgressBar.style.width = `${(elapsed / fallingGameDuration) * 100}%`;
+
+                    const newLevel = Math.floor((fallingGameDuration - fallingGameSeconds) / (fallingGameDuration / 6)) + 1;
+                    if (newLevel > fallingGameCurrentLevel) {
+                        fallingGameCurrentLevel = newLevel;
+                        elements.fallingGameLevel.textContent = fallingGameCurrentLevel;
+                        showLevelNotification(`Level ${fallingGameCurrentLevel}`);
+                        // playSound(sounds.levelUp); // Uncomment to enable sound
+                    }
+
+                    const difficulty = elements.fallingGameDifficulty.value;
+                    const wordGenRate = difficulty === 'easy' ? 0.03 + fallingGameCurrentLevel * 0.01 :
+                                        difficulty === 'hard' ? 0.07 + fallingGameCurrentLevel * 0.03 :
+                                        0.05 + fallingGameCurrentLevel * 0.02;
+
+                    if (Math.random() < wordGenRate && fallingWords.length < 10) {
+                        generateFallingWord();
+                    }
+
+                    moveFallingWords(deltaTime);
+
+                    if (fallingGameSeconds <= 0) {
+                        stopFallingGame();
+                    } else {
+                        animationFrameId = requestAnimationFrame(gameLoop);
+                    }
+                } catch (e) {
+                    console.error('Error in game loop:', e);
+                }
+            }
+
+            function showLevelNotification(message) {
+                try {
+                    elements.levelNotification.textContent = message;
+                    elements.levelNotification.style.display = 'block';
+                    setTimeout(() => {
+                        elements.levelNotification.style.display = 'none';
+                    }, 1000);
+                } catch (e) {
+                    console.error('Error showing level notification:', e);
+                }
+            }
+
+            function generateFallingWord() {
+                try {
+                    const words = [
+                        'apple', 'banana', 'cherry', 'dragon', 'elephant', 'fountain',
+                        'giraffe', 'happiness', 'illusion', 'jazz', 'kangaroo', 'lighthouse',
+                        'mountain', 'notebook', 'octopus', 'penguin', 'quasar', 'rainbow',
+                        'sunshine', 'telescope', 'umbrella', 'volcano', 'waterfall', 'xylophone',
+                        'yesterday', 'zeppelin', 'adventure', 'butterfly', 'chocolate', 'discovery'
+                    ];
+
+                    const word = words[Math.floor(Math.random() * words.length)];
+                    const wordElement = document.createElement('div');
+                    const difficulty = elements.fallingGameDifficulty.value;
+                    const speed = difficulty === 'easy' ? 30 + fallingGameCurrentLevel * 15 :
+                                  difficulty === 'hard' ? 70 + fallingGameCurrentLevel * 25 :
+                                  50 + fallingGameCurrentLevel * 20;
+                    wordElement.className = 'falling-word';
+                    wordElement.textContent = word;
+                    wordElement.dataset.word = word;
+
+                    const maxLeft = elements.fallingGameArea.offsetWidth - 100;
+                    const left = Math.random() * maxLeft;
+                    wordElement.style.left = `${left}px`;
+                    wordElement.style.top = '0px';
+
+                    elements.fallingGameArea.appendChild(wordElement);
+                    fallingWords.push({
+                        element: wordElement,
+                        word: word,
+                        speed: speed,
+                        top: 0
+                    });
+                } catch (e) {
+                    console.error('Error generating falling word:', e);
+                }
+            }
+
+            function moveFallingWords(deltaTime) {
+                try {
+                    const gameAreaHeight = elements.fallingGameArea.offsetHeight;
+
+                    for (let i = fallingWords.length - 1; i >= 0; i--) {
+                        const fallingWord = fallingWords[i];
+                        fallingWord.top += fallingWord.speed * deltaTime;
+                        fallingWord.element.style.top = `${fallingWord.top}px`;
+
+                        if (fallingWord.top > gameAreaHeight - 30) {
+                            elements.fallingGameArea.removeChild(fallingWord.element);
+                            fallingWords.splice(i, 1);
+                            fallingGameLives--;
+                            updateFallingGameDisplay();
+                            // playSound(sounds.miss); // Uncomment to enable sound
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error moving falling words:', e);
+                }
+            }
+
+            function stopFallingGame() {
+                try {
+                    fallingGameRunning = false;
+                    cancelAnimationFrame(animationFrameId);
+                    elements.fallingGameInput.disabled = true;
+                    elements.startFallingGame.disabled = false;
+                    elements.pauseFallingGame.disabled = true;
+                    elements.fallingGameDuration.disabled = false;
+                    elements.fallingGameDifficulty.disabled = false;
+
+                    fallingWords.forEach(wordObj => {
+                        elements.fallingGameArea.removeChild(wordObj.element);
+                    });
+                    fallingWords = [];
+
+                    const highScore = localStorage.getItem('fallingGameHighScore') || 0;
+                    if (fallingGamePoints > highScore) {
+                        localStorage.setItem('fallingGameHighScore', fallingGamePoints);
+                    }
+
+                    const finalScoreMessage = `Game Over: Time's up!<br>Score: ${fallingGamePoints}<br>High Score: ${Math.max(fallingGamePoints, highScore)}<br>Lives Remaining: ${fallingGameLives}`;
+                    elements.levelNotification.innerHTML = finalScoreMessage;
+                    elements.levelNotification.style.display = 'block';
+                    // playSound(sounds.gameOver); // Uncomment to enable sound
+                    setTimeout(() => {
+                        elements.levelNotification.style.display = 'none';
+                    }, 3000);
+                } catch (e) {
+                    console.error('Error stopping falling game:', e);
+                }
+            }
+
+            function updateFallingGameDisplay() {
+                try {
+                    elements.fallingGameTime.textContent = Math.round(fallingGameSeconds);
+                    elements.fallingGameScore.textContent = fallingGamePoints;
+                    elements.fallingGameLevel.textContent = fallingGameCurrentLevel;
+                    elements.fallingGameLives.textContent = fallingGameLives;
+                } catch (e) {
+                    console.error('Error updating falling game display:', e);
+                }
+            }
+
+            // Event Listeners
+            try {
+                elements.startTest.addEventListener('click', startTest);
+                elements.newText.addEventListener('click', generateNewText);
+                elements.saveResult.addEventListener('click', () => {
+                    elements.savedMessage.style.display = 'block';
+                    setTimeout(() => {
+                        elements.savedMessage.style.display = 'none';
+                    }, 3000);
+                });
+
+                elements.testInput.addEventListener('input', (e) => {
+                    if (!testRunning) return;
+                    try {
+                        const inputText = e.target.value;
+                        const inputLength = inputText.length;
+
+                        if (currentPosition >= currentText.length) {
+                            generateNewText();
+                            e.target.value = '';
+                            return;
+                        }
+
+                        for (let i = 0; i < inputLength; i++) {
+                            if (currentPosition + i < currentText.length) {
+                                const expectedChar = currentText[currentPosition + i];
+                                const typedChar = inputText[i];
+                                if (typedChar === expectedChar) {
+                                    correctChars++;
+                                } else {
+                                    incorrectChars++;
+                                }
+                                totalChars++;
+                            }
+                        }
+
+                        currentPosition += inputLength;
+                        e.target.value = '';
+                        updateTestTextDisplay();
+
+                        if (inputLength > 0) {
+                            const lastTypedChar = inputText[inputLength - 1];
+                            const expectedChar = currentText[currentPosition - 1];
+                            if (lastTypedChar === expectedChar) {
+                                elements.testText.classList.add('correct-flash');
+                                setTimeout(() => {
+                                    elements.testText.classList.remove('correct-flash');
+                                }, 500);
+                            } else {
+                                elements.testText.classList.add('incorrect-flash');
+                                setTimeout(() => {
+                                    elements.testText.classList.remove('incorrect-flash');
+                                }, 500);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error handling test input:', e);
+                    }
+                });
+
+                elements.startWordGame.addEventListener('click', startWordGame);
+                elements.wordGameInput.addEventListener('input', (e) => {
+                    if (elements.wordGameInput.disabled) return;
+                    try {
+                        if (e.target.value === currentWord) {
+                            wordGamePoints += currentWord.length;
+                            elements.wordGameScore.textContent = wordGamePoints;
+                            e.target.value = '';
+                            generateNewWord();
+                            elements.wordGameText.classList.add('correct-flash');
+                            setTimeout(() => {
+                                elements.wordGameText.classList.remove('correct-flash');
+                            }, 500);
+                        }
+                    } catch (e) {
+                        console.error('Error handling word game input:', e);
+                    }
+                });
+
+                elements.startFallingGame.addEventListener('click', startFallingGame);
+                elements.pauseFallingGame.addEventListener('click', () => {
+                    if (!fallingGameRunning) return;
+                    try {
+                        if (!isPaused) {
+                            cancelAnimationFrame(animationFrameId);
+                            elements.fallingGameInput.disabled = true;
+                            elements.pauseFallingGame.textContent = 'Resume';
+                            isPaused = true;
+                        } else {
+                            elements.fallingGameInput.disabled = false;
+                            elements.fallingGameInput.focus();
+                            elements.pauseFallingGame.textContent = 'Pause';
+                            isPaused = false;
+                            lastFrameTime = performance.now();
+                            gameLoop(lastFrameTime);
+                        }
+                    } catch (e) {
+                        console.error('Error pausing/resuming falling game:', e);
+                    }
+                });
+
+                elements.fallingGameInput.addEventListener('input', (e) => {
+                    if (elements.fallingGameInput.disabled) return;
+                    try {
+                        const typedWord = e.target.value.trim().toLowerCase();
+                        fallingWords.forEach(wordObj => {
+                            if (wordObj.word.startsWith(typedWord) && typedWord !== '') {
+                                wordObj.element.style.backgroundColor = 'rgba(66, 133, 244, 0.3)';
+                            } else {
+                                wordObj.element.style.backgroundColor = 'transparent';
+                            }
+                        });
+
+                        if (e.data === ' ' || e.inputType === 'insertLineBreak') {
+                            for (let i = 0; i < fallingWords.length; i++) {
+                                if (fallingWords[i].word === typedWord) {
+                                    fallingGamePoints += fallingWords[i].word.length * fallingGameCurrentLevel;
+                                    fallingWords[i].element.classList.add('correct-flash');
+                                    setTimeout(() => {
+                                        if (fallingWords[i]) {
+                                            elements.fallingGameArea.removeChild(fallingWords[i].element);
+                                            fallingWords.splice(i, 1);
+                                        }
+                                    }, 300);
+                                    e.target.value = '';
+                                    updateFallingGameDisplay();
+                                    // playSound(sounds.correct); // Uncomment to enable sound
+                                    break;
+                                }
+                            }
+                            e.target.value = '';
+                        }
+                    } catch (e) {
+                        console.error('Error handling falling game input:', e);
+                    }
+                });
+            } catch (e) {
+                console.error('Error setting up event listeners:', e);
+            }
+
+            // Initialize
+            try {
+                loadHistory();
+                setupTooltips();
+            } catch (e) {
+                console.error('Error during initialization:', e);
             }
         });
-        
-        themeSelect.addEventListener('change', changeTheme);
-        
-        // Functions
-        function startTest() {
-            if (testStarted) return;
-            
-            testStarted = true;
-            testInputElement.disabled = false;
-            testInputElement.focus();
-            
-            // Get selected difficulty and generate test text
-            const difficulty = difficultySelect.value;
-            testText = getRandomText(difficulty);
-            
-            // Display test text with spans for each character
-            testTextElement.innerHTML = '';
-            testText.split('').forEach(char => {
-                const span = document.createElement('span');
-                span.textContent = char;
-                testTextElement.appendChild(span);
-            });
-            
-            // Highlight first character
-            testTextElement.querySelectorAll('span')[0].classList.add('current');
-            
-            // Set up timer
-            timeLeft = parseInt(testTimeSelect.value);
-            updateTimerDisplay();
-            
-            startTime = new Date();
-            timer = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                
-                if (timeLeft <= 0) {
-                    endTest();
-                }
-            }, 1000);
-            
-            // Reset counters
-            currentCharIndex = 0;
-            errors = 0;
-            testInputElement.value = '';
-            
-            // UI updates
-            startBtn.disabled = true;
-            resultsElement.style.display = 'none';
-        }
-        
-        function getRandomText(difficulty) {
-            const texts = sampleTexts[difficulty];
-            return texts[Math.floor(Math.random() * texts.length)];
-        }
-        
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        function checkTyping(e) {
-            if (!testStarted) return;
-            
-            const inputText = e.target.value;
-            const currentChar = inputText[inputText.length - 1];
-            const charElements = testTextElement.querySelectorAll('span');
-            
-            // Check if we've reached the end of the test text
-            if (currentCharIndex >= testText.length) {
-                return;
-            }
-            
-            // Get current character element
-            const currentCharElement = charElements[currentCharIndex];
-            
-            // Remove current class from previous character
-            currentCharElement.classList.remove('current');
-            
-            // Check if typed character matches
-            if (currentChar === testText[currentCharIndex]) {
-                currentCharElement.classList.add('correct');
-            } else {
-                currentCharElement.classList.add('incorrect');
-                errors++;
-                errorsElement.textContent = errors;
-            }
-            
-            // Move to next character
-            currentCharIndex++;
-            
-            // Add current class to next character if exists
-            if (currentCharIndex < testText.length) {
-                charElements[currentCharIndex].classList.add('current');
-            } else {
-                // Reached end of text
-                endTest();
-            }
-        }
-        
-        function endTest() {
-            clearInterval(timer);
-            testStarted = false;
-            testInputElement.disabled = true;
-            startBtn.disabled = false;
-            
-            endTime = new Date();
-            const timeTaken = (testTimeSelect.value - timeLeft) || 1; // Avoid division by zero
-            
-            // Calculate results
-            const correctChars = currentCharIndex - errors;
-            const accuracy = (correctChars / currentCharIndex * 100).toFixed(1);
-            const wpm = Math.round((correctChars / 5) / (timeTaken / 60));
-            
-            // Display results
-            wpmElement.textContent = wpm;
-            accuracyElement.textContent = `${accuracy}%`;
-            correctCharsElement.textContent = correctChars;
-            errorsElement.textContent = errors;
-            
-            // Update progress bar (simple example - could be more sophisticated)
-            const progress = Math.min(wpm / 100 * 100, 100); // Assuming 100 WPM is "full"
-            progressBarElement.style.width = `${progress}%`;
-            
-            // Save to history
-            const testResult = {
-                date: new Date().toLocaleString(),
-                wpm: wpm,
-                accuracy: accuracy,
-                duration: `${testTimeSelect.value} seconds`,
-                difficulty: difficultySelect.value
-            };
-            
-            testHistory.unshift(testResult);
-            if (testHistory.length > 5) testHistory.pop();
-            localStorage.setItem('typingTestHistory', JSON.stringify(testHistory));
-            
-            updateHistoryTable();
-            
-            // Show results
-            resultsElement.style.display = 'block';
-            
-            // Set up share buttons
-            setupShareButtons(wpm, accuracy);
-        }
-        
-        function updateHistoryTable() {
-            historyTableElement.innerHTML = '';
-            
-            testHistory.forEach(result => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${result.date}</td>
-                    <td>${result.wpm}</td>
-                    <td>${result.accuracy}%</td>
-                    <td>${result.duration}</td>
-                `;
-                historyTableElement.appendChild(row);
-            });
-        }
-        
-        function setupShareButtons(wpm, accuracy) {
-            const shareText = `I just scored ${wpm} WPM with ${accuracy}% accuracy on BuzzType typing test! Can you beat my score?`;
-            const shareUrl = window.location.href;
-            
-            document.getElementById('twitter-share').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-            document.getElementById('facebook-share').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-            document.getElementById('linkedin-share').href = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent('My Typing Test Results')}&summary=${encodeURIComponent(shareText)}`;
-        }
-        
-        function resetTest() {
-            clearInterval(timer);
-            testStarted = false;
-            testInputElement.disabled = true;
-            testInputElement.value = '';
-            startBtn.disabled = false;
-            
-            testTextElement.innerHTML = 'Select your test duration and click "Start Test" to begin. The text to type will appear here.';
-            timerElement.textContent = '01:00';
-            resultsElement.style.display = 'none';
-        }
-        
-        function changeTheme() {
-            document.body.className = `theme-${themeSelect.value}`;
-        }
     </script>
 </body>
 </html>
