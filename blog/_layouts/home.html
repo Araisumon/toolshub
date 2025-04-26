@@ -1,0 +1,51 @@
+---
+layout: default
+---
+
+<div class="home">
+  {% if site.posts.size > 0 %}
+    <h2 class="post-list-heading">Latest Articles</h2>
+    
+    <!-- Featured Posts Carousel -->
+    <div class="featured-posts">
+      <div class="carousel" id="featured-carousel">
+        {% for post in site.posts limit:3 %}
+          <div class="carousel-item">
+            {% include post-card.html post=post featured=true %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <!-- All Posts Grid -->
+    <div class="post-grid">
+      {% for post in paginator.posts %}
+        {% include post-card.html post=post %}
+      {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if paginator.total_pages > 1 %}
+    <div class="pagination">
+      {% if paginator.previous_page %}
+        <a href="{{ paginator.previous_page_path | relative_url }}" class="previous" data-tooltip="Newer posts">
+          &laquo; Newer
+        </a>
+      {% endif %}
+      
+      <span class="page-number">
+        Page {{ paginator.page }} of {{ paginator.total_pages }}
+      </span>
+      
+      {% if paginator.next_page %}
+        <a href="{{ paginator.next_page_path | relative_url }}" class="next" data-tooltip="Older posts">
+          Older &raquo;
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+    
+  {% else %}
+    <p class="no-posts">No posts yet. Check back soon!</p>
+  {% endif %}
+</div>
