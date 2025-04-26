@@ -54,8 +54,9 @@
     <meta name="description" content="Test and improve your typing speed with our advanced typing speed tester. Practice with timed tests, games, and track your progress.">
     <meta name="keywords" content="typing test, typing speed, WPM, typing practice, typing games">
     <title>Buzz Typing Speed Tester | Improve Your Typing Skills</title>
-        <link rel="icon" href="/toolshub.ico" type="image/x-icon">
-<link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
+         <link rel="icon" href="/toolshub.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
+
     <style>
         :root {
             --primary-color: #4285f4;
@@ -215,6 +216,22 @@
 
         .dark-mode button:hover {
             background-color: #a6c4f8;
+        }
+
+        .reset-btn {
+            background-color: var(--accent-color);
+        }
+
+        .reset-btn:hover {
+            background-color: #c5221f;
+        }
+
+        .dark-mode .reset-btn {
+            background-color: #ea868f;
+        }
+
+        .dark-mode .reset-btn:hover {
+            background-color: #f4a8ae;
         }
 
         .test-display {
@@ -655,6 +672,7 @@
                     </select>
                     <button id="start-test">Start Test</button>
                     <button id="new-text" disabled>New Text</button>
+                    <button id="reset-test" class="reset-btn" disabled>Reset</button>
                 </div>
                 <div class="progress-container">
                     <div class="progress-bar" id="progress-bar"></div>
@@ -723,6 +741,7 @@
                         <option value="hard">Hard</option>
                     </select>
                     <button id="start-word-game">Start Game</button>
+                    <button id="reset-word-game" class="reset-btn" disabled>Reset</button>
                 </div>
                 <div class="progress-container">
                     <div class="progress-bar" id="word-game-progress-bar"></div>
@@ -730,7 +749,7 @@
                 <div class="game-container" id="word-game-container">
                     <div class="game-header">
                         <div>Time: <span id="word-game-time">60</span>s</div>
-                        <div class="game-score">Score: <span id="word-game-score">0</span></div>
+                        <div class="game-score">Score: <span id="word-game-score">0</div>
                     </div>
                     <div class="test-display">
                         <div class="test-text" id="word-game-text"></div>
@@ -758,6 +777,7 @@
                     </select>
                     <button id="start-falling-game">Start Game</button>
                     <button id="pause-falling-game" disabled>Pause</button>
+                    <button id="reset-falling-game" class="reset-btn" disabled>Reset</button>
                 </div>
                 <div class="progress-container">
                     <div class="progress-bar" id="falling-game-progress-bar"></div>
@@ -809,6 +829,7 @@
                 results: document.getElementById('results'),
                 startTest: document.getElementById('start-test'),
                 newText: document.getElementById('new-text'),
+                resetTest: document.getElementById('reset-test'),
                 saveResult: document.getElementById('save-result'),
                 savedMessage: document.getElementById('saved-message'),
                 testDuration: document.getElementById('test-duration'),
@@ -827,6 +848,7 @@
                 wordGameTime: document.getElementById('word-game-time'),
                 wordGameScore: document.getElementById('word-game-score'),
                 startWordGame: document.getElementById('start-word-game'),
+                resetWordGame: document.getElementById('reset-word-game'),
                 wordGameDuration: document.getElementById('word-game-duration'),
                 wordGameDifficulty: document.getElementById('word-game-difficulty'),
                 wordGameProgressBar: document.getElementById('word-game-progress-bar'),
@@ -841,6 +863,7 @@
                 fallingGameDifficulty: document.getElementById('falling-game-difficulty'),
                 startFallingGame: document.getElementById('start-falling-game'),
                 pauseFallingGame: document.getElementById('pause-falling-game'),
+                resetFallingGame: document.getElementById('reset-falling-game'),
                 levelNotification: document.getElementById('level-notification'),
                 fallingGameProgressBar: document.getElementById('falling-game-progress-bar')
             };
@@ -944,9 +967,10 @@
                         }
                     });
 
-                    if (testRunning) endTest();
-                    if (wordGameInterval) stopWordGame();
-                    if (fallingGameRunning) stopFallingGame();
+                    // Reset all games when switching tabs to prevent state leakage
+                    resetTest();
+                    resetWordGame();
+                    resetFallingGame();
                 } catch (e) {
                     console.error('Error switching tab:', e);
                 }
@@ -976,6 +1000,7 @@
                     testDuration = parseInt(elements.testDuration.value) || 60;
                     elements.startTest.disabled = true;
                     elements.newText.disabled = true;
+                    elements.resetTest.disabled = false;
                     elements.testDuration.disabled = true;
                     elements.difficulty.disabled = true;
                     elements.results.style.display = 'none';
@@ -1012,6 +1037,60 @@
                     }, 100);
                 } catch (e) {
                     console.error('Error starting test:', e);
+                }
+            }
+
+            function endTest() {
+                try {
+                    testRunning = false;
+                    clearInterval(testInterval);
+                    elements.testInput.disabled = true;
+                    elements.startTest.disabled = false;
+                    elements.newText.disabled = false;
+                    elements.resetTest.disabled = false;
+                    elements.testDuration.disabled = false;
+                    elements.difficulty.disabled = false;
+
+                    const minutes = testDuration / 60;
+                    const words = correctChars / 5;
+                    const wpm = Math.round(words / minutes) || 0;
+                    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
+
+                    elements.wpm.textContent = wpm;
+                    elements.accuracy.textContent = `${accuracy}%`;
+                    elements.correctChars.textContent = correctChars;
+                    elements.incorrectChars.textContent = incorrectChars;
+                    elements.results.style.display = 'block';
+
+                    saveResult(wpm, accuracy, testDuration);
+                } catch (e) {
+                    console.error('Error ending test:', e);
+                }
+            }
+
+            function resetTest() {
+                try {
+                    if (testRunning) endTest();
+                    testRunning = false;
+                    clearInterval(testInterval);
+                    testInterval = null;
+                    elements.testInput.disabled = true;
+                    elements.testInput.value = '';
+                    elements.testText.innerHTML = '';
+                    currentText = '';
+                    currentPosition = 0;
+                    correctChars = 0;
+                    incorrectChars = 0;
+                    totalChars = 0;
+                    elements.progressBar.style.width = '0%';
+                    elements.results.style.display = 'none';
+                    elements.startTest.disabled = false;
+                    elements.newText.disabled = true;
+                    elements.resetTest.disabled = true;
+                    elements.testDuration.disabled = false;
+                    elements.difficulty.disabled = false;
+                } catch (e) {
+                    console.error('Error resetting test:', e);
                 }
             }
 
@@ -1087,33 +1166,6 @@
                 }
             }
 
-            function endTest() {
-                try {
-                    testRunning = false;
-                    clearInterval(testInterval);
-                    elements.testInput.disabled = true;
-                    elements.startTest.disabled = false;
-                    elements.newText.disabled = false;
-                    elements.testDuration.disabled = false;
-                    elements.difficulty.disabled = false;
-
-                    const minutes = testDuration / 60;
-                    const words = correctChars / 5;
-                    const wpm = Math.round(words / minutes) || 0;
-                    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
-
-                    elements.wpm.textContent = wpm;
-                    elements.accuracy.textContent = `${accuracy}%`;
-                    elements.correctChars.textContent = correctChars;
-                    elements.incorrectChars.textContent = incorrectChars;
-                    elements.results.style.display = 'block';
-
-                    saveResult(wpm, accuracy, testDuration);
-                } catch (e) {
-                    console.error('Error ending test:', e);
-                }
-            }
-
             function saveResult(wpm, accuracy, duration) {
                 try {
                     const history = JSON.parse(localStorage.getItem('typingHistory') || '[]');
@@ -1164,6 +1216,7 @@
                     elements.wordGameInput.disabled = false;
                     elements.wordGameInput.focus();
                     elements.startWordGame.disabled = true;
+                    elements.resetWordGame.disabled = false;
                     elements.wordGameDuration.disabled = true;
                     elements.wordGameDifficulty.disabled = true;
 
@@ -1189,6 +1242,7 @@
                     clearInterval(wordGameInterval);
                     elements.wordGameInput.disabled = true;
                     elements.startWordGame.disabled = false;
+                    elements.resetWordGame.disabled = false;
                     elements.wordGameDuration.disabled = false;
                     elements.wordGameDifficulty.disabled = false;
                     wordGameInterval = null;
@@ -1199,6 +1253,29 @@
                     }
                 } catch (e) {
                     console.error('Error stopping word game:', e);
+                }
+            }
+
+            function resetWordGame() {
+                try {
+                    if (wordGameInterval) stopWordGame();
+                    wordGameSeconds = parseInt(elements.wordGameDuration.value) || 60;
+                    wordGamePoints = 0;
+                    wordGameInterval = null;
+                    elements.wordGameInput.value = '';
+                    elements.wordGameInput.disabled = true;
+                    elements.wordGameText.textContent = '';
+                    elements.wordGameTime.textContent = wordGameSeconds;
+                    elements.wordGameScore.textContent = wordGamePoints;
+                    elements.wordGameProgressBar.style.width = '0%';
+                    elements.wordGameContainer.style.display = 'none';
+                    elements.startWordGame.disabled = false;
+                    elements.resetWordGame.disabled = true;
+                    elements.wordGameDuration.disabled = false;
+                    elements.wordGameDifficulty.disabled = false;
+                    currentWord = '';
+                } catch (e) {
+                    console.error('Error resetting word game:', e);
                 }
             }
 
@@ -1257,6 +1334,7 @@
                     elements.fallingGameInput.focus();
                     elements.startFallingGame.disabled = true;
                     elements.pauseFallingGame.disabled = false;
+                    elements.resetFallingGame.disabled = false;
                     elements.fallingGameDuration.disabled = true;
                     elements.fallingGameDifficulty.disabled = true;
                     elements.pauseFallingGame.textContent = 'Pause';
@@ -1272,6 +1350,38 @@
                     gameLoop(lastFrameTime);
                 } catch (e) {
                     console.error('Error starting falling game:', e);
+                }
+            }
+
+            function resetFallingGame() {
+                try {
+                    if (fallingGameRunning) stopFallingGame();
+                    fallingGameSeconds = parseInt(elements.fallingGameDuration.value) || 60;
+                    fallingGamePoints = 0;
+                    fallingGameCurrentLevel = 1;
+                    fallingGameLives = 3;
+                    fallingGameRunning = false;
+                    isPaused = false;
+                    cancelAnimationFrame(animationFrameId);
+                    elements.fallingGameInput.value = '';
+                    elements.fallingGameInput.disabled = true;
+                    elements.fallingGameArea.innerHTML = '';
+                    fallingWords = [];
+                    elements.fallingGameTime.textContent = fallingGameSeconds;
+                    elements.fallingGameScore.textContent = fallingGamePoints;
+                    elements.fallingGameLevel.textContent = fallingGameCurrentLevel;
+                    elements.fallingGameLives.textContent = fallingGameLives;
+                    elements.fallingGameProgressBar.style.width = '0%';
+                    elements.fallingGameContainer.style.display = 'none';
+                    elements.startFallingGame.disabled = false;
+                    elements.pauseFallingGame.disabled = true;
+                    elements.resetFallingGame.disabled = true;
+                    elements.fallingGameDuration.disabled = false;
+                    elements.fallingGameDifficulty.disabled = false;
+                    elements.pauseFallingGame.textContent = 'Pause';
+                    elements.levelNotification.style.display = 'none';
+                } catch (e) {
+                    console.error('Error resetting falling game:', e);
                 }
             }
 
@@ -1396,6 +1506,7 @@
                     elements.fallingGameInput.disabled = true;
                     elements.startFallingGame.disabled = false;
                     elements.pauseFallingGame.disabled = true;
+                    elements.resetFallingGame.disabled = false;
                     elements.fallingGameDuration.disabled = false;
                     elements.fallingGameDifficulty.disabled = false;
 
@@ -1436,6 +1547,7 @@
             try {
                 elements.startTest.addEventListener('click', startTest);
                 elements.newText.addEventListener('click', generateNewText);
+                elements.resetTest.addEventListener('click', resetTest);
                 elements.saveResult.addEventListener('click', () => {
                     elements.savedMessage.style.display = 'block';
                     setTimeout(() => {
@@ -1498,6 +1610,7 @@
                 });
 
                 elements.startWordGame.addEventListener('click', startWordGame);
+                elements.resetWordGame.addEventListener('click', resetWordGame);
                 elements.wordGameInput.addEventListener('input', (e) => {
                     if (elements.wordGameInput.disabled) return;
                     try {
@@ -1537,6 +1650,8 @@
                         console.error('Error pausing/resuming falling game:', e);
                     }
                 });
+
+                elements.resetFallingGame.addEventListener('click', resetFallingGame);
 
                 elements.fallingGameInput.addEventListener('input', (e) => {
                     if (elements.fallingGameInput.disabled) return;
