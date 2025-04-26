@@ -1,0 +1,230 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore a variety of online tools including Image Compressor, PDF Converter, QR Code Generator, and more at Buzz's blog. Discover tips, tricks, and tutorials!">
+    <meta name="keywords" content="online tools, image compressor, pdf converter, qr code generator, productivity tools, buzz blog">
+    <meta name="author" content="Buzz Tools">
+    <meta name="robots" content="index, follow">
+    <title>Buzz Blog - Online Tools & Productivity</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon.ico">
+    <!-- Tailwind CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- SEO Open Graph Tags -->
+    <meta property="og:title" content="Buzz Blog - Online Tools & Productivity">
+    <meta property="og:description" content="Discover a wide range of online tools like Image Compressor, PDF Split, QR Code Generator, and more at Buzz's blog.">
+    <meta property="og:image" content="/assets/og-image.jpg">
+    <meta property="og:url" content="https://buzz-tools.com/blog">
+    <meta property="og:type" content="website">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .header-bg {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .blog-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-mode .blog-card {
+            background-color: #2d3748;
+        }
+        .dark-mode .header-bg {
+            background: linear-gradient(90deg, #2b6cb0, #9f7aea);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="header-bg text-white py-4 shadow-md">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <!-- Brand Name -->
+            <div class="text-2xl font-bold">
+                <a href="/" class="hover:text-gray-200">Buzz</a>
+            </div>
+            <!-- Blog Title -->
+            <div class="text-3xl font-semibold">Blog</div>
+            <!-- Navigation -->
+            <nav>
+                <a href="/" class="tooltip px-4 py-2 bg-white text-gray-800 rounded-lg hover:bg-gray-200 transition">
+                    Home
+                    <span class="tooltip-text">Back to Homepage</span>
+                </a>
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="ml-4 tooltip p-2 rounded-full bg-white text-gray-800 hover:bg-gray-200 transition">
+                    <i class="fas fa-moon"></i>
+                    <span class="tooltip-text">Toggle Dark Mode</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Introduction -->
+        <section class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">Welcome to Buzz Blog</h1>
+            <p class="text-lg text-gray-600">Discover tutorials, tips, and updates on our suite of online tools designed to boost your productivity. From Image Compressor to QR Code Generator, we’ve got you covered!</p>
+        </section>
+
+        <!-- Blog Posts Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for post in site.posts %}
+            <article class="blog-card bg-white rounded-lg shadow-md overflow-hidden">
+                <img src="{{ post.thumbnail | default: '/assets/default-thumbnail.jpg' }}" alt="{{ post.title }}" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold mb-2">{{ post.title }}</h2>
+                    <p class="text-gray-600 mb-4">{{ post.excerpt | strip_html | truncate: 100 }}</p>
+                    <div class="flex justify-between items-center">
+                        <a href="{{ post.url }}" class="text-blue-500 hover:underline">Read More</a>
+                        <!-- Social Sharing -->
+                        <div class="flex space-x-2">
+                            <a href="https://twitter.com/intent/tweet?url={{ site.url }}{{ post.url }}&text={{ post.title | url_encode }}" target="_blank" class="tooltip text-gray-600 hover:text-blue-400">
+                                <i class="fab fa-twitter"></i>
+                                <span class="tooltip-text">Share on Twitter</span>
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ site.url }}{{ post.url }}" target="_blank" class="tooltip text-gray-600 hover:text-blue-600">
+                                <i class="fab fa-facebook"></i>
+                                <span class="tooltip-text">Share on Facebook</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+
+        <!-- Sidebar: Popular Tools -->
+        <aside class="mt-12">
+            <h2 class="text-2xl font-bold mb-4">Popular Tools</h2>
+            <ul class="space-y-2">
+                <li><a href="/tools/image-compressor" class="text-blue-500 hover:underline">Image Compressor</a></li>
+                <li><a href="/tools/pdf-compressor" class="text-blue-500 hover:underline">PDF Compressor</a></li>
+                <li><a href="/tools/qr-code-generator" class="text-blue-500 hover:underline">QR Code Generator</a></li>
+                <li><a href="/tools/password-generator" class="text-blue-500 hover:underline">Password Generator</a></li>
+                <li><a href="/tools/pomodoro-timer" class="text-blue-500 hover:underline">Pomodoro Timer</a></li>
+            </ul>
+        </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Buzz Tools. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="/privacy" class="hover:text-gray-300">Privacy Policy</a>
+                <a href="/terms" class="hover:text-gray-300">Terms of Service</a>
+                <a href="/contact" class="hover:text-gray-300">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Theme Toggle -->
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const icon = themeToggle.querySelector('i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        });
+    </script>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Buzz Blog",
+        "description": "A blog about online tools and productivity tips by Buzz.",
+        "url": "https://buzz-tools.com/blog",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Buzz Tools",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "/assets/logo.png"
+            }
+        }
+    }
+    </script>
+</body>
+</html>

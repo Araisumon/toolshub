@@ -1,0 +1,48 @@
+title: Buzz Blog
+description: A blog about online tools and productivity tips by Buzz
+url: "https://buzz-tools.com"
+baseurl: ""
+permalink: /:title/
+paginate: 9
+paginate_path: "/page:num/"
+
+# Theme
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-paginate
+
+# SEO Settings
+seo:
+  twitter:
+    card: summary_large_image
+    username: buzztools
+
+# Collections
+collections:
+  tools:
+    output: true
+    permalink: /tools/:path/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author: Buzz Team
+      thumbnail: /assets/default-thumbnail.jpg
+  - scope:
+      path: ""
+      type: tools
+    values:
+      layout: tool
+      category: tools
+
+# Sass
+sass:
+  style: compressed
