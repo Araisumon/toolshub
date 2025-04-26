@@ -52,22 +52,24 @@
         console.warn('Google Analytics failed to load.');
       }
     </script>
+    <!-- Include XLSX Library for loadFileData -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <title>ToolsHub | Free Online Tools for Developers & Creators</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ToolsHub offers 100+ free online tools for developers, designers, and marketers. Compress images, merge PDFs, generate QR codes, calculate ages, and more in seconds—no signup needed!">
-    <meta name="keywords" content="image tools, PDF tools, age calculator, word to PDF, excel to PDF, powerpoint to PDF, compress images, convert PDF, merge PDF, split PDF, resize images, digital signature creator, qr code generator, typing speed tester, word character counter, image viewer, random quote generator, forex trading clock, color picker, text case converter, markdown to HTML converter, base64 encoder decoder, budget calculator, color palette generator, ip location finder, pomodoro timer, unit converter, free online tools">
+    <meta name="description" content="ToolsHub offers 100+ free online tools for developers, designers, and marketers. Compress images, merge PDFs, generate QR codes, calculate ages, generate passwords, and more in seconds—no signup needed!">
+    <meta name="keywords" content="image tools, PDF tools, age calculator, word to PDF, excel to PDF, powerpoint to PDF, compress images, convert PDF, merge PDF, split PDF, resize images, digital signature creator, qr code generator, password generator, typing speed tester, word character counter, image viewer, random quote generator, forex trading clock, color picker, text case converter, markdown to HTML converter, base64 encoder decoder, budget calculator, color palette generator, ip location finder, pomodoro timer, unit converter, free online tools">
     <meta name="author" content="ToolsHub">
     <!-- Open Graph Tags -->
     <meta property="og:title" content="ToolsHub - Free Online Tools for Everyone">
-    <meta property="og:description" content="Compress images, merge PDFs, generate QR codes, and more with ToolsHub's 100+ free tools. No signup required!">
+    <meta property="og:description" content="Compress images, merge PDFs, generate QR codes, generate passwords, and more with ToolsHub's 100+ free tools. No signup required!">
     <meta property="og:image" content="https://toolshub.cam/tools-illustration.webp">
     <meta property="og:url" content="https://toolshub.cam/">
     <meta property="og:type" content="website">
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ToolsHub - Free Online Tools for Everyone">
-    <meta name="twitter:description" content="Compress images, merge PDFs, generate QR codes, and more with ToolsHub's 100+ free tools. No signup required!">
+    <meta name="twitter:description" content="Compress images, merge PDFs, generate QR codes, generate passwords, and more with ToolsHub's 100+ free tools. No signup required!">
     <meta name="twitter:image" content="https://toolshub.cam/tools-illustration.webp">
     <link rel="icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
@@ -656,7 +658,7 @@
         .footer-bottom {
             text-align: center;
             padding: 20px 0;
-            border-top: 1px solid rgba(255, 2255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--footer-text-color);
             font-size: 0.9rem;
         }
@@ -908,7 +910,7 @@
                         <i class="material-icons">zoom_in</i>
                     </div>
                     <h3>Image Viewer</h3>
-                    <p>View and zoom images with ease.</p>
+                    <p>View and.zoom images with ease.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
                 <a href="/RandomQG/" class="tool-card" data-category="text">
@@ -999,6 +1001,14 @@
                     <p>Convert units like length, weight, and more.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
+                <a href="/passwordgen/" class="tool-card" data-category="text">
+                    <div class="tool-icon">
+                        <i class="material-icons">vpn_key</i>
+                    </div>
+                    <h3>Password Generator</h3>
+                    <p>Create secure and random passwords instantly.</p>
+                    <span class="tool-btn">Use Tool</span>
+                </a>
             </div>
         </div>
     </section>
@@ -1024,7 +1034,7 @@
                     <p>Optimized tools for quick conversions.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">
+                    <div class="tool-icon">
                         <i class="material-icons">security</i>
                     </div>
                     <h3>100% Secure</h3>
@@ -1113,6 +1123,7 @@
                         <li><a href="/iplocationfinder">IP Location Finder</a></li>
                         <li><a href="/pomodorotimer">Pomodoro Timer</a></li>
                         <li><a href="/unitconverter">Unit Converter</a></li>
+                        <li><a href="/passwordgen">Password Generator</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -1139,7 +1150,46 @@
         </div>
     </footer>
 
-    <script>
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+
+                    // Convert sheet to JSON to filter blank rows
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                    // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                      row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    // Fallback
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                      headerRowIndex = 0;
+                    }
+
+                    // Convert filtered JSON back to CSV
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
+                }
+            }
+            return gk_fileData[filename] || "";
+        }
+
         try {
             // Theme Toggle Functionality
             const themeToggleBtn = document.getElementById('themeToggleBtn');
