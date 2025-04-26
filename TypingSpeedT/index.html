@@ -55,7 +55,7 @@
     <meta name="keywords" content="typing test, typing speed, WPM, typing practice, typing games">
     <title>Buzz Typing Speed Tester | Improve Your Typing Skills</title>
         <link rel="icon" href="/toolshub.ico" type="image/x-icon">
-        <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
+<link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
     <style>
         :root {
             --primary-color: #4285f4;
@@ -974,9 +974,6 @@
                 try {
                     testRunning = true;
                     testDuration = parseInt(elements.testDuration.value) || 60;
-                    elements.testInput.disabled = false;
-                    elements.testInput.value = '';
-                    elements.testInput.focus();
                     elements.startTest.disabled = true;
                     elements.newText.disabled = true;
                     elements.testDuration.disabled = true;
@@ -989,6 +986,14 @@
                     incorrectChars = 0;
                     totalChars = 0;
                     currentPosition = 0;
+
+                    // Enable and focus the textarea with a slight delay to ensure DOM readiness
+                    elements.testInput.disabled = false;
+                    elements.testInput.value = '';
+                    setTimeout(() => {
+                        elements.testInput.focus();
+                        console.log('Textarea enabled and focused');
+                    }, 0);
 
                     testStartTime = new Date().getTime();
                     testEndTime = testStartTime + (testDuration * 1000);
@@ -1056,12 +1061,18 @@
             function updateTestTextDisplay() {
                 try {
                     let html = '';
+                    const inputText = elements.testInput.value;
                     for (let i = 0; i < currentText.length; i++) {
                         let char = currentText[i];
-                        let spanClass = i < currentPosition ? 'correct' : i === currentPosition ? 'current' : '';
-                        if (i < currentPosition && elements.testInput.value.length > 0) {
-                            const typedChar = elements.testInput.value[i - currentPosition];
-                            if (typedChar !== char) spanClass = 'incorrect';
+                        let spanClass = '';
+                        if (i < inputText.length) {
+                            if (inputText[i] === char) {
+                                spanClass = 'correct';
+                            } else {
+                                spanClass = 'incorrect';
+                            }
+                        } else if (i === inputText.length) {
+                            spanClass = 'current';
                         }
                         html += `<span class="${spanClass}">${char}</span>`;
                     }
@@ -1436,17 +1447,23 @@
                     if (!testRunning) return;
                     try {
                         const inputText = e.target.value;
-                        const inputLength = inputText.length;
+                        console.log('Input detected:', inputText);
 
-                        if (currentPosition >= currentText.length) {
+                        // Check if the user has completed the text
+                        if (inputText.length >= currentText.length) {
                             generateNewText();
                             e.target.value = '';
                             return;
                         }
 
-                        for (let i = 0; i < inputLength; i++) {
-                            if (currentPosition + i < currentText.length) {
-                                const expectedChar = currentText[currentPosition + i];
+                        // Update stats
+                        correctChars = 0;
+                        incorrectChars = 0;
+                        totalChars = 0;
+
+                        for (let i = 0; i < inputText.length; i++) {
+                            if (i < currentText.length) {
+                                const expectedChar = currentText[i];
                                 const typedChar = inputText[i];
                                 if (typedChar === expectedChar) {
                                     correctChars++;
@@ -1457,13 +1474,12 @@
                             }
                         }
 
-                        currentPosition += inputLength;
-                        e.target.value = '';
                         updateTestTextDisplay();
 
-                        if (inputLength > 0) {
-                            const lastTypedChar = inputText[inputLength - 1];
-                            const expectedChar = currentText[currentPosition - 1];
+                        // Flash effect for the last character typed
+                        if (inputText.length > 0) {
+                            const lastTypedChar = inputText[inputText.length - 1];
+                            const expectedChar = currentText[inputText.length - 1];
                             if (lastTypedChar === expectedChar) {
                                 elements.testText.classList.add('correct-flash');
                                 setTimeout(() => {
