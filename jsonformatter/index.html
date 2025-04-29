@@ -1,0 +1,1548 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online JSON formatter, validator, and converter tool with advanced features including schema validation, tree view, and multiple themes.">
+    <meta name="keywords" content="JSON, formatter, validator, beautifier, minify, schema, tree view">
+    <title>Buzz | JSON Formatter & Validator Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/theme/solarized.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/theme/dracula.min.css">
+    <!-- Intro.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/intro.js@7.0.1/minified/introjs.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --text-color: #2b2d42;
+            --bg-color: #f8f9fa;
+            --card-color: #ffffff;
+            --error-color: #d90429;
+            --success-color: #2b9348;
+            --warning-color: #f77f00;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #4895ef;
+            --secondary-color: #3a0ca3;
+            --text-color: #f8f9fa;
+            --bg-color: #121212;
+            --card-color: #1e1e1e;
+            --error-color: #ef233c;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --border-color: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="high-contrast"] {
+            --primary-color: #000000;
+            --secondary-color: #ffffff;
+            --text-color: #ffffff;
+            --bg-color: #000000;
+            --card-color: #000000;
+            --error-color: #ff0000;
+            --success-color: #00ff00;
+            --warning-color: #ffff00;
+            --border-color: #ffffff;
+            --shadow: 0 0 0 2px white;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 0.5rem;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .home-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--card-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        @media (min-width: 992px) {
+            .editor-container {
+                flex-direction: row;
+            }
+        }
+
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .editor {
+            width: 100%;
+            height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-color);
+            box-shadow: var(--shadow);
+        }
+
+        .CodeMirror {
+            height: 400px !important;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .tree-view {
+            width: 100%;
+            height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: var(--card-color);
+            box-shadow: var(--shadow);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: var(--card-color);
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+            margin-top: 1rem;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-valid {
+            color: var(--success-color);
+        }
+
+        .status-invalid {
+            color: var(--error-color);
+        }
+
+        .status-warning {
+            color: var(--warning-color);
+        }
+
+        .theme-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .theme-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .theme-light {
+            background-color: #f8f9fa;
+        }
+
+        .theme-dark {
+            background-color: #121212;
+        }
+
+        .theme-high-contrast {
+            background-color: #000;
+            border: 2px solid #fff;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .share-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .twitter {
+            background-color: #1DA1F2;
+        }
+
+        .facebook {
+            background-color: #4267B2;
+        }
+
+        .linkedin {
+            background-color: #0077B5;
+        }
+
+        .whatsapp {
+            background-color: #25D366;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tree-node {
+            margin-left: 1rem;
+            padding-left: 1rem;
+            border-left: 1px dashed var(--border-color);
+        }
+
+        .tree-key {
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .tree-key:hover {
+            text-decoration: underline;
+        }
+
+        .tree-value {
+            color: var(--text-color);
+        }
+
+        .tree-type {
+            color: var(--warning-color);
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .collapsed > .tree-children {
+            display: none;
+        }
+
+        .toggle {
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-action-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .quick-action-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .schema-section {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .schema-section.active {
+            display: block;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .instructions {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .instructions h2 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        #settingsPanel {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--card-color);
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+        }
+
+        #settingsPanel label {
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .header-title {
+                order: 1;
+                width: 100%;
+            }
+
+            .brand {
+                order: 2;
+            }
+
+            .header-actions {
+                order: 3;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            #settingsPanel label {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-bolt"></i>
+            <span>Buzz</span>
+        </div>
+        <div class="header-title">JSON Formatter & Validator</div>
+        <div class="header-actions">
+            <a href="/" class="home-btn">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="formatJson()">Format</button>
+            <button class="quick-action-btn" onclick="minifyJson()">Minify</button>
+            <button class="quick-action-btn" onclick="validateJson()">Validate</button>
+            <button class="quick-action-btn" onclick="clearEditor()">Clear</button>
+            <button class="quick-action-btn" onclick="toggleSchemaSection()">Schema Validation</button>
+            <button class="quick-action-btn" onclick="sampleJson()">Sample JSON</button>
+            <button class="quick-action-btn" onclick="startTour()">Take a Tour</button>
+        </div>
+
+        <div class="toolbar">
+            <div class="tooltip">
+                <button class="btn" onclick="formatJson()">
+                    <i class="fas fa-indent"></i>
+                    <span>Format</span>
+                </button>
+                <span class="tooltiptext">Format and beautify JSON with proper indentation</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn" onclick="minifyJson()">
+                    <i class="fas fa-compress-alt"></i>
+                    <span>Minify</span>
+                </button>
+                <span class="tooltiptext">Minify JSON by removing all whitespace</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn btn-success" onclick="validateJson()">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Validate</span>
+                </button>
+                <span class="tooltiptext">Validate JSON syntax and structure</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn btn-warning" onclick="clearEditor()">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Clear</span>
+                </button>
+                <span class="tooltiptext">Clear the editor</span>
+            </div>
+
+            <div class="tooltip">
+                <input type="file" id="fileInput" class="file-input" accept=".json" onchange="loadFile()">
+                <label for="fileInput" class="file-label">
+                    <i class="fas fa-file-import"></i>
+                    <span>Import</span>
+                </label>
+                <span class="tooltiptext">Import JSON from a file</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn" onclick="exportJson()">
+                    <i class="fas fa-file-export"></i>
+                    <span>Export</span>
+                </button>
+                <span class="tooltiptext">Export JSON to a file</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn btn-secondary" onclick="toggleSchemaSection()">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Schema</span>
+                </button>
+                <span class="tooltiptext">Toggle schema validation section</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn btn-secondary" onclick="sampleJson()">
+                    <i class="fas fa-vial"></i>
+                    <span>Sample</span>
+                </button>
+                <span class="tooltiptext">Load sample JSON for testing</span>
+            </div>
+
+            <div class="tooltip">
+                <select onchange="loadExample(this.value)">
+                    <option value="">Select Example</option>
+                    <option value="api">REST API Response</option>
+                    <option value="config">Config File</option>
+                </select>
+                <span class="tooltiptext">Load prebuilt JSON examples</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn btn-secondary" onclick="shareJson()">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share JSON</span>
+                </button>
+                <span class="tooltiptext">Generate a shareable link for your JSON</span>
+            </div>
+
+            <div class="tooltip">
+                <select onchange="convertJson(this.value)">
+                    <option value="">Convert To</option>
+                    <option value="yaml">YAML</option>
+                    <option value="xml">XML</option>
+                    <option value="csv">CSV</option>
+                </select>
+                <span class="tooltiptext">Convert JSON to another format</span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn btn-secondary" onclick="toggleSettings()">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                <span class="tooltiptext">Customize output settings</span>
+            </div>
+
+            <div class="theme-toggle">
+                <div class="theme-btn theme-light" title="Light Theme" onclick="setTheme('light')"></div>
+                <div class="theme-btn theme-dark" title="Dark Theme" onclick="setTheme('dark')"></div>
+                <div class="theme-btn theme-high-contrast" title="High Contrast Theme" onclick="setTheme('high-contrast')"></div>
+            </div>
+        </div>
+
+        <div id="settingsPanel">
+            <label>Indentation: 
+                <select id="indentation">
+                    <option value="2">2 Spaces</option>
+                    <option value="4">4 Spaces</option>
+                    <option value="tab">Tabs</option>
+                </select>
+            </label>
+            <label><input type="checkbox" id="sortKeys"> Sort Keys Alphabetically</label>
+            <label>Editor Theme: 
+                <select id="editorTheme" onchange="setEditorTheme(this.value)">
+                    <option value="default">Default</option>
+                    <option value="monokai">Monokai</option>
+                    <option value="solarized-dark">Solarized Dark</option>
+                    <option value="dracula">Dracula</option>
+                </select>
+            </label>
+            <label><input type="checkbox" id="json5Support"> Enable JSON5 Support</label>
+        </div>
+
+        <div class="schema-section" id="schemaSection">
+            <h3 class="section-title">
+                <i class="fas fa-project-diagram"></i>
+                <span>JSON Schema Validation</span>
+            </h3>
+            <div id="schemaEditor" class="editor" aria-label="JSON Schema Editor"></div>
+            <div class="toolbar">
+                <div class="tooltip">
+                    <button class="btn" onclick="validateAgainstSchema()">
+                        <i class="fas fa-check-double"></i>
+                        <span>Validate Against Schema</span>
+                    </button>
+                    <span class="tooltiptext">Validate JSON against the schema using jsonschema</span>
+                </div>
+                <div class="tooltip">
+                    <button class="btn btn-secondary" onclick="generateSchema()">
+                        <i class="fas fa-magic"></i>
+                        <span>Generate Schema</span>
+                    </button>
+                    <span class="tooltiptext">Generate a JSON Schema from the JSON input</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-section">
+                <h3 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    <span>JSON Editor</span>
+                </h3>
+                <div id="jsonEditor" class="editor" aria-label="JSON Editor"></div>
+            </div>
+
+            <div class="editor-section">
+                <h3 class="section-title">
+                    <i class="fas fa-tree"></i>
+                    <span>Tree View</span>
+                </h3>
+                <div id="treeView" class="tree-view"></div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status" id="status">
+                <i class="fas fa-info-circle"></i>
+                <span>Ready</span>
+            </div>
+            <div class="share-buttons">
+                <div class="share-btn twitter" onclick="shareOnTwitter()">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <div class="share-btn facebook" onclick="shareOnFacebook()">
+                    <i class="fab fa-facebook-f"></i>
+                </div>
+                <div class="share-btn linkedin" onclick="shareOnLinkedIn()">
+                    <i class="fab fa-linkedin-in"></i>
+                </div>
+                <div class="share-btn whatsapp" onclick="shareOnWhatsApp()">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3><i class="fas fa-bolt"></i> Fast Processing</h3>
+                <p>Handles large JSON files with real-time validation using CodeMirror.</p>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-shield-alt"></i> Secure</h3>
+                <p>All processing happens client-side, ensuring data privacy.</p>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-mobile-alt"></i> Responsive</h3>
+                <p>Works on all devices, from desktops to mobiles.</p>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-plug"></i> Offline Support</h3>
+                <p>Works offline after initial load (requires service worker).</p>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-project-diagram"></i> Advanced Features</h3>
+                <p>Schema validation, tree view, and CodeMirror editor.</p>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-palette"></i> Customizable</h3>
+                <p>Light, dark, and high-contrast themes with synced editor styles.</p>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2><i class="fas fa-info-circle"></i> How to Use This Tool</h2>
+            <ol>
+                <li><strong>Paste your JSON</strong> in the editor or import from a file.</li>
+                <li>Use the <strong>Format</strong> button to beautify JSON (Ctrl-Space for autocomplete).</li>
+                <li>Use the <strong>Minify</strong> button to compress JSON.</li>
+                <li>The <strong>Validate</strong> button checks JSON syntax with real-time linting.</li>
+                <li>Explore the <strong>Tree View</strong> to navigate JSON structures.</li>
+                <li>Use <strong>Schema Validation</strong> to validate JSON against a schema.</li>
+                <li>Export or share your formatted JSON.</li>
+                <li>Use <strong>Convert To</strong> to transform JSON into YAML, XML, or CSV.</li>
+                <li>Customize formatting with <strong>Settings</strong> (indentation, key sorting, editor theme, JSON5 support).</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- External scripts with defer -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/mode/javascript/javascript.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/addon/lint/lint.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/addon/lint/json-lint.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/addon/hint/show-hint.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/addon/hint/javascript-hint.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.0/jsonlint.min.js"></script>
+    <script defer src="https://unpkg.com/jsonschema@1.4.1/jsonschema.js"></script>
+    <script defer src="https://unpkg.com/intro.js@7.0.1/minified/intro.min.js"></script>
+    <script defer src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script defer src="https://unpkg.com/xml-js@1.6.11/dist/xml-js.min.js"></script>
+    <script defer src="https://unpkg.com/json2csv@5.0.7/dist/json2csv.umd.js"></script>
+    <script defer src="https://unpkg.com/json5@2.2.3/dist/index.min.js"></script>
+
+    <!-- Fallback for jsonschema -->
+    <script>
+        // Fallback if CDN fails
+        if (typeof Validator === 'undefined') {
+            console.warn('CDN for jsonschema failed to load. Using fallback.');
+            (function() {
+                window.Validator = function() {
+                    this.validate = function(instance, schema) {
+                        const result = { valid: true, errors: [] };
+                        try {
+                            if (schema.type && typeof instance !== schema.type) {
+                                result.valid = false;
+                                result.errors.push({
+                                    property: 'instance',
+                                    message: `should be a ${schema.type}`
+                                });
+                            }
+                            if (schema.required && schema.properties) {
+                                schema.required.forEach(prop => {
+                                    if (!(prop in instance)) {
+                                        result.valid = false;
+                                        result.errors.push({
+                                            property: `instance.${prop}`,
+                                            message: 'is required'
+                                        });
+                                    }
+                                });
+                            }
+                            if (schema.properties && typeof instance === 'object') {
+                                Object.keys(schema.properties).forEach(key => {
+                                    if (key in instance) {
+                                        const subSchema = schema.properties[key];
+                                        const subResult = this.validate(instance[key], subSchema);
+                                        if (!subResult.valid) {
+                                            subResult.errors.forEach(err => {
+                                                err.property = `instance.${key}${err.property.replace('instance', '')}`;
+                                                result.errors.push(err);
+                                            });
+                                            result.valid = false;
+                                        }
+                                    }
+                                });
+                            }
+                            if (schema.items && Array.isArray(instance)) {
+                                instance.forEach((item, index) => {
+                                    const subResult = this.validate(item, schema.items);
+                                    if (!subResult.valid) {
+                                        subResult.errors.forEach(err => {
+                                            err.property = `instance[${index}]${err.property.replace('instance', '')}`;
+                                            result.errors.push(err);
+                                        });
+                                        result.valid = false;
+                                    }
+                                });
+                            }
+                        } catch (e) {
+                            result.valid = false;
+                            result.errors.push({
+                                property: 'instance',
+                                message: e.message
+                            });
+                        }
+                        return result;
+                    };
+                };
+            })();
+        }
+    </script>
+
+    <!-- Fallback for xml-js -->
+    <script>
+        // Fallback if xml-js CDN fails
+        if (typeof window.xmlJs === 'undefined') {
+            console.warn('CDN for xml-js failed to load. Using fallback.');
+            window.xmlJs = {
+                js2xml: function(obj, options) {
+                    // Basic JSON to XML conversion
+                    function convertToXml(data, rootName, indentLevel = 0, spaces = options.spaces || 2) {
+                        const indent = ' '.repeat(indentLevel * spaces);
+                        let xml = '';
+
+                        if (!rootName) {
+                            rootName = Object.keys(data)[0];
+                            data = data[rootName];
+                            xml += `${indent}<${rootName}>\n`;
+                        }
+
+                        if (Array.isArray(data)) {
+                            data.forEach(item => {
+                                xml += `${indent}${' '.repeat(spaces)}<item>\n`;
+                                xml += convertToXml(item, null, indentLevel + 2, spaces);
+                                xml += `${indent}${' '.repeat(spaces)}</item>\n`;
+                            });
+                        } else if (typeof data === 'object' && data !== null) {
+                            Object.keys(data).forEach(key => {
+                                const value = data[key];
+                                if (typeof value === 'object' && value !== null) {
+                                    xml += `${indent}${' '.repeat(spaces)}<${key}>\n`;
+                                    xml += convertToXml(value, null, indentLevel + 2, spaces);
+                                    xml += `${indent}${' '.repeat(spaces)}</${key}>\n`;
+                                } else {
+                                    const escapedValue = String(value)
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;')
+                                        .replace(/"/g, '&quot;')
+                                        .replace(/'/g, '&apos;');
+                                    xml += `${indent}${' '.repeat(spaces)}<${key}>${escapedValue}</${key}>\n`;
+                                }
+                            });
+                        } else {
+                            const escapedValue = String(data)
+                                .replace(/&/g, '&amp;')
+                                .replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;')
+                                .replace(/'/g, '&apos;');
+                            xml += `${indent}${' '.repeat(spaces)}${escapedValue}\n`;
+                        }
+
+                        if (rootName) {
+                            xml += `${indent}</${rootName}>\n`;
+                        }
+                        return xml.trimEnd();
+                    }
+
+                    return convertToXml(obj, options.compact ? Object.keys(obj)[0] : 'root', 0, options.spaces);
+                }
+            };
+        }
+    </script>
+
+    <!-- Main application script -->
+    <script defer>
+        (function() {
+            // Initialize CodeMirror editors
+            let jsonEditor, schemaEditor;
+
+            // Utility to escape HTML to prevent XSS
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // Theme management
+            function setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                const cmTheme = document.getElementById('editorTheme').value;
+                if (jsonEditor) jsonEditor.setOption('theme', cmTheme);
+                if (schemaEditor) schemaEditor.setOption('theme', cmTheme);
+            }
+
+            function loadTheme() {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                setTheme(savedTheme);
+            }
+
+            function setEditorTheme(theme) {
+                localStorage.setItem('editorTheme', theme);
+                if (jsonEditor) jsonEditor.setOption('theme', theme);
+                if (schemaEditor) schemaEditor.setOption('theme', theme);
+            }
+
+            function loadEditorTheme() {
+                const savedTheme = localStorage.getItem('editorTheme') || 'default';
+                document.getElementById('editorTheme').value = savedTheme;
+                setEditorTheme(savedTheme);
+            }
+
+            // Initialize everything after scripts are loaded
+            function initializeApp() {
+                loadTheme();
+                jsonEditor = CodeMirror(document.getElementById('jsonEditor'), {
+                    mode: 'application/json',
+                    lineNumbers: true,
+                    lint: true,
+                    gutters: ['CodeMirror-lint-markers'],
+                    hintOptions: { completeSingle: false },
+                    extraKeys: { 'Ctrl-Space': 'autocomplete' },
+                    theme: localStorage.getItem('editorTheme') || 'default',
+                    ariaLabel: 'JSON Editor'
+                });
+
+                schemaEditor = CodeMirror(document.getElementById('schemaEditor'), {
+                    mode: 'application/json',
+                    lineNumbers: true,
+                    lint: true,
+                    gutters: ['CodeMirror-lint-markers'],
+                    hintOptions: { completeSingle: false },
+                    extraKeys: { 'Ctrl-Space': 'autocomplete' },
+                    theme: localStorage.getItem('editorTheme') || 'default',
+                    ariaLabel: 'JSON Schema Editor'
+                });
+
+                loadEditorTheme();
+
+                if (typeof Validator === 'undefined') {
+                    updateStatus('Error: jsonschema library failed to load. Schema validation may not work. Please refresh the page or check your network.', 'invalid');
+                    console.error('jsonschema not loaded');
+                    return;
+                }
+
+                const params = new URLSearchParams(window.location.search);
+                const json = params.get('json');
+                if (json) {
+                    jsonEditor.setValue(decodeURIComponent(json));
+                    updateTreeView();
+                    validateJson();
+                }
+
+                jsonEditor.on('change', function() {
+                    if (jsonEditor.getValue().length > 1000000) {
+                        updateStatus('Input too large (max 1MB)', 'invalid');
+                        jsonEditor.setValue(jsonEditor.getValue().slice(0, 1000000));
+                        return;
+                    }
+                    debouncedUpdateTreeView();
+                    debouncedValidateJson();
+                });
+
+                loadSettings();
+            }
+
+            function loadSettings() {
+                const savedIndentation = localStorage.getItem('indentation') || '2';
+                const savedSortKeys = localStorage.getItem('sortKeys') === 'true';
+                const savedJson5Support = localStorage.getItem('json5Support') === 'true';
+
+                document.getElementById('indentation').value = savedIndentation;
+                document.getElementById('sortKeys').checked = savedSortKeys;
+                document.getElementById('json5Support').checked = savedJson5Support;
+            }
+
+            function saveSettings() {
+                localStorage.setItem('indentation', document.getElementById('indentation').value);
+                localStorage.setItem('sortKeys', document.getElementById('sortKeys').checked);
+                localStorage.setItem('json5Support', document.getElementById('json5Support').checked);
+            }
+
+            function parseJsonWithFallback(input) {
+                const useJson5 = document.getElementById('json5Support').checked;
+                try {
+                    return useJson5 ? JSON5.parse(input) : JSON.parse(input);
+                } catch (e) {
+                    throw new Error(useJson5 ? `Invalid JSON5: ${e.message}` : `Invalid JSON: ${e.message}`);
+                }
+            }
+
+            function formatJson() {
+                try {
+                    const json = parseJsonWithFallback(jsonEditor.getValue());
+                    const indent = document.getElementById('indentation').value;
+                    const sortKeys = document.getElementById('sortKeys').checked;
+                    let formattedJson = json;
+                    if (sortKeys) {
+                        formattedJson = sortObjectKeys(json);
+                    }
+                    const indentValue = indent === 'tab' ? '\t' : parseInt(indent);
+                    jsonEditor.setValue(JSON.stringify(formattedJson, null, indentValue));
+                    updateStatus('JSON formatted successfully', 'valid');
+                    updateTreeView();
+                    saveSettings();
+                } catch (e) {
+                    updateStatus(e.message, 'invalid');
+                }
+            }
+
+            function sortObjectKeys(obj) {
+                if (Array.isArray(obj)) return obj.map(sortObjectKeys);
+                if (typeof obj !== 'object' || obj === null) return obj;
+                const sorted = {};
+                Object.keys(obj).sort().forEach(key => {
+                    sorted[key] = sortObjectKeys(obj[key]);
+                });
+                return sorted;
+            }
+
+            function toggleSettings() {
+                const panel = document.getElementById('settingsPanel');
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
+
+            function minifyJson() {
+                try {
+                    const json = parseJsonWithFallback(jsonEditor.getValue());
+                    jsonEditor.setValue(JSON.stringify(json));
+                    updateStatus('JSON minified successfully', 'valid');
+                } catch (e) {
+                    updateStatus(e.message, 'invalid');
+                }
+            }
+
+            function validateJson() {
+                try {
+                    parseJsonWithFallback(jsonEditor.getValue());
+                    updateStatus('JSON is valid', 'valid');
+                    return true;
+                } catch (e) {
+                    highlightError(e);
+                    updateStatus(e.message, 'invalid');
+                    return false;
+                }
+            }
+
+            const debouncedValidateJson = (() => {
+                let timeout = null;
+                return function() {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(validateJson, 500);
+                };
+            })();
+
+            function highlightError(error) {
+                const errorPosition = extractPositionFromError(error.message);
+                jsonEditor.focus();
+                if (errorPosition !== null) {
+                    const pos = jsonEditor.posFromIndex(errorPosition);
+                    jsonEditor.setSelection(pos, { line: pos.line, ch: pos.ch + 1 });
+                }
+            }
+
+            function extractPositionFromError(message) {
+                const match = message.match(/position (\d+)/);
+                return match ? parseInt(match[1]) : null;
+            }
+
+            function clearEditor() {
+                jsonEditor.setValue('');
+                schemaEditor.setValue('');
+                document.getElementById('treeView').innerHTML = '';
+                updateStatus('Editor cleared', 'warning');
+            }
+
+            function sampleJson() {
+                const sample = {
+                    "appName": "JSON Formatter & Validator",
+                    "version": "1.0.0",
+                    "project_id": "123e4567-e89b-12d3-a456-426614174000",
+                    "features": [
+                        "Formatting",
+                        "Validation",
+                        "Tree View",
+                        "Schema Validation"
+                    ],
+                    "metadata": {
+                        "createdBy": "Buzz",
+                        "releaseDate": "2023-06-15",
+                        "license": "MIT"
+                    },
+                    "stats": {
+                        "users": 1500,
+                        "rating": 4.8
+                    }
+                };
+                
+                jsonEditor.setValue(JSON.stringify(sample, null, 2));
+                updateTreeView();
+                validateJson();
+            }
+
+            function loadExample(type) {
+                const examples = {
+                    api: { id: 1, method: "GET", endpoint: "/users", status: 200 },
+                    config: { theme: "dark", debug: true, port: 8080 }
+                };
+                if (type) {
+                    jsonEditor.setValue(JSON.stringify(examples[type], null, 2));
+                    updateTreeView();
+                    validateJson();
+                }
+            }
+
+            function convertJson(format) {
+                try {
+                    const json = parseJsonWithFallback(jsonEditor.getValue());
+                    let output;
+                    if (format === 'yaml') {
+                        if (typeof jsyaml === 'undefined') {
+                            throw new Error('YAML conversion library (js-yaml) not loaded');
+                        }
+                        output = jsyaml.dump(json);
+                    } else if (format === 'xml') {
+                        if (typeof window.xmlJs === 'undefined') {
+                            console.error('xml-js library not loaded');
+                            throw new Error('XML conversion library (xml-js) not loaded');
+                        }
+                        output = window.xmlJs.js2xml({ root: json }, { compact: true, spaces: 2 });
+                    } else if (format === 'csv') {
+                        if (typeof json2csv === 'undefined') {
+                            throw new Error('CSV conversion library (json2csv) not loaded');
+                        }
+                        let jsonArray;
+                        if (Array.isArray(json)) {
+                            jsonArray = json;
+                        } else if (typeof json === 'object' && json !== null) {
+                            jsonArray = [json]; // Wrap single object in an array
+                        } else {
+                            throw new Error('CSV conversion requires an object or array of objects');
+                        }
+                        // Check if the array contains objects
+                        if (jsonArray.length > 0 && !jsonArray.every(item => typeof item === 'object' && item !== null && !Array.isArray(item))) {
+                            throw new Error('CSV conversion requires an array of objects');
+                        }
+                        const parser = new json2csv.Parser();
+                        output = parser.parse(jsonArray);
+                    }
+                    if (output) {
+                        jsonEditor.setValue(output);
+                        updateStatus(`Converted to ${format.toUpperCase()}`, 'valid');
+                    }
+                } catch (e) {
+                    updateStatus(`Conversion error: ${e.message}`, 'invalid');
+                }
+            }
+
+            function shareJson() {
+                const json = encodeURIComponent(jsonEditor.getValue());
+                const url = `${window.location.origin}${window.location.pathname}?json=${json}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    updateStatus('Shareable link copied to clipboard!', 'valid');
+                }).catch(() => {
+                    updateStatus('Failed to copy link', 'invalid');
+                });
+            }
+
+            function startTour() {
+                introJs().setOptions({
+                    steps: [
+                        { intro: "Welcome to Buzz JSON Formatter & Validator!" },
+                        { element: '#jsonEditor', intro: "Paste or edit your JSON here." },
+                        { element: '.toolbar', intro: "Use these buttons to format, validate, or minify your JSON." },
+                        { element: '#schemaSection', intro: "Validate your JSON against a schema here." }
+                    ]
+                }).start();
+            }
+
+            function updateTreeView() {
+                const treeView = document.getElementById('treeView');
+                try {
+                    const json = parseJsonWithFallback(jsonEditor.getValue());
+                    treeView.innerHTML = createTreeView(json);
+                    updateStatus('Tree view updated', 'valid');
+                } catch (e) {
+                    treeView.innerHTML = '<div style="color: var(--error-color)">Invalid JSON - cannot display tree view</div>';
+                }
+            }
+
+            const debouncedUpdateTreeView = (() => {
+                let timeout = null;
+                return function() {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(updateTreeView, 1000);
+                };
+            })();
+
+            function createTreeView(data, depth = 0) {
+                if (data === null) {
+                    return '<span class="tree-value">null</span>';
+                }
+
+                const type = typeof data;
+                
+                if (type === 'string' || type === 'number' || type === 'boolean') {
+                    return `<span class="tree-value">${type === 'string' ? '"' + escapeHtml(data) + '"' : data}</span>`;
+                }
+
+                if (Array.isArray(data)) {
+                    if (data.length === 0) {
+                        return '<span class="tree-value">[]</span>';
+                    }
+                    
+                    let html = '<div class="tree-node">';
+                    data.forEach((item, index) => {
+                        const isComplex = typeof item === 'object' && item !== null;
+                        const toggle = isComplex ? '<span class="toggle" onclick="toggleTreeNode(this)">-</span>' : '';
+                        
+                        html += `<div class="tree-item">
+                            ${toggle}
+                            <span class="tree-key">${escapeHtml(index.toString())}:</span>
+                            ${createTreeView(item, depth + 1)}
+                            <span class="tree-type">array item</span>
+                        </div>`;
+                    });
+                    html += '</div>';
+                    return html;
+                }
+
+                if (type === 'object') {
+                    const keys = Object.keys(data);
+                    if (keys.length === 0) {
+                        return '<span class="tree-value">{}</span>';
+                    }
+                    
+                    let html = '<div class="tree-node">';
+                    keys.forEach(key => {
+                        const value = data[key];
+                        const isComplex = typeof value === 'object' && value !== null;
+                        const toggle = isComplex ? '<span class="toggle" onclick="toggleTreeNode(this)">-</span>' : '';
+                        
+                        html += `<div class="tree-item">
+                            ${toggle}
+                            <span class="tree-key">"${escapeHtml(key)}":</span>
+                            ${createTreeView(value, depth + 1)}
+                            <span class="tree-type">${isComplex ? (Array.isArray(value) ? 'array' : 'object') : typeof value}</span>
+                        </div>`;
+                    });
+                    html += '</div>';
+                    return html;
+                }
+
+                return '';
+            }
+
+            function toggleTreeNode(element) {
+                const parent = element.closest('.tree-node');
+                if (!parent) return;
+                
+                if (element.textContent === '+') {
+                    element.textContent = '-';
+                    parent.classList.remove('collapsed');
+                } else {
+                    element.textContent = '+';
+                    parent.classList.add('collapsed');
+                }
+            }
+
+            function loadFile() {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    updateStatus('No file selected', 'warning');
+                    return;
+                }
+                
+                if (file.size > 1000000) {
+                    updateStatus('File too large (max 1MB)', 'invalid');
+                    fileInput.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    jsonEditor.setValue(content);
+                    formatJson();
+                    updateTreeView();
+                    fileInput.value = '';
+                };
+                reader.onerror = function() {
+                    updateStatus('Error reading file', 'invalid');
+                    fileInput.value = '';
+                };
+                reader.readAsText(file);
+            }
+
+            function exportJson() {
+                const content = jsonEditor.getValue();
+                if (!content.trim()) {
+                    updateStatus('No content to export', 'warning');
+                    return;
+                }
+                
+                const blob = new Blob([content], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'formatted.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                updateStatus('JSON exported successfully', 'valid');
+            }
+
+            function toggleSchemaSection() {
+                const section = document.getElementById('schemaSection');
+                section.classList.toggle('active');
+            }
+
+            function validateAgainstSchema() {
+                if (typeof Validator === 'undefined') {
+                    updateStatus('jsonschema not initialized. Schema validation unavailable. Please refresh the page or check your network.', 'invalid');
+                    return;
+                }
+                try {
+                    const json = parseJsonWithFallback(jsonEditor.getValue());
+                    const schema = parseJsonWithFallback(schemaEditor.getValue());
+                    const validator = new Validator();
+                    const result = validator.validate(json, schema);
+                    if (result.valid) {
+                        updateStatus('JSON validates against schema successfully', 'valid');
+                    } else {
+                        const errors = result.errors.map(err => `${err.property} ${err.message}`).join('; ');
+                        updateStatus('Schema validation errors: ' + errors, 'invalid');
+                    }
+                } catch (e) {
+                    updateStatus('Schema validation error: ' + e.message, 'invalid');
+                }
+            }
+
+            function generateSchema() {
+                try {
+                    const json = parseJsonWithFallback(jsonEditor.getValue());
+                    const schema = generateSchemaForValue(json, true);
+                    schemaEditor.setValue(JSON.stringify(schema, null, 2));
+                    updateStatus('Schema generated successfully', 'valid');
+                } catch (e) {
+                    updateStatus('Error generating schema: ' + e.message, 'invalid');
+                }
+            }
+
+            function generateSchemaForValue(value, isRoot = false) {
+                const type = Array.isArray(value) ? 'array' : value === null ? 'null' : typeof value;
+                const schema = { type };
+                
+                if (isRoot) {
+                    schema["$schema"] = "http://json-schema.org/draft-07/schema#";
+                }
+                
+                if (type === 'object' && value !== null) {
+                    schema.properties = {};
+                    schema.required = [];
+                    Object.keys(value).forEach(key => {
+                        schema.properties[key] = generateSchemaForValue(value[key]);
+                        schema.required.push(key);
+                    });
+                    if (Object.keys(value).length === 0) {
+                        schema.properties = {};
+                    }
+                } else if (type === 'array') {
+                    schema.items = value.length > 0 ? generateSchemaForValue(value[0]) : { type: 'any' };
+                }
+                
+                return schema;
+            }
+
+            function updateStatus(message, type) {
+                const statusElement = document.getElementById('status');
+                statusElement.innerHTML = `<i class="fas fa-${getStatusIcon(type)}"></i><span>${escapeHtml(message)}</span>`;
+                statusElement.className = 'status';
+                statusElement.classList.add(`status-${type}`);
+            }
+
+            function getStatusIcon(type) {
+                switch(type) {
+                    case 'valid': return 'check-circle';
+                    case 'invalid': return 'times-circle';
+                    case 'warning': return 'exclamation-triangle';
+                    default: return 'info-circle';
+                }
+            }
+
+            function shareOnTwitter() {
+                const text = encodeURIComponent('Check out this awesome JSON Formatter & Validator tool by Buzz!'.slice(0, 200));
+                const url = encodeURIComponent(window.location.href);
+                window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+            }
+
+            function shareOnFacebook() {
+                const url = encodeURIComponent(window.location.href);
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+            }
+
+            function shareOnLinkedIn() {
+                const url = encodeURIComponent(window.location.href);
+                const title = encodeURIComponent('JSON Formatter & Validator by Buzz');
+                const summary = encodeURIComponent('A powerful tool for formatting, validating, and working with JSON data'.slice(0, 200));
+                window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}&summary=${summary}`, '_blank');
+            }
+
+            function shareOnWhatsApp() {
+                const text = encodeURIComponent('Check out this JSON Formatter & Validator tool: ' + window.location.href).slice(0, 200);
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            }
+
+            function registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('/sw.js').then(registration => {
+                            console.log('ServiceWorker registration successful');
+                        }).catch(err => {
+                            console.log('ServiceWorker registration failed: ', err);
+                        });
+                    });
+                }
+            }
+
+            window.formatJson = formatJson;
+            window.minifyJson = minifyJson;
+            window.validateJson = validateJson;
+            window.clearEditor = clearEditor;
+            window.sampleJson = sampleJson;
+            window.loadFile = loadFile;
+            window.exportJson = exportJson;
+            window.toggleSchemaSection = toggleSchemaSection;
+            window.validateAgainstSchema = validateAgainstSchema;
+            window.generateSchema = generateSchema;
+            window.setTheme = setTheme;
+            window.shareOnTwitter = shareOnTwitter;
+            window.shareOnFacebook = shareOnFacebook;
+            window.shareOnLinkedIn = shareOnLinkedIn;
+            window.shareOnWhatsApp = shareOnWhatsApp;
+            window.toggleTreeNode = toggleTreeNode;
+            window.loadExample = loadExample;
+            window.shareJson = shareJson;
+            window.startTour = startTour;
+            window.convertJson = convertJson;
+            window.toggleSettings = toggleSettings;
+            window.setEditorTheme = setEditorTheme;
+
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeApp();
+                registerServiceWorker();
+            });
+        })();
+    </script>
+</body>
+</html>
