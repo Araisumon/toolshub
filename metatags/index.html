@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzz - Meta Tag Generator | Create SEO-Optimized Meta Tags</title>
+    <meta name="description" content="Free online meta tag generator tool by Buzz. Create perfect SEO meta tags for your website with real-time preview and validation.">
+    <meta name="keywords" content="meta tag generator, SEO tool, HTML meta tags, open graph tags, twitter cards, meta description">
+    <meta name="author" content="Buzz">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/meta-tag-generator/">
+    <meta property="og:title" content="Buzz - Meta Tag Generator">
+    <meta property="og:description" content="Free online meta tag generator tool by Buzz. Create perfect SEO meta tags for your website.">
+    <meta property="og:image" content="https://example.com/images/meta-tag-generator-preview.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://example.com/meta-tag-generator/">
+    <meta property="twitter:title" content="Buzz - Meta Tag Generator">
+    <meta property="twitter:description" content="Free online meta tag generator tool by Buzz. Create perfect SEO meta tags for your website.">
+    <meta property="twitter:image" content="https://example.com/images/meta-tag-generator-preview.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #7209b7;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --bg-color: #ffffff;
+            --card-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --success-color: #4bb543;
+            --warning-color: #ffcc00;
+            --error-color: #ff3333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary-color: #4895ef;
+            --secondary-color: #560bad;
+            --accent-color: #b5179e;
+            --text-color: #f8f9fa;
+            --light-text: #333;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--light-text);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 10px;
+            color: #f72585;
+        }
+
+        .tool-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .nav-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--light-text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-btn i {
+            margin-right: 5px;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem 0;
+        }
+
+        .intro-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .intro-section h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .intro-section p {
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 12px;
+            line-height: 18px;
+            margin-left: 5px;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .tooltip-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Form Styles */
+        .generator-form {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input {
+            margin-right: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Preview Section */
+        .preview-section {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .preview-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Search Preview */
+        .search-preview {
+            background-color: white;
+            border: 1px solid #dfe1e5;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.1);
+        }
+
+        .search-preview .url {
+            color: #202124;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .search-preview .title {
+            color: #1a0dab;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: normal;
+        }
+
+        .search-preview .description {
+            color: #4d5156;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        /* Social Media Preview */
+        .social-preview {
+            max-width: 500px;
+            margin: 0 auto;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .social-preview .image {
+            height: 250px;
+            background-color: #f0f0f0;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .social-preview .content {
+            padding: 1rem;
+            background-color: white;
+        }
+
+        .social-preview .url {
+            color: #606770;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .social-preview .title {
+            color: #1d2129;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .social-preview .description {
+            color: #606770;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        /* Validation Section */
+        .validation-section {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .validation-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .validation-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .validation-item.valid {
+            background-color: rgba(75, 181, 67, 0.1);
+        }
+
+        .validation-item.warning {
+            background-color: rgba(255, 204, 0, 0.1);
+        }
+
+        .validation-item.error {
+            background-color: rgba(255, 51, 51, 0.1);
+        }
+
+        .validation-icon {
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .valid .validation-icon {
+            color: var(--success-color);
+        }
+
+        .warning .validation-icon {
+            color: var(--warning-color);
+        }
+
+        .error .validation-icon {
+            color: var(--error-color);
+        }
+
+        .validation-text {
+            flex-grow: 1;
+        }
+
+        /* Advanced Options */
+        .advanced-options {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .toggle-advanced {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-advanced i {
+            margin-right: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-advanced.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 99;
+            border: none;
+        }
+
+        /* Share Buttons */
+        .share-section {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .share-section h3 {
+            margin-bottom: 1rem;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .share-btn i {
+            margin-right: 5px;
+        }
+
+        .facebook {
+            background-color: #3b5998;
+        }
+
+        .twitter {
+            background-color: #1da1f2;
+        }
+
+        .linkedin {
+            background-color: #0077b5;
+        }
+
+        .pinterest {
+            background-color: #bd081c;
+        }
+
+        .whatsapp {
+            background-color: #25d366;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--card-bg);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .brand, .tool-title {
+                font-size: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .preview-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+
+            .tab-btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="brand">
+                <i class="fas fa-bolt"></i>
+                Buzz
+            </div>
+            <h1 class="tool-title">Meta Tag Generator</h1>
+            <a href="/" class="nav-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="intro-section">
+            <h1>Generate Perfect Meta Tags for Your Website</h1>
+            <p>Create SEO-optimized meta tags, Open Graph, and Twitter Card tags with our free generator. Improve your website's visibility on search engines and social media platforms.</p>
+        </section>
+
+        <form id="metaTagForm" class="generator-form fade-in">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pageTitle">Page Title <span class="tooltip-icon" title="The title of your webpage that appears in search results">i</span></label>
+                    <input type="text" id="pageTitle" class="form-control" placeholder="My Awesome Website" maxlength="60">
+                    <div class="char-counter"><span id="titleCounter">0</span>/60</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pageUrl">Page URL <span class="tooltip-icon" title="The full URL of your webpage">i</span></label>
+                    <input type="url" id="pageUrl" class="form-control" placeholder="https://example.com/my-page">
+                </div>
+
+                <div class="form-group">
+                    <label for="metaDescription">Meta Description <span class="tooltip-icon" title="A brief summary of your page content (appears in search results)">i</span></label>
+                    <textarea id="metaDescription" class="form-control" placeholder="Enter a compelling description of your page content" maxlength="160"></textarea>
+                    <div class="char-counter"><span id="descCounter">0</span>/160</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="keywords">Keywords <span class="tooltip-icon" title="Comma-separated list of relevant keywords">i</span></label>
+                    <input type="text" id="keywords" class="form-control" placeholder="keyword1, keyword2, keyword3">
+                </div>
+
+                <div class="form-group">
+                    <label for="author">Author <span class="tooltip-icon" title="The author or organization responsible for the content">i</span></label>
+                    <input type="text" id="author" class="form-control" placeholder="Author Name">
+                </div>
+
+                <div class="form-group">
+                    <label for="viewport">Viewport <span class="tooltip-icon" title="Controls how the page is displayed on mobile devices">i</span></label>
+                    <select id="viewport" class="form-control">
+                        <option value="width=device-width, initial-scale=1.0">Responsive (recommended)</option>
+                        <option value="width=1200">Fixed Width (1200px)</option>
+                        <option value="user-scalable=no">No Scaling</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input type="text" id="customViewport" class="form-control mt-2" placeholder="Enter custom viewport" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="robots">Robots Meta Tag <span class="tooltip-icon" title="Controls how search engines index and follow links on your page">i</span></label>
+                    <select id="robots" class="form-control">
+                        <option value="index, follow">Index, Follow</option>
+                        <option value="noindex, nofollow">Noindex, Nofollow</option>
+                        <option value="index, nofollow">Index, Nofollow</option>
+                        <option value="noindex, follow">Noindex, Follow</option>
+                        <option value="none">None</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input type="text" id="customRobots" class="form-control mt-2" placeholder="Enter custom robots directive" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="charset">Character Encoding <span class="tooltip-icon" title="The character encoding for your webpage">i</span></label>
+                    <select id="charset" class="form-control">
+                        <option value="UTF-8">UTF-8 (recommended)</option>
+                        <option value="ISO-8859-1">ISO-8859-1</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input type="text" id="customCharset" class="form-control mt-2" placeholder="Enter custom charset" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="socialImage">Social Media Image URL <span class="tooltip-icon" title="Image that appears when your page is shared on social media">i</span></label>
+                    <input type="url" id="socialImage" class="form-control" placeholder="https://example.com/image.jpg">
+                </div>
+            </div>
+
+            <div class="advanced-options">
+                <button type="button" class="toggle-advanced" id="toggleAdvanced">
+                    <i class="fas fa-chevron-down"></i> Advanced Options
+                </button>
+
+                <div id="advancedSection" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ogType">Open Graph Type <span class="tooltip-icon" title="The type of content you're sharing">i</span></label>
+                            <select id="ogType" class="form-control">
+                                <option value="website">Website</option>
+                                <option value="article">Article</option>
+                                <option value="blog">Blog</option>
+                                <option value="product">Product</option>
+                                <option value="book">Book</option>
+                                <option value="profile">Profile</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <input type="text" id="customOgType" class="form-control mt-2" placeholder="Enter custom Open Graph type" style="display: none;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="twitterCard">Twitter Card Type <span class="tooltip-icon" title="The type of Twitter card to display when shared">i</span></label>
+                            <select id="twitterCard" class="form-control">
+                                <option value="summary">Summary</option>
+                                <option value="summary_large_image">Summary with Large Image</option>
+                                <option value="app">App</option>
+                                <option value="player">Player</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="canonicalUrl">Canonical URL <span class="tooltip-icon" title="The preferred version of this page (for duplicate content)">i</span></label>
+                            <input type="url" id="canonicalUrl" class="form-control" placeholder="https://example.com/preferred-url">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="themeColor">Theme Color <span class="tooltip-icon" title="Color used by some browsers and platforms">i</span></label>
+                            <input type="color" id="themeColor" class="form-control" value="#4361ee">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Additional Meta Tags</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="addFavicon" checked>
+                                <label for="addFavicon">Favicon Link</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="addAppleIcon" checked>
+                                <label for="addAppleIcon">Apple Touch Icon</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="addManifest" checked>
+                                <label for="addManifest">Web App Manifest</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn">
+                    <i class="fas fa-magic"></i> Generate Meta Tags
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset Form
+                </button>
+            </div>
+        </form>
+
+        <section id="previewSection" class="preview-section" style="display: none;">
+            <h2>Preview & Generated Code</h2>
+            
+            <div class="preview-tabs">
+                <button class="tab-btn active" data-tab="searchPreview">Search Preview</button>
+                <button class="tab-btn" data-tab="socialPreview">Social Preview</button>
+                <button class="tab-btn" data-tab="htmlCode">HTML Code</button>
+                <button class="tab-btn" data-tab="wordpressCode">WordPress Code</button>
+            </div>
+            
+            <div class="tab-content active" id="searchPreview">
+                <div class="search-preview">
+                    <div class="url" id="previewUrl">example.com</div>
+                    <h3 class="title" id="previewTitle">Page Title</h3>
+                    <div class="description" id="previewDescription">This is a preview of how your page might appear in search results. The meta description will be displayed here if it's relevant to the user's query.</div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="socialPreview">
+                <div class="social-preview">
+                    <div class="image" id="socialPreviewImage" style="background-image: url('https://via.placeholder.com/1200x630');"></div>
+                    <div class="content">
+                        <div class="url" id="socialPreviewUrl">example.com</div>
+                        <div class="title" id="socialPreviewTitle">Page Title</div>
+                        <div class="description" id="socialPreviewDescription">This is how your page might look when shared on social media platforms like Facebook or Twitter.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="htmlCode">
+                <div class="code-block">
+                    <button class="copy-btn" data-target="htmlCodeContent">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <pre id="htmlCodeContent"><code class="language-html">&lt;!-- Generated by Buzz Meta Tag Generator --&gt;</code></pre>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="wordpressCode">
+                <div class="code-block">
+                    <button class="copy-btn" data-target="wordpressCodeContent">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <pre id="wordpressCodeContent"><code class="language-php">// Add to your WordPress theme's functions.php or use in a plugin</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="validationSection" class="validation-section" style="display: none;">
+            <h2>SEO Validation</h2>
+            
+            <div class="validation-item valid">
+                <div class="validation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="validation-text">
+                    <strong>Title Length:</strong> Your title is the optimal length (50-60 characters)
+                </div>
+            </div>
+            
+            <div class="validation-item warning">
+                <div class="validation-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="validation-text">
+                    <strong>Description Length:</strong> Your description could be longer (recommended 120-160 characters)
+                </div>
+            </div>
+            
+            <div class="validation-item error">
+                <div class="validation-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="validation-text">
+                    <strong>Keywords:</strong> Avoid keyword stuffing (recommended 3-5 keywords)
+                </div>
+            </div>
+            
+            <div class="validation-item valid">
+                <div class="validation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="validation-text">
+                    <strong>Open Graph Tags:</strong> All essential Open Graph tags are included
+                </div>
+            </div>
+            
+            <div class="validation-item warning">
+                <div class="validation-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="validation-text">
+                    <strong>Twitter Cards:</strong> Consider adding Twitter Card meta tags for better Twitter sharing
+                </div>
+            </div>
+        </section>
+
+        <section class="share-section fade-in">
+            <h3>Share This Tool</h3>
+            <div class="share-buttons">
+                <a href="#" class="share-btn facebook" id="shareFacebook">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+                <a href="#" class="share-btn twitter" id="shareTwitter">
+                    <i class="fab fa-twitter"></i> Twitter
+                </a>
+                <a href="#" class="share-btn linkedin" id="shareLinkedIn">
+                    <i class="fab fa-linkedin-in"></i> LinkedIn
+                </a>
+                <a href="#" class="share-btn pinterest" id="sharePinterest">
+                    <i class="fab fa-pinterest-p"></i> Pinterest
+                </a>
+                <a href="#" class="share-btn whatsapp" id="shareWhatsApp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="/about">About</a>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="/contact">Contact Us</a>
+                <a href="/tools">More Tools</a>
+            </div>
+            <p class="copyright">© <span id="currentYear"></span> Buzz. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+            
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                const isDark = body.classList.contains('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+
+            // Toggle advanced options
+            const toggleAdvanced = document.getElementById('toggleAdvanced');
+            const advancedSection = document.getElementById('advancedSection');
+            
+            toggleAdvanced.addEventListener('click', function() {
+                advancedSection.style.display = advancedSection.style.display === 'none' ? 'block' : 'none';
+                this.classList.toggle('collapsed');
+            });
+
+            // Show/hide custom input fields based on selection
+            document.getElementById('viewport').addEventListener('change', function() {
+                document.getElementById('customViewport').style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+            
+            document.getElementById('robots').addEventListener('change', function() {
+                document.getElementById('customRobots').style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+            
+            document.getElementById('charset').addEventListener('change', function() {
+                document.getElementById('customCharset').style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+            
+            document.getElementById('ogType').addEventListener('change', function() {
+                document.getElementById('customOgType').style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+
+            // Character counters
+            document.getElementById('pageTitle').addEventListener('input', function() {
+                const count = this.value.length;
+                document.getElementById('titleCounter').textContent = count;
+                
+                // Update preview
+                document.getElementById('previewTitle').textContent = this.value || 'Page Title';
+                document.getElementById('socialPreviewTitle').textContent = this.value || 'Page Title';
+                
+                // Update validation
+                const validationItem = document.querySelector('.validation-item:nth-child(1)');
+                if (count === 0) {
+                    validationItem.className = 'validation-item error';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Title Length:</strong> Title is required for SEO';
+                } else if (count < 30) {
+                    validationItem.className = 'validation-item warning';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Title Length:</strong> Title is too short (recommended 30-60 characters)';
+                } else if (count > 60) {
+                    validationItem.className = 'validation-item warning';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Title Length:</strong> Title is too long (recommended 30-60 characters)';
+                } else {
+                    validationItem.className = 'validation-item valid';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Title Length:</strong> Your title is the optimal length (50-60 characters)';
+                }
+            });
+            
+            document.getElementById('metaDescription').addEventListener('input', function() {
+                const count = this.value.length;
+                document.getElementById('descCounter').textContent = count;
+                
+                // Update preview
+                document.getElementById('previewDescription').textContent = this.value || 
+                    'This is a preview of how your page might appear in search results. The meta description will be displayed here if it\'s relevant to the user\'s query.';
+                document.getElementById('socialPreviewDescription').textContent = this.value || 
+                    'This is how your page might look when shared on social media platforms like Facebook or Twitter.';
+                
+                // Update validation
+                const validationItem = document.querySelector('.validation-item:nth-child(2)');
+                if (count === 0) {
+                    validationItem.className = 'validation-item warning';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Description Length:</strong> Description is recommended for SEO';
+                } else if (count < 120) {
+                    validationItem.className = 'validation-item warning';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Description Length:</strong> Your description could be longer (recommended 120-160 characters)';
+                } else if (count > 160) {
+                    validationItem.className = 'validation-item warning';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Description Length:</strong> Your description is too long (recommended 120-160 characters)';
+                } else {
+                    validationItem.className = 'validation-item valid';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Description Length:</strong> Your description is the perfect length (120-160 characters)';
+                }
+            });
+
+            // Update URL previews
+            document.getElementById('pageUrl').addEventListener('input', function() {
+                const url = this.value || 'example.com';
+                document.getElementById('previewUrl').textContent = url.replace(/^https?:\/\//, '');
+                document.getElementById('socialPreviewUrl').textContent = url.replace(/^https?:\/\//, '');
+            });
+
+            // Update social image preview
+            document.getElementById('socialImage').addEventListener('input', function() {
+                const imageUrl = this.value || 'https://via.placeholder.com/1200x630';
+                document.getElementById('socialPreviewImage').style.backgroundImage = `url('${imageUrl}')`;
+                
+                // Update validation
+                const validationItem = document.querySelector('.validation-item:nth-child(4)');
+                if (this.value) {
+                    validationItem.className = 'validation-item valid';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Open Graph Tags:</strong> All essential Open Graph tags are included';
+                } else {
+                    validationItem.className = 'validation-item warning';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Open Graph Image:</strong> Consider adding an image for better social sharing';
+                }
+            });
+
+            // Update keywords validation
+            document.getElementById('keywords').addEventListener('input', function() {
+                const keywords = this.value.split(',').filter(k => k.trim());
+                const validationItem = document.querySelector('.validation-item:nth-child(3)');
+                
+                if (keywords.length === 0) {
+                    validationItem.className = 'validation-item warning';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Keywords:</strong> Consider adding relevant keywords (3-5 recommended)';
+                } else if (keywords.length > 10) {
+                    validationItem.className = 'validation-item error';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Keywords:</strong> Too many keywords (recommended 3-5)';
+                } else if (this.value.length > 200) {
+                    validationItem.className = 'validation-item error';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Keywords:</strong> Avoid keyword stuffing (keep it natural)';
+                } else {
+                    validationItem.className = 'validation-item valid';
+                    validationItem.querySelector('.validation-text').innerHTML = 
+                        '<strong>Keywords:</strong> Good keyword selection (3-5 recommended)';
+                }
+            });
+
+            // Tab functionality
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons and content
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding content
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Copy button functionality
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const codeElement = document.getElementById(targetId);
+                    const range = document.createRange();
+                    range.selectNode(codeElement);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                    
+                    // Show feedback
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                });
+            });
+
+            // Form submission
+            document.getElementById('metaTagForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const title = document.getElementById('pageTitle').value;
+                const url = document.getElementById('pageUrl').value;
+                const description = document.getElementById('metaDescription').value;
+                const keywords = document.getElementById('keywords').value;
+                const author = document.getElementById('author').value;
+                const viewport = document.getElementById('viewport').value === 'custom' ? 
+                    document.getElementById('customViewport').value : document.getElementById('viewport').value;
+                const robots = document.getElementById('robots').value === 'custom' ? 
+                    document.getElementById('customRobots').value : document.getElementById('robots').value;
+                const charset = document.getElementById('charset').value === 'custom' ? 
+                    document.getElementById('customCharset').value : document.getElementById('charset').value;
+                const image = document.getElementById('socialImage').value;
+                const ogType = document.getElementById('ogType').value === 'custom' ? 
+                    document.getElementById('customOgType').value : document.getElementById('ogType').value;
+                const twitterCard = document.getElementById('twitterCard').value;
+                const canonicalUrl = document.getElementById('canonicalUrl').value;
+                const themeColor = document.getElementById('themeColor').value;
+                const addFavicon = document.getElementById('addFavicon').checked;
+                const addAppleIcon = document.getElementById('addAppleIcon').checked;
+                const addManifest = document.getElementById('addManifest').checked;
+                
+                // Generate HTML meta tags
+                let htmlCode = `<!-- Generated by Buzz Meta Tag Generator -->\n`;
+                htmlCode += `<title>${title || 'Untitled Page'}</title>\n`;
+                htmlCode += `<meta name="description" content="${description || ''}">\n`;
+                if (keywords) htmlCode += `<meta name="keywords" content="${keywords}">\n`;
+                if (author) htmlCode += `<meta name="author" content="${author}">\n`;
+                htmlCode += `<meta name="viewport" content="${viewport || 'width=device-width, initial-scale=1.0'}">\n`;
+                htmlCode += `<meta name="robots" content="${robots || 'index, follow'}">\n`;
+                htmlCode += `<meta charset="${charset || 'UTF-8'}">\n`;
+                
+                // Open Graph tags
+                if (title) htmlCode += `<meta property="og:title" content="${title}">\n`;
+                if (description) htmlCode += `<meta property="og:description" content="${description}">\n`;
+                if (url) htmlCode += `<meta property="og:url" content="${url}">\n`;
+                htmlCode += `<meta property="og:type" content="${ogType || 'website'}">\n`;
+                if (image) htmlCode += `<meta property="og:image" content="${image}">\n`;
+                
+                // Twitter Card tags
+                htmlCode += `<meta name="twitter:card" content="${twitterCard || 'summary'}">\n`;
+                if (title) htmlCode += `<meta name="twitter:title" content="${title}">\n`;
+                if (description) htmlCode += `<meta name="twitter:description" content="${description}">\n`;
+                if (image) htmlCode += `<meta name="twitter:image" content="${image}">\n`;
+                
+                // Additional tags
+                if (canonicalUrl) htmlCode += `<link rel="canonical" href="${canonicalUrl}">\n`;
+                htmlCode += `<meta name="theme-color" content="${themeColor || '#4361ee'}">\n`;
+                
+                if (addFavicon) {
+                    htmlCode += `<link rel="icon" href="/favicon.ico" type="image/x-icon">\n`;
+                    htmlCode += `<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">\n`;
+                }
+                
+                if (addAppleIcon) {
+                    htmlCode += `<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n`;
+                }
+                
+                if (addManifest) {
+                    htmlCode += `<link rel="manifest" href="/site.webmanifest">\n`;
+                }
+                
+                // Generate WordPress code
+                let wordpressCode = `// Add to your WordPress theme's functions.php or use in a plugin\n`;
+                wordpressCode += `function add_custom_meta_tags() {\n`;
+                wordpressCode += `    echo '<meta name="description" content="${description || ''}">' . "\\n";\n`;
+                if (keywords) wordpressCode += `    echo '<meta name="keywords" content="${keywords}">' . "\\n";\n`;
+                if (author) wordpressCode += `    echo '<meta name="author" content="${author}">' . "\\n";\n`;
+                wordpressCode += `    echo '<meta name="viewport" content="${viewport || 'width=device-width, initial-scale=1.0'}">' . "\\n";\n`;
+                wordpressCode += `    echo '<meta name="robots" content="${robots || 'index, follow'}">' . "\\n";\n`;
+                
+                // Open Graph for WordPress
+                wordpressCode += `    echo '<meta property="og:title" content="' . esc_attr(get_the_title()) . '">' . "\\n";\n`;
+                wordpressCode += `    echo '<meta property="og:description" content="${description || ''}">' . "\\n";\n`;
+                wordpressCode += `    echo '<meta property="og:url" content="' . esc_url(get_permalink()) . '">' . "\\n";\n`;
+                wordpressCode += `    echo '<meta property="og:type" content="${ogType || 'website'}">' . "\\n";\n`;
+                if (image) wordpressCode += `    echo '<meta property="og:image" content="${image}">' . "\\n";\n`;
+                
+                // Twitter Cards for WordPress
+                wordpressCode += `    echo '<meta name="twitter:card" content="${twitterCard || 'summary'}">' . "\\n";\n`;
+                wordpressCode += `    echo '<meta name="twitter:title" content="' . esc_attr(get_the_title()) . '">' . "\\n";\n`;
+                wordpressCode += `    echo '<meta name="twitter:description" content="${description || ''}">' . "\\n";\n`;
+                if (image) wordpressCode += `    echo '<meta name="twitter:image" content="${image}">' . "\\n";\n`;
+                
+                wordpressCode += `    echo '<meta name="theme-color" content="${themeColor || '#4361ee'}">' . "\\n";\n`;
+                wordpressCode += `}\n`;
+                wordpressCode += `add_action('wp_head', 'add_custom_meta_tags');\n`;
+                
+                // Update code blocks
+                document.getElementById('htmlCodeContent').textContent = htmlCode;
+                document.getElementById('wordpressCodeContent').textContent = wordpressCode;
+                
+                // Show preview and validation sections
+                document.getElementById('previewSection').style.display = 'block';
+                document.getElementById('validationSection').style.display = 'block';
+                
+                // Scroll to preview section
+                document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Share buttons functionality
+            const shareTitle = 'Buzz Meta Tag Generator';
+            const shareText = 'Check out this free Meta Tag Generator tool by Buzz! Create perfect SEO meta tags for your website.';
+            const shareUrl = window.location.href;
+            
+            document.getElementById('shareFacebook').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+            });
+            
+            document.getElementById('shareTwitter').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+            });
+            
+            document.getElementById('shareLinkedIn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}&summary=${encodeURIComponent(shareText)}`, '_blank');
+            });
+            
+            document.getElementById('sharePinterest').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&description=${encodeURIComponent(shareText)}`, '_blank');
+            });
+            
+            document.getElementById('shareWhatsApp').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank');
+            });
+
+            // Initialize character counters
+            document.getElementById('titleCounter').textContent = document.getElementById('pageTitle').value.length;
+            document.getElementById('descCounter').textContent = document.getElementById('metaDescription').value.length;
+        });
+    </script>
+</body>
+</html>
