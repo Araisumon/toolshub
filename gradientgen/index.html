@@ -1,0 +1,909 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create beautiful CSS gradients with our advanced Gradient Generator tool. Perfect for web designers and developers.">
+    <meta name="keywords" content="CSS gradient, gradient generator, web design tools, CSS tools, background generator">
+    <meta name="author" content="Buzz">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://buzzgradientgenerator.com">
+    <meta property="og:title" content="Buzz Gradient Generator">
+    <meta property="og:description" content="Advanced CSS gradient generator tool for web designers">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://buzzgradientgenerator.com/images/gradient-generator-preview.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Buzz Gradient Generator | Create Beautiful CSS Gradients</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --header-bg: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --card-bg: #fff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --button-bg: #4361ee;
+            --button-text: #fff;
+            --input-bg: #fff;
+            --input-border: #ddd;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #4895ef;
+            --secondary-color: #4361ee;
+            --text-color: #f8f9fa;
+            --bg-color: #121212;
+            --header-bg: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --button-bg: #4895ef;
+            --button-text: #fff;
+            --input-bg: #2d2d2d;
+            --input-border: #444;
+        }
+
+        [data-theme="high-contrast"] {
+            --primary-color: #000;
+            --secondary-color: #000;
+            --text-color: #fff;
+            --bg-color: #000;
+            --header-bg: linear-gradient(135deg, #000 0%, #222 100%);
+            --card-bg: #111;
+            --border-color: #fff;
+            --shadow: 0 0 0 2px #fff;
+            --button-bg: #fff;
+            --button-text: #000;
+            --input-bg: #000;
+            --input-border: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .home-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .home-btn:focus {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .gradient-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            cursor: pointer;
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        input[type="color"]:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        select, input[type="range"], input[type="number"], button {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        select:focus, input[type="range"]:focus, input[type="number"]:focus, button:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        button {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .color-stops {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .color-stop {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .add-color {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+
+        .add-color:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .output {
+            margin-top: 1rem;
+        }
+
+        .code-output {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 1rem;
+            min-height: 80px;
+        }
+
+        .copy-btn {
+            background-color: var(--secondary-color);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            background-color: var(--card-bg);
+            padding: 10px;
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .theme-btn:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .theme-btn.active {
+            border-color: var(--primary-color);
+        }
+
+        .light-theme {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .dark-theme {
+            background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+        }
+
+        .high-contrast-theme {
+            background: linear-gradient(135deg, #000 0%, #222 100%);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
+        }
+
+        .tooltip:hover .tooltiptext,
+        .tooltip:focus-within .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .instructions {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .instructions h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .instructions ul {
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .preset {
+            width: 60px;
+            height: 60px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .preset:hover,
+        .preset:focus {
+            transform: scale(1.05);
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .preset.active {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .advanced-options {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .toggle-advanced {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            margin-bottom: 0;
+        }
+
+        .no-js-message {
+            display: none;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .brand, .title, .home-btn {
+                margin-bottom: 0.5rem;
+            }
+
+            .title {
+                order: 2;
+            }
+
+            .brand {
+                order: 1;
+            }
+
+            .home-btn {
+                order: 3;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        <div class="no-js-message">
+            JavaScript is required to use the Gradient Generator. Please enable JavaScript in your browser settings.
+        </div>
+    </noscript>
+
+    <header>
+        <div class="brand">Buzz</div>
+        <h1 class="title">Gradient Generator</h1>
+        <a href="/" class="home-btn">Home</a>
+    </header>
+
+    <div class="container">
+        <section class="instructions" aria-labelledby="instructions-heading">
+            <h3 id="instructions-heading">How to use the Gradient Generator</h3>
+            <ul>
+                <li>Select colors using the color pickers or choose from presets</li>
+                <li>Adjust the gradient direction and color stops as needed</li>
+                <li>Copy the CSS code to use in your projects</li>
+                <li>Try different themes using the theme switcher in the bottom right</li>
+            </ul>
+        </section>
+
+        <section class="card" aria-labelledby="gradient-preview-heading">
+            <h2 id="gradient-preview-heading">Gradient Preview</h2>
+            <div class="gradient-preview" id="gradientPreview" role="img" aria-label="Gradient preview"></div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="gradientType">Gradient Type</label>
+                    <select id="gradientType" aria-describedby="gradient-type-desc">
+                        <option value="linear">Linear</option>
+                        <option value="radial">Radial</option>
+                        <option value="conic">Conic</option>
+                    </select>
+                    <p id="gradient-type-desc" class="sr-only">Select the type of gradient to create</p>
+                </div>
+                
+                <div class="control-group">
+                    <label for="gradientDirection">Direction <span class="tooltip" tabindex="0">?
+                        <span class="tooltiptext">Set the angle or position of the gradient</span>
+                    </span></label>
+                    <input type="range" id="gradientDirection" min="0" max="360" value="90" aria-describedby="gradient-direction-desc">
+                    <input type="number" id="gradientDirectionValue" min="0" max="360" value="90" aria-describedby="gradient-direction-desc">
+                    <p id="gradient-direction-desc" class="sr-only">Adjust the angle of the gradient in degrees</p>
+                </div>
+            </div>
+
+            <h3>Color Stops</h3>
+            <div class="color-stops" id="colorStops" aria-live="polite">
+                <!-- Color stops will be added here dynamically -->
+            </div>
+            
+            <button class="add-color" id="addColor" aria-label="Add new color stop">+</button>
+
+            <div class="advanced-options" id="advancedOptions" style="display: none;">
+                <h3>Advanced Options</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="gradientSize">Size <span class="tooltip" tabindex="0">?
+                            <span class="tooltiptext">Adjust the size for radial/conic gradients</span>
+                        </span></label>
+                        <select id="gradientSize" aria-describedby="gradient-size-desc">
+                            <option value="farthest-corner">Farthest Corner</option>
+                            <option value="farthest-side">Farthest Side</option>
+                            <option value="closest-corner">Closest Corner</option>
+                            <option value="closest-side">Closest Side</option>
+                        </select>
+                        <p id="gradient-size-desc" class="sr-only">Select the size of radial or conic gradients</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="gradientPosition">Position <span class="tooltip" tabindex="0">?
+                            <span class="tooltiptext">Set the center position for radial/conic gradients</span>
+                        </span></label>
+                        <select id="gradientPosition" aria-describedby="gradient-position-desc">
+                            <option value="center">Center</option>
+                            <option value="top">Top</option>
+                            <option value="bottom">Bottom</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                            <option value="top left">Top Left</option>
+                            <option value="top right">Top Right</option>
+                            <option value="bottom left">Bottom Left</option>
+                            <option value="bottom right">Bottom Right</option>
+                        </select>
+                        <p id="gradient-position-desc" class="sr-only">Select the center position for radial or conic gradients</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="toggle-advanced" id="toggleAdvanced" aria-expanded="false">Show Advanced Options</button>
+        </section>
+
+        <section class="card" aria-labelledby="presets-heading">
+            <h2 id="presets-heading">Preset Gradients</h2>
+            <div class="presets" id="presets" role="list">
+                <!-- Presets will be added here dynamically -->
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="css-output-heading">
+            <h2 id="css-output-heading">CSS Output</h2>
+            <div class="code-output" id="cssOutput" role="textbox" aria-readonly="true">background: linear-gradient(90deg, #ff0000 0%, #0000ff 100%);</div>
+            <button class="copy-btn" id="copyBtn" aria-describedby="copy-error">Copy CSS</button>
+            <p id="copy-error" class="error-message">Failed to copy CSS to clipboard. Please try again.</p>
+        </section>
+    </div>
+
+    <div class="theme-toggle" role="radiogroup" aria-label="Theme selector">
+        <button class="theme-btn light-theme active" data-theme="light" title="Light Theme" aria-label="Switch to light theme" role="radio" aria-checked="true"></button>
+        <button class="theme-btn dark-theme" data-theme="dark" title="Dark Theme" aria-label="Switch to dark theme" role="radio" aria-checked="false"></button>
+        <button class="theme-btn high-contrast-theme" data-theme="high-contrast" title="High Contrast" aria-label="Switch to high contrast theme" role="radio" aria-checked="false"></button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const gradientPreview = document.getElementById('gradientPreview');
+            const gradientType = document.getElementById('gradientType');
+            const gradientDirection = document.getElementById('gradientDirection');
+            const gradientDirectionValue = document.getElementById('gradientDirectionValue');
+            const colorStops = document.getElementById('colorStops');
+            const addColor = document.getElementById('addColor');
+            const cssOutput = document.getElementById('cssOutput');
+            const copyBtn = document.getElementById('copyBtn');
+            const copyError = document.getElementById('copy-error');
+            const presets = document.getElementById('presets');
+            const toggleAdvanced = document.getElementById('toggleAdvanced');
+            const advancedOptions = document.getElementById('advancedOptions');
+            const gradientSize = document.getElementById('gradientSize');
+            const gradientPosition = document.getElementById('gradientPosition');
+            const themeBtns = document.querySelectorAll('.theme-btn');
+
+            // Initial colors
+            let colors = [
+                { color: '#ff0000', position: 0 },
+                { color: '#0000ff', position: 100 }
+            ];
+
+            // Preset gradients
+            const gradientPresets = [
+                ['#ff9a9e', '#fad0c4'],
+                ['#a18cd1', '#fbc2eb'],
+                ['#f6d365', '#fda085'],
+                ['#84fab0', '#8fd3f4'],
+                ['#a6c1ee', '#fbc2eb'],
+                ['#d4fc79', '#96e6a1'],
+                ['#667eea', '#764ba2'],
+                ['#f093fb', '#f5576c'],
+                ['#4facfe', '#00f2fe'],
+                ['#43e97b', '#38f9d7'],
+                ['#fa709a', '#fee140'],
+                ['#30cfd0', '#330867'],
+                ['#c471f5', '#fa71cd'],
+                ['#16d9e3', '#30c7ec', '#46aef7'],
+                ['#5ee7df', '#b490ca'],
+                ['#e0c3fc', '#8ec5fc']
+            ];
+
+            // Debounce function for performance
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Define debouncedUpdateGradient before event listeners
+            function updateGradient() {
+                const type = gradientType.value;
+                const angle = gradientDirection.value;
+                const size = gradientSize.value;
+                const position = gradientPosition.value;
+                
+                colors.sort((a, b) => a.position - b.position);
+                
+                let gradientString;
+                
+                if (type === 'linear') {
+                    gradientString = `linear-gradient(${angle}deg, ${colors.map(c => `${c.color} ${c.position}%`).join(', ')})`;
+                } else if (type === 'radial') {
+                    gradientString = `radial-gradient(${size} at ${position}, ${colors.map(c => `${c.color} ${c.position}%`).join(', ')})`;
+                } else if (type === 'conic') {
+                    gradientString = `conic-gradient(from ${angle}deg at ${position}, ${colors.map(c => `${c.color} ${c.position}%`).join(', ')})`;
+                }
+                
+                gradientPreview.style.background = gradientString;
+                cssOutput.textContent = `background: ${gradientString};`;
+                gradientPreview.setAttribute('aria-label', `Gradient preview: ${gradientString}`);
+            }
+
+            const debouncedUpdateGradient = debounce(updateGradient, 100);
+
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+
+            // Initialize
+            renderColorStops();
+            updateGradient();
+            renderPresets();
+
+            // Event Listeners
+            gradientType.addEventListener('change', debouncedUpdateGradient);
+            gradientDirection.addEventListener('input', function() {
+                gradientDirectionValue.value = this.value;
+                debouncedUpdateGradient();
+            });
+            gradientDirectionValue.addEventListener('input', function() {
+                let value = parseInt(this.value);
+                if (isNaN(value) || value < 0) value = 0;
+                if (value > 360) value = 360;
+                this.value = value;
+                gradientDirection.value = value;
+                debouncedUpdateGradient();
+            });
+            addColor.addEventListener('click', addNewColorStop);
+            copyBtn.addEventListener('click', copyToClipboard);
+            toggleAdvanced.addEventListener('click', toggleAdvancedOptions);
+            gradientSize.addEventListener('change', debouncedUpdateGradient);
+            gradientPosition.addEventListener('change', debouncedUpdateGradient);
+
+            // Theme switching
+            themeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.dataset.theme;
+                    setTheme(theme);
+                });
+            });
+
+            // Functions
+            function renderColorStops() {
+                colorStops.innerHTML = '';
+                colors.forEach((colorObj, index) => {
+                    const colorStop = document.createElement('div');
+                    colorStop.className = 'color-stop';
+                    colorStop.innerHTML = `
+                        <label for="color-input-${index}">Color ${index + 1}</label>
+                        <input type="color" id="color-input-${index}" value="${colorObj.color}" class="color-input" data-index="${index}" aria-label="Color ${index + 1}">
+                        <label for="position-input-${index}">Position (%)</label>
+                        <input type="range" id="position-input-${index}" min="0" max="100" value="${colorObj.position}" class="position-input" data-index="${index}" aria-label="Position for color ${index + 1}">
+                        <input type="number" id="position-value-${index}" min="0" max="100" value="${colorObj.position}" class="position-value" data-index="${index}" aria-label="Position percentage for color ${index + 1}">
+                        ${index > 1 ? `<button class="remove-btn" data-index="${index}" aria-label="Remove color ${index + 1}">Remove</button>` : ''}
+                        <p id="position-error-${index}" class="error-message">Position must be between 0 and 100</p>
+                    `;
+                    colorStops.appendChild(colorStop);
+                });
+
+                // Add event listeners to new elements
+                document.querySelectorAll('.color-input').forEach(input => {
+                    input.addEventListener('input', function() {
+                        colors[this.dataset.index].color = this.value;
+                        debouncedUpdateGradient();
+                    });
+                });
+
+                document.querySelectorAll('.position-input').forEach(input => {
+                    input.addEventListener('input', function() {
+                        const value = parseInt(this.value);
+                        colors[this.dataset.index].position = value;
+                        document.querySelector(`.position-value[data-index="${this.dataset.index}"]`).value = value;
+                        hideError(`position-error-${this.dataset.index}`);
+                        debouncedUpdateGradient();
+                    });
+                });
+
+                document.querySelectorAll('.position-value').forEach(input => {
+                    input.addEventListener('input', function() {
+                        let value = parseInt(this.value);
+                        const errorEl = document.getElementById(`position-error-${this.dataset.index}`);
+                        if (isNaN(value) || value < 0) {
+                            value = 0;
+                            showError(errorEl);
+                        } else if (value > 100) {
+                            value = 100;
+                            showError(errorEl);
+                        } else {
+                            hideError(errorEl.id);
+                        }
+                        colors[this.dataset.index].position = value;
+                        document.querySelector(`.position-input[data-index="${this.dataset.index}"]`).value = value;
+                        this.value = value;
+                        debouncedUpdateGradient();
+                    });
+                });
+
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        colors.splice(this.dataset.index, 1);
+                        renderColorStops();
+                        debouncedUpdateGradient();
+                    });
+                });
+            }
+
+            function addNewColorStop() {
+                const lastColor = colors[colors.length - 1];
+                const newPosition = Math.min(lastColor.position + 10, 100);
+                const newColor = getRandomColor();
+                
+                colors.push({
+                    color: newColor,
+                    position: newPosition
+                });
+                
+                renderColorStops();
+                debouncedUpdateGradient();
+            }
+
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+            function renderPresets() {
+                gradientPresets.forEach((preset, index) => {
+                    const presetEl = document.createElement('button');
+                    presetEl.className = 'preset';
+                    presetEl.style.background = `linear-gradient(90deg, ${preset.join(', ')})`;
+                    presetEl.setAttribute('role', 'listitem');
+                    presetEl.setAttribute('aria-label', `Preset gradient ${index + 1}`);
+                    presetEl.addEventListener('click', function() {
+                        colors = preset.map((color, i) => ({
+                            color,
+                            position: Math.round((i / (preset.length - 1)) * 100)
+                        }));
+                        renderColorStops();
+                        debouncedUpdateGradient();
+                        
+                        document.querySelectorAll('.preset').forEach(p => p.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                    presets.appendChild(presetEl);
+                });
+            }
+
+            function copyToClipboard() {
+                const text = cssOutput.textContent;
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        copyBtn.textContent = 'Copied!';
+                        copyError.style.display = 'none';
+                        setTimeout(() => {
+                            copyBtn.textContent = 'Copy CSS';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        copyBtn.textContent = 'Copy Failed';
+                        copyError.style.display = 'block';
+                        console.error('Failed to copy: ', err);
+                        setTimeout(() => {
+                            copyBtn.textContent = 'Copy CSS';
+                            copyError.style.display = 'none';
+                        }, 2000);
+                    });
+            }
+
+            function toggleAdvancedOptions() {
+                if (advancedOptions.style.display === 'none') {
+                    advancedOptions.style.display = 'block';
+                    toggleAdvanced.textContent = 'Hide Advanced Options';
+                    toggleAdvanced.setAttribute('aria-expanded', 'true');
+                } else {
+                    advancedOptions.style.display = 'none';
+                    toggleAdvanced.textContent = 'Show Advanced Options';
+                    toggleAdvanced.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            function setTheme(theme) {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                themeBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-checked', 'false');
+                });
+                const activeBtn = document.querySelector(`[data-theme="${theme}"]`);
+                activeBtn.classList.add('active');
+                activeBtn.setAttribute('aria-checked', 'true');
+            }
+
+            function showError(errorEl) {
+                errorEl.style.display = 'block';
+            }
+
+            function hideError(errorId) {
+                document.getElementById(errorId).style.display = 'none';
+            }
+
+            // Screen reader only class
+            const style = document.createElement('style');
+            style.textContent = `
+                .sr-only {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    padding: 0;
+                    margin: -1px;
+                    overflow: hidden;
+                    clip: rect(0, 0, 0, 0);
+                    border: 0;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
