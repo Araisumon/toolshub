@@ -1,61 +1,21 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-        <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QX6N41VY5J');
-</script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Create hilarious memes with Buzz Meme Generator. Custom templates, easy editing, and share directly to social media.">
     <meta name="keywords" content="meme generator, meme creator, funny memes, viral memes, social media memes">
     <title>Buzz Meme Generator | Create Viral Memes in Seconds</title>
-        <link rel="icon" href="/toolshub.ico" type="image/x-icon">
-        <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -109,6 +69,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            touch-action: manipulation;
         }
 
         body {
@@ -117,7 +78,6 @@
             color: var(--text-dark);
             line-height: 1.6;
             transition: var(--transition);
-            touch-action: none;
         }
 
         .container {
@@ -141,6 +101,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .brand {
@@ -168,6 +129,7 @@
             font-weight: 600;
             text-align: center;
             flex-grow: 1;
+            margin: 10px 0;
         }
 
         .nav-btn {
@@ -195,13 +157,13 @@
 
         .meme-generator {
             display: grid;
-            grid-template-columns: 1fr 3fr;
+            grid-template-columns: 1fr;
             gap: 2rem;
         }
 
-        @media (max-width: 992px) {
+        @media (min-width: 992px) {
             .meme-generator {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 3fr;
             }
         }
 
@@ -211,8 +173,13 @@
             padding: 1.5rem;
             box-shadow: var(--box-shadow);
             height: fit-content;
-            position: sticky;
-            top: 80px;
+        }
+
+        @media (min-width: 992px) {
+            .controls-panel {
+                position: sticky;
+                top: 80px;
+            }
         }
 
         .panel-section {
@@ -318,6 +285,7 @@
             display: flex;
             gap: 10px;
             margin-top: 1rem;
+            flex-wrap: wrap;
         }
 
         .meme-canvas-container {
@@ -334,6 +302,9 @@
             position: relative;
             margin-bottom: 1.5rem;
             max-width: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
         #meme-canvas {
@@ -341,7 +312,6 @@
             height: auto;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            cursor: move;
             touch-action: none;
         }
 
@@ -596,10 +566,6 @@
                 justify-content: center;
             }
 
-            .meme-generator {
-                grid-template-columns: 1fr;
-            }
-
             .controls-panel {
                 position: static;
                 margin-bottom: 2rem;
@@ -607,6 +573,47 @@
 
             .share-options {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+
+            .btn {
+                padding: 0.8rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .theme-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .template-img {
+                height: 120px;
+            }
+
+            /* Prevent zooming on input focus on mobile */
+            input[type="text"],
+            input[type="color"],
+            select,
+            textarea {
+                font-size: 16px;
+            }
+            
+            /* Make form controls larger for touch */
+            .form-group input,
+            .form-group select {
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            /* Make buttons larger */
+            .btn {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .theme-switcher {
+                bottom: 10px;
+                right: 10px;
             }
         }
 
@@ -701,6 +708,34 @@
             font-size: 0.8rem;
             color: var(--text-dark);
             pointer-events: none;
+        }
+
+        /* Mobile touch improvements */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 5px;
+            background: var(--light-color);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -1076,19 +1111,19 @@
 
             <h3 style="margin-top: 1.5rem;">Download Options</h3>
             <div class="download-options">
-                <button class="btn btn-outline">
+                <button id="download-png" class="btn btn-outline">
                     <i class="fas fa-file-image"></i>
                     PNG
                 </button>
-                <button class="btn btn-outline">
+                <button id="download-jpg" class="btn btn-outline">
                     <i class="fas fa-file-image"></i>
                     JPG
                 </button>
-                <button class="btn btn-outline">
+                <button id="download-pdf" class="btn btn-outline">
                     <i class="fas fa-file-pdf"></i>
                     PDF
                 </button>
-                <button class="btn btn-outline">
+                <button id="download-zip" class="btn btn-outline">
                     <i class="fas fa-file-archive"></i>
                     ZIP
                 </button>
@@ -1150,6 +1185,10 @@
         const sharePinterest = document.getElementById('share-pinterest');
         const shareLinkedin = document.getElementById('share-linkedin');
         const shareTumblr = document.getElementById('share-tumblr');
+        const downloadPngBtn = document.getElementById('download-png');
+        const downloadJpgBtn = document.getElementById('download-jpg');
+        const downloadPdfBtn = document.getElementById('download-pdf');
+        const downloadZipBtn = document.getElementById('download-zip');
 
         let memeData = {
             image: null,
@@ -1193,146 +1232,116 @@
             woman: 'https://api.memegen.link/images/wyy/_.png'
         };
 
-        function trackEvent(category, action, label) {
-            console.log(`Analytics: ${category} - ${action} - ${label}`);
-        }
-
-        function saveState() {
-            // Deep copy the memeData to avoid reference issues
-            const stateCopy = JSON.parse(JSON.stringify(memeData));
-            history.push(stateCopy);
-            redoStack = []; // Clear redo stack on new action
-            trackEvent('Meme', 'StateSaved', 'ActionPerformed');
-        }
-
-        function undo() {
-            if (history.length > 1) { // Keep at least the initial state
-                const currentState = history.pop();
-                redoStack.push(currentState);
-                memeData = JSON.parse(JSON.stringify(history[history.length - 1]));
-                drawMeme();
-                trackEvent('Meme', 'Undo', 'Action');
-            }
-        }
-
-        function redo() {
-            if (redoStack.length > 0) {
-                const redoState = redoStack.pop();
-                history.push(JSON.parse(JSON.stringify(memeData))); // Save current state to history before redoing
-                memeData = JSON.parse(JSON.stringify(redoState));
-                drawMeme();
-                trackEvent('Meme', 'Redo', 'Action');
-            }
-        }
-
+        // Initialize the application
         function init() {
-            loadTemplate(templates.drake);
-            saveState(); // Save the initial state
-            templateSelect.addEventListener('change', () => {
-                handleTemplateChange();
-                trackEvent('Template', 'Select', templateSelect.value);
-            });
+            // Set up event listeners
+            templateSelect.addEventListener('change', handleTemplateChange);
             imageUpload.addEventListener('change', handleImageUpload);
-            generateBtn.addEventListener('click', () => {
-                generateMeme(true);
-                trackEvent('Meme', 'Generate', 'ButtonClick');
-            });
-            downloadBtn.addEventListener('click', () => {
-                downloadMeme();
-                trackEvent('Meme', 'Download', 'PNG');
-            });
-            shareBtn.addEventListener('click', () => {
-                openShareModal();
-                trackEvent('Meme', 'Share', 'OpenModal');
-            });
-            addTextBtn.addEventListener('click', () => {
-                addTextLayer();
-                trackEvent('Meme', 'AddText', 'ButtonClick');
-            });
-            addImageBtn.addEventListener('click', () => {
-                addImageLayer();
-                trackEvent('Meme', 'AddImage', 'ButtonClick');
-            });
-            clearBtn.addEventListener('click', () => {
-                clearCanvas();
-                trackEvent('Meme', 'Clear', 'ButtonClick');
-            });
-            undoBtn.addEventListener('click', () => {
-                undo();
-                trackEvent('Meme', 'Undo', 'ButtonClick');
-            });
-            redoBtn.addEventListener('click', () => {
-                redo();
-                trackEvent('Meme', 'Redo', 'ButtonClick');
-            });
-            resetBtn.addEventListener('click', () => {
-                resetCanvas();
-                trackEvent('Meme', 'Reset', 'ButtonClick');
-            });
-            saveBtn.addEventListener('click', () => {
-                saveMeme();
-                trackEvent('Meme', 'Save', 'ButtonClick');
-            });
+            generateBtn.addEventListener('click', () => generateMeme(true));
+            downloadBtn.addEventListener('click', downloadMeme);
+            shareBtn.addEventListener('click', openShareModal);
+            addTextBtn.addEventListener('click', addTextLayer);
+            addImageBtn.addEventListener('click', addImageLayer);
+            clearBtn.addEventListener('click', clearCanvas);
+            undoBtn.addEventListener('click', undo);
+            redoBtn.addEventListener('click', redo);
+            resetBtn.addEventListener('click', resetCanvas);
+            saveBtn.addEventListener('click', saveMeme);
             savedMemesSelect.addEventListener('change', loadSavedMeme);
             memeStickerSelect.addEventListener('change', handleStickerChange);
             closeModal.addEventListener('click', closeShareModal);
-            copyLinkBtn.addEventListener('click', () => {
-                copyMemeLink();
-                trackEvent('Meme', 'CopyLink', 'ButtonClick');
-            });
-            lightThemeBtn.addEventListener('click', () => {
-                setTheme('light');
-                trackEvent('Theme', 'Switch', 'Light');
-            });
-            darkThemeBtn.addEventListener('click', () => {
-                setTheme('dark');
-                trackEvent('Theme', 'Switch', 'Dark');
-            });
-            highContrastBtn.addEventListener('click', () => {
-                setTheme('high-contrast');
-                trackEvent('Theme', 'Switch', 'HighContrast');
-            });
+            copyLinkBtn.addEventListener('click', copyMemeLink);
+            lightThemeBtn.addEventListener('click', () => setTheme('light'));
+            darkThemeBtn.addEventListener('click', () => setTheme('dark'));
+            highContrastBtn.addEventListener('click', () => setTheme('high-contrast'));
+            downloadPngBtn.addEventListener('click', () => downloadMeme('png'));
+            downloadJpgBtn.addEventListener('click', () => downloadMeme('jpg'));
+            downloadPdfBtn.addEventListener('click', () => downloadMeme('pdf'));
+            downloadZipBtn.addEventListener('click', () => downloadMeme('zip'));
 
+            // Canvas event listeners
             canvas.addEventListener('mousedown', startDragging);
             canvas.addEventListener('mousemove', drag);
             canvas.addEventListener('mouseup', stopDragging);
             canvas.addEventListener('mouseleave', stopDragging);
-            canvas.addEventListener('touchstart', handleTouchStart);
-            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
             canvas.addEventListener('touchend', handleTouchEnd);
             canvas.addEventListener('touchcancel', handleTouchEnd);
 
+            // Template card click handlers
             templateCards.forEach(card => {
                 card.addEventListener('click', () => {
                     const template = card.getAttribute('data-template');
                     templateSelect.value = template;
                     loadTemplate(templates[template]);
-                    trackEvent('Template', 'SelectCard', template);
                 });
             });
 
+            // Close modal when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target === shareModal) {
                     closeShareModal();
                 }
             });
 
-            [topTextInput, bottomTextInput, textColorInput, textOutlineSelect, fontFamilySelect, fontSizeInput, textPositionSelect, memeEffectSelect].forEach(input => {
+            // Input event listeners for real-time updates
+            [topTextInput, bottomTextInput, textColorInput, textOutlineSelect, 
+             fontFamilySelect, fontSizeInput, textPositionSelect, memeEffectSelect].forEach(input => {
                 input.addEventListener('input', () => generateMeme(false));
             });
 
+            // Mobile-specific adjustments
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                // Make font size range more touch-friendly
+                fontSizeInput.style.width = '100%';
+                fontSizeInput.style.padding = '15px 0';
+                
+                // Adjust canvas size for mobile
+                resizeCanvas();
+                
+                // Update template images to be smaller for mobile
+                document.querySelectorAll('.template-img').forEach(img => {
+                    img.style.height = '120px';
+                });
+            }
+
+            // Load initial template and theme
+            loadTemplate(templates.drake);
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme);
             loadSavedMemesList();
-            trackEvent('App', 'Initialize', 'Start');
+            saveState(); // Save the initial state
         }
 
+        // Resize canvas to fit container while maintaining aspect ratio
+        function resizeCanvas() {
+            const container = document.querySelector('.canvas-wrapper');
+            const maxWidth = Math.min(container.clientWidth, 500);
+            
+            if (memeData.image) {
+                const aspectRatio = memeData.image.height / memeData.image.width;
+                canvas.width = maxWidth;
+                canvas.height = maxWidth * aspectRatio;
+            } else {
+                canvas.width = maxWidth;
+                canvas.height = maxWidth;
+            }
+            
+            drawMeme();
+        }
+
+        // Load a meme template
         function loadTemplate(url) {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
+                // Maintain aspect ratio when resizing
+                const aspectRatio = img.height / img.width;
+                const maxWidth = Math.min(document.querySelector('.canvas-wrapper').clientWidth, 500);
+                canvas.width = maxWidth;
+                canvas.height = maxWidth * aspectRatio;
+                
                 memeData.image = img;
                 saveState();
                 drawMeme();
@@ -1344,6 +1353,7 @@
             img.src = url;
         }
 
+        // Handle template selection change
         function handleTemplateChange() {
             const selectedTemplate = templateSelect.value;
             if (selectedTemplate === 'custom') {
@@ -1356,6 +1366,7 @@
             }
         }
 
+        // Handle image upload
         function handleImageUpload(e) {
             const file = e.target.files[0];
             if (file) {
@@ -1363,8 +1374,12 @@
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                        // Maintain aspect ratio when resizing
+                        const aspectRatio = img.height / img.width;
+                        const maxWidth = Math.min(document.querySelector('.canvas-wrapper').clientWidth, 500);
+                        canvas.width = maxWidth;
+                        canvas.height = maxWidth * aspectRatio;
+                        
                         memeData.image = img;
                         saveState();
                         drawMeme();
@@ -1375,6 +1390,7 @@
             }
         }
 
+        // Handle sticker selection
         function handleStickerChange() {
             const selectedSticker = memeStickerSelect.value;
             if (selectedSticker === 'custom') {
@@ -1412,6 +1428,7 @@
             }
         }
 
+        // Generate the meme with current settings
         function generateMeme(saveToHistory = false) {
             if (!memeData.image) {
                 alert('Please select a template or upload an image first!');
@@ -1483,6 +1500,7 @@
             drawMeme();
         }
 
+        // Draw the meme on canvas
         function drawMeme() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (memeData.image) {
@@ -1501,6 +1519,7 @@
             }
         }
 
+        // Draw text on canvas
         function drawText(text) {
             ctx.font = text.font;
             ctx.textAlign = text.align;
@@ -1514,6 +1533,7 @@
             ctx.fillText(text.text, text.x, text.y);
         }
 
+        // Draw sticker on canvas
         function drawSticker(sticker) {
             if (sticker.type === 'custom' && sticker.image) {
                 ctx.drawImage(sticker.image, sticker.x, sticker.y, sticker.width, sticker.height);
@@ -1533,6 +1553,7 @@
             }
         }
 
+        // Draw resize handles for selected items
         function drawResizeHandles(item) {
             const handleSize = 10;
             ctx.fillStyle = '#ff0000';
@@ -1542,6 +1563,7 @@
             ctx.strokeRect(item.x + item.width - handleSize / 2, item.y + item.height - handleSize / 2, handleSize, handleSize);
         }
 
+        // Apply selected effects to the meme
         function applyEffects() {
             if (memeData.effects.includes('grayscale')) {
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -1597,6 +1619,7 @@
             }
         }
 
+        // Add a custom text layer
         function addTextLayer() {
             const text = prompt('Enter your text:');
             if (text) {
@@ -1616,6 +1639,7 @@
             }
         }
 
+        // Add a custom image layer
         function addImageLayer() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -1647,6 +1671,7 @@
             input.click();
         }
 
+        // Clear the canvas (keep background image)
         function clearCanvas() {
             if (confirm('Are you sure you want to clear the canvas?')) {
                 // Reset memeData elements but keep the image
@@ -1669,6 +1694,7 @@
             }
         }
 
+        // Reset everything to initial state
         function resetCanvas() {
             if (confirm('Are you sure you want to reset everything?')) {
                 memeData = JSON.parse(JSON.stringify(initialState));
@@ -1689,11 +1715,41 @@
             }
         }
 
+        // Save current state to history
+        function saveState() {
+            // Deep copy the memeData to avoid reference issues
+            const stateCopy = JSON.parse(JSON.stringify(memeData));
+            history.push(stateCopy);
+            redoStack = []; // Clear redo stack on new action
+        }
+
+        // Undo the last action
+        function undo() {
+            if (history.length > 1) { // Keep at least the initial state
+                const currentState = history.pop();
+                redoStack.push(currentState);
+                memeData = JSON.parse(JSON.stringify(history[history.length - 1]));
+                drawMeme();
+            }
+        }
+
+        // Redo the last undone action
+        function redo() {
+            if (redoStack.length > 0) {
+                const redoState = redoStack.pop();
+                history.push(JSON.parse(JSON.stringify(memeData))); // Save current state to history before redoing
+                memeData = JSON.parse(JSON.stringify(redoState));
+                drawMeme();
+            }
+        }
+
+        // Check if point is inside a sticker
         function isPointInSticker(x, y, sticker) {
             return x >= sticker.x && x <= sticker.x + sticker.width &&
                    y >= sticker.y && y <= sticker.y + sticker.height;
         }
 
+        // Check if point is in a resize handle
         function isPointInResizeHandle(x, y, sticker) {
             const handleSize = 10;
             const handleX = sticker.x + sticker.width - handleSize / 2;
@@ -1702,6 +1758,7 @@
                    y >= handleY && y <= handleY + handleSize;
         }
 
+        // Check if point is inside text
         function isPointInText(x, y, text) {
             ctx.font = text.font;
             ctx.textAlign = text.align;
@@ -1715,6 +1772,7 @@
                    y >= textY && y <= textY + textHeight;
         }
 
+        // Start dragging an element
         function startDragging(e) {
             const coords = getEventCoordinates(e);
             const x = coords.x;
@@ -1740,6 +1798,9 @@
                     selectedItem = { type: 'sticker', item: sticker, index: i };
                     offsetX = x - sticker.x;
                     offsetY = y - sticker.y;
+                    
+                    // Bring to front
+                    memeData.stickers.push(memeData.stickers.splice(i, 1)[0]);
                     drawMeme();
                     return;
                 }
@@ -1779,6 +1840,7 @@
             drawMeme();
         }
 
+        // Drag the selected element
         function drag(e) {
             if (!isDragging && !isResizing) return;
 
@@ -1799,6 +1861,7 @@
             drawMeme();
         }
 
+        // Stop dragging
         function stopDragging() {
             if (isDragging || isResizing) {
                 isDragging = false;
@@ -1808,6 +1871,7 @@
             }
         }
 
+        // Get coordinates from mouse or touch event
         function getEventCoordinates(e) {
             const rect = canvas.getBoundingClientRect();
             let x, y;
@@ -1821,33 +1885,16 @@
             return { x, y };
         }
 
-        function getTouchDistance(touch1, touch2) {
-            return Math.sqrt(
-                Math.pow(touch2.clientX - touch1.clientX, 2) +
-                Math.pow(touch2.clientY - touch1.clientY, 2)
-            );
-        }
-
+        // Handle touch start event
         function handleTouchStart(e) {
             e.preventDefault();
+            if (e.touches.length > 1) return; // Ignore multi-touch for now
+            
             const coords = getEventCoordinates(e);
             const x = coords.x;
             const y = coords.y;
-
-            if (e.touches.length === 2) {
-                for (let i = memeData.stickers.length - 1; i >= 0; i--) {
-                    const sticker = memeData.stickers[i];
-                    if (isPointInSticker(x, y, sticker)) {
-                        isResizing = true;
-                        selectedItem = { type: 'sticker', item: sticker, index: i };
-                        initialWidth = sticker.width;
-                        initialHeight = sticker.height;
-                        initialDistance = getTouchDistance(e.touches[0], e.touches[1]);
-                        return;
-                    }
-                }
-            }
-
+            
+            // Check if touching a sticker
             for (let i = memeData.stickers.length - 1; i >= 0; i--) {
                 const sticker = memeData.stickers[i];
                 if (isPointInSticker(x, y, sticker)) {
@@ -1855,11 +1902,15 @@
                     selectedItem = { type: 'sticker', item: sticker, index: i };
                     offsetX = x - sticker.x;
                     offsetY = y - sticker.y;
+                    
+                    // Bring to front
+                    memeData.stickers.push(memeData.stickers.splice(i, 1)[0]);
                     drawMeme();
                     return;
                 }
             }
-
+            
+            // Check if touching text
             for (let i = memeData.texts.length - 1; i >= 0; i--) {
                 const text = memeData.texts[i];
                 if (text.isCustom && isPointInText(x, y, text)) {
@@ -1871,7 +1922,8 @@
                     return;
                 }
             }
-
+            
+            // Check standard text elements
             if (memeData.topText && isPointInText(x, y, memeData.topText)) {
                 isDragging = true;
                 selectedItem = { type: 'topText', item: memeData.topText };
@@ -1880,7 +1932,7 @@
                 drawMeme();
                 return;
             }
-
+            
             if (memeData.bottomText && isPointInText(x, y, memeData.bottomText)) {
                 isDragging = true;
                 selectedItem = { type: 'bottomText', item: memeData.bottomText };
@@ -1889,44 +1941,36 @@
                 drawMeme();
                 return;
             }
-
+            
             selectedItem = null;
             drawMeme();
         }
 
+        // Handle touch move event
         function handleTouchMove(e) {
+            if (!isDragging) return;
             e.preventDefault();
-            if (!isDragging && !isResizing) return;
-
+            
             const coords = getEventCoordinates(e);
             const x = coords.x;
             const y = coords.y;
-
-            if (isDragging && selectedItem) {
+            
+            if (selectedItem) {
                 selectedItem.item.x = x - offsetX;
                 selectedItem.item.y = y - offsetY;
-            } else if (isResizing && selectedItem && e.touches.length === 2) {
-                const newDistance = getTouchDistance(e.touches[0], e.touches[1]);
-                const scale = newDistance / initialDistance;
-                const newWidth = initialWidth * scale;
-                const newHeight = initialHeight * scale;
-                selectedItem.item.width = Math.max(20, newWidth);
-                selectedItem.item.height = Math.max(20, newHeight);
-            }
-
-            drawMeme();
-        }
-
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            if (isDragging || isResizing) {
-                isDragging = false;
-                isResizing = false;
-                saveState();
                 drawMeme();
             }
         }
 
+        // Handle touch end event
+        function handleTouchEnd() {
+            if (isDragging) {
+                isDragging = false;
+                saveState();
+            }
+        }
+
+        // Save meme to localStorage
         function saveMeme() {
             if (!memeData.image) {
                 alert('Please generate a meme first!');
@@ -1945,6 +1989,7 @@
             }
         }
 
+        // Load saved memes list into dropdown
         function loadSavedMemesList() {
             const savedMemes = JSON.parse(localStorage.getItem('savedMemes') || '{}');
             savedMemesSelect.innerHTML = '<option value="">Select a saved meme</option>';
@@ -1956,6 +2001,7 @@
             });
         }
 
+        // Load a saved meme from localStorage
         function loadSavedMeme() {
             const memeName = savedMemesSelect.value;
             if (memeName) {
@@ -1964,34 +2010,68 @@
                     memeData = JSON.parse(savedMemes[memeName].data);
                     const img = new Image();
                     img.onload = function() {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                        // Maintain aspect ratio when resizing
+                        const aspectRatio = img.height / img.width;
+                        const maxWidth = Math.min(document.querySelector('.canvas-wrapper').clientWidth, 500);
+                        canvas.width = maxWidth;
+                        canvas.height = maxWidth * aspectRatio;
+                        
                         memeData.image = img;
                         saveState();
                         drawMeme();
                     };
                     img.src = savedMemes[memeName].imageData;
-                    trackEvent('Meme', 'LoadSaved', memeName);
                 }
             }
         }
 
-        function downloadMeme() {
+        // Download the meme
+        function downloadMeme(format = 'png') {
             if (!memeData.image) {
                 alert('Please generate a meme first!');
                 return;
             }
+            
+            // Add watermark
             ctx.font = '14px Arial';
             ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
             ctx.textAlign = 'right';
             ctx.fillText('Created with Buzz Meme Generator', canvas.width - 10, canvas.height - 10);
+            
             const link = document.createElement('a');
-            link.download = 'buzz-meme.png';
-            link.href = canvas.toDataURL('image/png');
+            let mimeType, extension;
+            
+            switch(format) {
+                case 'jpg':
+                    mimeType = 'image/jpeg';
+                    extension = 'jpg';
+                    break;
+                case 'pdf':
+                    // For PDF we'll need a library like jsPDF
+                    alert('PDF export requires additional libraries. Downloading as PNG instead.');
+                    mimeType = 'image/png';
+                    extension = 'png';
+                    break;
+                case 'zip':
+                    // For ZIP we'd need a library like JSZip
+                    alert('ZIP export requires additional libraries. Downloading as PNG instead.');
+                    mimeType = 'image/png';
+                    extension = 'png';
+                    break;
+                default: // png
+                    mimeType = 'image/png';
+                    extension = 'png';
+            }
+            
+            link.download = `buzz-meme.${extension}`;
+            link.href = canvas.toDataURL(mimeType);
             link.click();
+            
+            // Redraw without watermark
             drawMeme();
         }
 
+        // Open share modal
         function openShareModal() {
             if (!memeData.image) {
                 alert('Please generate a meme first!');
@@ -2014,6 +2094,7 @@
             shareModal.style.display = 'block';
         }
 
+        // Convert data URL to blob
         function dataURLtoBlob(dataURL) {
             const binary = atob(dataURL.split(',')[1]);
             const array = [];
@@ -2023,16 +2104,19 @@
             return new Blob([new Uint8Array(array)], { type: 'image/png' });
         }
 
+        // Close share modal
         function closeShareModal() {
             shareModal.style.display = 'none';
         }
 
+        // Copy meme link to clipboard
         function copyMemeLink() {
             memeLinkInput.select();
             document.execCommand('copy');
             alert('Link copied to clipboard!');
         }
 
+        // Set theme (light/dark/high contrast)
         function setTheme(theme) {
             document.body.classList.remove('dark-mode', 'high-contrast-mode');
             if (theme === 'dark') {
@@ -2043,7 +2127,9 @@
             localStorage.setItem('theme', theme);
         }
 
-        init();
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
 </html>
