@@ -1,0 +1,1698 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Buzz Blog - Read and share interesting articles on various topics">
+    <meta name="keywords" content="blog, articles, reading, Buzz, posts">
+    <meta name="author" content="Buzz Team">
+    <title>Buzz Blog - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #7C3AED;
+            --secondary-color: #4C1D95;
+            --accent-color: #F472B6;
+            --light-bg: #F5F3FF;
+            --dark-text: #2D1B4E;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            --success-color: #34D399;
+            --danger-color: #F87171;
+            --highlight-color: #FDE68A;
+            --keyword-highlight: #FEF3C7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, var(--light-bg), #EDE9FE);
+            color: var(--dark-text);
+            line-height: 1.8;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, border 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .sidebar.slid-out {
+            transform: translateX(-100%);
+            border-right: 3px solid var(--accent-color);
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-toggle,
+        .sidebar-slide {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .sidebar-toggle:hover,
+        .sidebar-slide:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        .sidebar-toggle {
+            display: none;
+        }
+
+        .sidebar h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.7rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        .search-bar button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .category-filter {
+            margin-bottom: 2rem;
+        }
+
+        .category-filter h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 1rem;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .category-btn {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--dark-text);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .post-list a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--dark-text);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .post-list a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideIn 0.5s ease-out;
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .brand {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: transform 0.3s ease;
+        }
+
+        .brand:hover {
+            transform: scale(1.05);
+        }
+
+        .brand span {
+            color: var(--accent-color);
+        }
+
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .nav-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-button:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            flex: 1;
+            padding: 1rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content.expanded {
+            margin-left: 0;
+        }
+
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .font-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .font-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .font-btn:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sort-controls label {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+
+        .sort-controls select {
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--dark-text);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sort-controls select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .post-card.newest {
+            grid-column: span 2;
+            grid-row: span 1;
+        }
+
+        .post-card.newest .post-image {
+            height: 400px;
+        }
+
+        .post-card.newest .post-title {
+            font-size: 2.2rem;
+        }
+
+        .post-card.newest .post-excerpt {
+            font-size: 1.2rem;
+        }
+
+        .post-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.7));
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            backdrop-filter: blur(15px);
+        }
+
+        .post-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--primary-color);
+        }
+
+        .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            position: relative;
+        }
+
+        .post-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, rgba(124, 58, 237, 0.1), rgba(244, 114, 182, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .post-card:hover .post-image {
+            transform: scale(1.08);
+        }
+
+        .post-card:hover .post-image::after {
+            opacity: 1;
+        }
+
+        .post-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-text);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .post-card:hover .post-title {
+            color: var(--primary-color);
+        }
+
+        .post-excerpt {
+            color: #666;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .read-more {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(124, 58, 237, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .read-more:hover {
+            color: white;
+            background: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #666;
+            transition: all 0.3s ease;
+            padding: 0.6rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .action-btn:hover {
+            color: var(--primary-color);
+            background: rgba(124, 58, 237, 0.2);
+            transform: rotate(360deg);
+        }
+
+        .action-btn.liked {
+            color: var(--accent-color);
+            animation: pulse 0.5s ease;
+        }
+
+        .action-btn.disliked {
+            color: var(--dark-text);
+        }
+
+        .action-btn .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-text);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: calc(100% + 8px);
+        }
+
+        .tts-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #666;
+            transition: all 0.3s ease;
+            padding: 0.6rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .tts-btn:hover {
+            color: var(--primary-color);
+            background: rgba(124, 58, 237, 0.2);
+            transform: rotate(360deg);
+        }
+
+        .tts-btn.playing {
+            color: var(--accent-color);
+        }
+
+        .tts-btn .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-text);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tts-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: calc(100% + 8px);
+        }
+
+        .share-options {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 0.5rem;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 10;
+            display: none;
+        }
+
+        .share-options.visible {
+            display: flex;
+        }
+
+        .share-options a {
+            color: #666;
+            text-decoration: none;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .share-options a:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .share-btn:hover .share-options {
+            display: flex;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .fab:hover {
+            transform: scale(1.15);
+            background: var(--accent-color);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 3rem auto;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: var(--shadow);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+
+        .full-article {
+            margin-top: 1.5rem;
+        }
+
+        .full-article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .keyword-highlight {
+            background-color: var(--keyword-highlight);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .loading-spinner::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+
+        .post-card.loading {
+            background: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-card.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        .post-card.loading .post-image,
+        .post-card.loading .post-title,
+        .post-card.loading .post-excerpt,
+        .post-card.loading .post-meta,
+        .post-card.loading .post-actions {
+            visibility: hidden;
+        }
+
+        @keyframes shimmer {
+            100% {
+                left: 100%;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar.slid-out {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .content.expanded {
+                margin-left: 0;
+            }
+
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .post-card.newest {
+                grid-column: span 1;
+            }
+
+            .post-card.newest .post-image {
+                height: 300px;
+            }
+
+            .post-card.newest .post-title {
+                font-size: 1.8rem;
+            }
+
+            .post-card.newest .post-excerpt {
+                font-size: 1rem;
+            }
+
+            .post-image {
+                height: 150px;
+            }
+
+            .post-title {
+                font-size: 1.4rem;
+                line-height: 1.5;
+            }
+
+            .post-excerpt {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+
+            .full-article h2 {
+                font-size: 1.6rem;
+            }
+
+            .full-article p {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .controls-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 1000;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(360deg);
+            background: var(--accent-color);
+        }
+
+        body.dark-mode {
+            background: #1F1A44;
+            color: #EDE9FE;
+        }
+
+        body.dark-mode .post-card,
+        body.dark-mode .modal-content {
+            background: rgba(40, 40, 40, 0.9);
+            color: #EDE9FE;
+        }
+
+        body.dark-mode .sidebar {
+            background: rgba(40, 40, 40, 0.5);
+            border-right-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .post-title,
+        body.dark-mode .post-list a,
+        body.dark-mode .category-btn {
+            color: #EDE9FE;
+        }
+
+        body.dark-mode .post-excerpt,
+        body.dark-mode .post-meta {
+            color: #B8B6D4;
+        }
+
+        body.dark-mode .post-actions {
+            background: rgba(255, 255, 255, 0.05);
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .action-btn,
+        body.dark-mode .tts-btn {
+            color: #B8B6D4;
+        }
+
+        body.dark-mode .share-options {
+            background: #333;
+            color: #EDE9FE;
+        }
+
+        body.dark-mode .share-options a {
+            color: #EDE9FE;
+        }
+
+        body.dark-mode .share-options a:hover {
+            background: var(--primary-color);
+        }
+
+        body.dark-mode .keyword-highlight {
+            background-color: #D97706;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">Buzz<span>Blog</span></div>
+        <div class="page-title">Blog</div>
+        <a href="#" class="nav-button" id="home-btn">Home</a>
+    </header>
+
+    <div class="main-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Posts</h2>
+                <div>
+                    <span class="sidebar-slide" id="sidebar-slide"><i class="fas fa-chevron-left"></i></span>
+                    <span class="sidebar-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></span>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search posts..." aria-label="Search posts">
+                <button id="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="category-filter">
+                <h3>Categories</h3>
+                <div class="category-list" id="category-list"></div>
+            </div>
+            <div class="post-list" id="post-list"></div>
+        </div>
+
+        <div class="content" id="content">
+            <div class="controls-bar">
+                <div class="sort-controls">
+                    <label for="sort-options">Sort by:</label>
+                    <select id="sort-options">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="popularity">Most Popular</option>
+                    </select>
+                </div>
+                <div class="font-controls">
+                    <button class="font-btn" id="increase-font"><i class="fas fa-plus"></i></button>
+                    <button class="font-btn" id="decrease-font"><i class="fas fa-minus"></i></button>
+                </div>
+            </div>
+            <div class="posts-grid" id="posts-grid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="article-modal">
+        <div class="modal-content">
+            <span class="close-modal">×</span>
+            <div class="full-article" id="full-article"></div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <div class="fab" id="fab" style="display: none;">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script>
+        // Sample blog posts data with categories
+        let blogPosts = [
+            {
+                id: 1,
+                title: "Getting Started with Web Development",
+                image: "https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                content: "Web development is an exciting field that combines creativity with technical skills.\nIn this beginner's guide, we'll explore the fundamentals of HTML, CSS, and JavaScript.\nHTML provides the structure of your page, CSS handles the visual presentation, and JavaScript adds interactivity.\nStart by learning HTML tags and how they create the skeleton of a webpage.\nThen move on to CSS to style your page with colors, fonts, and layouts.\nFinally, dive into JavaScript to make your pages dynamic.\nPractice is key in web development.\nYou'll need a good text editor like VS Code.\nUnderstanding the Document Object Model (DOM) is crucial for JavaScript.\nCSS frameworks like Bootstrap can speed up styling.\nResponsive design ensures your site looks good on all devices.\nVersion control with Git is essential for collaboration.\nDebugging skills will save you hours of frustration.\nKeep learning new trends and technologies.\nWeb development is a journey of continuous improvement.\nJoin communities like Stack Overflow for support.\nBuild small projects to solidify your skills.\nShare your work on GitHub to showcase your progress.\nThis field offers endless opportunities for growth.",
+                likes: 24,
+                dislikes: 2,
+                date: "2023-06-15",
+                category: "Technology"
+            },
+            {
+                id: 2,
+                title: "The Future of Artificial Intelligence",
+                image: "https://images.unsplash.com/photo-1677442135136-760c813a743c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                content: "Artificial Intelligence (AI) is transforming industries and our daily lives.\nFrom virtual assistants to self-driving cars, AI applications are becoming sophisticated.\nThe future of AI holds even more promise with advancements in machine learning.\nNatural language processing and computer vision are key areas of growth.\nExperts predict that AI will revolutionize healthcare, education, and business.\nHowever, ethical considerations like data privacy must be addressed.\nAlgorithmic bias is another challenge that needs attention.\nAI can enhance productivity but may also disrupt jobs.\nGovernments are beginning to regulate AI to ensure fairness.\nCollaborative AI systems are being developed for better human interaction.\nThe integration of AI in IoT devices is creating smart ecosystems.\nQuantum computing could further accelerate AI capabilities.\nEducation in AI is becoming more accessible through online courses.\nStartups are leveraging AI for innovative solutions.\nThe ethical deployment of AI will shape its societal impact.\nPublic awareness of AI's potential and risks is growing.",
+                likes: 42,
+                dislikes: 5,
+                date: "2023-06-10",
+                category: "Technology"
+            },
+            {
+                id: 3,
+                title: "Sustainable Living: Small Changes, Big Impact",
+                image: "https://images.unsplash.com/photo-1466637574441-749b8f19452f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                content: "Sustainable living doesn't require drastic lifestyle changes.\nSmall decisions in our daily routines can make a significant impact.\nReduce single-use plastics by using reusable bags and bottles.\nConserve energy with LED bulbs and unplug devices when not in use.\nEat more plant-based meals to lower your carbon footprint.\nReduce food waste by planning meals and composting.\nSupport local farmers to reduce transportation emissions.\nUse public transport or bike instead of driving.\nChoose eco-friendly products with minimal packaging.\nPlant trees or support reforestation initiatives.\nEducate others about the benefits of sustainable living.\nSwitch to renewable energy sources like solar power.\nMinimize water waste with efficient appliances.\nUpcycle old items instead of discarding them.\nEvery eco-friendly choice contributes to a healthier planet.",
+                likes: 35,
+                dislikes: 1,
+                date: "2023-06-05",
+                category: "Lifestyle"
+            },
+            {
+                id: 4,
+                title: "Exploring Machine Learning Basics",
+                image: "https://images.unsplash.com/photo-1620712943543-bcc4688e5255?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                content: "Machine Learning (ML) is a subset of AI that enables systems to learn from data.\nIt powers many modern technologies, from recommendation systems to autonomous vehicles.\nThe basic concept involves training models on data to make predictions.\nSupervised learning uses labeled data to train models.\nUnsupervised learning finds patterns in unlabeled data.\nCommon algorithms include linear regression, decision trees, and neural networks.\nPython is a popular language for ML, with libraries like TensorFlow and scikit-learn.\nData preprocessing is a critical step in ML workflows.\nFeature engineering can significantly improve model performance.\nOverfitting is a common challenge where models perform poorly on new data.\nCross-validation helps ensure models generalize well.\nHyperparameter tuning optimizes model performance.\nML is used in healthcare for predictive diagnostics.\nIn finance, it helps detect fraudulent transactions.\nThe field is evolving with new techniques like deep learning.\nGetting started with ML requires understanding statistics and programming.\nOnline courses and datasets are great for beginners.",
+                likes: 0,
+                dislikes: 0,
+                date: "2025-04-30",
+                category: "Technology"
+            }
+        ];
+
+        // DOM Elements
+        const homeBtn = document.getElementById('home-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebarSlide = document.getElementById('sidebar-slide');
+        const postList = document.getElementById('post-list');
+        const categoryList = document.getElementById('category-list');
+        const content = document.getElementById('content');
+        const postsGrid = document.getElementById('posts-grid');
+        const articleModal = document.getElementById('article-modal');
+        const fullArticle = document.getElementById('full-article');
+        const closeModal = document.querySelector('.close-modal');
+        const notification = document.getElementById('notification');
+        const themeToggle = document.getElementById('theme-toggle');
+        const fab = document.getElementById('fab');
+        const increaseFontBtn = document.getElementById('increase-font');
+        const decreaseFontBtn = document.getElementById('decrease-font');
+        const sortOptions = document.getElementById('sort-options');
+
+        // Font size adjustment variables
+        let fontSizeMultiplier = parseFloat(localStorage.getItem('fontSizeMultiplier')) || 1;
+        const minFontSize = 0.8;
+        const maxFontSize = 1.5;
+
+        // Text-to-Speech variables
+        let currentUtterance = null;
+        let isPaused = false;
+
+        // Category filter state
+        let selectedCategory = localStorage.getItem('selectedCategory') || 'All';
+
+        // Search state
+        let currentSearchQuery = '';
+
+        // Sort state
+        let currentSort = localStorage.getItem('currentSort') || 'newest';
+
+        // List of categories
+        const categories = ['All', 'Technology', 'Finance & Trading', 'Lifestyle', 'Creative & Cultural', 'Business & Marketing'];
+
+        function init() {
+            console.log('Initializing with selectedCategory:', selectedCategory);
+            applyFontSize();
+            checkLocalStorage();
+            checkTTSCompatibility();
+            renderCategories();
+            sortOptions.value = currentSort;
+            renderPosts();
+            renderSidebar();
+            setupEventListeners();
+            checkUrlForPost();
+            updateMetaTags();
+        }
+
+        function checkTTSCompatibility() {
+            if (!('speechSynthesis' in window)) {
+                showNotification('Text-to-Speech is not supported in your browser.', 'error');
+                document.querySelectorAll('.tts-btn').forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                });
+            }
+        }
+
+        function checkLocalStorage() {
+            const savedPosts = localStorage.getItem('blogPosts');
+            if (savedPosts) {
+                blogPosts = JSON.parse(savedPosts);
+                console.log('Loaded blogPosts from localStorage:', blogPosts);
+                blogPosts = blogPosts.map(post => ({
+                    ...post,
+                    category: post.category ? post.category.trim() : 'Uncategorized'
+                }));
+                console.log('Normalized blogPosts:', blogPosts);
+            }
+
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+            const sidebarSlidOut = localStorage.getItem('sidebarSlidOut') === 'true';
+            if (sidebarSlidOut) {
+                sidebar.classList.add('slid-out');
+                content.classList.add('expanded');
+                sidebarSlide.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            }
+        }
+
+        function setupEventListeners() {
+            closeModal.addEventListener('click', () => {
+                articleModal.style.display = 'none';
+                stopSpeech();
+            });
+            window.addEventListener('click', (e) => {
+                if (e.target === articleModal) {
+                    articleModal.style.display = 'none';
+                    stopSpeech();
+                }
+            });
+            themeToggle.addEventListener('click', toggleTheme);
+            homeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showNotification('Welcome to BuzzBlog Home!');
+            });
+
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+
+            sidebarSlide.addEventListener('click', () => {
+                const isSlidOut = sidebar.classList.contains('slid-out');
+                sidebar.classList.toggle('slid-out');
+                content.classList.toggle('expanded');
+                sidebarSlide.innerHTML = isSlidOut ? '<i class="fas fa-chevron-left"></i>' : '<i class="fas fa-chevron-right"></i>';
+                localStorage.setItem('sidebarSlidOut', !isSlidOut ? 'true' : 'false');
+            });
+
+            fab.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            window.addEventListener('scroll', () => {
+                fab.style.display = window.scrollY > 300 ? 'flex' : 'none';
+            });
+
+            increaseFontBtn.addEventListener('click', () => {
+                fontSizeMultiplier = Math.min(maxFontSize, fontSizeMultiplier + 0.1);
+                localStorage.setItem('fontSizeMultiplier', fontSizeMultiplier);
+                applyFontSize();
+            });
+
+            decreaseFontBtn.addEventListener('click', () => {
+                fontSizeMultiplier = Math.max(minFontSize, fontSizeMultiplier - 0.1);
+                localStorage.setItem('fontSizeMultiplier', fontSizeMultiplier);
+                applyFontSize();
+            });
+
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            let debounceTimeout;
+
+            searchBtn.addEventListener('click', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                currentSearchQuery = query;
+                filterPostsBySearch(query);
+            });
+
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    searchBtn.click();
+                }
+            });
+
+            searchInput.addEventListener('input', () => {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(() => {
+                    const query = searchInput.value.trim().toLowerCase();
+                    currentSearchQuery = query;
+                    filterPostsBySearch(query);
+                }, 300);
+            });
+
+            sortOptions.addEventListener('change', () => {
+                currentSort = sortOptions.value;
+                localStorage.setItem('currentSort', currentSort);
+                renderPosts();
+                renderSidebar();
+            });
+        }
+
+        function applyFontSize() {
+            document.querySelectorAll('.post-title').forEach(el => {
+                const baseSize = el.closest('.post-card.newest') ? 2.2 : 1.6;
+                el.style.fontSize = `${baseSize * fontSizeMultiplier}rem`;
+            });
+            document.querySelectorAll('.post-excerpt').forEach(el => {
+                const baseSize = el.closest('.post-card.newest') ? 1.2 : 0.95;
+                el.style.fontSize = `${baseSize * fontSizeMultiplier}rem`;
+            });
+            document.querySelectorAll('.full-article h2').forEach(el => {
+                el.style.fontSize = `${2 * fontSizeMultiplier}rem`;
+            });
+            document.querySelectorAll('.full-article p').forEach(el => {
+                el.style.fontSize = `${1 * fontSizeMultiplier}rem`;
+            });
+        }
+
+        function highlightKeywords(text) {
+            const keywords = ['AI', 'web development', 'sustainable', 'machine learning', 'javascript', 'css', 'html'];
+            let highlightedText = text;
+            keywords.forEach(keyword => {
+                const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+                highlightedText = highlightedText.replace(regex, `<span class="keyword-highlight">${keyword}</span>`);
+            });
+            return highlightedText;
+        }
+
+        function updateMetaTags() {
+            document.querySelector('meta[name="description"]').setAttribute('content', 
+                `Explore ${selectedCategory === 'All' ? 'a variety of topics' : selectedCategory + ' articles'} on Buzz Blog - insightful and engaging posts.`
+            );
+            document.querySelector('meta[name="keywords"]').setAttribute('content', 
+                `blog, articles, ${selectedCategory.toLowerCase()}, buzz blog`
+            );
+            document.title = `Buzz Blog - ${selectedCategory === 'All' ? 'Home' : selectedCategory}`;
+        }
+
+        function renderCategories() {
+            console.log('Rendering categories, current selectedCategory:', selectedCategory);
+            categoryList.innerHTML = '';
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = category;
+                btn.setAttribute('data-category', category);
+                if (category === selectedCategory) {
+                    btn.classList.add('active');
+                }
+                btn.addEventListener('click', () => {
+                    selectedCategory = category;
+                    localStorage.setItem('selectedCategory', selectedCategory);
+                    console.log('Category selected:', selectedCategory);
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentSearchQuery = '';
+                    document.getElementById('search-input').value = '';
+                    renderPosts();
+                    renderSidebar();
+                    updateMetaTags();
+                });
+                categoryList.appendChild(btn);
+            });
+        }
+
+        function setupTTSButton(ttsBtn, text, isFullArticle = false) {
+            let isPlaying = false;
+
+            ttsBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    if (isPaused) {
+                        window.speechSynthesis.resume();
+                        isPaused = false;
+                        ttsBtn.querySelector('i').classList.remove('fa-play');
+                        ttsBtn.querySelector('i').classList.add('fa-pause');
+                        ttsBtn.querySelector('.tooltip').textContent = 'Pause reading';
+                    } else {
+                        window.speechSynthesis.pause();
+                        isPaused = true;
+                        ttsBtn.querySelector('i').classList.remove('fa-pause');
+                        ttsBtn.querySelector('i').classList.add('fa-play');
+                        ttsBtn.querySelector('.tooltip').textContent = 'Resume reading';
+                    }
+                } else {
+                    stopSpeech();
+                    currentUtterance = new SpeechSynthesisUtterance(text);
+                    currentUtterance.onend = () => {
+                        isPlaying = false;
+                        isPaused = false;
+                        ttsBtn.classList.remove('playing');
+                        ttsBtn.querySelector('i').classList.remove('fa-pause');
+                        ttsBtn.querySelector('i').classList.add('fa-volume-up');
+                        ttsBtn.querySelector('.tooltip').textContent = isFullArticle ? 'Listen to full article' : 'Listen to excerpt';
+                        currentUtterance = null;
+                    };
+                    window.speechSynthesis.speak(currentUtterance);
+                    isPlaying = true;
+                    ttsBtn.classList.add('playing');
+                    ttsBtn.querySelector('i').classList.remove('fa-volume-up');
+                    ttsBtn.querySelector('i').classList.add('fa-pause');
+                    ttsBtn.querySelector('.tooltip').textContent = 'Pause reading';
+                }
+            });
+        }
+
+        function stopSpeech() {
+            if (currentUtterance) {
+                window.speechSynthesis.cancel();
+                currentUtterance = null;
+            }
+            isPaused = false;
+            document.querySelectorAll('.tts-btn').forEach(btn => {
+                btn.classList.remove('playing');
+                btn.querySelector('i').classList.remove('fa-pause');
+                btn.querySelector('i').classList.remove('fa-play');
+                btn.querySelector('i').classList.add('fa-volume-up');
+                btn.querySelector('.tooltip').textContent = btn.classList.contains('full-tts-btn') ? 'Listen to full article' : 'Listen to excerpt';
+            });
+        }
+
+        function getFilteredPosts() {
+            console.log('Filtering posts for category:', selectedCategory);
+            if (selectedCategory === 'All') {
+                console.log('Returning all posts:', blogPosts);
+                return blogPosts;
+            }
+            const filtered = blogPosts.filter(post => {
+                const postCategory = post.category ? post.category.trim() : 'Uncategorized';
+                const match = postCategory === selectedCategory.trim();
+                console.log(`Comparing post.category: "${postCategory}" with selectedCategory: "${selectedCategory}" - Match: ${match}`);
+                return match;
+            });
+            console.log('Filtered posts:', filtered);
+            return filtered;
+        }
+
+        function sortPosts(posts) {
+            let sortedPosts = [...posts];
+            if (currentSort === 'newest') {
+                sortedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else if (currentSort === 'oldest') {
+                sortedPosts.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else if (currentSort === 'popularity') {
+                sortedPosts.sort((a, b) => b.likes - a.likes);
+            }
+            return sortedPosts;
+        }
+
+        function filterPostsBySearch(query) {
+            const categoryFilteredPosts = getFilteredPosts();
+            const filteredPosts = query 
+                ? categoryFilteredPosts.filter(post => 
+                    post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query)
+                  )
+                : categoryFilteredPosts;
+            const sortedPosts = sortPosts(filteredPosts);
+            renderPostsWithFilteredData(sortedPosts);
+            renderSidebarWithFilteredData(sortedPosts);
+        }
+
+        function renderSidebar() {
+            const filteredPosts = getFilteredPosts();
+            const sortedPosts = sortPosts(filteredPosts);
+            console.log('Rendering sidebar with filtered posts:', sortedPosts);
+            renderSidebarWithFilteredData(sortedPosts);
+        }
+
+        function renderSidebarWithFilteredData(filteredPosts) {
+            postList.innerHTML = '';
+            filteredPosts.forEach(post => {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.textContent = post.title;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showFullArticle(post.id);
+                    if (window.innerWidth <= 900) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+                postList.appendChild(link);
+            });
+        }
+
+        function renderPosts() {
+            const filteredPosts = getFilteredPosts();
+            const sortedPosts = sortPosts(filteredPosts);
+            renderPostsWithFilteredData(sortedPosts);
+        }
+
+        function renderPostsWithFilteredData(filteredPosts) {
+            postsGrid.innerHTML = '';
+            postsGrid.innerHTML = '<div class="loading-spinner">Loading posts...</div>';
+
+            setTimeout(() => {
+                postsGrid.innerHTML = '';
+                console.log('Rendering posts with filtered posts:', filteredPosts);
+                if (filteredPosts.length === 0) {
+                    console.log('No posts to display in posts grid');
+                    const message = currentSearchQuery 
+                        ? '<p>No posts match your search.</p>' 
+                        : '<p>No posts available in this category.</p>';
+                    postsGrid.innerHTML = message;
+                    return;
+                }
+
+                const newestPost = filteredPosts[0];
+
+                filteredPosts.forEach(post => {
+                    const isNewest = post.id === newestPost.id;
+                    const lines = post.content.split('\n');
+                    const excerptLines = lines.slice(0, 3);
+                    const excerpt = excerptLines.join('\n');
+                    const hasMore = lines.length > 3;
+
+                    const excerptText = `${post.title}. ${excerpt.replace(/\n/g, ' ')}`;
+
+                    const postElement = document.createElement('div');
+                    postElement.className = `post-card fade-in ${isNewest ? 'newest' : ''}`;
+                    postElement.innerHTML = `
+                        <img src="${post.image}" alt="${post.title}" class="post-image" loading="lazy">
+                        <div class="post-content">
+                            <h3 class="post-title">${highlightKeywords(post.title)}</h3>
+                            <p class="post-excerpt">${highlightKeywords(excerpt).replace(/\n/g, '<br>')}</p>
+                            ${hasMore ? `<a class="read-more" data-id="${post.id}">READ MORE</a>` : ''}
+                        </div>
+                        <div class="post-meta">
+                            <span>${formatDate(post.date)}</span>
+                            <span>${post.likes} likes</span>
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn" data-id="${post.id}" aria-label="Like this post, currently ${post.likes} likes">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span class="tooltip">Like this post</span>
+                            </button>
+                            <button class="action-btn dislike-btn" data-id="${post.id}" aria-label="Dislike this post, currently ${post.dislikes} dislikes">
+                                <i class="fas fa-thumbs-down"></i>
+                                <span class="tooltip">Dislike this post</span>
+                            </button>
+                            <button class="tts-btn" aria-label="Listen to excerpt">
+                                <i class="fas fa-volume-up"></i>
+                                <span class="tooltip">Listen to excerpt</span>
+                            </button>
+                            <div class="share-btn action-btn" data-id="${post.id}" aria-label="Share this post">
+                                <i class="fas fa-share-alt"></i>
+                                <span class="tooltip">Share this post</span>
+                                <div class="share-options">
+                                    <a href="#" class="share-option" data-platform="twitter"><i class="fab fa-twitter"></i> Twitter</a>
+                                    <a href="#" class="share-option" data-platform="facebook"><i class="fab fa-facebook"></i> Facebook</a>
+                                    <a href="#" class="share-option" data-platform="linkedin"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                                    <a href="#" class="share-option" data-platform="copy"><i class="fas fa-copy"></i> Copy Link</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    postsGrid.appendChild(postElement);
+
+                    const ttsBtn = postElement.querySelector('.tts-btn');
+                    setupTTSButton(ttsBtn, excerptText);
+
+                    // Attach event listeners to buttons
+                    const likeBtn = postElement.querySelector('.like-btn');
+                    likeBtn.addEventListener('click', () => {
+                        const postId = parseInt(likeBtn.getAttribute('data-id'));
+                        likePost(postId);
+                    });
+
+                    const dislikeBtn = postElement.querySelector('.dislike-btn');
+                    dislikeBtn.addEventListener('click', () => {
+                        const postId = parseInt(dislikeBtn.getAttribute('data-id'));
+                        dislikePost(postId);
+                    });
+
+                    const shareBtn = postElement.querySelector('.share-btn');
+                    setupShareButton(shareBtn);
+                });
+
+                applyFontSize();
+
+                document.querySelectorAll('.read-more').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const postId = parseInt(e.target.getAttribute('data-id'));
+                        showFullArticle(postId);
+                    });
+                });
+            }, 1000);
+        }
+
+        function setupShareButton(shareBtn) {
+            const shareOptions = shareBtn.querySelector('.share-options');
+
+            shareBtn.addEventListener('mouseenter', () => {
+                shareOptions.classList.add('visible');
+            });
+
+            shareBtn.addEventListener('mouseleave', () => {
+                shareOptions.classList.remove('visible');
+            });
+
+            shareBtn.querySelectorAll('.share-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const platform = e.target.closest('.share-option').getAttribute('data-platform');
+                    const postId = parseInt(shareBtn.getAttribute('data-id'));
+                    sharePost(postId, platform);
+                });
+            });
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        function showFullArticle(postId) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            const fullText = `${post.title}. ${post.content.replace(/\n/g, ' ')}`;
+
+            fullArticle.innerHTML = `
+                <h2>${highlightKeywords(post.title)}</h2>
+                <button class="tts-btn full-tts-btn" aria-label="Listen to full article">
+                    <i class="fas fa-volume-up"></i>
+                    <span class="tooltip">Listen to full article</span>
+                </button>
+                <img src="${post.image}" alt="${post.title}" loading="lazy">
+                <p>${highlightKeywords(post.content).replace(/\n/g, '<br>')}</p>
+                <div class="post-meta" style="margin-top: 1.5rem;">
+                    <span>Published on ${formatDate(post.date)}</span>
+                </div>
+            `;
+            articleModal.style.display = 'block';
+            applyFontSize();
+
+            const ttsBtn = fullArticle.querySelector('.full-tts-btn');
+            setupTTSButton(ttsBtn, fullText, true);
+        }
+
+        function likePost(postId) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            post.likes = (post.likes || 0) + 1;
+            savePostsToLocalStorage();
+            renderPosts();
+            renderSidebar();
+
+            const likeBtn = document.querySelector(`.like-btn[data-id="${postId}"]`);
+            if (likeBtn) {
+                likeBtn.classList.add('liked');
+                likeBtn.setAttribute('aria-label', `Like this post, currently ${post.likes} likes`);
+                setTimeout(() => {
+                    likeBtn.classList.remove('liked');
+                }, 1000);
+            }
+
+            showNotification('Thanks for your like!');
+        }
+
+        function dislikePost(postId) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            post.dislikes = (post.dislikes || 0) + 1;
+            savePostsToLocalStorage();
+            renderPosts();
+            renderSidebar();
+
+            const dislikeBtn = document.querySelector(`.dislike-btn[data-id="${postId}"]`);
+            if (dislikeBtn) {
+                dislikeBtn.classList.add('disliked');
+                dislikeBtn.setAttribute('aria-label', `Dislike this post, currently ${post.dislikes} dislikes`);
+                setTimeout(() => {
+                    dislikeBtn.classList.remove('disliked');
+                }, 1000);
+            }
+
+            showNotification('We appreciate your feedback!');
+        }
+
+        function sharePost(postId, platform) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            const websiteUrl = window.location.href.split('?')[0];
+            const postUrl = `${websiteUrl}?post=${postId}`;
+            const url = encodeURIComponent(postUrl);
+            const website = encodeURIComponent(websiteUrl);
+            const title = encodeURIComponent(post.title);
+            const text = encodeURIComponent(post.content.split('\n').slice(0, 5).join(' ') + '...');
+
+            let shareUrl = '';
+            switch (platform) {
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${title} - ${text}&url=${url}&via=Visit my blog at ${website}`;
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                    break;
+                case 'linkedin':
+                    shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}&summary=${text} - Visit my blog at ${website}`;
+                    break;
+                case 'copy':
+                    navigator.clipboard.writeText(`${post.title} - ${postUrl} (Visit my blog at ${websiteUrl})`);
+                    showNotification('Link copied to clipboard!');
+                    return;
+                default:
+                    return;
+            }
+
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+            showNotification('Sharing dialog opened!');
+        }
+
+        function savePostsToLocalStorage() {
+            localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+        }
+
+        function showNotification(message, type = 'success') {
+            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            notification.style.display = 'flex';
+            notification.style.alignItems = 'center';
+            notification.style.gap = '0.5rem';
+            notification.style.background = type === 'error' ? 'var(--danger-color)' : 'var(--success-color)';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
+        }
+
+        function checkUrlForPost() {
+            const params = new URLSearchParams(window.location.search);
+            const postId = params.get('post');
+            if (postId) {
+                const post = blogPosts.find(p => p.id === parseInt(postId));
+                if (post) {
+                    showFullArticle(post.id);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
