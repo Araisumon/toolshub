@@ -453,6 +453,10 @@
             display: inline-block;
         }
 
+        .tool-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
         /* Section Navigation */
         .section-nav {
             background: var(--card-background);
@@ -582,6 +586,7 @@
             background-color: var(--footer-background);
             color: var(--footer-text-color);
             padding: 50px 0 0;
+            font-size: 0.9rem;
         }
 
         .footer-container {
@@ -602,6 +607,7 @@
 
         .footer-brand i {
             margin-right: 10px;
+            font-size: 1.8rem;
         }
 
         .footer-links {
@@ -663,6 +669,37 @@
             font-size: 0.9rem;
         }
 
+        /* Back to Top/Bottom Toggle Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: var(--header-text-color);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            cursor: pointer;
+            display: none;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+        }
+
+        .back-to-top:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .back-to-top:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        .back-to-top i {
+            font-size: 1.5rem;
+        }
+
         /* Responsive Styles */
         @media (max-width: 768px) {
             .navbar {
@@ -722,6 +759,31 @@
                 width: 100%;
                 text-align: center;
                 padding: 12px;
+            }
+
+            .back-to-top {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-column {
+                min-width: 100%;
+            }
+
+            .social-links {
+                justify-content: center;
             }
         }
     </style>
@@ -910,7 +972,7 @@
                         <i class="material-icons">zoom_in</i>
                     </div>
                     <h3>Image Viewer</h3>
-                    <p>View and.zoom images with ease.</p>
+                    <p>View and zoom images with ease.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
                 <a href="/RandomQG/" class="tool-card" data-category="text">
@@ -1009,7 +1071,7 @@
                     <p>Create secure and random passwords instantly.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                    <a href="/babynames/" class="tool-card" data-category="text">
+                <a href="/babynames/" class="tool-card" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">child_care</i>
                     </div>
@@ -1017,7 +1079,7 @@
                     <p>Discover unique and meaningful baby names instantly.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                    <a href="/fileencryptor/" class="tool-card" data-category="text">
+                <a href="/fileencryptor/" class="tool-card" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">lock</i>
                     </div>
@@ -1033,7 +1095,7 @@
                     <p>Create vibrant CSS and SVG gradients instantly.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                    <a href="/metatags/" class="tool-card" data-category="text">
+                <a href="/metatags/" class="tool-card" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">description</i>
                     </div>
@@ -1057,7 +1119,7 @@
                     <p>Create hilarious memes with ease.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                </div>
+            </div>
         </div>
     </section>
 
@@ -1082,7 +1144,7 @@
                     <p>Optimized tools for quick conversions.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="tool-icon">
+                    <div class="feature-icon">
                         <i class="material-icons">security</i>
                     </div>
                     <h3>100% Secure</h3>
@@ -1208,6 +1270,11 @@
         </div>
     </footer>
 
+    <!-- Back to Top/Bottom Toggle Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="material-icons">arrow_upward</i>
+    </button>
+
     <script type="text/javascript">
         var gk_isXlsx = false;
         var gk_xlsxFileLookup = {};
@@ -1221,27 +1288,19 @@
                     var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
                     var firstSheetName = workbook.SheetNames[0];
                     var worksheet = workbook.Sheets[firstSheetName];
-
-                    // Convert sheet to JSON to filter blank rows
                     var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                    // Filter out blank rows (rows where all cells are empty, null, or undefined)
                     var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                    // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
                     var headerRowIndex = filteredData.findIndex((row, index) =>
                       row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                     );
-                    // Fallback
                     if (headerRowIndex === -1 || headerRowIndex > 25) {
                       headerRowIndex = 0;
                     }
-
-                    // Convert filtered JSON back to CSV
-                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
                     csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
                     return csv;
                 } catch (e) {
-                    console.error(e);
+                    console.error('Error processing XLSX:', e.message);
                     return "";
                 }
             }
@@ -1284,19 +1343,15 @@
                         themeToggleBtn.click();
                     }
                 });
+            } else {
+                console.warn('Theme toggle button not found.');
             }
 
             function updateThemeButton(theme) {
-                if (!themeToggleBtn) {
-                    console.warn('Theme toggle button not found.');
-                    return;
-                }
+                if (!themeToggleBtn) return;
                 const icon = themeToggleBtn.querySelector('i');
                 const text = themeToggleBtn.querySelector('span');
-                if (!icon || !text) {
-                    console.warn('Theme toggle button missing icon or text elements.');
-                    return;
-                }
+                if (!icon || !text) return;
                 switch (theme) {
                     case 'light':
                         icon.textContent = 'light_mode';
@@ -1314,8 +1369,6 @@
                         icon.textContent = 'palette';
                         text.textContent = 'Modern';
                         break;
-                    default:
-                        console.warn(`Unknown theme: ${theme}`);
                 }
             }
 
@@ -1416,6 +1469,53 @@
 
                 window.addEventListener('scroll', updateActiveNavLink);
                 updateActiveNavLink();
+
+                // Back to Top/Bottom Toggle Functionality
+                const backToTopBtn = document.getElementById('backToTop');
+                let isTopMode = true;
+
+                if (backToTopBtn) {
+                    function updateButtonState() {
+                        const scrollY = window.scrollY;
+                        const windowHeight = window.innerHeight;
+                        const documentHeight = document.documentElement.scrollHeight;
+
+                        if (scrollY > 300) {
+                            isTopMode = true;
+                            backToTopBtn.style.display = 'block';
+                            backToTopBtn.setAttribute('aria-label', 'Back to top');
+                            backToTopBtn.querySelector('i').textContent = 'arrow_upward';
+                        } else if (scrollY + windowHeight < documentHeight - 300) {
+                            isTopMode = false;
+                            backToTopBtn.style.display = 'block';
+                            backToTopBtn.setAttribute('aria-label', 'Back to bottom');
+                            backToTopBtn.querySelector('i').textContent = 'arrow_downward';
+                        } else {
+                            backToTopBtn.style.display = 'none';
+                        }
+                    }
+
+                    window.addEventListener('scroll', updateButtonState);
+
+                    backToTopBtn.addEventListener('click', () => {
+                        if (isTopMode) {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+                        }
+                    });
+
+                    backToTopBtn.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            backToTopBtn.click();
+                        }
+                    });
+
+                    updateButtonState();
+                } else {
+                    console.warn('Back to top/bottom button not found.');
+                }
             });
 
             window.addEventListener('resize', () => {
