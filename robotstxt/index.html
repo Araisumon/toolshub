@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online Robots.txt generator tool with advanced features. Create, validate, and test robots.txt files for your website with SEO best practices.">
+    <meta name="keywords" content="robots.txt generator, SEO tools, search engine optimization, web crawler, website configuration">
+    <meta name="author" content="Buzz">
+    <title>Advanced Robots.txt Generator | Buzz SEO Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --error-color: #f72585;
+            --text-color: #333;
+            --text-light: #666;
+            --bg-color: #fff;
+            --card-bg: #f8f9fa;
+            --border-color: #ddd;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #4895ef;
+            --secondary-color: #4361ee;
+            --dark-color: #0d1b2a;
+            --light-color: #1a1a2e;
+            --text-color: #f8f9fa;
+            --text-light: #b8b8b8;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 10px;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn i {
+            margin-right: 5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .intro-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .intro-section h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .intro-section p {
+            color: var(--text-light);
+            max-width: 800px;
+            margin: 0 auto 1rem;
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title i {
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        textarea {
+            min-height: 200px;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-right: 1rem;
+        }
+
+        .checkbox-item input {
+            margin-right: 0.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-error {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .btn-error:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .result-section {
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .validation-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .valid {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .invalid {
+            background-color: rgba(247, 37, 133, 0.1);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .template-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-card h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .template-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .template-card.active {
+            border: 2px solid var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .user-agent-rules {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .rule-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .rule-item {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .rule-item select {
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+
+        .rule-item input {
+            flex: 3;
+        }
+
+        .rule-item button {
+            margin-left: 0.5rem;
+            padding: 0.5rem;
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-rule-btn {
+            margin-top: 0.5rem;
+        }
+
+        .add-user-agent-btn {
+            margin-bottom: 1rem;
+        }
+
+        .floating-btns {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 999;
+        }
+
+        .floating-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+        }
+
+        .share-options {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            width: 200px;
+        }
+
+        .share-options.show {
+            display: block;
+        }
+
+        .share-options a {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .share-options a:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .share-options a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 999;
+        }
+
+        .toggle-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+        }
+
+        .tour-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .tour-content {
+            max-width: 600px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 2rem;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .tour-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .close-tour {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background-color: var(--primary-color);
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+
+        .sitemap-item {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .sitemap-item input {
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+
+        .sitemap-item button {
+            padding: 0.5rem;
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-sitemap-btn {
+            margin-top: 0.5rem;
+        }
+
+        .crawl-simulation {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+        }
+
+        .crawl-log {
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .log-success {
+            color: var(--success-color);
+        }
+
+        .log-error {
+            color: var(--error-color);
+        }
+
+        .log-warning {
+            color: var(--warning-color);
+        }
+
+        .log-info {
+            color: var(--primary-color);
+        }
+
+        .tool-tip {
+            position: absolute;
+            background-color: var(--dark-color);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            max-width: 250px;
+            z-index: 100;
+            display: none;
+        }
+
+        .tool-tip.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+                text-align: center;
+            }
+
+            .brand {
+                margin-bottom: 0.5rem;
+            }
+
+            .header-title {
+                margin-bottom: 0.5rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .template-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-btns {
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            .theme-toggle {
+                bottom: 1rem;
+                left: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-robot"></i>Buzz
+        </div>
+        <div class="header-title">Robots.txt Generator</div>
+        <a href="/" class="nav-btn">
+            <i class="fas fa-home"></i> Home
+        </a>
+    </header>
+
+    <div class="container">
+        <section class="intro-section">
+            <h1>Advanced Robots.txt Generator Tool</h1>
+            <p>Create, validate, and test your robots.txt file with our comprehensive tool. Ensure your website is properly indexed by search engines while protecting sensitive areas.</p>
+            <div class="btn-group">
+                <button id="startTourBtn" class="btn btn-secondary">
+                    <i class="fas fa-question-circle"></i> Take a Tour
+                </button>
+                <button id="resetBtn" class="btn btn-warning">
+                    <i class="fas fa-redo"></i> Reset Form
+                </button>
+            </div>
+        </section>
+
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-sliders-h"></i> Configuration Options</h2>
+            
+            <div class="form-group">
+                <label for="websiteUrl">Website URL <span class="tooltip-icon" data-tooltip="Enter your website's base URL (e.g., https://example.com)">i</span></label>
+                <input type="url" id="websiteUrl" placeholder="https://example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="templateSelect">Predefined Templates <span class="tooltip-icon" data-tooltip="Select a template to get started quickly">i</span></label>
+                <div class="template-selector">
+                    <div class="template-card" data-template="default">
+                        <h4>Default</h4>
+                        <p>Allow all crawlers to access all content</p>
+                    </div>
+                    <div class="template-card" data-template="block-all">
+                        <h4>Block All</h4>
+                        <p>Disallow all crawlers from accessing your site</p>
+                    </div>
+                    <div class="template-card" data-template="wordpress">
+                        <h4>WordPress</h4>
+                        <p>Optimized for WordPress sites</p>
+                    </div>
+                    <div class="template-card" data-template="ecommerce">
+                        <h4>E-commerce</h4>
+                        <p>For online stores with private areas</p>
+                    </div>
+                    <div class="template-card" data-template="custom">
+                        <h4>Custom</h4>
+                        <p>Start from scratch</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-user-shield"></i> User-Agent Rules</h2>
+            <p>Define specific rules for different crawlers (Googlebot, Bingbot, etc.)</p>
+            
+            <div id="userAgentsContainer">
+                <!-- User agent rules will be added here dynamically -->
+            </div>
+
+            <button id="addUserAgentBtn" class="btn btn-secondary add-user-agent-btn">
+                <i class="fas fa-plus"></i> Add User-Agent
+            </button>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-sitemap"></i> Sitemap Directives</h2>
+            <p>Specify the location of your XML sitemap(s)</p>
+            
+            <div id="sitemapsContainer">
+                <div class="sitemap-item">
+                    <input type="url" placeholder="https://example.com/sitemap.xml">
+                    <button class="remove-sitemap-btn"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+
+            <button id="addSitemapBtn" class="btn btn-secondary add-sitemap-btn">
+                <i class="fas fa-plus"></i> Add Sitemap
+            </button>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-cog"></i> Advanced Settings</h2>
+            
+            <div class="form-group">
+                <label>Crawl-Delay <span class="tooltip-icon" data-tooltip="Delay between crawls (in seconds)">i</span></label>
+                <input type="number" id="crawlDelay" min="0" placeholder="e.g., 5">
+            </div>
+
+            <div class="form-group">
+                <label>Clean-Param <span class="tooltip-icon" data-tooltip="Parameters to ignore when crawling">i</span></label>
+                <input type="text" id="cleanParam" placeholder="e.g., sessionid, sid">
+            </div>
+
+            <div class="form-group">
+                <label>Host Directive <span class="tooltip-icon" data-tooltip="Preferred domain (www or non-www)">i</span></label>
+                <select id="hostDirective">
+                    <option value="">None</option>
+                    <option value="www">Prefer www (www.example.com)</option>
+                    <option value="non-www">Prefer non-www (example.com)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card result-section">
+            <h2 class="card-title"><i class="fas fa-file-code"></i> Generated Robots.txt</h2>
+            <textarea id="robotsTxtOutput" readonly></textarea>
+            <button id="copyBtn" class="btn copy-btn" title="Copy to clipboard">
+                <i class="far fa-copy"></i>
+            </button>
+            
+            <div class="btn-group" style="margin-top: 1rem;">
+                <button id="downloadBtn" class="btn btn-success">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button id="validateBtn" class="btn btn-primary">
+                    <i class="fas fa-check-circle"></i> Validate
+                </button>
+                <button id="testBtn" class="btn btn-secondary">
+                    <i class="fas fa-vial"></i> Test Crawl Simulation
+                </button>
+            </div>
+
+            <div id="validationResult" class="validation-result hidden"></div>
+
+            <div id="crawlSimulation" class="crawl-simulation hidden">
+                <h3>Crawl Simulation Results</h3>
+                <div id="crawlLog" class="crawl-log"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-lightbulb"></i> SEO Tips & Best Practices</h2>
+            <ul style="padding-left: 1.5rem;">
+                <li>Always include your XML sitemap location in the robots.txt file</li>
+                <li>Be careful when disallowing entire directories - it might block important content</li>
+                <li>Use specific User-Agent rules when you need different behavior for different crawlers</li>
+                <li>Test your robots.txt file using Google Search Console's robots.txt tester</li>
+                <li>Remember that robots.txt is a request, not a security measure</li>
+                <li>Update your robots.txt file whenever your site structure changes significantly</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="floating-btns">
+        <div class="floating-btn" id="shareBtn" title="Share">
+            <i class="fas fa-share-alt"></i>
+        </div>
+        <div class="share-options" id="shareOptions">
+            <a href="#" id="shareTwitter"><i class="fab fa-twitter"></i> Twitter</a>
+            <a href="#" id="shareFacebook"><i class="fab fa-facebook"></i> Facebook</a>
+            <a href="#" id="shareLinkedIn"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            <a href="#" id="shareReddit"><i class="fab fa-reddit"></i> Reddit</a>
+            <a href="#" id="shareEmail"><i class="fas fa-envelope"></i> Email</a>
+        </div>
+        <div class="floating-btn" id="toTopBtn" title="Back to top">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="floating-btn" id="toBottomBtn" title="Go to bottom">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </div>
+
+    <div class="theme-toggle">
+        <button class="toggle-btn" id="themeToggleBtn" title="Toggle theme">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div id="tourOverlay" class="tour-overlay hidden">
+        <div class="tour-content">
+            <button class="close-tour" id="closeTourBtn">&times;</button>
+            <div class="progress-bar" style="width: 25%;"></div>
+            <h3 id="tourTitle">Welcome to Robots.txt Generator</h3>
+            <p id="tourContent">This tool helps you create, validate, and test robots.txt files for your website. Let's take a quick tour to explore all features.</p>
+            <div class="tour-nav">
+                <button class="btn btn-secondary" id="prevTourBtn" disabled>Previous</button>
+                <button class="btn btn-primary" id="nextTourBtn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tool-tip" id="toolTip"></div>
+
+    <script>
+        // DOM Elements
+        const websiteUrl = document.getElementById('websiteUrl');
+        const templateCards = document.querySelectorAll('.template-card');
+        const userAgentsContainer = document.getElementById('userAgentsContainer');
+        const addUserAgentBtn = document.getElementById('addUserAgentBtn');
+        const sitemapsContainer = document.getElementById('sitemapsContainer');
+        const addSitemapBtn = document.getElementById('addSitemapBtn');
+        const robotsTxtOutput = document.getElementById('robotsTxtOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const validateBtn = document.getElementById('validateBtn');
+        const testBtn = document.getElementById('testBtn');
+        const validationResult = document.getElementById('validationResult');
+        const crawlSimulation = document.getElementById('crawlSimulation');
+        const crawlLog = document.getElementById('crawlLog');
+        const resetBtn = document.getElementById('resetBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const shareOptions = document.getElementById('shareOptions');
+        const toTopBtn = document.getElementById('toTopBtn');
+        const toBottomBtn = document.getElementById('toBottomBtn');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const startTourBtn = document.getElementById('startTourBtn');
+        const tourOverlay = document.getElementById('tourOverlay');
+        const closeTourBtn = document.getElementById('closeTourBtn');
+        const prevTourBtn = document.getElementById('prevTourBtn');
+        const nextTourBtn = document.getElementById('nextTourBtn');
+        const tourTitle = document.getElementById('tourTitle');
+        const tourContent = document.getElementById('tourContent');
+        const toolTip = document.getElementById('toolTip');
+        const tooltipIcons = document.querySelectorAll('.tooltip-icon');
+        const crawlDelay = document.getElementById('crawlDelay');
+        const cleanParam = document.getElementById('cleanParam');
+        const hostDirective = document.getElementById('hostDirective');
+
+        // State
+        let currentTheme = localStorage.getItem('themePreference') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        themeToggleBtn.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        
+        let currentTourStep = 0;
+        const tourSteps = [
+            {
+                title: "Welcome to Robots.txt Generator",
+                content: "This tool helps you create, validate, and test robots.txt files for your website. Let's take a quick tour to explore all features.",
+                element: null
+            },
+            {
+                title: "Website URL",
+                content: "Start by entering your website's base URL. This will be used to generate proper sitemap URLs and validate paths.",
+                element: websiteUrl
+            },
+            {
+                title: "Predefined Templates",
+                content: "Choose from our predefined templates to get started quickly. You can always customize the rules later.",
+                element: document.querySelector('.template-selector')
+            },
+            {
+                title: "User-Agent Rules",
+                content: "Define specific rules for different crawlers. You can add multiple User-Agent sections with different rules.",
+                element: document.querySelector('.card:nth-child(3)')
+            },
+            {
+                title: "Sitemap Directives",
+                content: "Specify the location of your XML sitemap(s). This helps search engines discover all your important pages.",
+                element: document.querySelector('.card:nth-child(4)')
+            },
+            {
+                title: "Advanced Settings",
+                content: "Configure additional directives like crawl-delay, clean-param, and host preference.",
+                element: document.querySelector('.card:nth-child(5)')
+            },
+            {
+                title: "Generated Output",
+                content: "Your robots.txt file will be generated here. You can copy, download, validate, and test it.",
+                element: document.querySelector('.result-section')
+            },
+            {
+                title: "SEO Tips",
+                content: "Check out our SEO tips and best practices to ensure your robots.txt file is optimized.",
+                element: document.querySelector('.card:last-child')
+            },
+            {
+                title: "Tour Complete",
+                content: "You're ready to create your perfect robots.txt file! Remember you can always take this tour again by clicking the help button.",
+                element: null
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default template
+            setTemplate('default');
+            
+            // Add first user agent
+            addUserAgent('*');
+            
+            // Add first sitemap
+            addSitemap();
+            
+            // Load from localStorage if available
+            loadFromLocalStorage();
+            
+            // Generate initial robots.txt
+            generateRobotsTxt();
+            
+            // Set up event listeners for dynamic elements
+            setupDynamicEventListeners();
+        });
+
+        // Event Listeners for static elements
+        websiteUrl.addEventListener('input', generateRobotsTxt);
+        addUserAgentBtn.addEventListener('click', () => addUserAgent('*'));
+        addSitemapBtn.addEventListener('click', addSitemap);
+        copyBtn.addEventListener('click', copyToClipboard);
+        downloadBtn.addEventListener('click', downloadRobotsTxt);
+        validateBtn.addEventListener('click', validateRobotsTxt);
+        testBtn.addEventListener('click', testCrawlSimulation);
+        resetBtn.addEventListener('click', resetForm);
+        shareBtn.addEventListener('click', toggleShareOptions);
+        toTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        toBottomBtn.addEventListener('click', () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }));
+        themeToggleBtn.addEventListener('click', toggleTheme);
+        startTourBtn.addEventListener('click', startTour);
+        closeTourBtn.addEventListener('click', closeTour);
+        prevTourBtn.addEventListener('click', prevTourStep);
+        nextTourBtn.addEventListener('click', nextTourStep);
+        crawlDelay.addEventListener('input', generateRobotsTxt);
+        cleanParam.addEventListener('input', generateRobotsTxt);
+        hostDirective.addEventListener('change', generateRobotsTxt);
+
+        // Close share options when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!shareBtn.contains(e.target) && !shareOptions.contains(e.target)) {
+                shareOptions.classList.remove('show');
+            }
+        });
+
+        // Template selection
+        templateCards.forEach(card => {
+            card.addEventListener('click', function() {
+                templateCards.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                const template = this.getAttribute('data-template');
+                setTemplate(template);
+                generateRobotsTxt();
+            });
+        });
+
+        // Tooltip functionality
+        tooltipIcons.forEach(icon => {
+            icon.addEventListener('mouseenter', showTooltip);
+            icon.addEventListener('mouseleave', hideTooltip);
+        });
+
+        // Share buttons
+        document.getElementById('shareTwitter').addEventListener('click', shareTwitter);
+        document.getElementById('shareFacebook').addEventListener('click', shareFacebook);
+        document.getElementById('shareLinkedIn').addEventListener('click', shareLinkedIn);
+        document.getElementById('shareReddit').addEventListener('click', shareReddit);
+        document.getElementById('shareEmail').addEventListener('click', shareEmail);
+
+        // Close tour when pressing Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !tourOverlay.classList.contains('hidden')) {
+                closeTour();
+            }
+        });
+
+        // Functions
+        function setupDynamicEventListeners() {
+            // This will be called whenever new dynamic elements are added
+            document.querySelectorAll('.remove-sitemap-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.parentElement.remove();
+                    generateRobotsTxt();
+                });
+            });
+            
+            document.querySelectorAll('.sitemap-item input').forEach(input => {
+                input.addEventListener('input', generateRobotsTxt);
+            });
+        }
+
+        function setTemplate(template) {
+            let rules = [];
+            
+            switch(template) {
+                case 'default':
+                    rules = [
+                        { userAgent: '*', allow: '/', disallow: '' }
+                    ];
+                    break;
+                case 'block-all':
+                    rules = [
+                        { userAgent: '*', disallow: '/' }
+                    ];
+                    break;
+                case 'wordpress':
+                    rules = [
+                        { userAgent: '*', disallow: '/wp-admin/', allow: '/wp-admin/admin-ajax.php' },
+                        { userAgent: '*', disallow: '/wp-includes/' },
+                        { userAgent: '*', disallow: '/*?*' },
+                        { userAgent: '*', disallow: '/*.php$' },
+                        { userAgent: '*', allow: '/*.css' },
+                        { userAgent: '*', allow: '/*.js' }
+                    ];
+                    break;
+                case 'ecommerce':
+                    rules = [
+                        { userAgent: '*', disallow: '/checkout/' },
+                        { userAgent: '*', disallow: '/cart/' },
+                        { userAgent: '*', disallow: '/account/' },
+                        { userAgent: '*', disallow: '/search/' },
+                        { userAgent: '*', disallow: '/*?*' }
+                    ];
+                    break;
+                case 'custom':
+                    rules = [
+                        { userAgent: '*', allow: '/', disallow: '' }
+                    ];
+                    break;
+            }
+            
+            // Clear existing user agents
+            userAgentsContainer.innerHTML = '';
+            
+            // Add rules from template
+            rules.forEach((rule, index) => {
+                const userAgentId = `userAgent-${index}`;
+                const userAgentDiv = document.createElement('div');
+                userAgentDiv.className = 'user-agent-rules';
+                userAgentDiv.innerHTML = `
+                    <div class="user-agent-header">
+                        <h4>User-Agent: <input type="text" class="user-agent-input" value="${rule.userAgent}" placeholder="* for all crawlers"></h4>
+                        <div class="rule-actions">
+                            <button class="btn btn-secondary add-rule-btn" data-user-agent="${userAgentId}">
+                                <i class="fas fa-plus"></i> Add Rule
+                            </button>
+                            <button class="btn btn-error remove-user-agent-btn">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                    <div class="rules-container" id="${userAgentId}">
+                        <div class="rule-item">
+                            <select class="rule-type">
+                                <option value="allow" ${rule.allow ? 'selected' : ''}>Allow</option>
+                                <option value="disallow" ${rule.disallow ? 'selected' : ''}>Disallow</option>
+                                <option value="crawl-delay">Crawl-Delay</option>
+                            </select>
+                            <input type="text" class="rule-path" value="${rule.allow || rule.disallow || ''}" placeholder="/path/ or URL">
+                            <button class="remove-rule-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                userAgentsContainer.appendChild(userAgentDiv);
+            });
+            
+            // Add event listeners for new elements
+            addRuleEventListeners();
+        }
+
+        function addUserAgent(userAgent = '*') {
+            const userAgentId = `userAgent-${Date.now()}`;
+            const userAgentDiv = document.createElement('div');
+            userAgentDiv.className = 'user-agent-rules';
+            userAgentDiv.innerHTML = `
+                <div class="user-agent-header">
+                    <h4>User-Agent: <input type="text" class="user-agent-input" value="${userAgent}" placeholder="* for all crawlers"></h4>
+                    <div class="rule-actions">
+                        <button class="btn btn-secondary add-rule-btn" data-user-agent="${userAgentId}">
+                            <i class="fas fa-plus"></i> Add Rule
+                        </button>
+                        <button class="btn btn-error remove-user-agent-btn">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+                <div class="rules-container" id="${userAgentId}">
+                    <div class="rule-item">
+                        <select class="rule-type">
+                            <option value="allow">Allow</option>
+                            <option value="disallow" selected>Disallow</option>
+                            <option value="crawl-delay">Crawl-Delay</option>
+                        </select>
+                        <input type="text" class="rule-path" placeholder="/path/ or URL">
+                        <button class="remove-rule-btn"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+            userAgentsContainer.appendChild(userAgentDiv);
+            
+            // Add event listeners for new elements
+            addRuleEventListeners();
+            
+            // Generate robots.txt
+            generateRobotsTxt();
+        }
+
+        function addRuleEventListeners() {
+            // Add rule buttons
+            document.querySelectorAll('.add-rule-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userAgentId = this.getAttribute('data-user-agent');
+                    const rulesContainer = document.getElementById(userAgentId);
+                    
+                    const ruleItem = document.createElement('div');
+                    ruleItem.className = 'rule-item';
+                    ruleItem.innerHTML = `
+                        <select class="rule-type">
+                            <option value="allow">Allow</option>
+                            <option value="disallow" selected>Disallow</option>
+                            <option value="crawl-delay">Crawl-Delay</option>
+                        </select>
+                        <input type="text" class="rule-path" placeholder="/path/ or URL">
+                        <button class="remove-rule-btn"><i class="fas fa-trash"></i></button>
+                    `;
+                    rulesContainer.appendChild(ruleItem);
+                    
+                    // Add event listener for new remove button
+                    ruleItem.querySelector('.remove-rule-btn').addEventListener('click', function() {
+                        ruleItem.remove();
+                        generateRobotsTxt();
+                    });
+                    
+                    // Add event listeners for select and input
+                    ruleItem.querySelector('.rule-type').addEventListener('change', generateRobotsTxt);
+                    ruleItem.querySelector('.rule-path').addEventListener('input', generateRobotsTxt);
+                    
+                    generateRobotsTxt();
+                });
+            });
+            
+            // Remove user agent buttons
+            document.querySelectorAll('.remove-user-agent-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (document.querySelectorAll('.user-agent-rules').length > 1) {
+                        this.closest('.user-agent-rules').remove();
+                        generateRobotsTxt();
+                    } else {
+                        alert('You must have at least one User-Agent section.');
+                    }
+                });
+            });
+            
+            // User agent input changes
+            document.querySelectorAll('.user-agent-input').forEach(input => {
+                input.addEventListener('input', generateRobotsTxt);
+            });
+            
+            // Rule type and path changes
+            document.querySelectorAll('.rule-type, .rule-path').forEach(element => {
+                element.addEventListener('change', generateRobotsTxt);
+                element.addEventListener('input', generateRobotsTxt);
+            });
+        }
+
+        function addSitemap() {
+            const sitemapItem = document.createElement('div');
+            sitemapItem.className = 'sitemap-item';
+            sitemapItem.innerHTML = `
+                <input type="url" placeholder="https://example.com/sitemap.xml">
+                <button class="remove-sitemap-btn"><i class="fas fa-trash"></i></button>
+            `;
+            sitemapsContainer.appendChild(sitemapItem);
+            
+            // Add event listener for remove button
+            sitemapItem.querySelector('.remove-sitemap-btn').addEventListener('click', function() {
+                sitemapItem.remove();
+                generateRobotsTxt();
+            });
+            
+            // Add event listener for input
+            sitemapItem.querySelector('input').addEventListener('input', generateRobotsTxt);
+            
+            generateRobotsTxt();
+        }
+
+        function generateRobotsTxt() {
+            let robotsTxt = '';
+            
+            // Add user agent rules
+            document.querySelectorAll('.user-agent-rules').forEach(userAgentSection => {
+                const userAgent = userAgentSection.querySelector('.user-agent-input').value.trim() || '*';
+                robotsTxt += `User-agent: ${userAgent}\n`;
+                
+                const rules = userAgentSection.querySelectorAll('.rule-item');
+                rules.forEach(rule => {
+                    const type = rule.querySelector('.rule-type').value;
+                    const path = rule.querySelector('.rule-path').value.trim();
+                    
+                    if (path) {
+                        robotsTxt += `${type.charAt(0).toUpperCase() + type.slice(1)}: ${path}\n`;
+                    }
+                });
+                
+                robotsTxt += '\n';
+            });
+            
+            // Add sitemaps
+            const sitemaps = document.querySelectorAll('.sitemap-item input');
+            if (sitemaps.length > 0) {
+                sitemaps.forEach(sitemap => {
+                    const url = sitemap.value.trim();
+                    if (url) {
+                        robotsTxt += `Sitemap: ${url}\n`;
+                    }
+                });
+                robotsTxt += '\n';
+            }
+            
+            // Add crawl delay if specified
+            const crawlDelayValue = crawlDelay.value.trim();
+            if (crawlDelayValue) {
+                robotsTxt += `Crawl-delay: ${crawlDelayValue}\n\n`;
+            }
+            
+            // Add clean param if specified
+            const cleanParamValue = cleanParam.value.trim();
+            if (cleanParamValue) {
+                robotsTxt += `Clean-param: ${cleanParamValue}\n\n`;
+            }
+            
+            // Add host directive if specified
+            const hostDirectiveValue = hostDirective.value;
+            if (hostDirectiveValue && websiteUrl.value.trim()) {
+                try {
+                    const url = new URL(websiteUrl.value.trim());
+                    if (hostDirectiveValue === 'www' && !url.hostname.startsWith('www.')) {
+                        robotsTxt += `Host: www.${url.hostname}\n`;
+                    } else if (hostDirectiveValue === 'non-www' && url.hostname.startsWith('www.')) {
+                        robotsTxt += `Host: ${url.hostname.replace('www.', '')}\n`;
+                    }
+                } catch (e) {
+                    // Invalid URL, skip host directive
+                }
+            }
+            
+            // Trim extra newlines
+            robotsTxt = robotsTxt.trim();
+            
+            // Update output
+            robotsTxtOutput.value = robotsTxt;
+            
+            // Save to localStorage
+            saveToLocalStorage();
+        }
+
+        function copyToClipboard() {
+            robotsTxtOutput.select();
+            document.execCommand('copy');
+            
+            // Show feedback
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function downloadRobotsTxt() {
+            const content = robotsTxtOutput.value;
+            if (!content) {
+                alert('No content to download.');
+                return;
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'robots.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function validateRobotsTxt() {
+            const content = robotsTxtOutput.value.trim();
+            
+            if (!content) {
+                validationResult.textContent = 'Error: Robots.txt file is empty.';
+                validationResult.className = 'validation-result invalid';
+                validationResult.classList.remove('hidden');
+                return;
+            }
+            
+            // Basic validation checks
+            let isValid = true;
+            let errors = [];
+            
+            // Check for at least one User-agent
+            if (!content.includes('User-agent:')) {
+                isValid = false;
+                errors.push('Missing User-agent directive.');
+            }
+            
+            // Check for disallow without path
+            const lines = content.split('\n');
+            lines.forEach(line => {
+                if (line.startsWith('Disallow:') && line.trim() === 'Disallow:') {
+                    isValid = false;
+                    errors.push('Disallow directive without path found.');
+                }
+                
+                if (line.startsWith('Allow:') && line.trim() === 'Allow:') {
+                    isValid = false;
+                    errors.push('Allow directive without path found.');
+                }
+            });
+            
+            // Check for invalid sitemap URLs
+            const sitemapLines = content.match(/Sitemap:\s*(.+)/gi) || [];
+            sitemapLines.forEach(sitemapLine => {
+                const url = sitemapLine.replace(/Sitemap:\s*/i, '').trim();
+                try {
+                    new URL(url);
+                } catch (e) {
+                    isValid = false;
+                    errors.push(`Invalid Sitemap URL: ${url}`);
+                }
+            });
+            
+            // Display results
+            if (isValid && errors.length === 0) {
+                validationResult.innerHTML = '<i class="fas fa-check-circle"></i> Your robots.txt file is valid!';
+                validationResult.className = 'validation-result valid';
+            } else {
+                validationResult.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + 
+                    'Found some issues:<br><ul>' + 
+                    errors.map(error => `<li>${error}</li>`).join('') + 
+                    '</ul>';
+                validationResult.className = 'validation-result invalid';
+            }
+            
+            validationResult.classList.remove('hidden');
+        }
+
+        function testCrawlSimulation() {
+            const content = robotsTxtOutput.value.trim();
+            crawlLog.innerHTML = '';
+            
+            if (!content) {
+                crawlLog.innerHTML = '<div class="log-entry log-error">No rules to test. Please generate a robots.txt file first.</div>';
+                crawlSimulation.classList.remove('hidden');
+                return;
+            }
+            
+            // Parse rules
+            const rules = parseRobotsTxt(content);
+            
+            // Test URLs
+            const testUrls = [
+                '/',
+                '/about',
+                '/contact',
+                '/admin',
+                '/wp-admin',
+                '/products',
+                '/products?sort=price',
+                '/search',
+                '/user/profile',
+                '/sitemap.xml'
+            ];
+            
+            // Add log entries
+            crawlLog.innerHTML += '<div class="log-entry log-info">Starting crawl simulation with test URLs...</div>';
+            
+            testUrls.forEach(url => {
+                const canCrawl = canCrawlUrl(url, rules);
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${canCrawl ? 'log-success' : 'log-error'}`;
+                logEntry.textContent = `${canCrawl ? '✓ ALLOWED' : '✗ BLOCKED'}: ${url}`;
+                crawlLog.appendChild(logEntry);
+            });
+            
+            crawlLog.innerHTML += '<div class="log-entry log-info">Crawl simulation complete. Results above show which URLs would be accessible to crawlers.</div>';
+            crawlSimulation.classList.remove('hidden');
+        }
+
+        function parseRobotsTxt(content) {
+            const rules = {};
+            let currentUserAgent = '*';
+            
+            const lines = content.split('\n');
+            
+            lines.forEach(line => {
+                line = line.trim();
+                
+                if (line.startsWith('User-agent:')) {
+                    currentUserAgent = line.replace('User-agent:', '').trim();
+                    if (!rules[currentUserAgent]) {
+                        rules[currentUserAgent] = {
+                            allow: [],
+                            disallow: [],
+                            crawlDelay: null,
+                            cleanParam: null
+                        };
+                    }
+                } else if (line.startsWith('Allow:')) {
+                    const path = line.replace('Allow:', '').trim();
+                    if (path) {
+                        rules[currentUserAgent].allow.push(path);
+                    }
+                } else if (line.startsWith('Disallow:')) {
+                    const path = line.replace('Disallow:', '').trim();
+                    if (path) {
+                        rules[currentUserAgent].disallow.push(path);
+                    }
+                } else if (line.startsWith('Crawl-delay:')) {
+                    const delay = line.replace('Crawl-delay:', '').trim();
+                    rules[currentUserAgent].crawlDelay = delay;
+                } else if (line.startsWith('Clean-param:')) {
+                    const param = line.replace('Clean-param:', '').trim();
+                    rules[currentUserAgent].cleanParam = param;
+                }
+            });
+            
+            return rules;
+        }
+
+        function canCrawlUrl(url, rules) {
+            // Check against all user agents (including *)
+            for (const userAgent in rules) {
+                const agentRules = rules[userAgent];
+                
+                // First check disallow rules
+                for (const disallow of agentRules.disallow) {
+                    if (disallow === '/') {
+                        return false; // Disallow all
+                    }
+                    
+                    if (disallow && url.startsWith(disallow)) {
+                        // Check if there's a more specific allow rule
+                        let allowed = false;
+                        for (const allow of agentRules.allow) {
+                            if (url.startsWith(allow) && allow.length > disallow.length) {
+                                allowed = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!allowed) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        function resetForm() {
+            if (confirm('Are you sure you want to reset all settings?')) {
+                // Reset form elements
+                websiteUrl.value = '';
+                crawlDelay.value = '';
+                cleanParam.value = '';
+                hostDirective.value = '';
+                
+                // Reset template selection
+                templateCards.forEach(card => card.classList.remove('active'));
+                document.querySelector('.template-card[data-template="default"]').classList.add('active');
+                
+                // Reset user agents
+                userAgentsContainer.innerHTML = '';
+                addUserAgent('*');
+                
+                // Reset sitemaps
+                sitemapsContainer.innerHTML = '';
+                addSitemap();
+                
+                // Clear output and validation
+                robotsTxtOutput.value = '';
+                validationResult.classList.add('hidden');
+                crawlSimulation.classList.add('hidden');
+                
+                // Clear localStorage
+                localStorage.removeItem('robotsTxtGeneratorData');
+            }
+        }
+
+        function toggleShareOptions(e) {
+            e.stopPropagation();
+            shareOptions.classList.toggle('show');
+        }
+
+        function shareTwitter(e) {
+            e.preventDefault();
+            const text = encodeURIComponent('Check out this awesome Robots.txt Generator tool by @YourBrand!');
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        }
+
+        function shareFacebook(e) {
+            e.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+
+        function shareLinkedIn(e) {
+            e.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}`, '_blank');
+        }
+
+        function shareReddit(e) {
+            e.preventDefault();
+            const title = encodeURIComponent('Advanced Robots.txt Generator Tool');
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.reddit.com/submit?title=${title}&url=${url}`, '_blank');
+        }
+
+        function shareEmail(e) {
+            e.preventDefault();
+            const subject = encodeURIComponent('Check out this Robots.txt Generator');
+            const body = encodeURIComponent(`I found this great tool for generating robots.txt files:\n\n${window.location.href}`);
+            window.open(`mailto:?subject=${subject}&body=${body}`);
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            themeToggleBtn.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+            
+            // Save to localStorage
+            localStorage.setItem('themePreference', currentTheme);
+        }
+
+        function startTour() {
+            currentTourStep = 0;
+            updateTourContent();
+            tourOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTour() {
+            tourOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function prevTourStep() {
+            if (currentTourStep > 0) {
+                currentTourStep--;
+                updateTourContent();
+            }
+        }
+
+        function nextTourStep() {
+            if (currentTourStep < tourSteps.length - 1) {
+                currentTourStep++;
+                updateTourContent();
+            } else {
+                closeTour();
+            }
+        }
+
+        function updateTourContent() {
+            const step = tourSteps[currentTourStep];
+            tourTitle.textContent = step.title;
+            tourContent.textContent = step.content;
+            
+            // Update progress bar
+            const progress = ((currentTourStep + 1) / tourSteps.length) * 100;
+            document.querySelector('.progress-bar').style.width = `${progress}%`;
+            
+            // Update button states
+            prevTourBtn.disabled = currentTourStep === 0;
+            nextTourBtn.textContent = currentTourStep === tourSteps.length - 1 ? 'Finish' : 'Next';
+            
+            // Scroll to element if specified
+            if (step.element) {
+                setTimeout(() => {
+                    step.element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    
+                    // Highlight element
+                    const originalBorder = step.element.style.border;
+                    step.element.style.border = '2px solid var(--primary-color)';
+                    step.element.style.boxShadow = '0 0 10px rgba(67, 97, 238, 0.5)';
+                    
+                    setTimeout(() => {
+                        step.element.style.border = originalBorder;
+                        step.element.style.boxShadow = '';
+                    }, 2000);
+                }, 300);
+            }
+        }
+
+        function showTooltip(e) {
+            const tooltipText = this.getAttribute('data-tooltip');
+            if (!tooltipText) return;
+            
+            toolTip.textContent = tooltipText;
+            toolTip.classList.add('show');
+            
+            const rect = this.getBoundingClientRect();
+            toolTip.style.top = `${rect.top + window.scrollY - toolTip.offsetHeight - 10}px`;
+            toolTip.style.left = `${rect.left + window.scrollX}px`;
+        }
+
+        function hideTooltip() {
+            toolTip.classList.remove('show');
+        }
+
+        function saveToLocalStorage() {
+            const data = {
+                websiteUrl: websiteUrl.value,
+                robotsTxt: robotsTxtOutput.value,
+                theme: currentTheme,
+                template: document.querySelector('.template-card.active')?.getAttribute('data-template') || 'default',
+                crawlDelay: crawlDelay.value,
+                cleanParam: cleanParam.value,
+                hostDirective: hostDirective.value
+            };
+            
+            localStorage.setItem('robotsTxtGeneratorData', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('robotsTxtGeneratorData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                websiteUrl.value = data.websiteUrl || '';
+                robotsTxtOutput.value = data.robotsTxt || '';
+                crawlDelay.value = data.crawlDelay || '';
+                cleanParam.value = data.cleanParam || '';
+                hostDirective.value = data.hostDirective || '';
+                
+                // Apply saved template
+                if (data.template) {
+                    const templateCard = document.querySelector(`.template-card[data-template="${data.template}"]`);
+                    if (templateCard) {
+                        templateCards.forEach(c => c.classList.remove('active'));
+                        templateCard.classList.add('active');
+                        setTemplate(data.template);
+                    }
+                }
+                
+                // Apply saved theme
+                if (data.theme && data.theme !== currentTheme) {
+                    toggleTheme();
+                }
+            }
+            
+            // Check for system preference if no saved preference
+            if (!localStorage.getItem('themePreference') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                toggleTheme();
+            }
+        }
+    </script>
+</body>
+</html>
