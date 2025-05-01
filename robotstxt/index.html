@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
@@ -204,22 +243,6 @@
             min-height: 200px;
             font-family: monospace;
             resize: vertical;
-        }
-
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            margin-right: 1rem;
-        }
-
-        .checkbox-item input {
-            margin-right: 0.5rem;
         }
 
         .btn {
@@ -832,7 +855,7 @@
     </div>
 
     <div class="floating-btns">
-        <div class="floating-btn" id="shareBtn" title="Share">
+        <div class="floating-btn" id="shareBtn" title="Share" role="button" tabindex="0">
             <i class="fas fa-share-alt"></i>
         </div>
         <div class="share-options" id="shareOptions">
@@ -842,34 +865,34 @@
             <a href="#" id="shareReddit"><i class="fab fa-reddit"></i> Reddit</a>
             <a href="#" id="shareEmail"><i class="fas fa-envelope"></i> Email</a>
         </div>
-        <div class="floating-btn" id="toTopBtn" title="Back to top">
+        <div class="floating-btn" id="toTopBtn" title="Back to top" role="button" tabindex="0">
             <i class="fas fa-arrow-up"></i>
         </div>
-        <div class="floating-btn" id="toBottomBtn" title="Go to bottom">
+        <div class="floating-btn" id="toBottomBtn" title="Go to bottom" role="button" tabindex="0">
             <i class="fas fa-arrow-down"></i>
         </div>
     </div>
 
     <div class="theme-toggle">
-        <button class="toggle-btn" id="themeToggleBtn" title="Toggle theme">
+        <button class="toggle-btn" id="themeToggleBtn" title="Toggle theme" aria-label="Toggle light/dark theme">
             <i class="fas fa-moon"></i>
         </button>
     </div>
 
-    <div id="tourOverlay" class="tour-overlay hidden">
+    <div id="tourOverlay" class="tour-overlay hidden" role="dialog" aria-labelledby="tourTitle">
         <div class="tour-content">
-            <button class="close-tour" id="closeTourBtn">&times;</button>
-            <div class="progress-bar" style="width: 25%;"></div>
+            <button class="close-tour" id="closeTourBtn" title="Close tour" aria-label="Close tour">×</button>
+            <div class="progress-bar" style="width: 0%;"></div>
             <h3 id="tourTitle">Welcome to Robots.txt Generator</h3>
             <p id="tourContent">This tool helps you create, validate, and test robots.txt files for your website. Let's take a quick tour to explore all features.</p>
             <div class="tour-nav">
-                <button class="btn btn-secondary" id="prevTourBtn" disabled>Previous</button>
-                <button class="btn btn-primary" id="nextTourBtn">Next</button>
+                <button class="btn btn-secondary" id="prevTourBtn" disabled aria-label="Previous tour step">Previous</button>
+                <button class="btn btn-primary" id="nextTourBtn" aria-label="Next tour step">Next</button>
             </div>
         </div>
     </div>
 
-    <div class="tool-tip" id="toolTip"></div>
+    <div class="tool-tip" id="toolTip" role="tooltip"></div>
 
     <script>
         // DOM Elements
@@ -912,6 +935,7 @@
         themeToggleBtn.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
         
         let currentTourStep = 0;
+        let originalStyles = new Map();
         const tourSteps = [
             {
                 title: "Welcome to Robots.txt Generator",
@@ -960,29 +984,141 @@
             }
         ];
 
+        // Utility Functions
+        function sanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
+
+        function validateUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function showAlert(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'validation-result invalid';
+            alertDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${sanitizeInput(message)}`;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        const debouncedGenerateRobotsTxt = debounce(generateRobotsTxt, 300);
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Set default template
             setTemplate('default');
             
-            // Add first user agent
-            addUserAgent('*');
-            
-            // Add first sitemap
-            addSitemap();
-            
-            // Load from localStorage if available
+            // Load from localStorage
             loadFromLocalStorage();
             
             // Generate initial robots.txt
             generateRobotsTxt();
             
-            // Set up event listeners for dynamic elements
-            setupDynamicEventListeners();
+            // Setup event delegation for dynamic elements
+            setupEventDelegation();
+            
+            // Setup accessibility for tooltips
+            setupTooltipAccessibility();
         });
 
-        // Event Listeners for static elements
-        websiteUrl.addEventListener('input', generateRobotsTxt);
+        // Event Delegation for Dynamic Elements
+        function setupEventDelegation() {
+            userAgentsContainer.addEventListener('click', function(e) {
+                const target = e.target;
+                
+                if (target.closest('.add-rule-btn')) {
+                    const userAgentId = target.closest('.add-rule-btn').getAttribute('data-user-agent');
+                    addRule(userAgentId);
+                }
+                
+                if (target.closest('.remove-user-agent-btn')) {
+                    const userAgentSection = target.closest('.user-agent-rules');
+                    if (document.querySelectorAll('.user-agent-rules').length > 1) {
+                        userAgentSection.remove();
+                        debouncedGenerateRobotsTxt();
+                    } else {
+                        showAlert('You must have at least one User-Agent section.');
+                    }
+                }
+                
+                if (target.closest('.remove-rule-btn')) {
+                    const ruleItem = target.closest('.rule-item');
+                    ruleItem.remove();
+                    debouncedGenerateRobotsTxt();
+                }
+            });
+
+            userAgentsContainer.addEventListener('input', function(e) {
+                if (e.target.matches('.user-agent-input, .rule-type, .rule-path')) {
+                    debouncedGenerateRobotsTxt();
+                }
+            });
+
+            userAgentsContainer.addEventListener('change', function(e) {
+                if (e.target.matches('.rule-type')) {
+                    debouncedGenerateRobotsTxt();
+                }
+            });
+
+            sitemapsContainer.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-sitemap-btn')) {
+                    const sitemapItem = e.target.closest('.sitemap-item');
+                    sitemapItem.remove();
+                    debouncedGenerateRobotsTxt();
+                }
+            });
+
+            sitemapsContainer.addEventListener('input', function(e) {
+                if (e.target.matches('input[type="url"]')) {
+                    debouncedGenerateRobotsTxt();
+                }
+            });
+        }
+
+        // Event Listeners for Static Elements
+        websiteUrl.addEventListener('input', function() {
+            if (this.value && !validateUrl(this.value)) {
+                this.setCustomValidity('Please enter a valid URL (e.g., https://example.com)');
+            } else {
+                this.setCustomValidity('');
+            }
+            debouncedGenerateRobotsTxt();
+        });
+
+        crawlDelay.addEventListener('input', function() {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+            debouncedGenerateRobotsTxt();
+        });
+
+        cleanParam.addEventListener('input', debouncedGenerateRobotsTxt);
+        hostDirective.addEventListener('change', debouncedGenerateRobotsTxt);
+
         addUserAgentBtn.addEventListener('click', () => addUserAgent('*'));
         addSitemapBtn.addEventListener('click', addSitemap);
         copyBtn.addEventListener('click', copyToClipboard);
@@ -991,74 +1127,81 @@
         testBtn.addEventListener('click', testCrawlSimulation);
         resetBtn.addEventListener('click', resetForm);
         shareBtn.addEventListener('click', toggleShareOptions);
+        shareBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                toggleShareOptions(e);
+            }
+        });
         toTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        toTopBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
         toBottomBtn.addEventListener('click', () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }));
+        toBottomBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+        });
         themeToggleBtn.addEventListener('click', toggleTheme);
         startTourBtn.addEventListener('click', startTour);
         closeTourBtn.addEventListener('click', closeTour);
         prevTourBtn.addEventListener('click', prevTourStep);
         nextTourBtn.addEventListener('click', nextTourStep);
-        crawlDelay.addEventListener('input', generateRobotsTxt);
-        cleanParam.addEventListener('input', generateRobotsTxt);
-        hostDirective.addEventListener('change', generateRobotsTxt);
 
-        // Close share options when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!shareBtn.contains(e.target) && !shareOptions.contains(e.target)) {
-                shareOptions.classList.remove('show');
-            }
-        });
-
-        // Template selection
         templateCards.forEach(card => {
             card.addEventListener('click', function() {
                 templateCards.forEach(c => c.classList.remove('active'));
                 this.classList.add('active');
                 const template = this.getAttribute('data-template');
                 setTemplate(template);
-                generateRobotsTxt();
+                debouncedGenerateRobotsTxt();
             });
         });
 
-        // Tooltip functionality
-        tooltipIcons.forEach(icon => {
-            icon.addEventListener('mouseenter', showTooltip);
-            icon.addEventListener('mouseleave', hideTooltip);
-        });
-
-        // Share buttons
         document.getElementById('shareTwitter').addEventListener('click', shareTwitter);
         document.getElementById('shareFacebook').addEventListener('click', shareFacebook);
         document.getElementById('shareLinkedIn').addEventListener('click', shareLinkedIn);
         document.getElementById('shareReddit').addEventListener('click', shareReddit);
         document.getElementById('shareEmail').addEventListener('click', shareEmail);
 
-        // Close tour when pressing Escape
+        document.addEventListener('click', function(e) {
+            if (!shareBtn.contains(e.target) && !shareOptions.contains(e.target)) {
+                shareOptions.classList.remove('show');
+            }
+        });
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && !tourOverlay.classList.contains('hidden')) {
                 closeTour();
             }
         });
 
-        // Functions
-        function setupDynamicEventListeners() {
-            // This will be called whenever new dynamic elements are added
-            document.querySelectorAll('.remove-sitemap-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.parentElement.remove();
-                    generateRobotsTxt();
+        function setupTooltipAccessibility() {
+            tooltipIcons.forEach(icon => {
+                icon.setAttribute('tabindex', '0');
+                icon.setAttribute('role', 'button');
+                icon.setAttribute('aria-label', 'Show tooltip');
+                
+                icon.addEventListener('click', showTooltip);
+                icon.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        showTooltip.call(icon, e);
+                    }
                 });
-            });
-            
-            document.querySelectorAll('.sitemap-item input').forEach(input => {
-                input.addEventListener('input', generateRobotsTxt);
+                icon.addEventListener('mouseenter', showTooltip);
+                icon.addEventListener('mouseleave', hideTooltip);
+                icon.addEventListener('focusout', hideTooltip);
             });
         }
 
+        // Functions
         function setTemplate(template) {
             let rules = [];
             
-            switch(template) {
+            switch (template) {
                 case 'default':
                     rules = [
                         { userAgent: '*', allow: '/', disallow: '' }
@@ -1093,175 +1236,119 @@
                         { userAgent: '*', allow: '/', disallow: '' }
                     ];
                     break;
+                default:
+                    console.warn(`Unknown template: ${template}`);
+                    rules = [
+                        { userAgent: '*', allow: '/', disallow: '' }
+                    ];
+                    break;
             }
             
-            // Clear existing user agents
             userAgentsContainer.innerHTML = '';
             
-            // Add rules from template
-            rules.forEach((rule, index) => {
-                const userAgentId = `userAgent-${index}`;
+            rules.forEach(rule => {
+                const userAgentId = `userAgent-${generateUUID()}`;
                 const userAgentDiv = document.createElement('div');
                 userAgentDiv.className = 'user-agent-rules';
                 userAgentDiv.innerHTML = `
                     <div class="user-agent-header">
-                        <h4>User-Agent: <input type="text" class="user-agent-input" value="${rule.userAgent}" placeholder="* for all crawlers"></h4>
+                        <h4>User-Agent: <input type="text" class="user-agent-input" value="${sanitizeInput(rule.userAgent)}" placeholder="* for all crawlers"></h4>
                         <div class="rule-actions">
-                            <button class="btn btn-secondary add-rule-btn" data-user-agent="${userAgentId}">
+                            <button class="btn btn-secondary add-rule-btn" data-user-agent="${userAgentId}" aria-label="Add rule">
                                 <i class="fas fa-plus"></i> Add Rule
                             </button>
-                            <button class="btn btn-error remove-user-agent-btn">
+                            <button class="btn btn-error remove-user-agent-btn" aria-label="Remove user-agent">
                                 <i class="fas fa-trash"></i> Remove
                             </button>
                         </div>
                     </div>
                     <div class="rules-container" id="${userAgentId}">
                         <div class="rule-item">
-                            <select class="rule-type">
+                            <select class="rule-type" aria-label="Rule type">
                                 <option value="allow" ${rule.allow ? 'selected' : ''}>Allow</option>
                                 <option value="disallow" ${rule.disallow ? 'selected' : ''}>Disallow</option>
                                 <option value="crawl-delay">Crawl-Delay</option>
                             </select>
-                            <input type="text" class="rule-path" value="${rule.allow || rule.disallow || ''}" placeholder="/path/ or URL">
-                            <button class="remove-rule-btn"><i class="fas fa-trash"></i></button>
+                            <input type="text" class="rule-path" value="${sanitizeInput(rule.allow || rule.disallow || '')}" placeholder="/path/ or URL" aria-label="Rule path">
+                            <button class="remove-rule-btn" aria-label="Remove rule"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
                 userAgentsContainer.appendChild(userAgentDiv);
             });
-            
-            // Add event listeners for new elements
-            addRuleEventListeners();
         }
 
         function addUserAgent(userAgent = '*') {
-            const userAgentId = `userAgent-${Date.now()}`;
+            const userAgentId = `userAgent-${generateUUID()}`;
             const userAgentDiv = document.createElement('div');
             userAgentDiv.className = 'user-agent-rules';
             userAgentDiv.innerHTML = `
                 <div class="user-agent-header">
-                    <h4>User-Agent: <input type="text" class="user-agent-input" value="${userAgent}" placeholder="* for all crawlers"></h4>
+                    <h4>User-Agent: <input type="text" class="user-agent-input" value="${sanitizeInput(userAgent)}" placeholder="* for all crawlers"></h4>
                     <div class="rule-actions">
-                        <button class="btn btn-secondary add-rule-btn" data-user-agent="${userAgentId}">
+                        <button class="btn btn-secondary add-rule-btn" data-user-agent="${userAgentId}" aria-label="Add rule">
                             <i class="fas fa-plus"></i> Add Rule
                         </button>
-                        <button class="btn btn-error remove-user-agent-btn">
+                        <button class="btn btn-error remove-user-agent-btn" aria-label="Remove user-agent">
                             <i class="fas fa-trash"></i> Remove
                         </button>
                     </div>
                 </div>
                 <div class="rules-container" id="${userAgentId}">
                     <div class="rule-item">
-                        <select class="rule-type">
+                        <select class="rule-type" aria-label="Rule type">
                             <option value="allow">Allow</option>
                             <option value="disallow" selected>Disallow</option>
                             <option value="crawl-delay">Crawl-Delay</option>
                         </select>
-                        <input type="text" class="rule-path" placeholder="/path/ or URL">
-                        <button class="remove-rule-btn"><i class="fas fa-trash"></i></button>
+                        <input type="text" class="rule-path" placeholder="/path/ or URL" aria-label="Rule path">
+                        <button class="remove-rule-btn" aria-label="Remove rule"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `;
             userAgentsContainer.appendChild(userAgentDiv);
-            
-            // Add event listeners for new elements
-            addRuleEventListeners();
-            
-            // Generate robots.txt
-            generateRobotsTxt();
+            debouncedGenerateRobotsTxt();
         }
 
-        function addRuleEventListeners() {
-            // Add rule buttons
-            document.querySelectorAll('.add-rule-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const userAgentId = this.getAttribute('data-user-agent');
-                    const rulesContainer = document.getElementById(userAgentId);
-                    
-                    const ruleItem = document.createElement('div');
-                    ruleItem.className = 'rule-item';
-                    ruleItem.innerHTML = `
-                        <select class="rule-type">
-                            <option value="allow">Allow</option>
-                            <option value="disallow" selected>Disallow</option>
-                            <option value="crawl-delay">Crawl-Delay</option>
-                        </select>
-                        <input type="text" class="rule-path" placeholder="/path/ or URL">
-                        <button class="remove-rule-btn"><i class="fas fa-trash"></i></button>
-                    `;
-                    rulesContainer.appendChild(ruleItem);
-                    
-                    // Add event listener for new remove button
-                    ruleItem.querySelector('.remove-rule-btn').addEventListener('click', function() {
-                        ruleItem.remove();
-                        generateRobotsTxt();
-                    });
-                    
-                    // Add event listeners for select and input
-                    ruleItem.querySelector('.rule-type').addEventListener('change', generateRobotsTxt);
-                    ruleItem.querySelector('.rule-path').addEventListener('input', generateRobotsTxt);
-                    
-                    generateRobotsTxt();
-                });
-            });
-            
-            // Remove user agent buttons
-            document.querySelectorAll('.remove-user-agent-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (document.querySelectorAll('.user-agent-rules').length > 1) {
-                        this.closest('.user-agent-rules').remove();
-                        generateRobotsTxt();
-                    } else {
-                        alert('You must have at least one User-Agent section.');
-                    }
-                });
-            });
-            
-            // User agent input changes
-            document.querySelectorAll('.user-agent-input').forEach(input => {
-                input.addEventListener('input', generateRobotsTxt);
-            });
-            
-            // Rule type and path changes
-            document.querySelectorAll('.rule-type, .rule-path').forEach(element => {
-                element.addEventListener('change', generateRobotsTxt);
-                element.addEventListener('input', generateRobotsTxt);
-            });
+        function addRule(userAgentId) {
+            const rulesContainer = document.getElementById(userAgentId);
+            const ruleItem = document.createElement('div');
+            ruleItem.className = 'rule-item';
+            ruleItem.innerHTML = `
+                <select class="rule-type" aria-label="Rule type">
+                    <option value="allow">Allow</option>
+                    <option value="disallow" selected>Disallow</option>
+                    <option value="crawl-delay">Crawl-Delay</option>
+                </select>
+                <input type="text" class="rule-path" placeholder="/path/ or URL" aria-label="Rule path">
+                <button class="remove-rule-btn" aria-label="Remove rule"><i class="fas fa-trash"></i></button>
+            `;
+            rulesContainer.appendChild(ruleItem);
+            debouncedGenerateRobotsTxt();
         }
 
-        function addSitemap() {
+        function addSitemap(url = '') {
             const sitemapItem = document.createElement('div');
             sitemapItem.className = 'sitemap-item';
             sitemapItem.innerHTML = `
-                <input type="url" placeholder="https://example.com/sitemap.xml">
-                <button class="remove-sitemap-btn"><i class="fas fa-trash"></i></button>
+                <input type="url" placeholder="https://example.com/sitemap.xml" value="${sanitizeInput(url)}" aria-label="Sitemap URL">
+                <button class="remove-sitemap-btn" aria-label="Remove sitemap"><i class="fas fa-trash"></i></button>
             `;
             sitemapsContainer.appendChild(sitemapItem);
-            
-            // Add event listener for remove button
-            sitemapItem.querySelector('.remove-sitemap-btn').addEventListener('click', function() {
-                sitemapItem.remove();
-                generateRobotsTxt();
-            });
-            
-            // Add event listener for input
-            sitemapItem.querySelector('input').addEventListener('input', generateRobotsTxt);
-            
-            generateRobotsTxt();
+            debouncedGenerateRobotsTxt();
         }
 
         function generateRobotsTxt() {
             let robotsTxt = '';
             
-            // Add user agent rules
             document.querySelectorAll('.user-agent-rules').forEach(userAgentSection => {
-                const userAgent = userAgentSection.querySelector('.user-agent-input').value.trim() || '*';
+                const userAgent = sanitizeInput(userAgentSection.querySelector('.user-agent-input').value.trim()) || '*';
                 robotsTxt += `User-agent: ${userAgent}\n`;
                 
                 const rules = userAgentSection.querySelectorAll('.rule-item');
                 rules.forEach(rule => {
                     const type = rule.querySelector('.rule-type').value;
-                    const path = rule.querySelector('.rule-path').value.trim();
+                    const path = sanitizeInput(rule.querySelector('.rule-path').value.trim());
                     
                     if (path) {
                         robotsTxt += `${type.charAt(0).toUpperCase() + type.slice(1)}: ${path}\n`;
@@ -1271,31 +1358,27 @@
                 robotsTxt += '\n';
             });
             
-            // Add sitemaps
             const sitemaps = document.querySelectorAll('.sitemap-item input');
             if (sitemaps.length > 0) {
                 sitemaps.forEach(sitemap => {
-                    const url = sitemap.value.trim();
-                    if (url) {
+                    const url = sanitizeInput(sitemap.value.trim());
+                    if (url && validateUrl(url)) {
                         robotsTxt += `Sitemap: ${url}\n`;
                     }
                 });
                 robotsTxt += '\n';
             }
             
-            // Add crawl delay if specified
             const crawlDelayValue = crawlDelay.value.trim();
-            if (crawlDelayValue) {
-                robotsTxt += `Crawl-delay: ${crawlDelayValue}\n\n`;
+            if (crawlDelayValue && !isNaN(crawlDelayValue) && crawlDelayValue >= 0) {
+                robotsTxt += `Crawl-delay: ${sanitizeInput(crawlDelayValue)}\n\n`;
             }
             
-            // Add clean param if specified
-            const cleanParamValue = cleanParam.value.trim();
+            const cleanParamValue = sanitizeInput(cleanParam.value.trim());
             if (cleanParamValue) {
                 robotsTxt += `Clean-param: ${cleanParamValue}\n\n`;
             }
             
-            // Add host directive if specified
             const hostDirectiveValue = hostDirective.value;
             if (hostDirectiveValue && websiteUrl.value.trim()) {
                 try {
@@ -1305,105 +1388,116 @@
                     } else if (hostDirectiveValue === 'non-www' && url.hostname.startsWith('www.')) {
                         robotsTxt += `Host: ${url.hostname.replace('www.', '')}\n`;
                     }
-                } catch (e) {
+                } catch {
                     // Invalid URL, skip host directive
                 }
             }
             
-            // Trim extra newlines
             robotsTxt = robotsTxt.trim();
-            
-            // Update output
             robotsTxtOutput.value = robotsTxt;
-            
-            // Save to localStorage
             saveToLocalStorage();
         }
 
-        function copyToClipboard() {
-            robotsTxtOutput.select();
-            document.execCommand('copy');
+        async function copyToClipboard() {
+            const content = robotsTxtOutput.value;
+            if (!content) {
+                showAlert('No content to copy.');
+                return;
+            }
             
-            // Show feedback
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => {
-                copyBtn.innerHTML = originalText;
-            }, 2000);
+            try {
+                await navigator.clipboard.writeText(content);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                showAlert('Failed to copy to clipboard.');
+                robotsTxtOutput.select();
+                document.execCommand('copy');
+            }
         }
 
         function downloadRobotsTxt() {
             const content = robotsTxtOutput.value;
             if (!content) {
-                alert('No content to download.');
+                showAlert('No content to download.');
                 return;
             }
             
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'robots.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            try {
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'robots.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                showAlert('Failed to download file.');
+            }
         }
 
         function validateRobotsTxt() {
             const content = robotsTxtOutput.value.trim();
             
             if (!content) {
-                validationResult.textContent = 'Error: Robots.txt file is empty.';
+                validationResult.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: Robots.txt file is empty.';
                 validationResult.className = 'validation-result invalid';
                 validationResult.classList.remove('hidden');
                 return;
             }
             
-            // Basic validation checks
             let isValid = true;
             let errors = [];
             
-            // Check for at least one User-agent
-            if (!content.includes('User-agent:')) {
+            const lines = content.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
+            
+            if (!lines.some(line => line.toLowerCase().startsWith('user-agent:'))) {
                 isValid = false;
                 errors.push('Missing User-agent directive.');
             }
             
-            // Check for disallow without path
-            const lines = content.split('\n');
             lines.forEach(line => {
-                if (line.startsWith('Disallow:') && line.trim() === 'Disallow:') {
+                if (line.toLowerCase().startsWith('disallow:') && line.trim().toLowerCase() === 'disallow:') {
                     isValid = false;
                     errors.push('Disallow directive without path found.');
                 }
-                
-                if (line.startsWith('Allow:') && line.trim() === 'Allow:') {
+                if (line.toLowerCase().startsWith('allow:') && line.trim().toLowerCase() === 'allow:') {
                     isValid = false;
                     errors.push('Allow directive without path found.');
                 }
+                if (line.toLowerCase().startsWith('crawl-delay:') && !line.replace(/crawl-delay:/i, '').trim()) {
+                    isValid = false;
+                    errors.push('Crawl-delay directive without value found.');
+                }
             });
             
-            // Check for invalid sitemap URLs
-            const sitemapLines = content.match(/Sitemap:\s*(.+)/gi) || [];
+            const sitemapLines = lines.filter(line => line.toLowerCase().startsWith('sitemap:'));
             sitemapLines.forEach(sitemapLine => {
-                const url = sitemapLine.replace(/Sitemap:\s*/i, '').trim();
-                try {
-                    new URL(url);
-                } catch (e) {
+                const url = sitemapLine.replace(/sitemap:/i, '').trim();
+                if (!validateUrl(url)) {
                     isValid = false;
                     errors.push(`Invalid Sitemap URL: ${url}`);
                 }
             });
             
-            // Display results
+            lines.forEach(line => {
+                if (!/^(user-agent|sitemap|allow|disallow|crawl-delay|clean-param|host):/i.test(line) && line.trim()) {
+                    isValid = false;
+                    errors.push(`Invalid directive: ${line}`);
+                }
+            });
+            
             if (isValid && errors.length === 0) {
                 validationResult.innerHTML = '<i class="fas fa-check-circle"></i> Your robots.txt file is valid!';
                 validationResult.className = 'validation-result valid';
             } else {
-                validationResult.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + 
-                    'Found some issues:<br><ul>' + 
-                    errors.map(error => `<li>${error}</li>`).join('') + 
+                validationResult.innerHTML = '<i class="fas fa-exclamation-circle"></i> Found some issues:<br><ul>' +
+                    errors.map(error => `<li>${sanitizeInput(error)}</li>`).join('') +
                     '</ul>';
                 validationResult.className = 'validation-result invalid';
             }
@@ -1421,10 +1515,8 @@
                 return;
             }
             
-            // Parse rules
             const rules = parseRobotsTxt(content);
             
-            // Test URLs
             const testUrls = [
                 '/',
                 '/about',
@@ -1438,7 +1530,6 @@
                 '/sitemap.xml'
             ];
             
-            // Add log entries
             crawlLog.innerHTML += '<div class="log-entry log-info">Starting crawl simulation with test URLs...</div>';
             
             testUrls.forEach(url => {
@@ -1458,13 +1549,11 @@
             const rules = {};
             let currentUserAgent = '*';
             
-            const lines = content.split('\n');
+            const lines = content.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
             
             lines.forEach(line => {
-                line = line.trim();
-                
-                if (line.startsWith('User-agent:')) {
-                    currentUserAgent = line.replace('User-agent:', '').trim();
+                if (line.toLowerCase().startsWith('user-agent:')) {
+                    currentUserAgent = sanitizeInput(line.replace(/user-agent:/i, '').trim());
                     if (!rules[currentUserAgent]) {
                         rules[currentUserAgent] = {
                             allow: [],
@@ -1473,22 +1562,26 @@
                             cleanParam: null
                         };
                     }
-                } else if (line.startsWith('Allow:')) {
-                    const path = line.replace('Allow:', '').trim();
+                } else if (line.toLowerCase().startsWith('allow:')) {
+                    const path = sanitizeInput(line.replace(/allow:/i, '').trim());
                     if (path) {
                         rules[currentUserAgent].allow.push(path);
                     }
-                } else if (line.startsWith('Disallow:')) {
-                    const path = line.replace('Disallow:', '').trim();
+                } else if (line.toLowerCase().startsWith('disallow:')) {
+                    const path = sanitizeInput(line.replace(/disallow:/i, '').trim());
                     if (path) {
                         rules[currentUserAgent].disallow.push(path);
                     }
-                } else if (line.startsWith('Crawl-delay:')) {
-                    const delay = line.replace('Crawl-delay:', '').trim();
-                    rules[currentUserAgent].crawlDelay = delay;
-                } else if (line.startsWith('Clean-param:')) {
-                    const param = line.replace('Clean-param:', '').trim();
-                    rules[currentUserAgent].cleanParam = param;
+                } else if (line.toLowerCase().startsWith('crawl-delay:')) {
+                    const delay = sanitizeInput(line.replace(/crawl-delay:/i, '').trim());
+                    if (!isNaN(delay) && delay >= 0) {
+                        rules[currentUserAgent].crawlDelay = delay;
+                    }
+                } else if (line.toLowerCase().startsWith('clean-param:')) {
+                    const param = sanitizeInput(line.replace(/clean-param:/i, '').trim());
+                    if (param) {
+                        rules[currentUserAgent].cleanParam = param;
+                    }
                 }
             });
             
@@ -1496,29 +1589,70 @@
         }
 
         function canCrawlUrl(url, rules) {
-            // Check against all user agents (including *)
+            const sortedRules = {};
             for (const userAgent in rules) {
-                const agentRules = rules[userAgent];
+                sortedRules[userAgent] = {
+                    allow: rules[userAgent].allow.sort((a, b) => b.length - a.length),
+                    disallow: rules[userAgent].disallow.sort((a, b) => b.length - a.length),
+                    crawlDelay: rules[userAgent].crawlDelay,
+                    cleanParam: rules[userAgent].cleanParam
+                };
+            }
+            
+            const userAgents = ['*', ...Object.keys(sortedRules).filter(ua => ua !== '*')];
+            
+            for (const userAgent of userAgents) {
+                if (!sortedRules[userAgent]) continue;
                 
-                // First check disallow rules
+                const agentRules = sortedRules[userAgent];
+                
                 for (const disallow of agentRules.disallow) {
                     if (disallow === '/') {
-                        return false; // Disallow all
+                        return false;
                     }
                     
-                    if (disallow && url.startsWith(disallow)) {
-                        // Check if there's a more specific allow rule
+                    if (disallow.includes('*')) {
+                        const regex = new RegExp('^' + disallow.replace(/\*/g, '.*') + '$');
+                        if (regex.test(url)) {
+                            let allowed = false;
+                            for (const allow of agentRules.allow) {
+                                if (allow.includes('*')) {
+                                    const allowRegex = new RegExp('^' + allow.replace(/\*/g, '.*') + '$');
+                                    if (allowRegex.test(url) && allow.length >= disallow.length) {
+                                        allowed = true;
+                                        break;
+                                    }
+                                } else if (url.startsWith(allow) && allow.length >= disallow.length) {
+                                    allowed = true;
+                                    break;
+                                }
+                            }
+                            if (!allowed) {
+                                return false;
+                            }
+                        }
+                    } else if (url.startsWith(disallow)) {
                         let allowed = false;
                         for (const allow of agentRules.allow) {
-                            if (url.startsWith(allow) && allow.length > disallow.length) {
+                            if (url.startsWith(allow) && allow.length >= disallow.length) {
                                 allowed = true;
                                 break;
                             }
                         }
-                        
                         if (!allowed) {
                             return false;
                         }
+                    }
+                }
+                
+                for (const allow of agentRules.allow) {
+                    if (allow.includes('*')) {
+                        const regex = new RegExp('^' + allow.replace(/\*/g, '.*') + '$');
+                        if (regex.test(url)) {
+                            return true;
+                        }
+                    } else if (url.startsWith(allow)) {
+                        return true;
                     }
                 }
             }
@@ -1527,33 +1661,53 @@
         }
 
         function resetForm() {
-            if (confirm('Are you sure you want to reset all settings?')) {
-                // Reset form elements
+            const confirmReset = document.createElement('div');
+            confirmReset.className = 'tour-overlay';
+            confirmReset.innerHTML = `
+                <div class="tour-content">
+                    <h3>Confirm Reset</h3>
+                    <p>Are you sure you want to reset all settings?</p>
+                    <div class="tour-nav">
+                        <button class="btn btn-secondary" id="cancelReset">Cancel</button>
+                        <button class="btn btn-error" id="confirmReset">Reset</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(confirmReset);
+            
+            document.getElementById('cancelReset').addEventListener('click', () => {
+                document.body.removeChild(confirmReset);
+            });
+            
+            document.getElementById('confirmReset').addEventListener('click', () => {
+                document.body.removeChild(confirmReset);
+                
                 websiteUrl.value = '';
                 crawlDelay.value = '';
                 cleanParam.value = '';
                 hostDirective.value = '';
                 
-                // Reset template selection
                 templateCards.forEach(card => card.classList.remove('active'));
                 document.querySelector('.template-card[data-template="default"]').classList.add('active');
                 
-                // Reset user agents
                 userAgentsContainer.innerHTML = '';
                 addUserAgent('*');
                 
-                // Reset sitemaps
                 sitemapsContainer.innerHTML = '';
                 addSitemap();
                 
-                // Clear output and validation
                 robotsTxtOutput.value = '';
                 validationResult.classList.add('hidden');
                 crawlSimulation.classList.add('hidden');
                 
-                // Clear localStorage
-                localStorage.removeItem('robotsTxtGeneratorData');
-            }
+                try {
+                    localStorage.removeItem('robotsTxtGeneratorData');
+                } catch (err) {
+                    console.warn('Failed to clear localStorage:', err);
+                }
+                
+                debouncedGenerateRobotsTxt();
+            });
         }
 
         function toggleShareOptions(e) {
@@ -1563,56 +1717,109 @@
 
         function shareTwitter(e) {
             e.preventDefault();
-            const text = encodeURIComponent('Check out this awesome Robots.txt Generator tool by @YourBrand!');
+            const text = encodeURIComponent('Check out this awesome Robots.txt Generator tool by @BuzzSEOTools!');
             const url = encodeURIComponent(window.location.href);
-            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+            const shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+            try {
+                window.open(shareUrl, '_blank');
+            } catch {
+                showAlert('Failed to open Twitter share window. Please check your pop-up blocker.');
+            }
         }
 
         function shareFacebook(e) {
             e.preventDefault();
             const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+            const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            try {
+                window.open(shareUrl, '_blank');
+            } catch {
+                showAlert('Failed to open Facebook share window. Please check your pop-up blocker.');
+            }
         }
 
         function shareLinkedIn(e) {
             e.preventDefault();
             const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}`, '_blank');
+            const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${url}`;
+            try {
+                window.open(shareUrl, '_blank');
+            } catch {
+                showAlert('Failed to open LinkedIn share window. Please check your pop-up blocker.');
+            }
         }
 
         function shareReddit(e) {
             e.preventDefault();
             const title = encodeURIComponent('Advanced Robots.txt Generator Tool');
             const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.reddit.com/submit?title=${title}&url=${url}`, '_blank');
+            const shareUrl = `https://www.reddit.com/submit?title=${title}&url=${url}`;
+            try {
+                window.open(shareUrl, '_blank');
+            } catch {
+                showAlert('Failed to open Reddit share window. Please check your pop-up blocker.');
+            }
         }
 
         function shareEmail(e) {
             e.preventDefault();
             const subject = encodeURIComponent('Check out this Robots.txt Generator');
             const body = encodeURIComponent(`I found this great tool for generating robots.txt files:\n\n${window.location.href}`);
-            window.open(`mailto:?subject=${subject}&body=${body}`);
+            const shareUrl = `mailto:?subject=${subject}&body=${body}`;
+            try {
+                window.open(shareUrl);
+            } catch {
+                showAlert('Failed to open email client.');
+            }
         }
 
         function toggleTheme() {
-            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', currentTheme);
-            themeToggleBtn.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-            
-            // Save to localStorage
-            localStorage.setItem('themePreference', currentTheme);
+            try {
+                currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                themeToggleBtn.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                localStorage.setItem('themePreference', currentTheme);
+            } catch (err) {
+                console.warn('Failed to save theme to localStorage:', err);
+            }
         }
 
         function startTour() {
             currentTourStep = 0;
-            updateTourContent();
             tourOverlay.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            updateTourContent();
+            
+            tourOverlay.querySelector('.tour-content').focus();
+            
+            const focusableElements = tourOverlay.querySelectorAll('button, [tabindex="0"]');
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            
+            tourOverlay.addEventListener('keydown', function trapFocus(e) {
+                if (e.key === 'Tab') {
+                    if (e.shiftKey && document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    } else if (!e.shiftKey && document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            });
         }
 
         function closeTour() {
             tourOverlay.classList.add('hidden');
             document.body.style.overflow = '';
+            currentTourStep = 0;
+            
+            originalStyles.forEach((styles, element) => {
+                element.style.cssText = styles;
+            });
+            originalStyles.clear();
+            
+            tourOverlay.removeEventListener('keydown', trapFocus);
         }
 
         function prevTourStep() {
@@ -1636,32 +1843,25 @@
             tourTitle.textContent = step.title;
             tourContent.textContent = step.content;
             
-            // Update progress bar
-            const progress = ((currentTourStep + 1) / tourSteps.length) * 100;
+            const progress = (currentTourStep / (tourSteps.length - 1)) * 100;
             document.querySelector('.progress-bar').style.width = `${progress}%`;
             
-            // Update button states
             prevTourBtn.disabled = currentTourStep === 0;
             nextTourBtn.textContent = currentTourStep === tourSteps.length - 1 ? 'Finish' : 'Next';
             
-            // Scroll to element if specified
+            originalStyles.forEach((styles, element) => {
+                element.style.cssText = styles;
+            });
+            originalStyles.clear();
+            
             if (step.element) {
-                setTimeout(() => {
-                    step.element.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    
-                    // Highlight element
-                    const originalBorder = step.element.style.border;
-                    step.element.style.border = '2px solid var(--primary-color)';
-                    step.element.style.boxShadow = '0 0 10px rgba(67, 97, 238, 0.5)';
-                    
-                    setTimeout(() => {
-                        step.element.style.border = originalBorder;
-                        step.element.style.boxShadow = '';
-                    }, 2000);
-                }, 300);
+                const originalStyle = step.element.style.cssText;
+                originalStyles.set(step.element, originalStyle);
+                
+                step.element.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
+                step.element.style.border = '2px solid var(--primary-color)';
+                step.element.style.transition = 'all 0.3s';
+                step.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -1673,8 +1873,13 @@
             toolTip.classList.add('show');
             
             const rect = this.getBoundingClientRect();
-            toolTip.style.top = `${rect.top + window.scrollY - toolTip.offsetHeight - 10}px`;
+            toolTip.style.top = `${rect.bottom + window.scrollY + 5}px`;
             toolTip.style.left = `${rect.left + window.scrollX}px`;
+            
+            const tooltipRect = toolTip.getBoundingClientRect();
+            if (tooltipRect.right > window.innerWidth) {
+                toolTip.style.left = `${window.innerWidth - tooltipRect.width - 5}px`;
+            }
         }
 
         function hideTooltip() {
@@ -1682,49 +1887,125 @@
         }
 
         function saveToLocalStorage() {
-            const data = {
-                websiteUrl: websiteUrl.value,
-                robotsTxt: robotsTxtOutput.value,
-                theme: currentTheme,
-                template: document.querySelector('.template-card.active')?.getAttribute('data-template') || 'default',
-                crawlDelay: crawlDelay.value,
-                cleanParam: cleanParam.value,
-                hostDirective: hostDirective.value
-            };
-            
-            localStorage.setItem('robotsTxtGeneratorData', JSON.stringify(data));
+            try {
+                const data = {
+                    websiteUrl: websiteUrl.value,
+                    crawlDelay: crawlDelay.value,
+                    cleanParam: cleanParam.value,
+                    hostDirective: hostDirective.value,
+                    userAgents: [],
+                    sitemaps: [],
+                    template: document.querySelector('.template-card.active')?.getAttribute('data-template') || 'default'
+                };
+                
+                document.querySelectorAll('.user-agent-rules').forEach(userAgentSection => {
+                    const userAgent = userAgentSection.querySelector('.user-agent-input').value.trim();
+                    const rules = [];
+                    userAgentSection.querySelectorAll('.rule-item').forEach(rule => {
+                        rules.push({
+                            type: rule.querySelector('.rule-type').value,
+                            path: rule.querySelector('.rule-path').value.trim()
+                        });
+                    });
+                    data.userAgents.push({ userAgent, rules });
+                });
+                
+                document.querySelectorAll('.sitemap-item input').forEach(sitemap => {
+                    const url = sitemap.value.trim();
+                    if (url) {
+                        data.sitemaps.push(url);
+                    }
+                });
+                
+                localStorage.setItem('robotsTxtGeneratorData', JSON.stringify(data));
+            } catch (err) {
+                console.warn('Failed to save to localStorage:', err);
+            }
         }
 
         function loadFromLocalStorage() {
-            const savedData = localStorage.getItem('robotsTxtGeneratorData');
-            if (savedData) {
+            try {
+                const savedData = localStorage.getItem('robotsTxtGeneratorData');
+                if (!savedData) {
+                    addUserAgent('*');
+                    addSitemap();
+                    return;
+                }
+                
                 const data = JSON.parse(savedData);
                 
                 websiteUrl.value = data.websiteUrl || '';
-                robotsTxtOutput.value = data.robotsTxt || '';
                 crawlDelay.value = data.crawlDelay || '';
                 cleanParam.value = data.cleanParam || '';
                 hostDirective.value = data.hostDirective || '';
                 
-                // Apply saved template
-                if (data.template) {
-                    const templateCard = document.querySelector(`.template-card[data-template="${data.template}"]`);
-                    if (templateCard) {
-                        templateCards.forEach(c => c.classList.remove('active'));
-                        templateCard.classList.add('active');
-                        setTemplate(data.template);
-                    }
+                templateCards.forEach(card => card.classList.remove('active'));
+                const activeTemplate = document.querySelector(`.template-card[data-template="${data.template || 'default'}"]`);
+                if (activeTemplate) {
+                    activeTemplate.classList.add('active');
                 }
                 
-                // Apply saved theme
-                if (data.theme && data.theme !== currentTheme) {
+                if (data.userAgents && data.userAgents.length > 0) {
+                    userAgentsContainer.innerHTML = '';
+                    data.userAgents.forEach(agent => {
+                        const userAgentId = `userAgent-${generateUUID()}`;
+                        const userAgentDiv = document.createElement('div');
+                        userAgentDiv.className = 'user-agent-rules';
+                        userAgentDiv.innerHTML = `
+                            <div class="user-agent-header">
+                                <h4>User-Agent: <input type="text" class="user-agent-input" value="${sanitizeInput(agent.userAgent)}" placeholder="* for all crawlers"></h4>
+                                <div class="rule-actions">
+                                    <button class="btn btn-secondary add-rule-btn" data-user-agent="${userAgentId}" aria-label="Add rule">
+                                        <i class="fas fa-plus"></i> Add Rule
+                                    </button>
+                                    <button class="btn btn-error remove-user-agent-btn" aria-label="Remove user-agent">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="rules-container" id="${userAgentId}"></div>
+                        `;
+                        userAgentsContainer.appendChild(userAgentDiv);
+                        
+                        const rulesContainer = document.getElementById(userAgentId);
+                        agent.rules.forEach(rule => {
+                            const ruleItem = document.createElement('div');
+                            ruleItem.className = 'rule-item';
+                            ruleItem.innerHTML = `
+                                <select class="rule-type" aria-label="Rule type">
+                                    <option value="allow" ${rule.type === 'allow' ? 'selected' : ''}>Allow</option>
+                                    <option value="disallow" ${rule.type === 'disallow' ? 'selected' : ''}>Disallow</option>
+                                    <option value="crawl-delay" ${rule.type === 'crawl-delay' ? 'selected' : ''}>Crawl-Delay</option>
+                                </select>
+                                <input type="text" class="rule-path" value="${sanitizeInput(rule.path)}" placeholder="/path/ or URL" aria-label="Rule path">
+                                <button class="remove-rule-btn" aria-label="Remove rule"><i class="fas fa-trash"></i></button>
+                            `;
+                            rulesContainer.appendChild(ruleItem);
+                        });
+                    });
+                } else {
+                    addUserAgent('*');
+                }
+                
+                if (data.sitemaps && data.sitemaps.length > 0) {
+                    sitemapsContainer.innerHTML = '';
+                    data.sitemaps.forEach(url => {
+                        addSitemap(url);
+                    });
+                } else {
+                    sitemapsContainer.innerHTML = '';
+                    addSitemap();
+                }
+                
+                if (!localStorage.getItem('themePreference') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     toggleTheme();
                 }
-            }
-            
-            // Check for system preference if no saved preference
-            if (!localStorage.getItem('themePreference') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                toggleTheme();
+                
+                debouncedGenerateRobotsTxt();
+            } catch (err) {
+                console.warn('Failed to load from localStorage:', err);
+                addUserAgent('*');
+                addSitemap();
             }
         }
     </script>
