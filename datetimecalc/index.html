@@ -1,0 +1,573 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Date & Time Calculator with timezone conversion, business day calculations, countdowns, and more. Perfect for planning and scheduling.">
+    <meta name="keywords" content="date calculator, time calculator, timezone converter, business days, countdown timer, date difference">
+    <title>Buzz | Date & Time Calculator - Advanced Time Management Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="brand">
+                <i class="fas fa-clock"></i> Buzz
+            </div>
+            <div class="app-title">Date & Time Calculator</div>
+            <a href="/" class="nav-button" aria-label="Return to Home">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="intro-section">
+            <h1>Advanced Date & Time Calculator</h1>
+            <p>Perform complex date and time calculations with ease. Calculate differences between dates, add or subtract time, convert timezones, count business days, and much more.</p>
+            <div class="quick-actions">
+                <button class="quick-action-btn" data-action="today" aria-label="Set to Today"><i class="fas fa-calendar-day"></i> Today</button>
+                <button class="quick-action-btn" data-action="tomorrow" aria-label="Set to Tomorrow"><i class="fas fa-sun"></i> Tomorrow</button>
+                <button class="quick-action-btn" data-action="next-week" aria-label="Set to Next Week"><i class="fas fa-calendar-week"></i> Next Week</button>
+                <button class="quick-action-btn" data-action="next-month" aria-label="Set to Next Month"><i class="fas fa-calendar-alt"></i> Next Month</button>
+                <button class="quick-action-btn" data-action="new-year" aria-label="Set to New Year"><i class="fas fa-glass-cheers"></i> New Year</button>
+            </div>
+        </section>
+
+        <section class="calculator-grid">
+            <!-- Date Difference Calculator -->
+            <div class="calculator-card">
+                <h2><i class="fas fa-calendar-minus"></i> Date Difference</h2>
+                <div class="form-group">
+                    <label for="start-date">Start Date</label>
+                    <input type="datetime-local" id="start-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="end-date">End Date</label>
+                    <input type="datetime-local" id="end-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        Include Time in Calculation
+                        <input type="checkbox" id="include-time" checked>
+                    </label>
+                </div>
+                <button id="calculate-difference" class="btn btn-block" aria-label="Calculate Date Difference">
+                    <i class="fas fa-calculator"></i> Calculate Difference
+                </button>
+                <div id="difference-result" class="result-section" style="display: none;">
+                    <h3>Result</h3>
+                    <div id="difference-value" class="result-value"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary btn-copy" data-target="difference-value" aria-label="Copy Date Difference Result">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-success btn-share" data-result="difference" aria-label="Share Date Difference Result">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add/Subtract Time -->
+            <div class="calculator-card">
+                <h2><i class="fas fa-calendar-plus"></i> Add/Subtract Time</h2>
+                <div class="form-group">
+                    <label for="base-date">Base Date</label>
+                    <input type="datetime-local" id="base-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="time-amount">Amount</label>
+                    <input type="number" id="time-amount" class="form-control" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="time-unit">Unit</label>
+                    <select id="time-unit" class="form-control">
+                        <option value="seconds">Seconds</option>
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                        <option value="weeks">Weeks</option>
+                        <option value="months">Months</option>
+                        <option value="years">Years</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Operation</label>
+                    <div>
+                        <label>
+                            <input type="radio" name="operation" value="add" checked> Add
+                        </label>
+                        <label>
+                            <input type="radio" name="operation" value="subtract"> Subtract
+                        </label>
+                    </div>
+                </div>
+                <button id="calculate-time-operation" class="btn btn-block" aria-label="Calculate Time Operation">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+                <div id="operation-result" class="result-section" style="display: none;">
+                    <h3>Result</h3>
+                    <div id="operation-value" class="result-value"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary btn-copy" data-target="operation-value" aria-label="Copy Time Operation Result">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-success btn-share" data-result="operation" aria-label="Share Time Operation Result">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timezone Converter -->
+            <div class="calculator-card">
+                <h2><i class="fas fa-globe"></i> Timezone Converter</h2>
+                <div class="form-group">
+                    <label for="convert-date">Date & Time</label>
+                    <input type="datetime-local" id="convert-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="from-timezone">From Timezone</label>
+                    <select id="from-timezone" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label for="to-timezone">To Timezone</label>
+                    <select id="to-timezone" class="form-control"></select>
+                </div>
+                <button id="convert-timezone" class="btn btn-block" aria-label="Convert Timezone">
+                    <i class="fas fa-exchange-alt"></i> Convert Timezone
+                </button>
+                <div id="timezone-result" class="result-section" style="display: none;">
+                    <h3>Converted Time</h3>
+                    <div id="timezone-value" class="result-value"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary btn-copy" data-target="timezone-value" aria-label="Copy Timezone Result">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-success btn-share" data-result="timezone" aria-label="Share Timezone Result">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Days Calculator -->
+            <div class="calculator-card">
+                <h2><i class="fas fa-briefcase"></i> Business Days</h2>
+                <div class="form-group">
+                    <label for="business-start-date">Start Date</label>
+                    <input type="date" id="business-start-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="business-end-date">End Date</label>
+                    <input type="date" id="business-end-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="holidays-region">Holiday Region <span class="tooltip-icon" aria-label="Select a region to automatically exclude public holidays">?</span></label>
+                    <select id="holidays-region" class="form-control">
+                        <option value="none">None</option>
+                        <option value="US">United States</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="EU">European Union</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="exclude-weekends" checked> Exclude Weekends
+                    </label>
+                </div>
+                <button id="calculate-business-days" class="btn btn-block" aria-label="Calculate Business Days">
+                    <i class="fas fa-calculator"></i> Calculate Business Days
+                </button>
+                <div id="business-days-result" class="result-section" style="display: none;">
+                    <h3>Result</h3>
+                    <div id="business-days-value" class="result-value"></div>
+                    <div id="holidays-list" class="holiday-list" style="display: none;"></div>
+  <div class="action-buttons">
+                        <button class="btn btn-secondary btn-copy" data-target="business-days-value" aria-label="Copy Business Days Result">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-success btn-share" data-result="business-days" aria-label="Share Business Days Result">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div class="calculator-card">
+                <h2><i class="fas fa-hourglass-half"></i> Countdown Timer</h2>
+                <div class="form-group">
+                    <label for="countdown-date">Target Date & Time</label>
+                    <input type="datetime-local" id="countdown-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="countdown-title">Event Title (Optional)</label>
+                    <input type="text" id="countdown-title" class="form-control" placeholder="e.g., New Year's Eve">
+                </div>
+                <button id="start-countdown" class="btn btn-block" aria-label="Start Countdown">
+                    <i class="fas fa-play"></i> Start Countdown
+                </button>
+                <div id="countdown-result" class="result-section" style="display: none;">
+                    <h3 id="countdown-event-title"></h3>
+                    <div id="countdown-value" class="result-value" style="font-size: 1.5rem; text-align: center;"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary btn-copy" data-target="countdown-value" aria-label="Copy Countdown Result">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-success btn-share" data-result="countdown" aria-label="Share Countdown Result">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Date Rules -->
+            <div class="calculator-card">
+                <h2><i class="fas fa-magic"></i> Custom Date Rules</h2>
+                <div class="form-group">
+                    <label for="rule-base-date">Base Date</label>
+                    <input type="date" id="rule-base-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="custom-rule">Custom Rule <span class="tooltip-icon" aria-label="Examples: '2 weeks before', '3rd Friday of next month', 'last day of month'">?</span></label>
+                    <input type="text" id="custom-rule" class="form-control" placeholder="e.g., '2 weeks before'">
+                </div>
+                <button id="calculate-custom-rule" class="btn btn-block" aria-label="Calculate Custom Rule">
+                    <i class="fas fa-wand-magic-sparkles"></i> Calculate
+                </button>
+                <div id="custom-rule-result" class="result-section" style="display: none;">
+                    <h3>Result</h3>
+                    <div id="custom-rule-value" class="result-value"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary btn-copy" data-target="custom-rule-value" aria-label="Copy Custom Rule Result">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-success btn-share" data-result="custom-rule" aria-label="Share Custom Rule Result">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+                <div class="custom-rules-list">
+                    <h4>Saved Rules</h4>
+                    <div id="saved-rules-container"></div>
+                    <button id="save-current-rule" class="btn btn-secondary" style="margin-top: 10px;" aria-label="Save Current Rule">
+                        <i class="fas fa-save"></i> Save Current Rule
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Features Section -->
+        <section class="advanced-features">
+            <h2 style="text-align: center; margin: 2rem 0; color: var(--primary-color);">
+                <i class="fas fa-star"></i> Advanced Features
+            </h2>
+            
+            <div class="calculator-grid">
+                <!-- Age Calculator -->
+                <div class="calculator-card">
+                    <h2><i class="fas fa-birthday-cake"></i> Age Calculator</h2>
+                    <div class="form-group">
+                        <label for="birth-date">Birth Date</label>
+                        <input type="date" id="birth-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age-at-date">Age at Date</label>
+                        <input type="date" id="age-at-date" class="form-control" required>
+                    </div>
+                    <button id="calculate-age" class="btn btn-block" aria-label="Calculate Age">
+                        <i class="fas fa-calculator"></i> Calculate Age
+                    </button>
+                    <div id="age-result" class="result-section" style="display: none;">
+                        <h3>Result</h3>
+                        <div id="age-value" class="result-value"></div>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-copy" data-target="age-value" aria-label="Copy Age Result">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-success btn-share" data-result="age" aria-label="Share Age Result">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Week Number Calculator -->
+                <div class="calculator-card">
+                    <h2><i class="fas fa-calendar-week"></i> Week Number</h2>
+                    <div class="form-group">
+                        <label for="week-number-date">Date</label>
+                        <input type="date" id="week-number-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="week-number-system">Week Numbering System</label>
+                        <select id="week-number-system" class="form-control">
+                            <option value="iso">ISO 8601 (Monday-Sunday)</option>
+                            <option value="us">US (Sunday-Saturday)</option>
+                            <option value="middle-eastern">Middle Eastern (Saturday-Friday)</option>
+                        </select>
+                    </div>
+                    <button id="calculate-week-number" class="btn btn-block" aria-label="Calculate Week Number">
+                        <i class="fas fa-calculator"></i> Calculate Week Number
+                    </button>
+                    <div id="week-number-result" class="result-section" style="display: none;">
+                        <h3>Result</h3>
+                        <div id="week-number-value" class="result-value"></div>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-copy" data-target="week-number-value" aria-label="Copy Week Number Result">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-success btn-share" data-result="week-number" aria-label="Share Week Number Result">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sunrise/Sunset Calculator -->
+                <div class="calculator-card">
+                    <h2><i class="fas fa-sun"></i> Sunrise/Sunset</h2>
+                    <div class="form-group">
+                        <label for="sun-date">Date</label>
+                        <input type="date" id="sun-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sun-location">Location</label>
+                        <input type="text" id="sun-location" class="form-control" placeholder="City or Address" required>
+                    </div>
+                    <button id="calculate-sun-times" class="btn btn-block" aria-label="Calculate Sunrise/Sunset Times">
+                        <i class="fas fa-cloud-sun"></i> Calculate Sun Times
+                    </button>
+                    <div id="sun-times-result" class="result-section" style="display: none;">
+                        <h3>Result</h3>
+                        <div id="sun-times-value" class="result-value"></div>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-copy" data-target="sun-times-value" aria-label="Copy Sunrise/Sunset Result">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-success btn-share" data-result="sun-times" aria-label="Share Sunrise/Sunset Result">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Between Events -->
+                <div class="calculator-card">
+                    <h2><i class="fas fa-stopwatch"></i> Time Between Events</h2>
+                    <div id="event-times-container">
+                        <div class="form-group event-time-group">
+                            <label>Event 1</label>
+                            <input type="datetime-local" class="form-control event-time" required>
+                        </div>
+                        <div class="form-group event-time-group">
+                            <label>Event 2</label>
+                            <input type="datetime-local" class="form-control event-time" required>
+                        </div>
+                    </div>
+                    <button id="add-event-time" class="btn btn-secondary" style="margin-bottom: 1rem;" aria-label="Add Another Event">
+                        <i class="fas fa-plus"></i> Add Another Event
+                    </button>
+                    <button id="calculate-event-times" class="btn btn-block" aria-label="Calculate Time Between Events">
+                        <i class="fas fa-calculator"></i> Calculate Time Between
+                    </button>
+                    <div id="event-times-result" class="result-section" style="display: none;">
+                        <h3>Results</h3>
+                        <div id="event-times-value" class="result-value"></div>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-copy" data-target="event-times-value" aria-label="Copy Time Between Events Result">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-success btn-share" data-result="event-times" aria-label="Share Time Between Events Result">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Help Section -->
+        <section class="help-section" style="margin: 3rem 0;">
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--primary-color);">
+                <i class="fas fa-question-circle"></i> Need Help?
+            </h2>
+            <div class="calculator-card">
+                <h2><i class="fas fa-lightbulb"></i> Quick Tips</h2>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Use the quick action buttons at the top to quickly set common dates</li>
+                    <li>Hover over <span class="tooltip-icon" aria-label="Tooltip icon">?</span> icons for additional information</li>
+                    <li>Click the moon/sun icon in the bottom right to toggle between light and dark mode</li>
+                    <li>Use the arrow buttons in the bottom right to quickly scroll to top or bottom</li>
+                    <li>Save frequently used custom date rules for quick access</li>
+                </ul>
+                <button id="start-tour" class="btn" style="margin-top: 1rem;" aria-label="Start Guided Tour">
+                    <i class="fas fa-map-marked-alt"></i> Take a Guided Tour
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Share Modal -->
+    <div class="share-modal" role="dialog" aria-labelledby="share-modal-title">
+        <div class="share-modal-content">
+            <button class="share-modal-close" aria-label="Close Share Modal">×</button>
+            <h2 id="share-modal-title">Share This Result</h2>
+            <div class="form-group">
+                <label for="share-message">Custom Message (Optional)</label>
+                <textarea id="share-message" class="form-control" rows="3" placeholder="Add a custom message..."></textarea>
+            </div>
+            <div class="share-options">
+                <button class="share-btn share-facebook" aria-label="Share on Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                    Facebook
+                </button>
+                <button class="share-btn share-twitter" aria-label="Share on Twitter">
+                    <i class="fab fa-twitter"></i>
+                    Twitter
+                </button>
+                <button class="share-btn share-linkedin" aria-label="Share on LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                    LinkedIn
+                </button>
+                <button class="share-btn share-whatsapp" aria-label="Share on WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                    WhatsApp
+                </button>
+                <button class="share-btn share-email" aria-label="Share via Email">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </button>
+                <button class="share-btn share-link" aria-label="Copy Share Link">
+                    <i class="fas fa-link"></i>
+                    Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tour Overlay -->
+    <div class="tour-overlay" style="display: none;" role="dialog" aria-labelledby="tour-title">
+        <div class="tour-content">
+            <button class="tour-close" aria-label="Close Tour">×</button>
+            <h2 id="tour-title">Welcome to Buzz Date & Time Calculator</h2>
+            <div id="tour-step-1">
+                <p>This powerful tool helps you perform all kinds of date and time calculations with ease. Let's take a quick tour!</p>
+                <p>We'll show you the main features and how to use them effectively.</p>
+                <div class="tour-navigation">
+                    <button class="btn btn-warning tour-skip" aria-label="Skip Tour">Skip Tour</button>
+                    <button class="btn btn-primary tour-next" aria-label="Next Tour Step">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div id="tour-step-2" style="display: none;">
+                <h3>Date Difference Calculator</h3>
+                <p>Calculate the exact duration between two dates, with options to include or exclude time.</p>
+                <p>Perfect for calculating ages, project durations, or time until events.</p>
+                <div class="tour-navigation">
+                    <button class="btn btn-secondary tour-prev" aria-label="Previous Tour Step"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button class="btn btn-primary tour-next" aria-label="Next Tour Step">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div id="tour-step-3" style="display: none;">
+                <h3>Add/Subtract Time</h3>
+                <p>Need to know what the date will be 3 weeks from now? Or what date it was 90 days ago?</p>
+                <p>This calculator lets you add or subtract any time period from a date.</p>
+                <div class="tour-navigation">
+                    <button class="btn btn-secondary tour-prev" aria-label="Previous Tour Step"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button class="btn btn-primary tour-next" aria-label="Next Tour Step">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div id="tour-step-4" style="display: none;">
+                <h3>Timezone Converter</h3>
+                <p>Working with international teams? Convert any date/time between timezones with daylight saving adjustments.</p>
+                <p>Never miss a meeting due to timezone confusion again!</p>
+                <div class="tour-navigation">
+                    <button class="btn btn-secondary tour-prev" aria-label="Previous Tour Step"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button class="btn btn-primary tour-next" aria-label="Next Tour Step">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div id="tour-step-5" style="display: none;">
+                <h3>Business Days Calculator</h3>
+                <p>Calculate working days between dates, excluding weekends and holidays.</p>
+                <p>Select a region to automatically exclude public holidays from your calculations.</p>
+                <div class="tour-navigation">
+                    <button class="btn btn-secondary tour-prev" aria-label="Previous Tour Step"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button class="btn btn-primary tour-next" aria-label="Next Tour Step">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div id="tour-step-6" style="display: none;">
+                <h3>Advanced Features</h3>
+                <p>Scroll down to discover more advanced features like age calculation, week numbers, sunrise/sunset times, and more!</p>
+                <div class="tour-navigation">
+                    <button class="btn btn-secondary tour-prev" aria-label="Previous Tour Step"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button class="btn btn-primary tour-finish" aria-label="Finish Tour">Finish Tour</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" aria-label="Toggle Theme">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Scroll to Top -->
+    <div class="scroll-to-top" aria-label="Scroll to Top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Scroll to Bottom -->
+    <div class="scroll-to-bottom" aria-label="Scroll to Bottom">
+        <i class="fas fa-arrow-down"></i>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
