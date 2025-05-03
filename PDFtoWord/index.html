@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzz - PDF to Word Converter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Correct docx library loading -->
+    <script src="https://unpkg.com/docx@8.2.3/build/index.js"></script>
+    <script src="https://unpkg.com/file-saver/dist/FileSaver.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://unpkg.com/tesseract.js@5.0.3/dist/tesseract.min.js"></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle" title="Toggle Theme">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="brand">Buzz</div>
+        <h1>PDF to Word Converter</h1>
+        <nav>
+            <a href="/" class="home-btn" title="Go to Home">Home</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Instructions -->
+            <div class="instructions">
+                <h2>Convert PDF to Word in 3 Simple Steps</h2>
+                <ol>
+                    <li>Upload your PDF file(s)</li>
+                    <li>Choose output format</li>
+                    <li>Download your converted file</li>
+                </ol>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="dropzone" id="dropzone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & Drop files here or</p>
+                    <button class="upload-btn">Choose Files</button>
+                    <input type="file" id="fileInput" accept=".pdf" multiple hidden>
+                </div>
+            </div>
+
+            <!-- Conversion Options -->
+            <div class="conversion-options">
+                <div class="format-selection">
+                    <label>Output Format:</label>
+                    <select id="outputFormat">
+                        <option value="docx">DOCX</option>
+                        <option value="doc">DOC</option>
+                        <option value="txt">TXT</option>
+                    </select>
+                </div>
+
+                <div class="advanced-options">
+                    <label>
+                        <input type="checkbox" id="ocrEnabled">
+                        Enable OCR for scanned PDFs
+                    </label>
+                    <label>
+                        <input type="checkbox" id="preserveLinks" checked>
+                        Preserve Hyperlinks
+                    </label>
+                    <div class="filename-option">
+                        <label>Output Filename:</label>
+                        <input type="text" id="customFilename" placeholder="Enter custom filename">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress" id="conversionProgress"></div>
+                </div>
+                <div class="progress-text">Converting: <span id="progressText">0%</span></div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="preview-window" id="pdfPreview">
+                    <!-- Preview will be rendered here -->
+                </div>
+                <div class="file-info">
+                    <p>Input Size: <span id="inputSize">0 KB</span></p>
+                    <p>Output Size: <span id="outputSize">0 KB</span></p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="convertBtn" class="primary-btn" disabled>Convert Now</button>
+                <button id="resetBtn" class="secondary-btn">Reset</button>
+            </div>
+
+            <!-- Share Options -->
+            <div class="share-options">
+                <h3>Share</h3>
+                <div class="social-icons">
+                    <a href="#" title="Share on Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" title="Share on Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" title="Share via Email"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" title="Back to Top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Buzz PDF Converter. All rights reserved.</p>
+    </footer>
+</body>
+</html>
