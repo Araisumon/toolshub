@@ -241,6 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             switch (outputFormat) {
                 case 'docx': {
+                    // REMOVED MISPLACED SCRIPT TAGS FROM HERE
                     try {
                         // Ensure docx library is loaded - THIS CHECK IS CORRECT
                         if (typeof window.docx === 'undefined') {
