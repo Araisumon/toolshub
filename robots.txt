@@ -1,1 +1,3 @@
-Sitemap: https://Araisumon.github.io/toolshub/sitemap.xml
+User-agent: *
+Allow: /
+Sitemap: https://toolshub.cam/sitemap.xml
