@@ -1,12 +1,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://Araisumon.github.io/toolshub/</loc>
+    <loc>https://toolshub.cam/</loc>
+    <lastmod>2025-05-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://Araisumon.github.io/toolshub/page1.html</loc>
-    <changefreq>weekly</changefreq>
+    <loc>https://toolshub.cam/page1.html</loc>
+    <lastmod>2025-05-05</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   https://toolshub.cam/digitalsign/
