@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /private/  # Example: Block a private directory if applicable
 Sitemap: https://toolshub.cam/sitemap.xml
