@@ -41,14 +41,13 @@
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QX6N41VY5J');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Free advanced age calculator tool with detailed breakdown, life expectancy insights, and multiple date formats. Calculate your exact age in years, months, days, and more.">
@@ -204,13 +203,15 @@
         }
 
         .input-field label {
-            display: block;
+            display: flex;
+            align-items: center;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: var(--primary-color);
         }
 
-        .input-field select {
+        .input-field select,
+        .input-field input[type="date"] {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid #ddd;
@@ -221,7 +222,8 @@
             color: var(--text-dark);
         }
 
-        .input-field select:focus {
+        .input-field select:focus,
+        .input-field input[type="date"]:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
@@ -230,6 +232,33 @@
         .custom-date {
             display: flex;
             gap: 0.5rem;
+            align-items: center;
+        }
+
+        .calendar-icon {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-left: 5px;
+        }
+
+        .calendar-icon:hover {
+            color: var(--secondary-color);
+        }
+
+        .date-picker-container {
+            position: relative;
+        }
+
+        .date-picker-container input[type="date"] {
+            width: 0;
+            height: 0;
+            opacity: 0;
+            position: absolute;
+        }
+
+        .date-picker-container input[type="date"]::-webkit-calendar-picker-indicator {
+            display: none;
         }
 
         .action-buttons {
@@ -817,6 +846,9 @@
                         <span class="tooltip">ⓘ
                             <span class="tooltiptext">Enter your date of birth to calculate your exact age</span>
                         </span>
+                        <span class="calendar-icon" tabindex="0" aria-label="Open calendar to select birth date">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
                     </label>
                     <div class="custom-date">
                         <select id="birthMonth" required>
@@ -842,6 +874,9 @@
                             <option value="">Year</option>
                             <!-- Years will be populated dynamically -->
                         </select>
+                        <div class="date-picker-container">
+                            <input type="date" id="birthDatePicker" aria-label="Select birth date from calendar">
+                        </div>
                     </div>
                 </div>
                 <div class="input-field">
@@ -863,6 +898,9 @@
                         Compare With Date
                         <span class="tooltip">ⓘ
                             <span class="tooltiptext">Pre-filled with the current date. Change to a past/future date for comparison</span>
+                        </span>
+                        <span class="calendar-icon" tabindex="0" aria-label="Open calendar to select comparison date">
+                            <i class="fas fa-calendar-alt"></i>
                         </span>
                     </label>
                     <div class="custom-date">
@@ -889,6 +927,9 @@
                             <option value="">Year</option>
                             <!-- Years will be populated dynamically -->
                         </select>
+                        <div class="date-picker-container">
+                            <input type="date" id="compareDatePicker" aria-label="Select comparison date from calendar">
+                        </div>
                     </div>
                 </div>
                 <div class="input-field">
@@ -1124,6 +1165,46 @@
         </div>
     </footer>
 
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Set current year in footer
@@ -1159,6 +1240,8 @@
             const compareMonthSelect = document.getElementById('compareMonth');
             const compareDaySelect = document.getElementById('compareDay');
             const compareYearSelect = document.getElementById('compareYear');
+            const birthDatePicker = document.getElementById('birthDatePicker');
+            const compareDatePicker = document.getElementById('compareDatePicker');
 
             // Populate days
             for (let i = 1; i <= 31; i++) {
@@ -1186,11 +1269,93 @@
                 compareYearSelect.appendChild(option);
             }
 
-            // Set default compare date to today (May 6, 2025)
+            // Set date picker min/max
+            birthDatePicker.min = '1900-01-01';
+            birthDatePicker.max = `${currentYear + 5}-12-31`;
+            compareDatePicker.min = '1900-01-01';
+            compareDatePicker.max = '2100-12-31';
+
+            // Set default birth date and compare date to today (May 6, 2025)
             const today = new Date();
+            birthMonthSelect.value = today.getMonth() + 1;
+            birthDaySelect.value = today.getDate();
+            birthYearSelect.value = today.getFullYear();
             compareMonthSelect.value = today.getMonth() + 1;
             compareDaySelect.value = today.getDate();
             compareYearSelect.value = today.getFullYear();
+            birthDatePicker.value = today.toISOString().split('T')[0];
+            compareDatePicker.value = today.toISOString().split('T')[0];
+
+            // Sync date picker with dropdowns
+            function syncDatePickerToDropdowns(monthSelect, daySelect, yearSelect, datePicker) {
+                const month = parseInt(monthSelect.value, 10);
+                const day = parseInt(daySelect.value, 10);
+                const year = parseInt(yearSelect.value, 10);
+                if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
+                    const date = new Date(year, month - 1, day);
+                    if (!isNaN(date.getTime())) {
+                        datePicker.value = date.toISOString().split('T')[0];
+                    }
+                }
+            }
+
+            function syncDropdownsToDatePicker(datePicker, monthSelect, daySelect, yearSelect) {
+                if (datePicker.value) {
+                    const date = new Date(datePicker.value);
+                    monthSelect.value = date.getMonth() + 1;
+                    daySelect.value = date.getDate();
+                    yearSelect.value = date.getFullYear();
+                }
+            }
+
+            // Event listeners for dropdowns to sync with date picker
+            [birthMonthSelect, birthDaySelect, birthYearSelect].forEach(select => {
+                select.addEventListener('change', () => {
+                    syncDatePickerToDropdowns(birthMonthSelect, birthDaySelect, birthYearSelect, birthDatePicker);
+                    if (isValidBirthDate()) {
+                        calculateAge();
+                    }
+                });
+            });
+
+            [compareMonthSelect, compareDaySelect, compareYearSelect].forEach(select => {
+                select.addEventListener('change', () => {
+                    syncDatePickerToDropdowns(compareMonthSelect, compareDaySelect, compareYearSelect, compareDatePicker);
+                    if (isValidBirthDate()) {
+                        calculateAge();
+                    }
+                });
+            });
+
+            // Event listeners for date pickers to sync with dropdowns
+            birthDatePicker.addEventListener('change', () => {
+                syncDropdownsToDatePicker(birthDatePicker, birthMonthSelect, birthDaySelect, birthYearSelect);
+                if (isValidBirthDate()) {
+                    calculateAge();
+                }
+            });
+
+            compareDatePicker.addEventListener('change', () => {
+                syncDropdownsToDatePicker(compareDatePicker, compareMonthSelect, compareDaySelect, compareYearSelect);
+                if (isValidBirthDate()) {
+                    calculateAge();
+                }
+            });
+
+            // Calendar icon click to trigger date picker
+            document.querySelectorAll('.calendar-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const datePicker = icon.closest('.input-field').querySelector('input[type="date"]');
+                    datePicker.showPicker();
+                });
+                icon.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const datePicker = icon.closest('.input-field').querySelector('input[type="date"]');
+                        datePicker.showPicker();
+                    }
+                });
+            });
 
             // Theme toggle functionality
             const themeToggle = document.getElementById('themeToggle');
@@ -1281,15 +1446,6 @@
                 'SA': 76.2
             };
 
-            // Add event listeners to birth date fields to trigger calculation
-            [birthMonthSelect, birthDaySelect, birthYearSelect].forEach(select => {
-                select.addEventListener('change', () => {
-                    if (isValidBirthDate()) {
-                        calculateAge();
-                    }
-                });
-            });
-
             // Quick calculate for today
             quickTodayBtn.addEventListener('click', () => {
                 const today = new Date();
@@ -1299,6 +1455,8 @@
                 compareMonthSelect.value = today.getMonth() + 1;
                 compareDaySelect.value = today.getDate();
                 compareYearSelect.value = today.getFullYear();
+                birthDatePicker.value = today.toISOString().split('T')[0];
+                compareDatePicker.value = today.toISOString().split('T')[0];
                 calculateAge();
             });
 
@@ -1313,25 +1471,37 @@
 
             // Calculate age function
             function calculateAge() {
-                const birthMonth = parseInt(birthMonthSelect.value, 10);
-                const birthDay = parseInt(birthDaySelect.value, 10);
-                const birthYear = parseInt(birthYearSelect.value, 10);
-                const compareMonth = compareMonthSelect.value ? parseInt(compareMonthSelect.value, 10) - 1 : new Date().getMonth();
-                const compareDay = compareDaySelect.value ? parseInt(compareDaySelect.value, 10) : new Date().getDate();
-                const compareYear = compareYearSelect.value ? parseInt(compareYearSelect.value, 10) : new Date().getFullYear();
+                let birthDate, compareDate;
+
+                // Prioritize date picker if value exists
+                if (birthDatePicker.value) {
+                    birthDate = new Date(birthDatePicker.value);
+                } else {
+                    const birthMonth = parseInt(birthMonthSelect.value, 10);
+                    const birthDay = parseInt(birthDaySelect.value, 10);
+                    const birthYear = parseInt(birthYearSelect.value, 10);
+                    birthDate = new Date(birthYear, birthMonth - 1, birthDay);
+                }
+
+                if (compareDatePicker.value) {
+                    compareDate = new Date(compareDatePicker.value);
+                } else {
+                    const compareMonth = compareMonthSelect.value ? parseInt(compareMonthSelect.value, 10) - 1 : new Date().getMonth();
+                    const compareDay = compareDaySelect.value ? parseInt(compareDaySelect.value, 10) : new Date().getDate();
+                    const compareYear = compareYearSelect.value ? parseInt(compareYearSelect.value, 10) : new Date().getFullYear();
+                    compareDate = new Date(compareYear, compareMonth, compareDay);
+                }
 
                 if (!isValidBirthDate()) {
                     alert('Please enter a valid birth date');
                     return;
                 }
 
-                const birthDate = new Date(birthYear, birthMonth - 1, birthDay); // Adjust month to 0-based
-                if (isNaN(birthDate.getTime()) || birthDate.getMonth() !== birthMonth - 1 || birthDate.getDate() !== birthDay) {
+                if (isNaN(birthDate.getTime()) || (birthDatePicker.value && (birthDate.getMonth() + 1 !== parseInt(birthMonthSelect.value, 10) || birthDate.getDate() !== parseInt(birthDaySelect.value, 10)))) {
                     alert('Please enter a valid birth date');
                     return;
                 }
 
-                const compareDate = new Date(compareYear, compareMonth, compareDay);
                 if (isNaN(compareDate.getTime())) {
                     alert('Please enter a valid comparison date');
                     return;
@@ -1441,20 +1611,37 @@
 
             // Validate birth date
             function isValidBirthDate() {
-                const birthMonth = parseInt(birthMonthSelect.value, 10);
-                const birthDay = parseInt(birthDaySelect.value, 10);
-                const birthYear = parseInt(birthYearSelect.value, 10);
-                return !isNaN(birthMonth) && !isNaN(birthDay) && !isNaN(birthYear) &&
-                       birthMonth >= 1 && birthMonth <= 12 &&
-                       birthDay >= 1 && birthDay <= 31 &&
-                       birthYear >= 1900 && birthYear <= currentYear + 5;
+                let month, day, year;
+                if (birthDatePicker.value) {
+                    const date = new Date(birthDatePicker.value);
+                    month = date.getMonth() + 1;
+                    day = date.getDate();
+                    year = date.getFullYear();
+                } else {
+                    month = parseInt(birthMonthSelect.value, 10);
+                    day = parseInt(birthDaySelect.value, 10);
+                    year = parseInt(birthYearSelect.value, 10);
+                }
+                return !isNaN(month) && !isNaN(day) && !isNaN(year) &&
+                       month >= 1 && month <= 12 &&
+                       day >= 1 && day <= 31 &&
+                       year >= 1900 && year <= currentYear + 5;
             }
 
             // Calculate next birthday
             function calculateNextBirthday() {
-                const birthMonth = parseInt(birthMonthSelect.value, 10) - 1;
-                const birthDay = parseInt(birthDaySelect.value, 10);
-                const birthYear = parseInt(birthYearSelect.value, 10);
+                let birthMonth, birthDay, birthYear;
+                if (birthDatePicker.value) {
+                    const birthDate = new Date(birthDatePicker.value);
+                    birthMonth = birthDate.getMonth();
+                    birthDay = birthDate.getDate();
+                    birthYear = birthDate.getFullYear();
+                } else {
+                    birthMonth = parseInt(birthMonthSelect.value, 10) - 1;
+                    birthDay = parseInt(birthDaySelect.value, 10);
+                    birthYear = parseInt(birthYearSelect.value, 10);
+                }
+
                 if (isNaN(birthMonth) || isNaN(birthDay) || isNaN(birthYear)) {
                     alert('Invalid birth date');
                     return;
@@ -1554,6 +1741,8 @@
                 compareMonthSelect.value = '';
                 compareDaySelect.value = '';
                 compareYearSelect.value = '';
+                birthDatePicker.value = '';
+                compareDatePicker.value = '';
                 timeZoneSelect.value = 'local';
                 countrySelect.value = '';
                 resultsSection.style.display = 'none';
@@ -1671,7 +1860,7 @@ Calculated by Buzz Age Calculator`;
                 let shareUrl = '';
                 switch(platform) {
                     case 'facebook':
-                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}"e=${encodeURIComponent(text)}`;
+                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
                         break;
                     case 'twitter':
                         shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
