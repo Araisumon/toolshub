@@ -1168,26 +1168,153 @@
             // Set current year in footer
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            // Populate time zones dynamically
+            // Populate time zones dynamically by continent
             const timeZoneSelect = document.getElementById('timeZone');
-            if (Intl && Intl.supportedValuesOf) {
-                Intl.supportedValuesOf('timeZone').forEach(tz => {
+
+            // Fallback time zones organized by continent
+            const fallbackTimeZones = {
+                'Africa': [
+                    { value: 'Africa/Abidjan', text: 'Africa/Abidjan (GMT+0)' },
+                    { value: 'Africa/Cairo', text: 'Africa/Cairo (EET, GMT+2)' },
+                    { value: 'Africa/Johannesburg', text: 'Africa/Johannesburg (SAST, GMT+2)' },
+                    { value: 'Africa/Lagos', text: 'Africa/Lagos (WAT, GMT+1)' },
+                    { value: 'Africa/Nairobi', text: 'Africa/Nairobi (EAT, GMT+3)' }
+                ],
+                'Antarctica': [
+                    { value: 'Antarctica/Casey', text: 'Antarctica/Casey (AWST, GMT+8)' },
+                    { value: 'Antarctica/McMurdo', text: 'Antarctica/McMurdo (NZST, GMT+12)' },
+                    { value: 'Antarctica/South_Pole', text: 'Antarctica/South_Pole (NZST, GMT+12)' }
+                ],
+                'Asia': [
+                    { value: 'Asia/Dubai', text: 'Asia/Dubai (GST, GMT+4)' },
+                    { value: 'Asia/Hong_Kong', text: 'Asia/Hong_Kong (HKT, GMT+8)' },
+                    { value: 'Asia/Kolkata', text: 'Asia/Kolkata (IST, GMT+5:30)' },
+                    { value: 'Asia/Singapore', text: 'Asia/Singapore (SGT, GMT+8)' },
+                    { value: 'Asia/Tokyo', text: 'Asia/Tokyo (JST, GMT+9)' }
+                ],
+                'Australia': [
+                    { value: 'Australia/Adelaide', text: 'Australia/Adelaide (ACST, GMT+9:30)' },
+                    { value: 'Australia/Brisbane', text: 'Australia/Brisbane (AEST, GMT+10)' },
+                    { value: 'Australia/Perth', text: 'Australia/Perth (AWST, GMT+8)' },
+                    { value: 'Australia/Sydney', text: 'Australia/Sydney (AEST, GMT+10)' }
+                ],
+                'Europe': [
+                    { value: 'Europe/Berlin', text: 'Europe/Berlin (CET, GMT+1)' },
+                    { value: 'Europe/London', text: 'Europe/London (GMT/BST, GMT+0)' },
+                    { value: 'Europe/Moscow', text: 'Europe/Moscow (MSK, GMT+3)' },
+                    { value: 'Europe/Paris', text: 'Europe/Paris (CET, GMT+1)' }
+                ],
+                'North America': [
+                    { value: 'America/Chicago', text: 'America/Chicago (CST, GMT-6)' },
+                    { value: 'America/Los_Angeles', text: 'America/Los_Angeles (PST, GMT-8)' },
+                    { value: 'America/New_York', text: 'America/New_York (EST, GMT-5)' },
+                    { value: 'America/Toronto', text: 'America/Toronto (EST, GMT-5)' }
+                ],
+                'South America': [
+                    { value: 'America/Buenos_Aires', text: 'America/Buenos_Aires (ART, GMT-3)' },
+                    { value: 'America/Sao_Paulo', text: 'America/Sao_Paulo (BRT, GMT-3)' }
+                ]
+            };
+
+            // Function to create optgroup for a continent
+            function createOptGroup(continent, timeZones) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = continent;
+                timeZones.forEach(tz => {
                     const option = document.createElement('option');
-                    option.value = tz;
-                    option.textContent = tz;
-                    timeZoneSelect.appendChild(option);
+                    option.value = tz.value;
+                    option.textContent = tz.text;
+                    optGroup.appendChild(option);
+                });
+                return optGroup;
+            }
+
+            // Populate time zones
+            if (Intl && Intl.supportedValuesOf) {
+                const timeZonesByContinent = {
+                    'Africa': [],
+                    'Antarctica': [],
+                    'Asia': [],
+                    'Australia': [],
+                    'Europe': [],
+                    'North America': [],
+                    'South America': []
+                };
+
+                // Categorize time zones by continent
+                Intl.supportedValuesOf('timeZone').forEach(tz => {
+                    if (tz.startsWith('Africa/')) {
+                        timeZonesByContinent['Africa'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
+                    } else if (tz.startsWith('Antarctica/')) {
+                        timeZonesByContinent['Antarctica'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
+                    } else if (tz.startsWith('Asia/')) {
+                        timeZonesByContinent['Asia'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
+                    } else if (tz.startsWith('Australia/')) {
+                        timeZonesByContinent['Australia'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
+                    } else if (tz.startsWith('Europe/')) {
+                        timeZonesByContinent['Europe'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
+                    } else if (tz.startsWith('America/')) {
+                        // Distinguish between North and South America
+                        const southAmericanCountries = ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela'];
+                        const tzParts = tz.split('/');
+                        const region = tzParts[1] || '';
+                        if (southAmericanCountries.some(country => region.includes(country))) {
+                            timeZonesByContinent['South America'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
+                        } else {
+                            timeZonesByContinent['North America'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
+                        }
+                    }
+                });
+
+                // Sort time zones within each continent by offset and then name
+                Object.keys(timeZonesByContinent).forEach(continent => {
+                    timeZonesByContinent[continent].sort((a, b) => {
+                        const offsetA = parseOffset(getTimeZoneOffset(a.value));
+                        const offsetB = parseOffset(getTimeZoneOffset(b.value));
+                        if (offsetA === offsetB) {
+                            return a.text.localeCompare(b.text);
+                        }
+                        return offsetA - offsetB;
+                    });
+                });
+
+                // Add optgroups to select
+                Object.keys(timeZonesByContinent).forEach(continent => {
+                    if (timeZonesByContinent[continent].length > 0) {
+                        timeZoneSelect.appendChild(createOptGroup(continent, timeZonesByContinent[continent]));
+                    }
                 });
             } else {
-                const fallbackTimeZones = [
-                    'UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London',
-                    'Europe/Paris', 'Asia/Tokyo', 'Australia/Sydney', 'Asia/Dubai'
-                ];
-                fallbackTimeZones.forEach(tz => {
-                    const option = document.createElement('option');
-                    option.value = tz;
-                    option.textContent = tz;
-                    timeZoneSelect.appendChild(option);
+                // Fallback: Use predefined time zones
+                Object.keys(fallbackTimeZones).forEach(continent => {
+                    timeZoneSelect.appendChild(createOptGroup(continent, fallbackTimeZones[continent]));
                 });
+            }
+
+            // Function to get time zone offset as a string (e.g., "+02:00")
+            function getTimeZoneOffset(timeZone) {
+                try {
+                    const date = new Date();
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                        timeZone,
+                        timeZoneName: 'longOffset'
+                    });
+                    const parts = formatter.formatToParts(date);
+                    const offsetPart = parts.find(part => part.type === 'timeZoneName');
+                    let offset = offsetPart ? offsetPart.value.replace('GMT', '') : '+00:00';
+                    if (offset === '') offset = '+00:00';
+                    return offset;
+                } catch (e) {
+                    console.warn(`Could not get offset for ${timeZone}: ${e}`);
+                    return '+00:00';
+                }
+            }
+
+            // Helper function to parse offset string to number for sorting
+            function parseOffset(offset) {
+                const [sign, hours, minutes] = offset.match(/([+-])(\d{2}):(\d{2})/).slice(1);
+                const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
+                return sign === '+' ? totalMinutes : -totalMinutes;
             }
 
             // Populate days and years dynamically
@@ -1208,17 +1335,17 @@
                 compareDaySelect.appendChild(option.cloneNode(true));
             }
 
-            // Populate years for birthYear (1900 to current year + 5)
+            // Populate years for birthYear (1800 to current year + 10)
             const currentYear = new Date().getFullYear();
-            for (let i = 1900; i <= currentYear + 5; i++) {
+            for (let i = 1800; i <= currentYear + 10; i++) {
                 const option = document.createElement('option');
                 option.value = i;
                 option.textContent = i;
                 birthYearSelect.appendChild(option);
             }
 
-            // Populate years for compareYear (1900 to 2100)
-            for (let i = 1900; i <= 2100; i++) {
+            // Populate years for compareYear (1800 to 2100)
+            for (let i = 1800; i <= 2100; i++) {
                 const option = document.createElement('option');
                 option.value = i;
                 option.textContent = i;
@@ -1351,6 +1478,8 @@
                     return;
                 }
                 calculateNextBirthday();
+                nextBirthdaySection.style.display = 'block';
+                nextBirthdaySection.scrollIntoView({ behavior: 'smooth' });
             });
 
             // Calculate age function
@@ -1489,7 +1618,7 @@
                 return !isNaN(birthMonth) && !isNaN(birthDay) && !isNaN(birthYear) &&
                        birthMonth >= 1 && birthMonth <= 12 &&
                        birthDay >= 1 && birthDay <= 31 &&
-                       birthYear >= 1900 && birthYear <= currentYear + 5;
+                       birthYear >= 1800 && birthYear <= currentYear + 10;
             }
 
             // Calculate next birthday
