@@ -1,1 +1,2039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced calorie calculator with multi-unit support, AI meal suggestions, and comprehensive nutrition tracking">
+    <meta name="keywords" content="calorie calculator, nutrition tracker, meal planner, BMR calculator, TDEE calculator, macros calculator">
+    <title>Buzz | Advanced Calorie Calculator with Multi-Unit Support</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #fff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
+        [data-theme="dark"] {
+            --primary-color: #8ab4f8;
+            --secondary-color: #81c995;
+            --accent-color: #f28b82;
+            --text-color: #e0e0e0;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding-top: 70px;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 0.5rem;
+            color: #fbbc05;
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .home-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .home-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .intro h1 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .intro p {
+            margin-bottom: 1rem;
+        }
+
+        .quick-tips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .tip {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .card h2 i {
+            margin-right: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .unit-toggle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background: rgba(66, 133, 244, 0.1);
+            border: none;
+            color: var(--primary-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .unit-toggle:hover {
+            background: rgba(66, 133, 244, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option input {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        button.secondary:hover {
+            background-color: #2d9246;
+        }
+
+        button.accent {
+            background-color: var(--accent-color);
+        }
+
+        button.accent:hover {
+            background-color: #d33426;
+        }
+
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .results h2 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-item {
+            background-color: rgba(66, 133, 244, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .result-item h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .result-item p {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .macros {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .macro {
+            flex: 1;
+            min-width: 120px;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .protein {
+            background-color: rgba(234, 67, 53, 0.1);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .carbs {
+            background-color: rgba(251, 188, 5, 0.1);
+            border-left: 4px solid #fbbc05;
+        }
+
+        .fat {
+            background-color: rgba(52, 168, 83, 0.1);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .meal-log {
+            margin-top: 2rem;
+        }
+
+        .meal-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .meal-info {
+            flex: 1;
+        }
+
+        .meal-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .ai-suggestions {
+            margin-top: 2rem;
+        }
+
+        .suggestion {
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid #fbbc05;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            margin-left: 0.5rem;
+        }
+
+        .tooltip i {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 5rem;
+            right: 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .share-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .facebook {
+            background-color: #3b5998;
+        }
+
+        .twitter {
+            background-color: #1da1f2;
+        }
+
+        .whatsapp {
+            background-color: #25d366;
+        }
+
+        .linkedin {
+            background-color: #0077b5;
+        }
+
+        .food-search {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .food-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 4px 4px;
+            z-index: 10;
+            display: none;
+        }
+
+        .food-item {
+            padding: 0.5rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .food-item:hover {
+            background-color: rgba(66, 133, 244, 0.1);
+        }
+
+        .progress-container {
+            margin-top: 2rem;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--secondary-color));
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .water-tracker {
+            margin-top: 1rem;
+        }
+
+        .water-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .water-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .water-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chart-container {
+            margin-top: 2rem;
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            transition: transform 0.2s;
+            background-color: #6c757d;
+            border: none;
+            cursor: pointer;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .export-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .featured-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .featured-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .featured-title i {
+            margin-right: 0.5rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            padding: 1rem;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-card h3 i {
+            margin-right: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+        }
+
+        .testimonial {
+            padding: 1rem;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-author {
+            font-weight: bold;
+            margin-top: 0.5rem;
+            text-align: right;
+            color: var(--primary-color);
+        }
+
+        .newsletter {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+        }
+
+        .newsletter h2 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px 0 0 4px;
+            border-right: none;
+        }
+
+        .newsletter-form button {
+            border-radius: 0 4px 4px 0;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .macro {
+                min-width: 100%;
+            }
+
+            .header-title {
+                font-size: 1rem;
+                padding: 0 0.5rem;
+            }
+
+            .brand {
+                font-size: 1.2rem;
+            }
+
+            .home-btn span {
+                display: none;
+            }
+
+            .home-btn i {
+                margin-right: 0;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter-form input {
+                border-radius: 4px;
+                border-right: 1px solid var(--border-color);
+                margin-bottom: 0.5rem;
+            }
+
+            .newsletter-form button {
+                border-radius: 4px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animated {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-bolt"></i>
+            <span>Buzz</span>
+        </div>
+        <div class="header-title">Calorie Calculator</div>
+        <a href="/" class="home-btn">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+    </header>
+
+    <div class="container">
+        <section class="intro animated">
+            <h1>Personalized Calorie Calculator <span class="badge pulse">NEW</span></h1>
+            <p>Calculate your daily calorie needs based on your goals, activity level, and body composition. Now with British/American unit support!</p>
+            
+            <div class="quick-tips">
+                <span class="tip">Enter accurate measurements</span>
+                <span class="tip">Be honest about activity</span>
+                <span class="tip">Set realistic goals</span>
+                <span class="tip">Track consistently</span>
+            </div>
+        </section>
+
+        <div class="featured-section animated delay-1">
+            <h2 class="featured-title"><i class="fas fa-star"></i> Why Choose Our Calculator?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i class="fas fa-balance-scale"></i> Multi-Unit Support</h3>
+                    <p>Switch seamlessly between metric (kg/cm) and imperial (lbs/ft) units with a single click.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-chart-pie"></i> Advanced Analytics</h3>
+                    <p>Get detailed charts and visualizations of your nutrition data for better insights.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-robot"></i> AI Meal Suggestions</h3>
+                    <p>Receive personalized meal recommendations based on your dietary preferences.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-file-export"></i> Export Options</h3>
+                    <p>Save your results as PDF or image for easy sharing with nutritionists or trainers.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="calculator-grid">
+            <div class="card animated delay-1">
+                <h2><i class="fas fa-user"></i> Personal Information</h2>
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" min="15" max="100" placeholder="Enter your age">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other/Prefer not to say</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="height">Height <span id="height-unit">(cm)</span></label>
+                    <button class="unit-toggle" id="height-unit-toggle">Switch to ft/in</button>
+                    <input type="number" id="height" min="100" max="250" placeholder="Enter your height">
+                    <div id="height-ft-in" style="display: none;">
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <div style="flex: 1;">
+                                <label for="height-ft">Feet</label>
+                                <input type="number" id="height-ft" min="3" max="8" placeholder="ft">
+                            </div>
+                            <div style="flex: 1;">
+                                <label for="height-in">Inches</label>
+                                <input type="number" id="height-in" min="0" max="11" placeholder="in">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="weight">Weight <span id="weight-unit">(kg)</span></label>
+                    <button class="unit-toggle" id="weight-unit-toggle">Switch to lbs</button>
+                    <input type="number" id="weight" min="30" max="200" placeholder="Enter your weight">
+                </div>
+            </div>
+
+            <div class="card animated delay-2">
+                <h2><i class="fas fa-bullseye"></i> Goals & Activity</h2>
+                <div class="form-group">
+                    <label for="goal">Fitness Goal</label>
+                    <select id="goal">
+                        <option value="maintain">Maintain weight</option>
+                        <option value="lose">Lose weight</option>
+                        <option value="gain">Gain weight</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rate">Weekly Goal Rate</label>
+                    <select id="rate">
+                        <option value="0.25">Slow (0.25 kg/week)</option>
+                        <option value="0.5" selected>Moderate (0.5 kg/week)</option>
+                        <option value="0.75">Fast (0.75 kg/week)</option>
+                        <option value="1">Aggressive (1 kg/week)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="activity">Activity Level</label>
+                    <select id="activity">
+                        <option value="1.2">Sedentary (little or no exercise)</option>
+                        <option value="1.375">Lightly active (light exercise 1-3 days/week)</option>
+                        <option value="1.55">Moderately active (moderate exercise 3-5 days/week)</option>
+                        <option value="1.725">Very active (hard exercise 6-7 days/week)</option>
+                        <option value="1.9">Extremely active (very hard exercise & physical job)</option>
+                    </select>
+                </div>
+                <button id="calculate-btn" class="secondary">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+            </div>
+
+            <div class="card animated delay-3">
+                <h2><i class="fas fa-utensils"></i> Macronutrient Ratio</h2>
+                <div class="form-group">
+                    <label for="diet-type">Diet Type</label>
+                    <select id="diet-type">
+                        <option value="balanced">Balanced (30/40/30)</option>
+                        <option value="low-carb">Low Carb (40/20/40)</option>
+                        <option value="high-carb">High Carb (20/60/20)</option>
+                        <option value="keto">Keto (25/5/70)</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div id="custom-macros" style="display: none;">
+                    <div class="form-group">
+                        <label for="protein-pct">Protein (%)</label>
+                        <input type="number" id="protein-pct" min="10" max="50" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="carbs-pct">Carbs (%)</label>
+                        <input type="number" id="carbs-pct" min="10" max="70" value="40">
+                    </div>
+                    <div class="form-group">
+                        <label for="fat-pct">Fat (%)</label>
+                        <input type="number" id="fat-pct" min="10" max="50" value="30">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        Track Water Intake
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Aim for 30-35ml per kg of body weight</span>
+                        </div>
+                    </label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="water-yes" name="water" value="yes" checked>
+                            <label for="water-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="water-no" name="water" value="no">
+                            <label for="water-no">No</label>
+                        </div>
+                    </div>
+                </div>
+                <button id="reset-btn" class="accent">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <div id="results-section" class="results" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Your Calorie & Macronutrient Targets</h2>
+            <div class="result-grid">
+                <div class="result-item">
+                    <h3>Basal Metabolic Rate (BMR)</h3>
+                    <p id="bmr-result">0</p>
+                    <small>Calories burned at complete rest</small>
+                </div>
+                <div class="result-item">
+                    <h3>Total Daily Energy Expenditure (TDEE)</h3>
+                    <p id="tdee-result">0</p>
+                    <small>Calories burned with activity</small>
+                </div>
+                <div class="result-item">
+                    <h3>Daily Calorie Target</h3>
+                    <p id="calorie-target">0</p>
+                    <small>For your selected goal</small>
+                </div>
+            </div>
+
+            <h3>Macronutrient Breakdown</h3>
+            <div class="macros">
+                <div class="macro protein">
+                    <h3>Protein</h3>
+                    <p id="protein-result">0g</p>
+                    <small id="protein-calories">0 calories</small>
+                </div>
+                <div class="macro carbs">
+                    <h3>Carbs</h3>
+                    <p id="carbs-result">0g</p>
+                    <small id="carbs-calories">0 calories</small>
+                </div>
+                <div class="macro fat">
+                    <h3>Fat</h3>
+                    <p id="fat-result">0g</p>
+                    <small id="fat-calories">0 calories</small>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="macrosChart"></canvas>
+            </div>
+
+            <div class="export-buttons">
+                <button id="export-pdf" class="export-btn">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button id="export-image" class="export-btn">
+                    <i class="fas fa-file-image"></i> Export Image
+                </button>
+            </div>
+
+            <div class="share-buttons">
+                <a href="#" class="share-btn facebook" id="share-fb">
+                    <i class="fab fa-facebook-f"></i> Share
+                </a>
+                <a href="#" class="share-btn twitter" id="share-twitter">
+                    <i class="fab fa-twitter"></i> Tweet
+                </a>
+                <a href="#" class="share-btn whatsapp" id="share-whatsapp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+                <a href="#" class="share-btn linkedin" id="share-linkedin">
+                    <i class="fab fa-linkedin-in"></i> LinkedIn
+                </a>
+            </div>
+        </div>
+
+        <div class="card meal-log">
+            <h2><i class="fas fa-book"></i> Meal Log</h2>
+            <div class="food-search">
+                <label for="food-search">Search Food Database</label>
+                <input type="text" id="food-search" placeholder="Search for food...">
+                <div class="food-search-results" id="food-results"></div>
+            </div>
+            <div id="meal-entries"></div>
+            <button id="add-meal-btn" class="secondary">
+                <i class="fas fa-plus"></i> Add Custom Meal
+            </button>
+
+            <div class="progress-container">
+                <h3>Daily Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress" id="calorie-progress" style="width: 0%"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>0</span>
+                    <span id="calorie-target-label">0</span>
+                </div>
+                <div class="macros">
+                    <div class="macro protein">
+                        <h3>Protein</h3>
+                        <p id="protein-consumed">0g</p>
+                        <small id="protein-remaining">0g remaining</small>
+                    </div>
+                    <div class="macro carbs">
+                        <h3>Carbs</h3>
+                        <p id="carbs-consumed">0g</p>
+                        <small id="carbs-remaining">0g remaining</small>
+                    </div>
+                    <div class="macro fat">
+                        <h3>Fat</h3>
+                        <p id="fat-consumed">0g</p>
+                        <small id="fat-remaining">0g remaining</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="progressChart"></canvas>
+            </div>
+
+            <div id="water-tracker" class="water-tracker">
+                <h3>Water Intake</h3>
+                <div class="progress-bar">
+                    <div class="progress" id="water-progress" style="width: 0%"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>0</span>
+                    <span id="water-target">0 ml</span>
+                </div>
+                <div class="water-buttons">
+                    <div class="water-btn" data-amount="250">250ml</div>
+                    <div class="water-btn" data-amount="500">500ml</div>
+                    <div class="water-btn" data-amount="750">750ml</div>
+                    <div class="water-btn" data-amount="1000">1L</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card ai-suggestions">
+            <h2><i class="fas fa-robot"></i> AI-Powered Meal Suggestions</h2>
+            <p>Based on your calorie target and preferences, here are some meal ideas:</p>
+            <div id="ai-suggestions-list">
+                <div class="suggestion">
+                    <h3>High-Protein Breakfast</h3>
+                    <p>Scrambled eggs with spinach and whole wheat toast (approx. 350 kcal, 25g protein)</p>
+                </div>
+                <div class="suggestion">
+                    <h3>Balanced Lunch</h3>
+                    <p>Grilled chicken with quinoa and roasted vegetables (approx. 450 kcal, 35g protein)</p>
+                </div>
+                <div class="suggestion">
+                    <h3>Light Dinner</h3>
+                    <p>Salmon with sweet potato and asparagus (approx. 400 kcal, 30g protein)</p>
+                </div>
+            </div>
+            <button id="refresh-suggestions" class="secondary">
+                <i class="fas fa-sync-alt"></i> Get New Suggestions
+            </button>
+        </div>
+
+        <div class="featured-section">
+            <h2 class="featured-title"><i class="fas fa-comment-alt"></i> User Testimonials</h2>
+            <div class="testimonial">
+                <p>"This calculator helped me finally understand my nutrition needs. The ability to switch between metric and imperial units is fantastic!"</p>
+                <p class="testimonial-author">- Sarah K., London</p>
+            </div>
+            <div class="testimonial">
+                <p>"The AI meal suggestions are a game-changer. I've discovered so many new healthy recipes that fit my macros perfectly."</p>
+                <p class="testimonial-author">- Michael T., New York</p>
+            </div>
+            <div class="testimonial">
+                <p>"As a fitness coach, I recommend this tool to all my clients. The PDF export makes it easy to share nutrition plans."</p>
+                <p class="testimonial-author">- David R., Personal Trainer</p>
+            </div>
+        </div>
+
+        <div class="newsletter">
+            <h2><i class="fas fa-envelope"></i> Get Nutrition Tips & Updates</h2>
+            <p>Subscribe to our newsletter for weekly nutrition advice, recipe ideas, and fitness tips.</p>
+            <div class="newsletter-form">
+                <input type="email" id="newsletter-email" placeholder="Your email address">
+                <button id="newsletter-submit" class="secondary">Subscribe</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="back-to-top" id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            body.setAttribute('data-theme', 
+                body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            
+            const icon = themeToggle.querySelector('i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+            
+            // Save preference to localStorage
+            localStorage.setItem('theme', body.getAttribute('data-theme'));
+            
+            // Update charts for theme change
+            updateChartThemes();
+        });
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            const icon = themeToggle.querySelector('i');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+        
+        // Back to Top Button
+        const backToTop = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Unit Conversion Functions
+        const heightUnitToggle = document.getElementById('height-unit-toggle');
+        const weightUnitToggle = document.getElementById('weight-unit-toggle');
+        const heightUnitLabel = document.getElementById('height-unit');
+        const weightUnitLabel = document.getElementById('weight-unit');
+        const heightFtIn = document.getElementById('height-ft-in');
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const heightFt = document.getElementById('height-ft');
+        const heightIn = document.getElementById('height-in');
+        
+        let heightUnit = 'cm';
+        let weightUnit = 'kg';
+        
+        heightUnitToggle.addEventListener('click', () => {
+            if (heightUnit === 'cm') {
+                // Convert to feet/inches
+                heightUnit = 'ft';
+                heightUnitToggle.textContent = 'Switch to cm';
+                heightUnitLabel.textContent = '(ft/in)';
+                heightInput.style.display = 'none';
+                heightFtIn.style.display = 'block';
+                
+                // Convert existing cm value to ft/in if available
+                if (heightInput.value) {
+                    const totalInches = heightInput.value / 2.54;
+                    const feet = Math.floor(totalInches / 12);
+                    const inches = Math.round(totalInches % 12);
+                    heightFt.value = feet;
+                    heightIn.value = inches;
+                }
+            } else {
+                // Convert back to cm
+                heightUnit = 'cm';
+                heightUnitToggle.textContent = 'Switch to ft/in';
+                heightUnitLabel.textContent = '(cm)';
+                heightInput.style.display = 'block';
+                heightFtIn.style.display = 'none';
+                
+                // Convert ft/in back to cm if available
+                if (heightFt.value || heightIn.value) {
+                    const feet = parseFloat(heightFt.value) || 0;
+                    const inches = parseFloat(heightIn.value) || 0;
+                    const totalInches = (feet * 12) + inches;
+                    heightInput.value = Math.round(totalInches * 2.54);
+                }
+            }
+        });
+        
+        weightUnitToggle.addEventListener('click', () => {
+            if (weightUnit === 'kg') {
+                // Convert to lbs
+                weightUnit = 'lbs';
+                weightUnitToggle.textContent = 'Switch to kg';
+                weightUnitLabel.textContent = '(lbs)';
+                
+                // Convert kg to lbs if available
+                if (weightInput.value) {
+                    weightInput.value = Math.round(weightInput.value * 2.20462);
+                }
+            } else {
+                // Convert back to kg
+                weightUnit = 'kg';
+                weightUnitToggle.textContent = 'Switch to lbs';
+                weightUnitLabel.textContent = '(kg)';
+                
+                // Convert lbs back to kg if available
+                if (weightInput.value) {
+                    weightInput.value = Math.round(weightInput.value / 2.20462 * 10) / 10;
+                }
+            }
+        });
+        
+        // Food Database
+        const foodDatabase = [
+            { name: "Chicken Breast (100g)", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
+            { name: "Brown Rice (100g cooked)", calories: 111, protein: 2.6, carbs: 23, fat: 0.9 },
+            { name: "Broccoli (100g)", calories: 34, protein: 2.8, carbs: 6.6, fat: 0.4 },
+            { name: "Salmon (100g)", calories: 208, protein: 20, carbs: 0, fat: 13 },
+            { name: "Egg (large)", calories: 70, protein: 6, carbs: 0.6, fat: 5 },
+            { name: "Avocado (100g)", calories: 160, protein: 2, carbs: 8.5, fat: 14.7 },
+            { name: "Whole Wheat Bread (slice)", calories: 69, protein: 3.6, carbs: 12, fat: 0.9 },
+            { name: "Greek Yogurt (100g)", calories: 59, protein: 10, carbs: 3.6, fat: 0.4 },
+            { name: "Almonds (28g)", calories: 164, protein: 6, carbs: 6, fat: 14 },
+            { name: "Banana (medium)", calories: 105, protein: 1.3, carbs: 27, fat: 0.4 }
+        ];
+        
+        // Chart Instances
+        let macrosChart;
+        let progressChart;
+        
+        // Calculate Calories
+        const calculateBtn = document.getElementById('calculate-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const dietType = document.getElementById('diet-type');
+        const customMacros = document.getElementById('custom-macros');
+        
+        dietType.addEventListener('change', () => {
+            if (dietType.value === 'custom') {
+                customMacros.style.display = 'block';
+            } else {
+                customMacros.style.display = 'none';
+            }
+        });
+        
+        calculateBtn.addEventListener('click', calculateCalories);
+        resetBtn.addEventListener('click', resetCalculator);
+        
+        function calculateCalories() {
+            let height, weight;
+            
+            // Get height based on current unit
+            if (heightUnit === 'cm') {
+                height = parseFloat(document.getElementById('height').value);
+            } else {
+                const feet = parseFloat(document.getElementById('height-ft').value) || 0;
+                const inches = parseFloat(document.getElementById('height-in').value) || 0;
+                height = Math.round((feet * 12 + inches) * 2.54 * 10) / 10;
+            }
+            
+            // Get weight based on current unit
+            if (weightUnit === 'kg') {
+                weight = parseFloat(document.getElementById('weight').value);
+            } else {
+                weight = parseFloat(document.getElementById('weight').value) / 2.20462;
+            }
+            
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            const goal = document.getElementById('goal').value;
+            const rate = parseFloat(document.getElementById('rate').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+            
+            if (!age || !height || !weight) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Calculate BMR (Mifflin-St Jeor Equation)
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            
+            // Calculate TDEE
+            const tdee = bmr * activity;
+            
+            // Calculate calorie target based on goal
+            let calorieTarget;
+            if (goal === 'maintain') {
+                calorieTarget = tdee;
+            } else if (goal === 'lose') {
+                calorieTarget = tdee - (rate * 7700 / 7); // 7700 kcal ≈ 1kg fat
+            } else { // gain
+                calorieTarget = tdee + (rate * 7700 / 7);
+            }
+            
+            // Get macronutrient ratios
+            let proteinPct, carbsPct, fatPct;
+            
+            switch(dietType.value) {
+                case 'balanced':
+                    proteinPct = 30;
+                    carbsPct = 40;
+                    fatPct = 30;
+                    break;
+                case 'low-carb':
+                    proteinPct = 40;
+                    carbsPct = 20;
+                    fatPct = 40;
+                    break;
+                case 'high-carb':
+                    proteinPct = 20;
+                    carbsPct = 60;
+                    fatPct = 20;
+                    break;
+                case 'keto':
+                    proteinPct = 25;
+                    carbsPct = 5;
+                    fatPct = 70;
+                    break;
+                case 'custom':
+                    proteinPct = parseInt(document.getElementById('protein-pct').value);
+                    carbsPct = parseInt(document.getElementById('carbs-pct').value);
+                    fatPct = parseInt(document.getElementById('fat-pct').value);
+                    break;
+            }
+            
+            // Calculate grams for each macronutrient
+            const proteinGrams = Math.round((calorieTarget * proteinPct / 100) / 4);
+            const carbsGrams = Math.round((calorieTarget * carbsPct / 100) / 4);
+            const fatGrams = Math.round((calorieTarget * fatPct / 100) / 9);
+            
+            // Display results
+            document.getElementById('bmr-result').textContent = Math.round(bmr);
+            document.getElementById('tdee-result').textContent = Math.round(tdee);
+            document.getElementById('calorie-target').textContent = Math.round(calorieTarget);
+            document.getElementById('calorie-target-label').textContent = Math.round(calorieTarget);
+            
+            document.getElementById('protein-result').textContent = proteinGrams + 'g';
+            document.getElementById('carbs-result').textContent = carbsGrams + 'g';
+            document.getElementById('fat-result').textContent = fatGrams + 'g';
+            
+            document.getElementById('protein-calories').textContent = Math.round(proteinGrams * 4) + ' calories';
+            document.getElementById('carbs-calories').textContent = Math.round(carbsGrams * 4) + ' calories';
+            document.getElementById('fat-calories').textContent = Math.round(fatGrams * 9) + ' calories';
+            
+            // Set remaining values
+            document.getElementById('protein-remaining').textContent = proteinGrams + 'g remaining';
+            document.getElementById('carbs-remaining').textContent = carbsGrams + 'g remaining';
+            document.getElementById('fat-remaining').textContent = fatGrams + 'g remaining';
+            
+            // Calculate water target (35ml per kg)
+            const waterTarget = Math.round(weight * 35);
+            document.getElementById('water-target').textContent = waterTarget + ' ml';
+            
+            // Show results section
+            document.getElementById('results-section').style.display = 'block';
+            
+            // Create charts
+            createMacrosChart(proteinGrams, carbsGrams, fatGrams);
+            createProgressChart(calorieTarget, proteinGrams, carbsGrams, fatGrams);
+            
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+            
+            // Initialize meal tracking
+            initMealTracking(calorieTarget, proteinGrams, carbsGrams, fatGrams, waterTarget);
+            
+            // Show notification about unit conversion
+            if (heightUnit !== 'cm' || weightUnit !== 'kg') {
+                setTimeout(() => {
+                    alert("Note: Calculations are performed using metric units (cm/kg). Your inputs were automatically converted for accuracy.");
+                }, 500);
+            }
+        }
+        
+        function resetCalculator() {
+            document.getElementById('age').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('weight').value = '';
+            document.getElementById('height-ft').value = '';
+            document.getElementById('height-in').value = '';
+            document.getElementById('results-section').style.display = 'none';
+            document.getElementById('meal-entries').innerHTML = '';
+            document.getElementById('calorie-progress').style.width = '0%';
+            document.getElementById('protein-consumed').textContent = '0g';
+            document.getElementById('carbs-consumed').textContent = '0g';
+            document.getElementById('fat-consumed').textContent = '0g';
+            document.getElementById('water-progress').style.width = '0%';
+            
+            // Reset units to default
+            if (heightUnit !== 'cm') {
+                heightUnitToggle.click();
+            }
+            if (weightUnit !== 'kg') {
+                weightUnitToggle.click();
+            }
+            
+            // Destroy charts if they exist
+            if (macrosChart) {
+                macrosChart.destroy();
+            }
+            if (progressChart) {
+                progressChart.destroy();
+            }
+        }
+        
+        // Chart Functions
+        function createMacrosChart(protein, carbs, fat) {
+            const ctx = document.getElementById('macrosChart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (macrosChart) {
+                macrosChart.destroy();
+            }
+            
+            macrosChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fat'],
+                    datasets: [{
+                        data: [protein, carbs, fat],
+                        backgroundColor: [
+                            'rgba(234, 67, 53, 0.7)',
+                            'rgba(251, 188, 5, 0.7)',
+                            'rgba(52, 168, 83, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(234, 67, 53, 1)',
+                            'rgba(251, 188, 5, 1)',
+                            'rgba(52, 168, 83, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: getComputedStyle(document.body).getPropertyValue('--text-color')
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Daily Macronutrient Targets (grams)',
+                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createProgressChart(calorieTarget, proteinTarget, carbsTarget, fatTarget) {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (progressChart) {
+                progressChart.destroy();
+            }
+            
+            progressChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Calories', 'Protein', 'Carbs', 'Fat'],
+                    datasets: [{
+                        label: 'Target',
+                        data: [calorieTarget, proteinTarget, carbsTarget, fatTarget],
+                        backgroundColor: 'rgba(66, 133, 244, 0.5)',
+                        borderColor: 'rgba(66, 133, 244, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Consumed',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: 'rgba(52, 168, 83, 0.5)',
+                        borderColor: 'rgba(52, 168, 83, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: getComputedStyle(document.body).getPropertyValue('--text-color')
+                            },
+                            grid: {
+                                color: getComputedStyle(document.body).getPropertyValue('--border-color')
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: getComputedStyle(document.body).getPropertyValue('--text-color')
+                            },
+                            grid: {
+                                color: getComputedStyle(document.body).getPropertyValue('--border-color')
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: getComputedStyle(document.body).getPropertyValue('--text-color')
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Daily Progress',
+                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateProgressChart(calories, protein, carbs, fat) {
+            if (progressChart) {
+                progressChart.data.datasets[1].data = [calories, protein, carbs, fat];
+                progressChart.update();
+            }
+        }
+        
+        function updateChartThemes() {
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+            const borderColor = getComputedStyle(document.body).getPropertyValue('--border-color');
+            
+            if (macrosChart) {
+                macrosChart.options.plugins.legend.labels.color = textColor;
+                macrosChart.options.plugins.title.color = textColor;
+                macrosChart.update();
+            }
+            
+            if (progressChart) {
+                progressChart.options.scales.y.ticks.color = textColor;
+                progressChart.options.scales.y.grid.color = borderColor;
+                progressChart.options.scales.x.ticks.color = textColor;
+                progressChart.options.scales.x.grid.color = borderColor;
+                progressChart.options.plugins.legend.labels.color = textColor;
+                progressChart.options.plugins.title.color = textColor;
+                progressChart.update();
+            }
+        }
+        
+        // Meal Tracking
+        function initMealTracking(calorieTarget, proteinTarget, carbsTarget, fatTarget, waterTarget) {
+            let totalCalories = 0;
+            let totalProtein = 0;
+            let totalCarbs = 0;
+            let totalFat = 0;
+            let totalWater = 0;
+            
+            // Food Search
+            const foodSearch = document.getElementById('food-search');
+            const foodResults = document.getElementById('food-results');
+            
+            foodSearch.addEventListener('input', () => {
+                const searchTerm = foodSearch.value.toLowerCase();
+                if (searchTerm.length < 2) {
+                    foodResults.style.display = 'none';
+                    return;
+                }
+                
+                const results = foodDatabase.filter(food => 
+                    food.name.toLowerCase().includes(searchTerm));
+                
+                if (results.length > 0) {
+                    foodResults.innerHTML = '';
+                    results.forEach(food => {
+                        const item = document.createElement('div');
+                        item.className = 'food-item';
+                        item.textContent = `${food.name} - ${food.calories} kcal`;
+                        item.addEventListener('click', () => {
+                            addMealEntry(food.name, food.calories, food.protein, food.carbs, food.fat);
+                            foodSearch.value = '';
+                            foodResults.style.display = 'none';
+                        });
+                        foodResults.appendChild(item);
+                    });
+                    foodResults.style.display = 'block';
+                } else {
+                    foodResults.style.display = 'none';
+                }
+            });
+            
+            // Close results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (e.target !== foodSearch) {
+                    foodResults.style.display = 'none';
+                }
+            });
+            
+            // Add Custom Meal
+            document.getElementById('add-meal-btn').addEventListener('click', () => {
+                const name = prompt('Enter meal name:');
+                if (!name) return;
+                
+                const calories = parseInt(prompt('Enter calories:'));
+                if (isNaN(calories)) return;
+                
+                const protein = parseInt(prompt('Enter protein (g):')) || 0;
+                const carbs = parseInt(prompt('Enter carbs (g):')) || 0;
+                const fat = parseInt(prompt('Enter fat (g):')) || 0;
+                
+                addMealEntry(name, calories, protein, carbs, fat);
+            });
+            
+            // Water Tracking
+            const waterButtons = document.querySelectorAll('.water-btn');
+            waterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const amount = parseInt(button.getAttribute('data-amount'));
+                    totalWater += amount;
+                    const percentage = Math.min(100, (totalWater / waterTarget) * 100);
+                    document.getElementById('water-progress').style.width = `${percentage}%`;
+                });
+            });
+            
+            function addMealEntry(name, calories, protein, carbs, fat) {
+                totalCalories += calories;
+                totalProtein += protein;
+                totalCarbs += carbs;
+                totalFat += fat;
+                
+                // Update progress bars
+                const caloriePercentage = Math.min(100, (totalCalories / calorieTarget) * 100);
+                document.getElementById('calorie-progress').style.width = `${caloriePercentage}%`;
+                
+                // Update macros
+                document.getElementById('protein-consumed').textContent = totalProtein + 'g';
+                document.getElementById('carbs-consumed').textContent = totalCarbs + 'g';
+                document.getElementById('fat-consumed').textContent = totalFat + 'g';
+                
+                document.getElementById('protein-remaining').textContent = Math.max(0, proteinTarget - totalProtein) + 'g remaining';
+                document.getElementById('carbs-remaining').textContent = Math.max(0, carbsTarget - totalCarbs) + 'g remaining';
+                document.getElementById('fat-remaining').textContent = Math.max(0, fatTarget - totalFat) + 'g remaining';
+                
+                // Update progress chart
+                updateProgressChart(totalCalories, totalProtein, totalCarbs, totalFat);
+                
+                // Add meal entry
+                const mealEntry = document.createElement('div');
+                mealEntry.className = 'meal-entry';
+                mealEntry.innerHTML = `
+                    <div class="meal-info">
+                        <h4>${name}</h4>
+                        <small>${calories} kcal | P: ${protein}g | C: ${carbs}g | F: ${fat}g</small>
+                    </div>
+                    <div class="meal-actions">
+                        <button class="edit-meal" data-calories="${calories}" data-protein="${protein}" data-carbs="${carbs}" data-fat="${fat}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-meal" data-calories="${calories}" data-protein="${protein}" data-carbs="${carbs}" data-fat="${fat}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('meal-entries').appendChild(mealEntry);
+                
+                // Add event listeners for edit/delete
+                mealEntry.querySelector('.edit-meal').addEventListener('click', () => {
+                    const newCalories = parseInt(prompt('Edit calories:', calories));
+                    if (isNaN(newCalories)) return;
+                    
+                    const newProtein = parseInt(prompt('Edit protein (g):', protein)) || 0;
+                    const newCarbs = parseInt(prompt('Edit carbs (g):', carbs)) || 0;
+                    const newFat = parseInt(prompt('Edit fat (g):', fat)) || 0;
+                    
+                    // Update totals
+                    totalCalories = totalCalories - calories + newCalories;
+                    totalProtein = totalProtein - protein + newProtein;
+                    totalCarbs = totalCarbs - carbs + newCarbs;
+                    totalFat = totalFat - fat + newFat;
+                    
+                    // Update progress bars
+                    const newCaloriePercentage = Math.min(100, (totalCalories / calorieTarget) * 100);
+                    document.getElementById('calorie-progress').style.width = `${newCaloriePercentage}%`;
+                    
+                    // Update macros
+                    document.getElementById('protein-consumed').textContent = totalProtein + 'g';
+                    document.getElementById('carbs-consumed').textContent = totalCarbs + 'g';
+                    document.getElementById('fat-consumed').textContent = totalFat + 'g';
+                    
+                    document.getElementById('protein-remaining').textContent = Math.max(0, proteinTarget - totalProtein) + 'g remaining';
+                    document.getElementById('carbs-remaining').textContent = Math.max(0, carbsTarget - totalCarbs) + 'g remaining';
+                    document.getElementById('fat-remaining').textContent = Math.max(0, fatTarget - totalFat) + 'g remaining';
+                    
+                    // Update progress chart
+                    updateProgressChart(totalCalories, totalProtein, totalCarbs, totalFat);
+                    
+                    // Update entry
+                    mealEntry.querySelector('h4').textContent = name;
+                    mealEntry.querySelector('small').textContent = 
+                        `${newCalories} kcal | P: ${newProtein}g | C: ${newCarbs}g | F: ${newFat}g`;
+                    
+                    mealEntry.querySelector('.edit-meal').setAttribute('data-calories', newCalories);
+                    mealEntry.querySelector('.edit-meal').setAttribute('data-protein', newProtein);
+                    mealEntry.querySelector('.edit-meal').setAttribute('data-carbs', newCarbs);
+                    mealEntry.querySelector('.edit-meal').setAttribute('data-fat', newFat);
+                    
+                    mealEntry.querySelector('.delete-meal').setAttribute('data-calories', newCalories);
+                    mealEntry.querySelector('.delete-meal').setAttribute('data-protein', newProtein);
+                    mealEntry.querySelector('.delete-meal').setAttribute('data-carbs', newCarbs);
+                    mealEntry.querySelector('.delete-meal').setAttribute('data-fat', newFat);
+                });
+                
+                mealEntry.querySelector('.delete-meal').addEventListener('click', () => {
+                    // Update totals
+                    totalCalories -= calories;
+                    totalProtein -= protein;
+                    totalCarbs -= carbs;
+                    totalFat -= fat;
+                    
+                    // Update progress bars
+                    const newCaloriePercentage = Math.min(100, (totalCalories / calorieTarget) * 100);
+                    document.getElementById('calorie-progress').style.width = `${newCaloriePercentage}%`;
+                    
+                    // Update macros
+                    document.getElementById('protein-consumed').textContent = totalProtein + 'g';
+                    document.getElementById('carbs-consumed').textContent = totalCarbs + 'g';
+                    document.getElementById('fat-consumed').textContent = totalFat + 'g';
+                    
+                    document.getElementById('protein-remaining').textContent = Math.max(0, proteinTarget - totalProtein) + 'g remaining';
+                    document.getElementById('carbs-remaining').textContent = Math.max(0, carbsTarget - totalCarbs) + 'g remaining';
+                    document.getElementById('fat-remaining').textContent = Math.max(0, fatTarget - totalFat) + 'g remaining';
+                    
+                    // Update progress chart
+                    updateProgressChart(totalCalories, totalProtein, totalCarbs, totalFat);
+                    
+                    // Remove entry
+                    mealEntry.remove();
+                });
+            }
+        }
+        
+        // Export Functions
+        document.getElementById('export-pdf').addEventListener('click', exportToPDF);
+        document.getElementById('export-image').addEventListener('click', exportToImage);
+        
+        async function exportToPDF() {
+            // Create a new jsPDF instance
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(66, 133, 244);
+            doc.text('Buzz Calorie Calculator Report', 105, 20, { align: 'center' });
+            
+            // Add date
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+            
+            // Add user info section
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0);
+            doc.text('User Information', 14, 45);
+            doc.line(14, 47, 60, 47);
+            
+            doc.setFontSize(12);
+            doc.text(`Age: ${document.getElementById('age').value}`, 14, 55);
+            doc.text(`Gender: ${document.getElementById('gender').value}`, 14, 65);
+            
+            // Height display based on current unit
+            if (heightUnit === 'cm') {
+                doc.text(`Height: ${document.getElementById('height').value} cm`, 14, 75);
+            } else {
+                const feet = document.getElementById('height-ft').value || 0;
+                const inches = document.getElementById('height-in').value || 0;
+                doc.text(`Height: ${feet}' ${inches}"`, 14, 75);
+            }
+            
+            // Weight display based on current unit
+            if (weightUnit === 'kg') {
+                doc.text(`Weight: ${document.getElementById('weight').value} kg`, 14, 85);
+            } else {
+                doc.text(`Weight: ${document.getElementById('weight').value} lbs`, 14, 85);
+            }
+            
+            // Add goals section
+            doc.setFontSize(16);
+            doc.text('Goals & Activity', 14, 105);
+            doc.line(14, 107, 60, 107);
+            
+            doc.setFontSize(12);
+            doc.text(`Goal: ${document.getElementById('goal').options[document.getElementById('goal').selectedIndex].text}`, 14, 115);
+            doc.text(`Weekly Rate: ${document.getElementById('rate').options[document.getElementById('rate').selectedIndex].text}`, 14, 125);
+            doc.text(`Activity Level: ${document.getElementById('activity').options[document.getElementById('activity').selectedIndex].text}`, 14, 135);
+            
+            // Add results section
+            doc.setFontSize(16);
+            doc.text('Results', 105, 105);
+            doc.line(105, 107, 120, 107);
+            
+            doc.setFontSize(12);
+            doc.text(`BMR: ${document.getElementById('bmr-result').textContent} kcal`, 105, 115);
+            doc.text(`TDEE: ${document.getElementById('tdee-result').textContent} kcal`, 105, 125);
+            doc.text(`Daily Target: ${document.getElementById('calorie-target').textContent} kcal`, 105, 135);
+            
+            // Add macros section
+            doc.setFontSize(16);
+            doc.text('Macronutrients', 14, 155);
+            doc.line(14, 157, 60, 157);
+            
+            doc.setFontSize(12);
+            doc.text(`Protein: ${document.getElementById('protein-result').textContent}`, 14, 165);
+            doc.text(`Carbs: ${document.getElementById('carbs-result').textContent}`, 14, 175);
+            doc.text(`Fat: ${document.getElementById('fat-result').textContent}`, 14, 185);
+            
+            // Add chart images
+            // First we need to convert the charts to images
+            const macrosChartCanvas = document.getElementById('macrosChart');
+            const progressChartCanvas = document.getElementById('progressChart');
+            
+            // Add macros chart
+            const macrosChartImg = await html2canvas(macrosChartCanvas);
+            doc.addImage(macrosChartImg, 'PNG', 14, 195, 80, 60);
+            
+            // Add progress chart
+            const progressChartImg = await html2canvas(progressChartCanvas);
+            doc.addImage(progressChartImg, 'PNG', 105, 195, 80, 60);
+            
+            // Add meal log if there are entries
+            const mealEntries = document.getElementById('meal-entries').children;
+            if (mealEntries.length > 0) {
+                doc.addPage();
+                doc.setFontSize(16);
+                doc.text('Meal Log', 14, 20);
+                doc.line(14, 22, 30, 22);
+                
+                let yPos = 30;
+                for (let i = 0; i < mealEntries.length; i++) {
+                    if (yPos > 250) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    
+                    const entry = mealEntries[i];
+                    const name = entry.querySelector('h4').textContent;
+                    const details = entry.querySelector('small').textContent;
+                    
+                    doc.setFontSize(12);
+                    doc.text(`${i+1}. ${name}`, 14, yPos);
+                    doc.text(details, 20, yPos + 7);
+                    
+                    yPos += 15;
+                }
+            }
+            
+            // Save the PDF
+            doc.save('Buzz-Calorie-Calculator-Report.pdf');
+        }
+        
+        async function exportToImage() {
+            // Create a canvas of the entire results section
+            const element = document.getElementById('results-section');
+            const canvas = await html2canvas(element);
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.download = 'Buzz-Calorie-Calculator-Results.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Share Buttons
+        document.getElementById('share-fb').addEventListener('click', (e) => {
+            e.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent("Check out my personalized calorie and nutrition plan!");
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+        });
+        
+        document.getElementById('share-twitter').addEventListener('click', (e) => {
+            e.preventDefault();
+            const text = encodeURIComponent("Check out my personalized calorie and nutrition plan!");
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        });
+        
+        document.getElementById('share-whatsapp').addEventListener('click', (e) => {
+            e.preventDefault();
+            const text = encodeURIComponent("Check out my personalized calorie and nutrition plan! " + window.location.href);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        });
+        
+        document.getElementById('share-linkedin').addEventListener('click', (e) => {
+            e.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+        });
+        
+        // AI Suggestions Refresh
+        document.getElementById('refresh-suggestions').addEventListener('click', () => {
+            const suggestions = [
+                {
+                    title: "Protein-Packed Smoothie",
+                    desc: "Greek yogurt, banana, peanut butter, and protein powder (approx. 400 kcal, 30g protein)"
+                },
+                {
+                    title: "Vegetarian Buddha Bowl",
+                    desc: "Quinoa, roasted chickpeas, avocado, and tahini dressing (approx. 450 kcal, 15g protein)"
+                },
+                {
+                    title: "Lean Beef Stir Fry",
+                    desc: "Lean beef strips with mixed vegetables and brown rice (approx. 500 kcal, 35g protein)"
+                },
+                {
+                    title: "Tuna Salad Wrap",
+                    desc: "Whole wheat wrap with tuna, light mayo, and mixed greens (approx. 350 kcal, 25g protein)"
+                },
+                {
+                    title: "Vegetable Omelette",
+                    desc: "3-egg omelette with mushrooms, peppers, and feta cheese (approx. 300 kcal, 22g protein)"
+                }
+            ];
+            
+            // Shuffle array and pick first 3
+            const shuffled = suggestions.sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 3);
+            
+            const suggestionsList = document.getElementById('ai-suggestions-list');
+            suggestionsList.innerHTML = '';
+            
+            selected.forEach(suggestion => {
+                const div = document.createElement('div');
+                div.className = 'suggestion';
+                div.innerHTML = `
+                    <h3>${suggestion.title}</h3>
+                    <p>${suggestion.desc}</p>
+                `;
+                suggestionsList.appendChild(div);
+            });
+            
+            // Show notification
+            alert('New meal suggestions generated!');
+        });
+        
+        // Newsletter Subscription
+        document.getElementById('newsletter-submit').addEventListener('click', () => {
+            const email = document.getElementById('newsletter-email').value;
+            if (email && email.includes('@')) {
+                alert('Thank you for subscribing to our newsletter!');
+                document.getElementById('newsletter-email').value = '';
+            } else {
+                alert('Please enter a valid email address');
+            }
+        });
+        
+        // Random motivational tip
+        const tips = [
+            "Remember to stay hydrated throughout the day!",
+            "Consistency is key - small daily improvements lead to big results.",
+            "Don't forget to include strength training in your fitness routine.",
+            "Aim for 7-9 hours of quality sleep each night for optimal recovery.",
+            "Listen to your body - rest when you need to.",
+            "Focus on progress, not perfection."
+        ];
+        
+        // Show random tip after 30 seconds
+        setTimeout(() => {
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            const tipElement = document.createElement('div');
+            tipElement.className = 'card';
+            tipElement.innerHTML = `
+                <h2><i class="fas fa-lightbulb"></i> Quick Tip</h2>
+                <p>${randomTip}</p>
+            `;
+            document.querySelector('.container').appendChild(tipElement);
+        }, 30000);
+    </script>
+</body>
+</html>
