@@ -4,7 +4,7 @@ Host: api.indexnow.org
 {
   "host": "www.toolshub.cam",
   "key": "0fd9f79126d1411fb83a91ec8a93a7a6",
-  "keyLocation": "https://www.toolshub.cam/0fd9f79126d1411fb83a91ec8a93a7a6.txt",
+  "keyLocation": "https://www.toolshub.cam/0fd9f79126d1411fb83a91ec8a93a7a6",
   "urlList": [
 "https://toolshub.cam/",
 "https://toolshub.cam/page1.html",
