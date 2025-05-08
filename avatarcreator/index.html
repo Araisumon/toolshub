@@ -1,0 +1,403 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create stunning avatars with Buzz's interactive Custom Avatar Creator. Personalize, animate, share, and earn badges!">
+    <meta name="keywords" content="avatar creator, custom avatar, Buzz avatar, interactive avatar maker, personalize avatar, share avatar">
+    <meta name="author" content="Buzz">
+    <meta name="robots" content="index, follow">
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Buzz - Custom Avatar Creator">
+    <meta property="og:description" content="Design unique avatars with Buzz's interactive tool. Animate, share, earn badges, and show off your creations!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/avatar-creator">
+    <meta property="og:image" content="https://example.com/images/avatar-creator-preview.jpg">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Buzz - Custom Avatar Creator">
+    <meta name="twitter:description" content="Design unique avatars with Buzz's interactive tool. Animate, share, earn badges, and show off your creations!">
+    <meta name="twitter:image" content="https://example.com/images/avatar-creator-preview.jpg">
+    <title>Buzz - Custom Avatar Creator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-message" id="welcomeMessage">
+            <h2 data-i18n="welcome_title">Welcome to Buzz Avatar Creator!</h2>
+            <p data-i18n="welcome_text">Design your unique avatar, animate it, share it, and earn badges!</p>
+            <button class="action-btn dismiss-btn" id="dismissWelcome" title="Dismiss welcome message" aria-label="Dismiss welcome message">
+                <i class="fas fa-times"></i> <span data-i18n="dismiss">Dismiss</span>
+            </button>
+        </div>
+
+        <header class="header">
+            <div class="brand-logo">
+                <h2 data-i18n="brand_name">Buzz</h2>
+            </div>
+            <h1 data-i18n="header_title">Custom Avatar Creator</h1>
+            <div class="header-actions">
+                <a href="index.html" class="action-btn home-btn" data-tooltip="home_tooltip" aria-label="Navigate to home page">
+                    <i class="fas fa-home"></i> <span data-i18n="home">Home</span>
+                </a>
+                <button id="colorCycleBtn" class="action-btn" data-tooltip="color_cycle_tooltip" aria-label="Change header color">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <button id="themeToggle" class="action-btn" data-tooltip="theme_toggle_tooltip" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="languageToggle" class="action-btn" data-tooltip="language_toggle_tooltip" aria-label="Toggle language">
+                    <i class="fas fa-globe"></i> <span data-i18n="language_toggle">EN</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="badge-tracker" id="badgeTracker" style="display: none;">
+            <div class="badge-tracker-content">
+                <h2 data-i18n="badge_tracker_title">Your Badges</h2>
+                <p id="badgeProgress" data-i18n="badge_progress">0/9 Badges Earned</p>
+                <div class="badge-list">
+                    <div class="badge-item" data-badge="badge_first_save">
+                        <i class="fas fa-save"></i>
+                        <span data-i18n="badge_first_save">First Avatar Saved!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_first_export">
+                        <i class="fas fa-image"></i>
+                        <span data-i18n="badge_first_export">First Avatar Exported!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_custom_bg">
+                        <i class="fas fa-image"></i>
+                        <span data-i18n="badge_custom_bg">Custom Background Used!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_randomizer">
+                        <i class="fas fa-random"></i>
+                        <span data-i18n="badge_randomizer">Randomizer Master!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_full_custom">
+                        <i class="fas fa-user-edit"></i>
+                        <span data-i18n="badge_full_custom">Full Customization!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_accessories">
+                        <i class="fas fa-glasses"></i>
+                        <span data-i18n="badge_accessories">Stylish Accessories!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_clothing">
+                        <i class="fas fa-tshirt"></i>
+                        <span data-i18n="badge_clothing">Fashion Forward!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_facial_hair">
+                        <i class="fas fa-mustache"></i>
+                        <span data-i18n="badge_facial_hair">Beard Boss!</span>
+                    </div>
+                    <div class="badge-item" data-badge="badge_theme">
+                        <i class="fas fa-paint-brush"></i>
+                        <span data-i18n="badge_theme">Theme Explorer!</span>
+                    </div>
+                </div>
+                <button class="action-btn dismiss-btn" id="closeBadgeTracker" aria-label="Close badge tracker">
+                    <i class="fas fa-times"></i> <span data-i18n="dismiss">Close</span>
+                </button>
+            </div>
+        </div>
+
+        <section class="instructions-carousel" id="instructionsCarousel">
+            <div class="carousel-slides">
+                <div class="carousel-slide active">
+                    <h2 data-i18n="instructions_slide_1">Customize Your Avatar</h2>
+                    <p data-i18n="instructions_slide_1_text">Choose gender, hair, expressions, and more to create a unique avatar!</p>
+                </div>
+                <div class="carousel-slide">
+                    <h2 data-i18n="instructions_slide_2">Save & Share</h2>
+                    <p data-i18n="instructions_slide_2_text">Save your avatar or export it as a PNG to share on social media!</p>
+                </div>
+                <div class="carousel-slide">
+                    <h2 data-i18n="instructions_slide_3">Earn Badges</h2>
+                    <p data-i18n="instructions_slide_3_text">Complete actions like saving or randomizing to earn badges!</p>
+                </div>
+            </div>
+            <div class="carousel-controls">
+                <button class="carousel-btn" id="prevSlide" aria-label="Previous slide">
+                    <i class="fas fa-chevron-left"></i> <span data-i18n="prev">Prev</span>
+                </button>
+                <div class="carousel-dots">
+                    <span class="carousel-dot active" data-slide="0"></span>
+                    <span class="carousel-dot" data-slide="1"></span>
+                    <span class="carousel-dot" data-slide="2"></span>
+                </div>
+                <button class="carousel-btn" id="nextSlide" aria-label="Next slide">
+                    <span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <button class="action-btn dismiss-btn" id="dismissInstructions" data-tooltip="dismiss_tooltip" aria-label="Dismiss instructions">
+                <i class="fas fa-times"></i> <span data-i18n="dismiss">Dismiss</span>
+            </button>
+        </section>
+
+        <main class="creator-container">
+            <div class="avatar-display">
+                <div class="sparkle-container">
+                    <canvas id="avatarCanvas" width="300" height="300" aria-label="Avatar preview"></canvas>
+                </div>
+                <div class="avatar-actions">
+                    <button class="action-btn" id="randomizeBtn" data-tooltip="randomize_tooltip" aria-label="Randomize avatar">
+                        <i class="fas fa-random"></i> <span data-i18n="randomize">Randomize</span>
+                    </button>
+                    <button class="action-btn" id="resetBtn" data-tooltip="reset_tooltip" aria-label="Reset avatar">
+                        <i class="fas fa-undo"></i> <span data-i18n="reset">Reset</span>
+                    </button>
+                    <button class="action-btn" id="undoBtn" data-tooltip="undo_tooltip" aria-label="Undo change" disabled>
+                        <i class="fas fa-undo-alt"></i> <span data-i18n="undo">Undo</span>
+                    </button>
+                    <button class="action-btn" id="redoBtn" data-tooltip="redo_tooltip" aria-label="Redo change" disabled>
+                        <i class="fas fa-redo-alt"></i> <span data-i18n="redo">Redo</span>
+                    </button>
+                    <button class="action-btn save-btn" id="saveBtn" data-tooltip="save_tooltip" aria-label="Save avatar">
+                        <svg class="progress-circle" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                        </svg>
+                        <i class="fas fa-save"></i> <span data-i18n="save">Save</span>
+                    </button>
+                    <button class="action-btn" id="exportPng" data-tooltip="export_png_tooltip" aria-label="Export as PNG">
+                        <i class="fas fa-image"></i> <span data-i18n="export_png">Export PNG</span>
+                    </button>
+                    <button class="action-btn" id="shareXBtn" data-tooltip="share_x_tooltip" aria-label="Share on X">
+                        <i class="fab fa-x-twitter"></i> <span data-i18n="share_x">Share on X</span>
+                    </button>
+                    <button class="action-btn" id="shareFacebookBtn" data-tooltip="share_facebook_tooltip" aria-label="Share on Facebook">
+                        <i class="fab fa-facebook"></i> <span data-i18n="share_facebook">Share on FB</span>
+                    </button>
+                    <button class="action-btn" id="animationToggleBtn" data-tooltip="animate_avatar_tooltip" aria-label="Toggle avatar animation">
+                        <i class="fas fa-play"></i> <span data-i18n="animate_avatar">Animate</span>
+                    </button>
+                    <button class="action-btn" id="badgesBtn" data-tooltip="badges_tooltip" aria-label="View badges">
+                        <i class="fas fa-trophy"></i> <span data-i18n="badges">Badges</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="customization-panel">
+                <div class="customization-section">
+                    <h3 data-i18n="themes">Themes</h3>
+                    <div class="options">
+                        <div class="option-group">
+                            <div class="option-item" data-category="theme" data-value="superhero" role="button" tabindex="0">
+                                <i class="fas fa-mask"></i> <span data-i18n="superhero">Superhero</span>
+                            </div>
+                            <div class="option-item" data-category="theme" data-value="casual" role="button" tabindex="0">
+                                <i class="fas fa-tshirt"></i> <span data-i18n="casual">Casual</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3 data-i18n="base_features">Base Features</h3>
+                    <div class="options">
+                        <h4 data-i18n="gender">Gender</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="gender" data-value="male" role="button" tabindex="0">
+                                <i class="fas fa-male"></i> <span data-i18n="male">Male</span>
+                            </div>
+                            <div class="option-item" data-category="gender" data-value="female" role="button" tabindex="0">
+                                <i class="fas fa-female"></i> <span data-i18n="female">Female</span>
+                            </div>
+                        </div>
+                        <h4 data-i18n="ethnicity">Ethnicity</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="ethnicity" data-value="caucasian" role="button" tabindex="0">
+                                <i class="fas fa-user"></i> <span data-i18n="caucasian">Caucasian</span>
+                            </div>
+                            <div class="option-item" data-category="ethnicity" data-value="african" role="button" tabindex="0">
+                                <i class="fas fa-user"></i> <span data-i18n="african">African</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3 data-i18n="facial_features">Facial Features</h3>
+                    <div class="options">
+                        <h4 data-i18n="eye_size">Eye Size</h4>
+                        <input type="range" id="eyeSizeSlider" min="20" max="80" value="50" aria-label="Eye size">
+                        <span id="eyeSizeValue">50%</span>
+                        <h4 data-i18n="eye_color">Eye Color</h4>
+                        <div class="color-options">
+                            <div class="color-option" data-category="eyeColor" data-value="#0000ff" style="background-color: #0000ff;" role="button" tabindex="0"></div>
+                            <div class="color-option" data-category="eyeColor" data-value="#8b4513" style="background-color: #8b4513;" role="button" tabindex="0"></div>
+                            <div class="color-option" data-category="eyeColor" data-value="#008000" style="background-color: #008000;" role="button" tabindex="0"></div>
+                        </div>
+                        <h4 data-i18n="expression">Expression</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="expression" data-value="neutral" role="button" tabindex="0">
+                                <i class="fas fa-meh"></i> <span data-i18n="neutral">Neutral</span>
+                            </div>
+                            <div class="option-item" data-category="expression" data-value="happy" role="button" tabindex="0">
+                                <i class="fas fa-smile"></i> <span data-i18n="happy">Happy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3 data-i18n="hair">Hair</h3>
+                    <div class="options">
+                        <h4 data-i18n="hair_style">Hair Style</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="hairStyle" data-value="short" role="button" tabindex="0">
+                                <i class="fas fa-cut"></i> <span data-i18n="short">Short</span>
+                            </div>
+                            <div class="option-item" data-category="hairStyle" data-value="bald" role="button" tabindex="0">
+                                <i class="fas fa-user"></i> <span data-i18n="bald">Bald</span>
+                            </div>
+                        </div>
+                        <h4 data-i18n="hair_color">Hair Color</h4>
+                        <div class="color-options">
+                            <div class="color-option" data-category="hairColor" data-value="#000000" style="background-color: #000000;" role="button" tabindex="0"></div>
+                            <div class="color-option" data-category="hairColor" data-value="#a67c52" style="background-color: #a67c52;" role="button" tabindex="0"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3 data-i18n="accessories">Accessories</h3>
+                    <div class="options">
+                        <h4 data-i18n="glasses">Glasses</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="glasses" data-value="none" role="button" tabindex="0">
+                                <i class="fas fa-ban"></i> <span data-i18n="none">None</span>
+                            </div>
+                            <div class="option-item" data-category="glasses" data-value="round" role="button" tabindex="0">
+                                <i class="fas fa-glasses"></i> <span data-i18n="round">Round</span>
+                            </div>
+                            <div class="option-item" data-category="glasses" data-value="square" role="button" tabindex="0">
+                                <i class="fas fa-glasses"></i> <span data-i18n="square">Square</span>
+                            </div>
+                        </div>
+                        <h4 data-i18n="hat">Hat</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="hat" data-value="none" role="button" tabindex="0">
+                                <i class="fas fa-ban"></i> <span data-i18n="none">None</span>
+                            </div>
+                            <div class="option-item" data-category="hat" data-value="cap" role="button" tabindex="0">
+                                <i class="fas fa-baseball-ball"></i> <span data-i18n="cap">Cap</span>
+                            </div>
+                            <div class="option-item" data-category="hat" data-value="beanie" role="button" tabindex="0">
+                                <i class="fas fa-head-side-mask"></i> <span data-i18n="beanie">Beanie</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3 data-i18n="clothing">Clothing</h3>
+                    <div class="options">
+                        <h4 data-i18n="shirt_style">Shirt Style</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="clothing" data-value="tshirt" role="button" tabindex="0">
+                                <i class="fas fa-tshirt"></i> <span data-i18n="tshirt">T-Shirt</span>
+                            </div>
+                            <div class="option-item" data-category="clothing" data-value="jacket" role="button" tabindex="0">
+                                <i class="fas fa-jacket"></i> <span data-i18n="jacket">Jacket</span>
+                            </div>
+                        </div>
+                        <h4 data-i18n="clothing_color">Clothing Color</h4>
+                        <div class="color-options">
+                            <div class="color-option" data-category="clothingColor" data-value="#ffffff" style="background-color: #ffffff;" role="button" tabindex="0"></div>
+                            <div class="color-option" data-category="clothingColor" data-value="#ff0000" style="background-color: #ff0000;" role="button" tabindex="0"></div>
+                            <div class="color-option" data-category="clothingColor" data-value="#000000" style="background-color: #000000;" role="button" tabindex="0"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3 data-i18n="facial_hair">Facial Hair</h3>
+                    <div class="options">
+                        <div class="option-group">
+                            <div class="option-item" data-category="facialHair" data-value="none" role="button" tabindex="0">
+                                <i class="fas fa-ban"></i> <span data-i18n="none">None</span>
+                            </div>
+                            <div class="option-item" data-category="facialHair" data-value="stubble" role="button" tabindex="0">
+                                <i class="fas fa-mustache"></i> <span data-i18n="stubble">Stubble</span>
+                            </div>
+                            <div class="option-item" data-category="facialHair" data-value="full" role="button" tabindex="0">
+                                <i class="fas fa-mustache"></i> <span data-i18n="full">Full Beard</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3 data-i18n="background">Background</h3>
+                    <div class="options">
+                        <h4 data-i18n="background_type">Background Type</h4>
+                        <div class="option-group">
+                            <div class="option-item" data-category="background" data-value="solid" role="button" tabindex="0">
+                                <i class="fas fa-square"></i> <span data-i18n="solid">Solid</span>
+                            </div>
+                            <div class="option-item" data-category="background" data-value="custom" role="button" tabindex="0">
+                                <i class="fas fa-image"></i> <span data-i18n="custom">Custom</span>
+                            </div>
+                        </div>
+                        <div id="bgColorSection">
+                            <h4 data-i18n="background_color">Background Color</h4>
+                            <div class="color-options">
+                                <div class="color-option" data-category="bgColor" data-value="#f5f7fa" style="background-color: #f5f7fa;" role="button" tabindex="0"></div>
+                                <div class="color-option" data-category="bgColor" data-value="#4a6bff" style="background-color: #4a6bff;" role="button" tabindex="0"></div>
+                            </div>
+                        </div>
+                        <div id="customBgSection" style="display: none;">
+                            <h4 data-i18n="upload_background">Upload Background</h4>
+                            <input type="file" id="customBgUpload" accept="image/*" aria-label="Upload custom background">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="loadingSpinner" class="loading-spinner" role="alert" aria-live="polite">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
