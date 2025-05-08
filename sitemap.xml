@@ -245,5 +245,23 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+    <url>
+    <loc>https://toolshub.cam/percentagecalc/</loc>
+    <lastmod>2025-09-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+    <url>
+    <loc>https://toolshub.cam/gradecalc/</loc>
+    <lastmod>2025-09-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+    <url>
+    <loc>https://toolshub.cam/avatarcreator/</loc>
+    <lastmod>2025-09-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
 
