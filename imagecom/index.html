@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
@@ -13,8 +52,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Free online tool to compress JPG, PNG, SVG, and GIF images while maintaining quality. Reduce image file size for websites and social media.">
     <meta name="keywords" content="image compressor, compress jpg, reduce png size, optimize images, free image tool">
-    <meta name="author" content="Image Buzz">
-    <title>Image Compress Tool | Reduce Image Size Online - Image Buzz</title>
+    <meta name="author" content="Buzz">
+    <title>Image Compress Tool | Reduce Image Size Online - Buzz</title>
     <link rel="icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -288,10 +327,6 @@
         body.dark-mode .share-btn:hover {
             background: #4a90e2;
         }
-        .ad-container {
-            margin: 20px 0;
-            text-align: center;
-        }
         footer {
             background: #fff;
             padding: 20px 0;
@@ -445,7 +480,7 @@
         <div class="container header-container">
             <div class="brand">
                 <i class="material-icons">image</i>
-                <span>Image Buzz</span>
+                <span>Buzz</span>
             </div>
             <h1 class="header-title">Image Compress</h1>
             <div class="header-actions">
@@ -459,20 +494,6 @@
 
     <main>
         <div class="container">
-            <!-- Ad Space Top -->
-            <div class="ad-container">
-                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_ID" crossorigin="anonymous"></script>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-YOUR_ADSENSE_ID"
-                     data-ad-slot="YOUR_AD_SLOT_ID"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            </div>
-
             <!-- Tool Container -->
             <div class="tool-container">
                 <h2 class="tool-title">Compress Images Online for Free</h2>
@@ -487,7 +508,7 @@
                     <div>
                         <button class="upload-btn" id="fileInputBtn" data-tooltip="Select images from your device" aria-label="Select images">
                             <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">upload</i>
-                            Select from Computer
+                            Select= Select from Computer
                         </button>
                     </div>
                     <input type="file" id="fileInput" accept="image/jpeg,image/png,image/svg+xml,image/gif" multiple style="display: none;">
@@ -533,24 +554,12 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Ad Space Bottom -->
-            <div class="ad-container">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-format="autorelaxed"
-                     data-ad-client="ca-pub-YOUR_ADSENSE_ID"
-                     data-ad-slot="YOUR_AD_SLOT_ID"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            </div>
         </div>
     </main>
 
     <footer>
         <div class="container footer-content">
-            <div class="footer-logo">Image Buzz</div>
+            <div class="footer-logo">Buzz</div>
             <div class="stats-dashboard">
                 <h3>Compression Stats</h3>
                 <p>Total Images Compressed: <span id="totalImages">0</span></p>
@@ -562,7 +571,7 @@
                 <a href="#" class="footer-link" aria-label="Terms of Service">Terms of Service</a>
                 <a href="#" class="footer-link" aria-label="Contact page">Contact</a>
             </div>
-            <p class="footer-copyright">© 2023 Image Buzz. All rights reserved.</p>
+            <p class="footer-copyright">© 2025 Buzz. All rights reserved.</p>
         </div>
     </footer>
 
@@ -619,12 +628,12 @@
 
         // Share Buttons
         const shareUrl = window.location.href;
-        const shareMessage = 'Check out Image Buzz - a free tool to compress images online!';
+        const shareMessage = 'Check out Buzz - a free tool to compress images online!';
         document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMessage)}&url=${encodeURIComponent(shareUrl)}`;
         document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
         document.getElementById('shareLinkedIn').href = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareMessage)}`;
         document.getElementById('shareWhatsApp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage + ' ' + shareUrl)}`;
-        document.getElementById('shareEmail').href = `mailto:?subject=${encodeURIComponent('Image Buzz Image Compressor')}&body=${encodeURIComponent(shareMessage + ' ' + shareUrl)}`;
+        document.getElementById('shareEmail').href = `mailto:?subject=${encodeURIComponent('Buzz Image Compressor')}&body=${encodeURIComponent(shareMessage + ' ' + shareUrl)}`;
 
         // Reset Button
         const resetBtn = document.getElementById('resetBtn');
@@ -911,5 +920,5 @@
             fileInput.click();
         });
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93ca40c69f42457c',t:'MTc0NjcyMDg5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
