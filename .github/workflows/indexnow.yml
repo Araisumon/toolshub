@@ -57,7 +57,10 @@ jobs:
               "https://toolshub.cam/jpgpngtopdf/",
               "https://toolshub.cam/QRCodeG/",
               "https://toolshub.cam/loancalc/",
-              "https://toolshub.cam/caloriecalc/"
+              "https://toolshub.cam/caloriecalc/",
+              "https://toolshub.cam/percentagecalc/",
+              "https://toolshub.cam/gradecalc/",
+              "https://toolshub.cam/avatarcreator/"
             ]
           }'
 
