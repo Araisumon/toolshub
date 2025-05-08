@@ -1,0 +1,2914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Percentage Calculator with multiple calculation modes, visual charts, and smart insights. Calculate percentages, increases, decreases, differences, and more.">
+    <meta name="keywords" content="percentage calculator, math tool, percentage increase, percentage decrease, reverse percentage, percentage difference">
+    <title>Buzz - Advanced Percentage Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #4cc9f0;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --card-bg: #fff;
+            --border-color: #e0e0e0;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --accent-color: #00bbf9;
+            --text-color: #f8f9fa;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-actions a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .intro h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .intro p {
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .calculator-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group .form-control {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .input-group-append {
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .result-container {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chart-container {
+            margin-top: 1.5rem;
+            height: 250px;
+        }
+
+        .steps-container {
+            margin-top: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .step {
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .step:before {
+            content: "→";
+            position: absolute;
+            left: -1.5rem;
+            color: var(--primary-color);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        .tooltip-icon {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .settings-panel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .settings-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .setting-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 0.5rem;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            cursor: pointer;
+        }
+
+        .share-facebook {
+            background-color: #3b5998;
+        }
+
+        .share-twitter {
+            background-color: #1da1f2;
+        }
+
+        .share-linkedin {
+            background-color: #0077b5;
+        }
+
+        .share-whatsapp {
+            background-color: #25d366;
+        }
+
+        .share-email {
+            background-color: #777;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .floating-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 99;
+        }
+
+        .floating-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 99;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .multi-step-container {
+            margin-top: 1rem;
+        }
+
+        .multi-step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .multi-step-title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .multi-step-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .multi-step-item {
+            background-color: var(--card-bg);
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .multi-step-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .multi-step-item-title {
+            font-weight: 500;
+        }
+
+        .multi-step-item-remove {
+            color: var(--error-color);
+            cursor: pointer;
+        }
+
+        .ai-insight {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(76, 201, 240, 0.1);
+            border-radius: 5px;
+            border-left: 4px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .ai-insight-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-icon {
+            color: var(--accent-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .warning-message {
+            color: var(--warning-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .history-container {
+            margin-top: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .history-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item-content {
+            flex: 1;
+        }
+
+        .history-item-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .history-item-details {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .history-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .history-item-action {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .history-clear {
+            background: none;
+            border: none;
+            color: var(--error-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .header-title {
+                order: 2;
+                text-align: center;
+            }
+
+            .brand {
+                order: 1;
+                align-self: flex-start;
+            }
+
+            .header-actions {
+                order: 3;
+                align-self: flex-end;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+
+            .tab {
+                padding: 0.75rem 1rem;
+            }
+
+            .action-buttons, .export-buttons {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-percentage"></i>
+            <span>Buzz</span>
+        </div>
+        <div class="header-title">Percentage Calculator</div>
+        <div class="header-actions">
+            <a href="/" title="Home"><i class="fas fa-home"></i></a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="intro">
+            <h2>Advanced Percentage Calculator</h2>
+            <p>Calculate percentages in multiple ways with step-by-step solutions, visual charts, and AI-powered insights.</p>
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="basic">Basic Percentage</div>
+                <div class="tab" data-tab="increase">Increase/Decrease</div>
+                <div class="tab" data-tab="reverse">Reverse Percentage</div>
+                <div class="tab" data-tab="difference">Percentage Difference</div>
+                <div class="tab" data-tab="multi-step">Multi-Step Operations</div>
+            </div>
+        </div>
+
+        <div class="calculator-grid">
+            <div class="calculator-card">
+                <div class="card-header">
+                    <div class="card-title" id="current-calc-title">Basic Percentage</div>
+                    <div class="card-icon"><i class="fas fa-calculator"></i></div>
+                </div>
+
+                <!-- Basic Percentage Tab -->
+                <div class="tab-content active" id="basic-tab">
+                    <div class="form-group">
+                        <label for="basic-value">
+                            Value
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The original value you want to calculate a percentage of</span>
+                            </span>
+                        </label>
+                        <input type="number" id="basic-value" class="form-control" placeholder="Enter value">
+                    </div>
+                    <div class="form-group">
+                        <label for="basic-percentage">
+                            Percentage (%)
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The percentage you want to calculate (e.g., 20 for 20%)</span>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" id="basic-percentage" class="form-control" placeholder="Enter percentage">
+                            <div class="input-group-append">%</div>
+                        </div>
+                    </div>
+                    <button id="basic-calculate" class="btn btn-primary">Calculate</button>
+
+                    <div class="settings-panel">
+                        <div class="settings-title">Calculation Settings</div>
+                        <div class="settings-options">
+                            <div class="setting-option">
+                                <label for="decimal-places">Decimals:</label>
+                                <select id="decimal-places" class="form-control">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2" selected>2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <div class="setting-option">
+                                <label for="rounding">Rounding:</label>
+                                <select id="rounding" class="form-control">
+                                    <option value="normal">Normal</option>
+                                    <option value="up">Always Up</option>
+                                    <option value="down">Always Down</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="basic-result" class="result-container" style="display: none;">
+                        <div class="result-title">Result</div>
+                        <div class="result-value" id="basic-result-value"></div>
+                        <div class="result-details" id="basic-result-details"></div>
+                        
+                        <div class="steps-container" id="basic-steps"></div>
+                        
+                        <div class="chart-container">
+                            <canvas id="basic-chart"></canvas>
+                        </div>
+
+                        <div class="ai-insight" id="basic-insight" style="display: none;">
+                            <div class="ai-insight-title">
+                                <i class="fas fa-robot ai-icon"></i>
+                                <span>AI Insight</span>
+                            </div>
+                            <div id="basic-insight-text"></div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="basic-copy" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="basic-reset" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                            <div class="export-buttons">
+                                <button class="export-btn" data-type="pdf" data-calc="basic">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="export-btn" data-type="csv" data-calc="basic">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                                <button class="export-btn" data-type="txt" data-calc="basic">
+                                    <i class="fas fa-file-alt"></i> TXT
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="share-buttons">
+                            <div class="share-btn share-facebook" title="Share on Facebook" data-calc="basic">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div class="share-btn share-twitter" title="Share on Twitter" data-calc="basic">
+                                <i class="fab fa-twitter"></i>
+                            </div>
+                            <div class="share-btn share-linkedin" title="Share on LinkedIn" data-calc="basic">
+                                <i class="fab fa-linkedin-in"></i>
+                            </div>
+                            <div class="share-btn share-whatsapp" title="Share on WhatsApp" data-calc="basic">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="share-btn share-email" title="Share via Email" data-calc="basic">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Percentage Increase/Decrease Tab -->
+                <div class="tab-content" id="increase-tab">
+                    <div class="form-group">
+                        <label for="increase-original">
+                            Original Value
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The starting value before the increase or decrease</span>
+                            </span>
+                        </label>
+                        <input type="number" id="increase-original" class="form-control" placeholder="Enter original value">
+                    </div>
+                    <div class="form-group">
+                        <label for="increase-new">
+                            New Value
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The value after the increase or decrease</span>
+                            </span>
+                        </label>
+                        <input type="number" id="increase-new" class="form-control" placeholder="Enter new value">
+                    </div>
+                    <button id="increase-calculate" class="btn btn-primary">Calculate</button>
+
+                    <div id="increase-result" class="result-container" style="display: none;">
+                        <div class="result-title">Result</div>
+                        <div class="result-value" id="increase-result-value"></div>
+                        <div class="result-details" id="increase-result-details"></div>
+                        
+                        <div class="steps-container" id="increase-steps"></div>
+                        
+                        <div class="chart-container">
+                            <canvas id="increase-chart"></canvas>
+                        </div>
+
+                        <div class="ai-insight" id="increase-insight" style="display: none;">
+                            <div class="ai-insight-title">
+                                <i class="fas fa-robot ai-icon"></i>
+                                <span>AI Insight</span>
+                            </div>
+                            <div id="increase-insight-text"></div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="increase-copy" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="increase-reset" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                            <div class="export-buttons">
+                                <button class="export-btn" data-type="pdf" data-calc="increase">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="export-btn" data-type="csv" data-calc="increase">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                                <button class="export-btn" data-type="txt" data-calc="increase">
+                                    <i class="fas fa-file-alt"></i> TXT
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="share-buttons">
+                            <div class="share-btn share-facebook" title="Share on Facebook" data-calc="increase">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div class="share-btn share-twitter" title="Share on Twitter" data-calc="increase">
+                                <i class="fab fa-twitter"></i>
+                            </div>
+                            <div class="share-btn share-linkedin" title="Share on LinkedIn" data-calc="increase">
+                                <i class="fab fa-linkedin-in"></i>
+                            </div>
+                            <div class="share-btn share-whatsapp" title="Share on WhatsApp" data-calc="increase">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="share-btn share-email" title="Share via Email" data-calc="increase">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reverse Percentage Tab -->
+                <div class="tab-content" id="reverse-tab">
+                    <div class="form-group">
+                        <label for="reverse-final">
+                            Final Value
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The value after the percentage has been applied</span>
+                            </span>
+                        </label>
+                        <input type="number" id="reverse-final" class="form-control" placeholder="Enter final value">
+                    </div>
+                    <div class="form-group">
+                        <label for="reverse-percentage">
+                            Percentage (%)
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The percentage that was applied (e.g., 120 for a 20% increase)</span>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" id="reverse-percentage" class="form-control" placeholder="Enter percentage">
+                            <div class="input-group-append">%</div>
+                        </div>
+                    </div>
+                    <button id="reverse-calculate" class="btn btn-primary">Calculate</button>
+
+                    <div id="reverse-result" class="result-container" style="display: none;">
+                        <div class="result-title">Result</div>
+                        <div class="result-value" id="reverse-result-value"></div>
+                        <div class="result-details" id="reverse-result-details"></div>
+                        
+                        <div class="steps-container" id="reverse-steps"></div>
+                        
+                        <div class="chart-container">
+                            <canvas id="reverse-chart"></canvas>
+                        </div>
+
+                        <div class="ai-insight" id="reverse-insight" style="display: none;">
+                            <div class="ai-insight-title">
+                                <i class="fas fa-robot ai-icon"></i>
+                                <span>AI Insight</span>
+                            </div>
+                            <div id="reverse-insight-text"></div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="reverse-copy" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="reverse-reset" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                            <div class="export-buttons">
+                                <button class="export-btn" data-type="pdf" data-calc="reverse">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="export-btn" data-type="csv" data-calc="reverse">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                                <button class="export-btn" data-type="txt" data-calc="reverse">
+                                    <i class="fas fa-file-alt"></i> TXT
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="share-buttons">
+                            <div class="share-btn share-facebook" title="Share on Facebook" data-calc="reverse">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div class="share-btn share-twitter" title="Share on Twitter" data-calc="reverse">
+                                <i class="fab fa-twitter"></i>
+                            </div>
+                            <div class="share-btn share-linkedin" title="Share on LinkedIn" data-calc="reverse">
+                                <i class="fab fa-linkedin-in"></i>
+                            </div>
+                            <div class="share-btn share-whatsapp" title="Share on WhatsApp" data-calc="reverse">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="share-btn share-email" title="Share via Email" data-calc="reverse">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Percentage Difference Tab -->
+                <div class="tab-content" id="difference-tab">
+                    <div class="form-group">
+                        <label for="difference-value1">
+                            Value 1
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The first value to compare</span>
+                            </span>
+                        </label>
+                        <input type="number" id="difference-value1" class="form-control" placeholder="Enter first value">
+                    </div>
+                    <div class="form-group">
+                        <label for="difference-value2">
+                            Value 2
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The second value to compare</span>
+                            </span>
+                        </label>
+                        <input type="number" id="difference-value2" class="form-control" placeholder="Enter second value">
+                    </div>
+                    <button id="difference-calculate" class="btn btn-primary">Calculate</button>
+
+                    <div id="difference-result" class="result-container" style="display: none;">
+                        <div class="result-title">Result</div>
+                        <div class="result-value" id="difference-result-value"></div>
+                        <div class="result-details" id="difference-result-details"></div>
+                        
+                        <div class="steps-container" id="difference-steps"></div>
+                        
+                        <div class="chart-container">
+                            <canvas id="difference-chart"></canvas>
+                        </div>
+
+                        <div class="ai-insight" id="difference-insight" style="display: none;">
+                            <div class="ai-insight-title">
+                                <i class="fas fa-robot ai-icon"></i>
+                                <span>AI Insight</span>
+                            </div>
+                            <div id="difference-insight-text"></div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="difference-copy" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="difference-reset" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                            <div class="export-buttons">
+                                <button class="export-btn" data-type="pdf" data-calc="difference">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="export-btn" data-type="csv" data-calc="difference">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                                <button class="export-btn" data-type="txt" data-calc="difference">
+                                    <i class="fas fa-file-alt"></i> TXT
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="share-buttons">
+                            <div class="share-btn share-facebook" title="Share on Facebook" data-calc="difference">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div class="share-btn share-twitter" title="Share on Twitter" data-calc="difference">
+                                <i class="fab fa-twitter"></i>
+                            </div>
+                            <div class="share-btn share-linkedin" title="Share on LinkedIn" data-calc="difference">
+                                <i class="fab fa-linkedin-in"></i>
+                            </div>
+                            <div class="share-btn share-whatsapp" title="Share on WhatsApp" data-calc="difference">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="share-btn share-email" title="Share via Email" data-calc="difference">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multi-Step Operations Tab -->
+                <div class="tab-content" id="multi-step-tab">
+                    <div class="form-group">
+                        <label for="multi-step-base">
+                            Base Value
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle tooltip-icon"></i>
+                                <span class="tooltip-text">The starting value for your percentage calculations</span>
+                            </span>
+                        </label>
+                        <input type="number" id="multi-step-base" class="form-control" placeholder="Enter base value">
+                    </div>
+
+                    <div class="multi-step-container">
+                        <div class="multi-step-header">
+                            <div class="multi-step-title">Percentage Operations</div>
+                            <div class="multi-step-actions">
+                                <button id="add-operation" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Operation
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="operations-container">
+                            <!-- Operations will be added here dynamically -->
+                        </div>
+                    </div>
+
+                    <button id="multi-step-calculate" class="btn btn-primary">Calculate</button>
+
+                    <div id="multi-step-result" class="result-container" style="display: none;">
+                        <div class="result-title">Final Result</div>
+                        <div class="result-value" id="multi-step-result-value"></div>
+                        <div class="result-details" id="multi-step-result-details"></div>
+                        
+                        <div class="steps-container" id="multi-step-steps"></div>
+                        
+                        <div class="chart-container">
+                            <canvas id="multi-step-chart"></canvas>
+                        </div>
+
+                        <div class="ai-insight" id="multi-step-insight" style="display: none;">
+                            <div class="ai-insight-title">
+                                <i class="fas fa-robot ai-icon"></i>
+                                <span>AI Insight</span>
+                            </div>
+                            <div id="multi-step-insight-text"></div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="multi-step-copy" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="multi-step-reset" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                            <div class="export-buttons">
+                                <button class="export-btn" data-type="pdf" data-calc="multi-step">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="export-btn" data-type="csv" data-calc="multi-step">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                                <button class="export-btn" data-type="txt" data-calc="multi-step">
+                                    <i class="fas fa-file-alt"></i> TXT
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="share-buttons">
+                            <div class="share-btn share-facebook" title="Share on Facebook" data-calc="multi-step">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div class="share-btn share-twitter" title="Share on Twitter" data-calc="multi-step">
+                                <i class="fab fa-twitter"></i>
+                            </div>
+                            <div class="share-btn share-linkedin" title="Share on LinkedIn" data-calc="multi-step">
+                                <i class="fab fa-linkedin-in"></i>
+                            </div>
+                            <div class="share-btn share-whatsapp" title="Share on WhatsApp" data-calc="multi-step">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="share-btn share-email" title="Share via Email" data-calc="multi-step">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calculator-card">
+                <div class="card-header">
+                    <div class="card-title">Fraction & Ratio Converter</div>
+                    <div class="card-icon"><i class="fas fa-exchange-alt"></i></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fraction-input">
+                        Fraction (e.g., 3/4)
+                        <span class="tooltip">
+                            <i class="fas fa-info-circle tooltip-icon"></i>
+                            <span class="tooltip-text">Enter a fraction to convert to percentage and ratio</span>
+                        </span>
+                    </label>
+                    <input type="text" id="fraction-input" class="form-control" placeholder="Enter fraction (e.g., 3/4)">
+                </div>
+
+                <div class="form-group">
+                    <label for="ratio-input">
+                        Ratio (e.g., 3:4)
+                        <span class="tooltip">
+                            <i class="fas fa-info-circle tooltip-icon"></i>
+                            <span class="tooltip-text">Enter a ratio to convert to percentage and fraction</span>
+                        </span>
+                    </label>
+                    <input type="text" id="ratio-input" class="form-control" placeholder="Enter ratio (e.g., 3:4)">
+                </div>
+
+                <div class="form-group">
+                    <label for="percentage-input">
+                        Percentage (%)
+                        <span class="tooltip">
+                            <i class="fas fa-info-circle tooltip-icon"></i>
+                            <span class="tooltip-text">Enter a percentage to convert to fraction and ratio</span>
+                        </span>
+                    </label>
+                    <div class="input-group">
+                        <input type="number" id="percentage-input" class="form-control" placeholder="Enter percentage">
+                        <div class="input-group-append">%</div>
+                    </div>
+                </div>
+
+                <button id="convert-calculate" class="btn btn-primary">Convert</button>
+
+                <div id="convert-result" class="result-container" style="display: none;">
+                    <div class="result-title">Conversion Results</div>
+                    <div class="result-value" id="convert-result-value"></div>
+                    <div class="result-details" id="convert-result-details"></div>
+                    
+                    <div class="steps-container" id="convert-steps"></div>
+                    
+                    <div class="chart-container">
+                        <canvas id="convert-chart"></canvas>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="convert-copy" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button id="convert-reset" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                        <div class="export-buttons">
+                            <button class="export-btn" data-type="pdf" data-calc="convert">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="export-btn" data-type="csv" data-calc="convert">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                            <button class="export-btn" data-type="txt" data-calc="convert">
+                                <i class="fas fa-file-alt"></i> TXT
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="share-buttons">
+                        <div class="share-btn share-facebook" title="Share on Facebook" data-calc="convert">
+                            <i class="fab fa-facebook-f"></i>
+                        </div>
+                        <div class="share-btn share-twitter" title="Share on Twitter" data-calc="convert">
+                            <i class="fab fa-twitter"></i>
+                        </div>
+                        <div class="share-btn share-linkedin" title="Share on LinkedIn" data-calc="convert">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <div class="share-btn share-whatsapp" title="Share on WhatsApp" data-calc="convert">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="share-btn share-email" title="Share via Email" data-calc="convert">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculation History -->
+        <div class="history-container">
+            <div class="history-title">
+                <span>Calculation History</span>
+                <button class="history-clear" id="clear-history">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+            <div class="history-list" id="history-list">
+                <!-- History items will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-buttons">
+        <div class="floating-btn" id="to-top" title="Back to top">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="floating-btn" id="to-bottom" title="Go to bottom">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </div>
+
+    <div class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script>
+        // DOM Elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const currentCalcTitle = document.getElementById('current-calc-title');
+        const themeToggle = document.getElementById('theme-toggle');
+        const toTopBtn = document.getElementById('to-top');
+        const toBottomBtn = document.getElementById('to-bottom');
+        const clearHistoryBtn = document.getElementById('clear-history');
+        const historyList = document.getElementById('history-list');
+        
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update active content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Update title
+                currentCalcTitle.textContent = tab.textContent;
+            });
+        });
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.setAttribute('data-theme', 
+                document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            
+            // Update icon
+            const icon = themeToggle.querySelector('i');
+            if (document.body.getAttribute('data-theme') === 'dark') {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+            
+            // Update tooltip
+            themeToggle.setAttribute('title', 
+                document.body.getAttribute('data-theme') === 'dark' ? 'Toggle light mode' : 'Toggle dark mode');
+        });
+
+        // Scroll buttons
+        toTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        toBottomBtn.addEventListener('click', () => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        });
+
+        // Calculation History
+        let calculationHistory = JSON.parse(localStorage.getItem('percentageCalculatorHistory')) || [];
+
+        function updateHistoryDisplay() {
+            historyList.innerHTML = '';
+            
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<div style="padding: 1rem; text-align: center; opacity: 0.7;">No calculations yet</div>';
+                return;
+            }
+            
+            calculationHistory.slice().reverse().forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const content = document.createElement('div');
+                content.className = 'history-item-content';
+                
+                const title = document.createElement('div');
+                title.className = 'history-item-title';
+                title.textContent = item.type;
+                
+                const details = document.createElement('div');
+                details.className = 'history-item-details';
+                details.textContent = item.details;
+                
+                content.appendChild(title);
+                content.appendChild(details);
+                
+                const actions = document.createElement('div');
+                actions.className = 'history-item-actions';
+                
+                const viewBtn = document.createElement('button');
+                viewBtn.className = 'history-item-action';
+                viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                viewBtn.title = 'View';
+                viewBtn.addEventListener('click', () => viewHistoryItem(item));
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'history-item-action';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.title = 'Delete';
+                deleteBtn.addEventListener('click', () => deleteHistoryItem(item.id));
+                
+                actions.appendChild(viewBtn);
+                actions.appendChild(deleteBtn);
+                
+                historyItem.appendChild(content);
+                historyItem.appendChild(actions);
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        function addToHistory(type, details, data) {
+            const historyItem = {
+                id: Date.now(),
+                type,
+                details,
+                data,
+                timestamp: new Date().toISOString()
+            };
+            
+            calculationHistory.push(historyItem);
+            if (calculationHistory.length > 20) {
+                calculationHistory.shift(); // Keep only the last 20 items
+            }
+            
+            localStorage.setItem('percentageCalculatorHistory', JSON.stringify(calculationHistory));
+            updateHistoryDisplay();
+        }
+
+        function deleteHistoryItem(id) {
+            calculationHistory = calculationHistory.filter(item => item.id !== id);
+            localStorage.setItem('percentageCalculatorHistory', JSON.stringify(calculationHistory));
+            updateHistoryDisplay();
+        }
+
+        function viewHistoryItem(item) {
+            // Switch to the appropriate tab
+            let tabId = '';
+            switch(item.type) {
+                case 'Basic Percentage':
+                    tabId = 'basic';
+                    break;
+                case 'Percentage Increase/Decrease':
+                    tabId = 'increase';
+                    break;
+                case 'Reverse Percentage':
+                    tabId = 'reverse';
+                    break;
+                case 'Percentage Difference':
+                    tabId = 'difference';
+                    break;
+                case 'Multi-Step Operations':
+                    tabId = 'multi-step';
+                    break;
+                case 'Fraction & Ratio Conversion':
+                    tabId = 'convert';
+                    break;
+            }
+            
+            if (tabId) {
+                document.querySelector(`.tab[data-tab="${tabId}"]`).click();
+                
+                // Fill in the form fields
+                if (tabId === 'basic') {
+                    document.getElementById('basic-value').value = item.data.value;
+                    document.getElementById('basic-percentage').value = item.data.percentage;
+                    document.getElementById('basic-calculate').click();
+                } else if (tabId === 'increase') {
+                    document.getElementById('increase-original').value = item.data.original;
+                    document.getElementById('increase-new').value = item.data.newValue;
+                    document.getElementById('increase-calculate').click();
+                } else if (tabId === 'reverse') {
+                    document.getElementById('reverse-final').value = item.data.finalValue;
+                    document.getElementById('reverse-percentage').value = item.data.percentage;
+                    document.getElementById('reverse-calculate').click();
+                } else if (tabId === 'difference') {
+                    document.getElementById('difference-value1').value = item.data.value1;
+                    document.getElementById('difference-value2').value = item.data.value2;
+                    document.getElementById('difference-calculate').click();
+                } else if (tabId === 'multi-step') {
+                    document.getElementById('multi-step-base').value = item.data.baseValue;
+                    // Clear existing operations
+                    document.getElementById('operations-container').innerHTML = '';
+                    // Add operations
+                    item.data.operations.forEach((op, index) => {
+                        document.getElementById('add-operation').click();
+                        const operationId = `operation-${index + 1}`;
+                        document.getElementById(`${operationId}-type`).value = op.type;
+                        document.getElementById(`${operationId}-percentage`).value = op.percentage;
+                    });
+                    document.getElementById('multi-step-calculate').click();
+                } else if (tabId === 'convert') {
+                    if (item.data.fraction) {
+                        document.getElementById('fraction-input').value = item.data.fraction;
+                    } else if (item.data.ratio) {
+                        document.getElementById('ratio-input').value = item.data.ratio;
+                    } else if (item.data.percentage) {
+                        document.getElementById('percentage-input').value = item.data.percentage;
+                    }
+                    document.getElementById('convert-calculate').click();
+                }
+            }
+        }
+
+        clearHistoryBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all calculation history?')) {
+                calculationHistory = [];
+                localStorage.removeItem('percentageCalculatorHistory');
+                updateHistoryDisplay();
+            }
+        });
+
+        // Initialize history display
+        updateHistoryDisplay();
+
+        // Basic Percentage Calculator
+        const basicValueInput = document.getElementById('basic-value');
+        const basicPercentageInput = document.getElementById('basic-percentage');
+        const basicCalculateBtn = document.getElementById('basic-calculate');
+        const basicResultContainer = document.getElementById('basic-result');
+        const basicResultValue = document.getElementById('basic-result-value');
+        const basicResultDetails = document.getElementById('basic-result-details');
+        const basicSteps = document.getElementById('basic-steps');
+        const basicCopyBtn = document.getElementById('basic-copy');
+        const basicResetBtn = document.getElementById('basic-reset');
+        const basicInsight = document.getElementById('basic-insight');
+        const basicInsightText = document.getElementById('basic-insight-text');
+        let basicChart = null;
+
+        basicCalculateBtn.addEventListener('click', () => {
+            const value = parseFloat(basicValueInput.value);
+            const percentage = parseFloat(basicPercentageInput.value);
+            const decimals = parseInt(document.getElementById('decimal-places').value);
+            const rounding = document.getElementById('rounding').value;
+            
+            if (isNaN(value) || isNaN(percentage)) {
+                showError(basicResultContainer, 'Please enter valid numbers for both fields.');
+                return;
+            }
+            
+            const result = (value * percentage) / 100;
+            const roundedResult = roundNumber(result, decimals, rounding);
+            
+            // Display result
+            basicResultValue.textContent = `${roundedResult}`;
+            basicResultDetails.innerHTML = `
+                <div>${percentage}% of ${value} is <strong>${roundedResult}</strong></div>
+                <div>Fraction: ${convertToFraction(percentage)}</div>
+                <div>Ratio: 1:${(100/percentage).toFixed(2)}</div>
+            `;
+            
+            // Show steps
+            basicSteps.innerHTML = `
+                <div class="step">Multiply the value (${value}) by the percentage (${percentage}%)</div>
+                <div class="step">${value} × ${percentage} = ${value * percentage}</div>
+                <div class="step">Divide by 100 to get the percentage value</div>
+                <div class="step">${value * percentage} ÷ 100 = ${result.toFixed(decimals + 2)}</div>
+                <div class="step">Rounded to ${decimals} decimal places: ${roundedResult}</div>
+            `;
+            
+            // Generate chart
+            updateBasicChart(value, roundedResult, percentage);
+            
+            // AI Insight
+            generateBasicInsight(value, percentage, roundedResult);
+            
+            // Add to history
+            addToHistory(
+                'Basic Percentage',
+                `${percentage}% of ${value} = ${roundedResult}`,
+                { value, percentage, result: roundedResult }
+            );
+            
+            // Show result
+            basicResultContainer.style.display = 'block';
+        });
+
+        function updateBasicChart(value, result, percentage) {
+            const ctx = document.getElementById('basic-chart').getContext('2d');
+            
+            if (basicChart) {
+                basicChart.destroy();
+            }
+            
+            basicChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [`${percentage}% of ${value}`, 'Remaining'],
+                    datasets: [{
+                        data: [result, value - result],
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.8)',
+                            'rgba(200, 200, 200, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(67, 97, 238, 1)',
+                            'rgba(200, 200, 200, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateBasicInsight(value, percentage, result) {
+            let insight = '';
+            
+            if (percentage > 100) {
+                insight = `A percentage greater than 100% means you're calculating more than the original value. ${percentage}% of ${value} is ${result}, which is ${result - value} more than the original.`;
+            } else if (percentage === 100) {
+                insight = `100% of any value is the value itself. So 100% of ${value} is exactly ${value}.`;
+            } else if (percentage === 50) {
+                insight = `50% is half of the value. Half of ${value} is ${result}. This is a common calculation for discounts or splitting amounts.`;
+            } else if (percentage === 25) {
+                insight = `25% is a quarter of the value. A quarter of ${value} is ${result}. This is often used for calculating tips or taxes.`;
+            } else if (percentage === 10) {
+                insight = `10% is one-tenth of the value. One-tenth of ${value} is ${result}. This is easy to calculate by moving the decimal point one place to the left.`;
+            } else if (percentage < 1) {
+                insight = `A percentage less than 1% results in a very small portion of the original value. ${percentage}% of ${value} is just ${result}.`;
+            } else {
+                insight = `${percentage}% of ${value} is ${result}. This means for every 100 units of the original value, you're taking ${percentage} units.`;
+            }
+            
+            basicInsightText.textContent = insight;
+            basicInsight.style.display = 'block';
+        }
+
+        basicCopyBtn.addEventListener('click', () => {
+            const textToCopy = `Calculation Result:\n${basicResultValue.textContent}\n${basicResultDetails.textContent}`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showSuccess(basicResultContainer, 'Result copied to clipboard!'))
+                .catch(() => showError(basicResultContainer, 'Failed to copy result.'));
+        });
+
+        basicResetBtn.addEventListener('click', () => {
+            basicValueInput.value = '';
+            basicPercentageInput.value = '';
+            basicResultContainer.style.display = 'none';
+            if (basicChart) {
+                basicChart.destroy();
+                basicChart = null;
+            }
+        });
+
+        // Percentage Increase/Decrease Calculator
+        const increaseOriginalInput = document.getElementById('increase-original');
+        const increaseNewInput = document.getElementById('increase-new');
+        const increaseCalculateBtn = document.getElementById('increase-calculate');
+        const increaseResultContainer = document.getElementById('increase-result');
+        const increaseResultValue = document.getElementById('increase-result-value');
+        const increaseResultDetails = document.getElementById('increase-result-details');
+        const increaseSteps = document.getElementById('increase-steps');
+        const increaseCopyBtn = document.getElementById('increase-copy');
+        const increaseResetBtn = document.getElementById('increase-reset');
+        const increaseInsight = document.getElementById('increase-insight');
+        const increaseInsightText = document.getElementById('increase-insight-text');
+        let increaseChart = null;
+
+        increaseCalculateBtn.addEventListener('click', () => {
+            const original = parseFloat(increaseOriginalInput.value);
+            const newValue = parseFloat(increaseNewInput.value);
+            const decimals = parseInt(document.getElementById('decimal-places').value);
+            const rounding = document.getElementById('rounding').value;
+            
+            if (isNaN(original) || isNaN(newValue)) {
+                showError(increaseResultContainer, 'Please enter valid numbers for both fields.');
+                return;
+            }
+            
+            const difference = newValue - original;
+            const percentageChange = (difference / original) * 100;
+            const roundedPercentage = roundNumber(percentageChange, decimals, rounding);
+            
+            // Display result
+            increaseResultValue.textContent = `${roundedPercentage}%`;
+            increaseResultDetails.innerHTML = `
+                <div>The change from ${original} to ${newValue} is <strong>${roundedPercentage}%</strong></div>
+                <div>Absolute difference: ${roundNumber(difference, decimals, rounding)}</div>
+                <div>This is a ${percentageChange > 0 ? 'increase' : 'decrease'}</div>
+            `;
+            
+            // Show steps
+            increaseSteps.innerHTML = `
+                <div class="step">Calculate the difference between new value and original value</div>
+                <div class="step">${newValue} - ${original} = ${difference}</div>
+                <div class="step">Divide the difference by the original value</div>
+                <div class="step">${difference} ÷ ${original} = ${(difference / original).toFixed(decimals + 2)}</div>
+                <div class="step">Multiply by 100 to get the percentage change</div>
+                <div class="step">${(difference / original).toFixed(decimals + 2)} × 100 = ${percentageChange.toFixed(decimals + 2)}%</div>
+                <div class="step">Rounded to ${decimals} decimal places: ${roundedPercentage}%</div>
+            `;
+            
+            // Generate chart
+            updateIncreaseChart(original, newValue, roundedPercentage);
+            
+            // AI Insight
+            generateIncreaseInsight(original, newValue, roundedPercentage);
+            
+            // Add to history
+            addToHistory(
+                'Percentage Increase/Decrease',
+                `From ${original} to ${newValue} = ${roundedPercentage}% ${percentageChange > 0 ? 'increase' : 'decrease'}`,
+                { original, newValue, percentageChange: roundedPercentage }
+            );
+            
+            // Show result
+            increaseResultContainer.style.display = 'block';
+        });
+
+        function updateIncreaseChart(original, newValue, percentage) {
+            const ctx = document.getElementById('increase-chart').getContext('2d');
+            
+            if (increaseChart) {
+                increaseChart.destroy();
+            }
+            
+            increaseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Original', 'New Value'],
+                    datasets: [{
+                        label: 'Value',
+                        data: [original, newValue],
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.8)',
+                            percentage > 0 ? 'rgba(46, 204, 113, 0.8)' : 'rgba(231, 76, 60, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(67, 97, 238, 1)',
+                            percentage > 0 ? 'rgba(46, 204, 113, 1)' : 'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateIncreaseInsight(original, newValue, percentage) {
+            let insight = '';
+            const difference = newValue - original;
+            const absDifference = Math.abs(difference);
+            
+            if (percentage > 0) {
+                if (percentage > 100) {
+                    insight = `This is a significant increase of ${percentage}%, more than doubling the original value. The new value is ${absDifference} more than the original.`;
+                } else if (percentage > 50) {
+                    insight = `This is a substantial increase of ${percentage}%. The new value is ${absDifference} more than the original, representing more than half again as much.`;
+                } else if (percentage > 10) {
+                    insight = `This is a moderate increase of ${percentage}%. The new value is ${absDifference} more than the original.`;
+                } else {
+                    insight = `This is a small increase of ${percentage}%. The new value is just ${absDifference} more than the original.`;
+                }
+            } else if (percentage < 0) {
+                if (percentage < -100) {
+                    insight = `This is a complete decrease (more than 100%), resulting in a negative value. The new value is ${absDifference} less than the original.`;
+                } else if (percentage < -50) {
+                    insight = `This is a substantial decrease of ${Math.abs(percentage)}%. The new value is ${absDifference} less than the original, representing less than half of the original.`;
+                } else if (percentage < -10) {
+                    insight = `This is a moderate decrease of ${Math.abs(percentage)}%. The new value is ${absDifference} less than the original.`;
+                } else {
+                    insight = `This is a small decrease of ${Math.abs(percentage)}%. The new value is just ${absDifference} less than the original.`;
+                }
+            } else {
+                insight = `There is no change between the original and new values (0% change).`;
+            }
+            
+            increaseInsightText.textContent = insight;
+            increaseInsight.style.display = 'block';
+        }
+
+        increaseCopyBtn.addEventListener('click', () => {
+            const textToCopy = `Calculation Result:\n${increaseResultValue.textContent}\n${increaseResultDetails.textContent}`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showSuccess(increaseResultContainer, 'Result copied to clipboard!'))
+                .catch(() => showError(increaseResultContainer, 'Failed to copy result.'));
+        });
+
+        increaseResetBtn.addEventListener('click', () => {
+            increaseOriginalInput.value = '';
+            increaseNewInput.value = '';
+            increaseResultContainer.style.display = 'none';
+            if (increaseChart) {
+                increaseChart.destroy();
+                increaseChart = null;
+            }
+        });
+
+        // Reverse Percentage Calculator
+        const reverseFinalInput = document.getElementById('reverse-final');
+        const reversePercentageInput = document.getElementById('reverse-percentage');
+        const reverseCalculateBtn = document.getElementById('reverse-calculate');
+        const reverseResultContainer = document.getElementById('reverse-result');
+        const reverseResultValue = document.getElementById('reverse-result-value');
+        const reverseResultDetails = document.getElementById('reverse-result-details');
+        const reverseSteps = document.getElementById('reverse-steps');
+        const reverseCopyBtn = document.getElementById('reverse-copy');
+        const reverseResetBtn = document.getElementById('reverse-reset');
+        const reverseInsight = document.getElementById('reverse-insight');
+        const reverseInsightText = document.getElementById('reverse-insight-text');
+        let reverseChart = null;
+
+        reverseCalculateBtn.addEventListener('click', () => {
+            const finalValue = parseFloat(reverseFinalInput.value);
+            const percentage = parseFloat(reversePercentageInput.value);
+            const decimals = parseInt(document.getElementById('decimal-places').value);
+            const rounding = document.getElementById('rounding').value;
+            
+            if (isNaN(finalValue) || isNaN(percentage) || percentage === 0) {
+                showError(reverseResultContainer, 'Please enter valid numbers for both fields. Percentage cannot be zero.');
+                return;
+            }
+            
+            const originalValue = (finalValue * 100) / percentage;
+            const roundedOriginal = roundNumber(originalValue, decimals, rounding);
+            
+            // Display result
+            reverseResultValue.textContent = `${roundedOriginal}`;
+            reverseResultDetails.innerHTML = `
+                <div>If ${finalValue} is ${percentage}% of a value, then the original value is <strong>${roundedOriginal}</strong></div>
+                <div>This means ${percentage}% of ${roundedOriginal} is ${finalValue}</div>
+            `;
+            
+            // Show steps
+            reverseSteps.innerHTML = `
+                <div class="step">We know that ${percentage}% of the original value is ${finalValue}</div>
+                <div class="step">Set up the equation: (${percentage} ÷ 100) × Original Value = ${finalValue}</div>
+                <div class="step">Rearrange to find Original Value: Original Value = ${finalValue} ÷ (${percentage} ÷ 100)</div>
+                <div class="step">Calculate: Original Value = ${finalValue} ÷ ${(percentage / 100).toFixed(decimals + 2)}</div>
+                <div class="step">Original Value = ${originalValue.toFixed(decimals + 2)}</div>
+                <div class="step">Rounded to ${decimals} decimal places: ${roundedOriginal}</div>
+            `;
+            
+            // Generate chart
+            updateReverseChart(finalValue, roundedOriginal, percentage);
+            
+            // AI Insight
+            generateReverseInsight(finalValue, roundedOriginal, percentage);
+            
+            // Add to history
+            addToHistory(
+                'Reverse Percentage',
+                `${finalValue} is ${percentage}% of ${roundedOriginal}`,
+                { finalValue, percentage, originalValue: roundedOriginal }
+            );
+            
+            // Show result
+            reverseResultContainer.style.display = 'block';
+        });
+
+        function updateReverseChart(finalValue, originalValue, percentage) {
+            const ctx = document.getElementById('reverse-chart').getContext('2d');
+            
+            if (reverseChart) {
+                reverseChart.destroy();
+            }
+            
+            reverseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [`${percentage}% (Given)`, `Remaining ${100 - percentage}%`],
+                    datasets: [{
+                        data: [finalValue, originalValue - finalValue],
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.8)',
+                            'rgba(200, 200, 200, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(67, 97, 238, 1)',
+                            'rgba(200, 200, 200, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateReverseInsight(finalValue, originalValue, percentage) {
+            let insight = '';
+            
+            if (percentage > 100) {
+                insight = `A percentage greater than 100% means the given value (${finalValue}) is more than the original value (${originalValue}). This could represent growth or markup calculations.`;
+            } else if (percentage === 100) {
+                insight = `When the percentage is 100%, the given value is exactly the original value (${originalValue}).`;
+            } else if (percentage === 50) {
+                insight = `At 50%, the original value (${originalValue}) is exactly double the given value (${finalValue}). This is common in half-price or 50% off calculations.`;
+            } else if (percentage < 1) {
+                insight = `A very small percentage (${percentage}%) means the original value (${originalValue}) is much larger than the given value (${finalValue}). This might represent concentration or dilution calculations.`;
+            } else {
+                insight = `The given value (${finalValue}) represents ${percentage}% of the original value (${originalValue}). The remaining ${100 - percentage}% would be ${originalValue - finalValue}.`;
+            }
+            
+            reverseInsightText.textContent = insight;
+            reverseInsight.style.display = 'block';
+        }
+
+        reverseCopyBtn.addEventListener('click', () => {
+            const textToCopy = `Calculation Result:\n${reverseResultValue.textContent}\n${reverseResultDetails.textContent}`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showSuccess(reverseResultContainer, 'Result copied to clipboard!'))
+                .catch(() => showError(reverseResultContainer, 'Failed to copy result.'));
+        });
+
+        reverseResetBtn.addEventListener('click', () => {
+            reverseFinalInput.value = '';
+            reversePercentageInput.value = '';
+            reverseResultContainer.style.display = 'none';
+            if (reverseChart) {
+                reverseChart.destroy();
+                reverseChart = null;
+            }
+        });
+
+        // Percentage Difference Calculator
+        const differenceValue1Input = document.getElementById('difference-value1');
+        const differenceValue2Input = document.getElementById('difference-value2');
+        const differenceCalculateBtn = document.getElementById('difference-calculate');
+        const differenceResultContainer = document.getElementById('difference-result');
+        const differenceResultValue = document.getElementById('difference-result-value');
+        const differenceResultDetails = document.getElementById('difference-result-details');
+        const differenceSteps = document.getElementById('difference-steps');
+        const differenceCopyBtn = document.getElementById('difference-copy');
+        const differenceResetBtn = document.getElementById('difference-reset');
+        const differenceInsight = document.getElementById('difference-insight');
+        const differenceInsightText = document.getElementById('difference-insight-text');
+        let differenceChart = null;
+
+        differenceCalculateBtn.addEventListener('click', () => {
+            const value1 = parseFloat(differenceValue1Input.value);
+            const value2 = parseFloat(differenceValue2Input.value);
+            const decimals = parseInt(document.getElementById('decimal-places').value);
+            const rounding = document.getElementById('rounding').value;
+            
+            if (isNaN(value1) || isNaN(value2)) {
+                showError(differenceResultContainer, 'Please enter valid numbers for both fields.');
+                return;
+            }
+            
+            const average = (value1 + value2) / 2;
+            const difference = Math.abs(value1 - value2);
+            const percentageDifference = (difference / average) * 100;
+            const roundedPercentage = roundNumber(percentageDifference, decimals, rounding);
+            
+            // Display result
+            differenceResultValue.textContent = `${roundedPercentage}%`;
+            differenceResultDetails.innerHTML = `
+                <div>The percentage difference between ${value1} and ${value2} is <strong>${roundedPercentage}%</strong></div>
+                <div>Absolute difference: ${roundNumber(difference, decimals, rounding)}</div>
+                <div>Average of two values: ${roundNumber(average, decimals, rounding)}</div>
+            `;
+            
+            // Show steps
+            differenceSteps.innerHTML = `
+                <div class="step">Calculate the absolute difference between the two values</div>
+                <div class="step">|${value1} - ${value2}| = ${difference}</div>
+                <div class="step">Calculate the average of the two values</div>
+                <div class="step">(${value1} + ${value2}) ÷ 2 = ${average}</div>
+                <div class="step">Divide the difference by the average</div>
+                <div class="step">${difference} ÷ ${average} = ${(difference / average).toFixed(decimals + 2)}</div>
+                <div class="step">Multiply by 100 to get the percentage difference</div>
+                <div class="step">${(difference / average).toFixed(decimals + 2)} × 100 = ${percentageDifference.toFixed(decimals + 2)}%</div>
+                <div class="step">Rounded to ${decimals} decimal places: ${roundedPercentage}%</div>
+            `;
+            
+            // Generate chart
+            updateDifferenceChart(value1, value2, roundedPercentage);
+            
+            // AI Insight
+            generateDifferenceInsight(value1, value2, roundedPercentage);
+            
+            // Add to history
+            addToHistory(
+                'Percentage Difference',
+                `Difference between ${value1} and ${value2} = ${roundedPercentage}%`,
+                { value1, value2, percentageDifference: roundedPercentage }
+            );
+            
+            // Show result
+            differenceResultContainer.style.display = 'block';
+        });
+
+        function updateDifferenceChart(value1, value2, percentage) {
+            const ctx = document.getElementById('difference-chart').getContext('2d');
+            
+            if (differenceChart) {
+                differenceChart.destroy();
+            }
+            
+            differenceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Value 1', 'Value 2'],
+                    datasets: [{
+                        label: 'Values',
+                        data: [value1, value2],
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.8)',
+                            'rgba(76, 201, 240, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(67, 97, 238, 1)',
+                            'rgba(76, 201, 240, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateDifferenceInsight(value1, value2, percentage) {
+            let insight = '';
+            const difference = Math.abs(value1 - value2);
+            const larger = value1 > value2 ? value1 : value2;
+            const smaller = value1 > value2 ? value2 : value1;
+            
+            if (percentage > 100) {
+                insight = `A very large percentage difference (${percentage}%) indicates that one value (${larger}) is more than double the other (${smaller}). The difference is ${difference}.`;
+            } else if (percentage > 50) {
+                insight = `A significant percentage difference (${percentage}%) shows that one value (${larger}) is substantially different from the other (${smaller}). The difference is ${difference}.`;
+            } else if (percentage > 10) {
+                insight = `A moderate percentage difference (${percentage}%) suggests noticeable variation between the values (${value1} and ${value2}). The difference is ${difference}.`;
+            } else if (percentage > 1) {
+                insight = `A small percentage difference (${percentage}%) indicates the values (${value1} and ${value2}) are relatively close. The difference is ${difference}.`;
+            } else {
+                insight = `A minimal percentage difference (${percentage}%) means the values (${value1} and ${value2}) are nearly identical. The difference is just ${difference}.`;
+            }
+            
+            differenceInsightText.textContent = insight;
+            differenceInsight.style.display = 'block';
+        }
+
+        differenceCopyBtn.addEventListener('click', () => {
+            const textToCopy = `Calculation Result:\n${differenceResultValue.textContent}\n${differenceResultDetails.textContent}`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showSuccess(differenceResultContainer, 'Result copied to clipboard!'))
+                .catch(() => showError(differenceResultContainer, 'Failed to copy result.'));
+        });
+
+        differenceResetBtn.addEventListener('click', () => {
+            differenceValue1Input.value = '';
+            differenceValue2Input.value = '';
+            differenceResultContainer.style.display = 'none';
+            if (differenceChart) {
+                differenceChart.destroy();
+                differenceChart = null;
+            }
+        });
+
+        // Multi-Step Percentage Calculator
+        const multiStepBaseInput = document.getElementById('multi-step-base');
+        const addOperationBtn = document.getElementById('add-operation');
+        const operationsContainer = document.getElementById('operations-container');
+        const multiStepCalculateBtn = document.getElementById('multi-step-calculate');
+        const multiStepResultContainer = document.getElementById('multi-step-result');
+        const multiStepResultValue = document.getElementById('multi-step-result-value');
+        const multiStepResultDetails = document.getElementById('multi-step-result-details');
+        const multiStepSteps = document.getElementById('multi-step-steps');
+        const multiStepCopyBtn = document.getElementById('multi-step-copy');
+        const multiStepResetBtn = document.getElementById('multi-step-reset');
+        const multiStepInsight = document.getElementById('multi-step-insight');
+        const multiStepInsightText = document.getElementById('multi-step-insight-text');
+        let multiStepChart = null;
+        let operationCount = 0;
+
+        addOperationBtn.addEventListener('click', () => {
+            operationCount++;
+            const operationId = `operation-${operationCount}`;
+            
+            const operationHtml = `
+                <div class="multi-step-item" id="${operationId}">
+                    <div class="multi-step-item-header">
+                        <div class="multi-step-item-title">Operation ${operationCount}</div>
+                        <div class="multi-step-item-remove" onclick="removeOperation('${operationId}')">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="${operationId}-type">Operation Type</label>
+                        <select id="${operationId}-type" class="form-control">
+                            <option value="increase">Increase by %</option>
+                            <option value="decrease">Decrease by %</option>
+                            <option value="of">% of value</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="${operationId}-percentage">Percentage</label>
+                        <div class="input-group">
+                            <input type="number" id="${operationId}-percentage" class="form-control" placeholder="Enter percentage">
+                            <div class="input-group-append">%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            operationsContainer.insertAdjacentHTML('beforeend', operationHtml);
+        });
+
+        window.removeOperation = (id) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.remove();
+                operationCount--;
+                
+                // Renumber remaining operations
+                const operations = document.querySelectorAll('.multi-step-item');
+                operations.forEach((op, index) => {
+                    const title = op.querySelector('.multi-step-item-title');
+                    if (title) {
+                        title.textContent = `Operation ${index + 1}`;
+                    }
+                });
+            }
+        };
+
+        multiStepCalculateBtn.addEventListener('click', () => {
+            const baseValue = parseFloat(multiStepBaseInput.value);
+            const decimals = parseInt(document.getElementById('decimal-places').value);
+            const rounding = document.getElementById('rounding').value;
+            
+            if (isNaN(baseValue)) {
+                showError(multiStepResultContainer, 'Please enter a valid base value.');
+                return;
+            }
+            
+            const operations = document.querySelectorAll('.multi-step-item');
+            if (operations.length === 0) {
+                showError(multiStepResultContainer, 'Please add at least one operation.');
+                return;
+            }
+            
+            let currentValue = baseValue;
+            let stepsHtml = `<div class="step">Starting with base value: ${baseValue}</div>`;
+            let operationsDetails = [];
+            
+            operations.forEach((op, index) => {
+                const type = op.querySelector('select').value;
+                const percentage = parseFloat(op.querySelector('input').value);
+                
+                if (isNaN(percentage)) {
+                    showError(multiStepResultContainer, `Please enter a valid percentage for operation ${index + 1}.`);
+                    return;
+                }
+                
+                let operationResult, operationText;
+                
+                switch (type) {
+                    case 'increase':
+                        operationResult = currentValue * (1 + (percentage / 100));
+                        operationText = `Increased by ${percentage}%`;
+                        stepsHtml += `<div class="step">Operation ${index + 1}: ${currentValue} + ${percentage}% = ${currentValue} × 1.${percentage} = ${operationResult.toFixed(decimals + 2)}</div>`;
+                        break;
+                    case 'decrease':
+                        operationResult = currentValue * (1 - (percentage / 100));
+                        operationText = `Decreased by ${percentage}%`;
+                        stepsHtml += `<div class="step">Operation ${index + 1}: ${currentValue} - ${percentage}% = ${currentValue} × 0.${100 - percentage} = ${operationResult.toFixed(decimals + 2)}</div>`;
+                        break;
+                    case 'of':
+                        operationResult = currentValue * (percentage / 100);
+                        operationText = `${percentage}% of value`;
+                        stepsHtml += `<div class="step">Operation ${index + 1}: ${percentage}% of ${currentValue} = ${currentValue} × 0.${percentage} = ${operationResult.toFixed(decimals + 2)}</div>`;
+                        break;
+                }
+                
+                operationsDetails.push({
+                    type,
+                    percentage,
+                    operationText,
+                    valueBefore: currentValue,
+                    valueAfter: operationResult
+                });
+                
+                currentValue = operationResult;
+            });
+            
+            const roundedFinal = roundNumber(currentValue, decimals, rounding);
+            
+            // Display result
+            multiStepResultValue.textContent = `${roundedFinal}`;
+            multiStepResultDetails.innerHTML = `
+                <div>After ${operations.length} operation(s), the final value is <strong>${roundedFinal}</strong></div>
+                <div>Starting from: ${baseValue}</div>
+                <div>Overall change: ${roundNumber(currentValue - baseValue, decimals, rounding)} (${roundNumber(((currentValue - baseValue) / baseValue) * 100, decimals, rounding)}%)</div>
+            `;
+            
+            // Show steps
+            multiStepSteps.innerHTML = stepsHtml + `<div class="step">Final value after all operations: ${roundedFinal}</div>`;
+            
+            // Generate chart
+            updateMultiStepChart(baseValue, operationsDetails, roundedFinal);
+            
+            // AI Insight
+            generateMultiStepInsight(baseValue, operationsDetails, roundedFinal);
+            
+            // Add to history
+            addToHistory(
+                'Multi-Step Operations',
+                `${operations.length} operations from ${baseValue} to ${roundedFinal}`,
+                { baseValue, operations: operationsDetails, finalValue: roundedFinal }
+            );
+            
+            // Show result
+            multiStepResultContainer.style.display = 'block';
+        });
+
+        function updateMultiStepChart(baseValue, operations, finalValue) {
+            const ctx = document.getElementById('multi-step-chart').getContext('2d');
+            
+            if (multiStepChart) {
+                multiStepChart.destroy();
+            }
+            
+            const labels = ['Base Value'];
+            const data = [baseValue];
+            const backgroundColors = ['rgba(67, 97, 238, 0.8)'];
+            
+            operations.forEach((op, index) => {
+                labels.push(`Step ${index + 1}: ${op.operationText}`);
+                data.push(op.valueAfter);
+                
+                // Different colors for different operation types
+                if (op.type === 'increase') {
+                    backgroundColors.push('rgba(46, 204, 113, 0.8)');
+                } else if (op.type === 'decrease') {
+                    backgroundColors.push('rgba(231, 76, 60, 0.8)');
+                } else {
+                    backgroundColors.push('rgba(76, 201, 240, 0.8)');
+                }
+            });
+            
+            labels.push('Final Value');
+            data.push(finalValue);
+            backgroundColors.push('rgba(155, 89, 182, 0.8)');
+            
+            multiStepChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Value Through Operations',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateMultiStepInsight(baseValue, operations, finalValue) {
+            let insight = '';
+            const change = finalValue - baseValue;
+            const percentageChange = (change / baseValue) * 100;
+            const absPercentageChange = Math.abs(percentageChange);
+            
+            if (operations.length === 1) {
+                const op = operations[0];
+                insight = `A single operation (${op.operationText}) transformed the value from ${baseValue} to ${finalValue}. `;
+                
+                if (op.type === 'increase') {
+                    insight += `This represents an increase of ${roundNumber(op.valueAfter - op.valueBefore, 2, 'normal')} (${op.percentage}%).`;
+                } else if (op.type === 'decrease') {
+                    insight += `This represents a decrease of ${roundNumber(op.valueBefore - op.valueAfter, 2, 'normal')} (${op.percentage}%).`;
+                } else {
+                    insight += `This calculates ${op.percentage}% of the previous value.`;
+                }
+            } else {
+                insight = `Through ${operations.length} sequential operations, the value changed from ${baseValue} to ${finalValue}. `;
+                
+                if (percentageChange > 0) {
+                    if (absPercentageChange > 100) {
+                        insight += `This is a massive overall increase of ${roundNumber(percentageChange, 2, 'normal')}%.`;
+                    } else if (absPercentageChange > 50) {
+                        insight += `This is a substantial overall increase of ${roundNumber(percentageChange, 2, 'normal')}%.`;
+                    } else if (absPercentageChange > 10) {
+                        insight += `This is a moderate overall increase of ${roundNumber(percentageChange, 2, 'normal')}%.`;
+                    } else {
+                        insight += `This is a small overall increase of ${roundNumber(percentageChange, 2, 'normal')}%.`;
+                    }
+                } else if (percentageChange < 0) {
+                    if (absPercentageChange > 100) {
+                        insight += `This is a massive overall decrease of ${roundNumber(absPercentageChange, 2, 'normal')}%.`;
+                    } else if (absPercentageChange > 50) {
+                        insight += `This is a substantial overall decrease of ${roundNumber(absPercentageChange, 2, 'normal')}%.`;
+                    } else if (absPercentageChange > 10) {
+                        insight += `This is a moderate overall decrease of ${roundNumber(absPercentageChange, 2, 'normal')}%.`;
+                    } else {
+                        insight += `This is a small overall decrease of ${roundNumber(absPercentageChange, 2, 'normal')}%.`;
+                    }
+                } else {
+                    insight += `The operations resulted in no net change (0% difference).`;
+                }
+                
+                insight += ` The sequence of operations was: ${operations.map(op => op.operationText).join(' → ')}.`;
+            }
+            
+            multiStepInsightText.textContent = insight;
+            multiStepInsight.style.display = 'block';
+        }
+
+        multiStepCopyBtn.addEventListener('click', () => {
+            const textToCopy = `Calculation Result:\n${multiStepResultValue.textContent}\n${multiStepResultDetails.textContent}`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showSuccess(multiStepResultContainer, 'Result copied to clipboard!'))
+                .catch(() => showError(multiStepResultContainer, 'Failed to copy result.'));
+        });
+
+        multiStepResetBtn.addEventListener('click', () => {
+            multiStepBaseInput.value = '';
+            operationsContainer.innerHTML = '';
+            operationCount = 0;
+            multiStepResultContainer.style.display = 'none';
+            if (multiStepChart) {
+                multiStepChart.destroy();
+                multiStepChart = null;
+            }
+        });
+
+        // Fraction & Ratio Converter
+        const fractionInput = document.getElementById('fraction-input');
+        const ratioInput = document.getElementById('ratio-input');
+        const percentageInput = document.getElementById('percentage-input');
+        const convertCalculateBtn = document.getElementById('convert-calculate');
+        const convertResultContainer = document.getElementById('convert-result');
+        const convertResultValue = document.getElementById('convert-result-value');
+        const convertResultDetails = document.getElementById('convert-result-details');
+        const convertSteps = document.getElementById('convert-steps');
+        const convertCopyBtn = document.getElementById('convert-copy');
+        const convertResetBtn = document.getElementById('convert-reset');
+        let convertChart = null;
+
+        convertCalculateBtn.addEventListener('click', () => {
+            const decimals = parseInt(document.getElementById('decimal-places').value);
+            const rounding = document.getElementById('rounding').value;
+            
+            let fraction, ratio, percentage;
+            let fromFraction = false, fromRatio = false, fromPercentage = false;
+            
+            // Check which input has value
+            if (fractionInput.value) {
+                // Parse fraction
+                const parts = fractionInput.value.split('/');
+                if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1]) || parseFloat(parts[1]) === 0) {
+                    showError(convertResultContainer, 'Please enter a valid fraction (e.g., 3/4)');
+                    return;
+                }
+                
+                const numerator = parseFloat(parts[0]);
+                const denominator = parseFloat(parts[1]);
+                
+                fraction = `${numerator}/${denominator}`;
+                ratio = `${numerator}:${denominator}`;
+                percentage = (numerator / denominator) * 100;
+                
+                fromFraction = true;
+            } else if (ratioInput.value) {
+                // Parse ratio
+                const parts = ratioInput.value.split(':');
+                if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1]) || parseFloat(parts[1]) === 0) {
+                    showError(convertResultContainer, 'Please enter a valid ratio (e.g., 3:4)');
+                    return;
+                }
+                
+                const part1 = parseFloat(parts[0]);
+                const part2 = parseFloat(parts[1]);
+                
+                ratio = `${part1}:${part2}`;
+                fraction = `${part1}/${part2}`;
+                percentage = (part1 / part2) * 100;
+                
+                fromRatio = true;
+            } else if (percentageInput.value) {
+                // Parse percentage
+                percentage = parseFloat(percentageInput.value);
+                if (isNaN(percentage)) {
+                    showError(convertResultContainer, 'Please enter a valid percentage');
+                    return;
+                }
+                
+                // Simplify to fraction
+                const simplified = simplifyFraction(percentage, 100);
+                fraction = `${simplified.numerator}/${simplified.denominator}`;
+                ratio = `${simplified.numerator}:${simplified.denominator}`;
+                
+                fromPercentage = true;
+            } else {
+                showError(convertResultContainer, 'Please enter a value in one of the fields');
+                return;
+            }
+            
+            const roundedPercentage = roundNumber(percentage, decimals, rounding);
+            
+            // Display result
+            convertResultValue.textContent = `${roundedPercentage}%`;
+            convertResultDetails.innerHTML = `
+                <div>Percentage: <strong>${roundedPercentage}%</strong></div>
+                <div>Fraction: ${fraction}</div>
+                <div>Ratio: ${ratio}</div>
+                ${fromFraction ? `<div>Decimal: ${(parseFloat(fraction.split('/')[0]) / parseFloat(fraction.split('/')[1])).toFixed(decimals + 2)}</div>` : ''}
+            `;
+            
+            // Show steps
+            if (fromFraction) {
+                const [numerator, denominator] = fraction.split('/');
+                convertSteps.innerHTML = `
+                    <div class="step">Fraction provided: ${numerator}/${denominator}</div>
+                    <div class="step">Divide numerator by denominator: ${numerator} ÷ ${denominator} = ${(numerator / denominator).toFixed(decimals + 2)}</div>
+                    <div class="step">Multiply by 100 to get percentage: ${(numerator / denominator).toFixed(decimals + 2)} × 100 = ${percentage.toFixed(decimals + 2)}%</div>
+                    <div class="step">Ratio is numerator:denominator = ${numerator}:${denominator}</div>
+                    <div class="step">Rounded percentage to ${decimals} decimal places: ${roundedPercentage}%</div>
+                `;
+            } else if (fromRatio) {
+                const [part1, part2] = ratio.split(':');
+                convertSteps.innerHTML = `
+                    <div class="step">Ratio provided: ${part1}:${part2}</div>
+                    <div class="step">Fraction is first part over second part = ${part1}/${part2}</div>
+                    <div class="step">Divide first part by second part: ${part1} ÷ ${part2} = ${(part1 / part2).toFixed(decimals + 2)}</div>
+                    <div class="step">Multiply by 100 to get percentage: ${(part1 / part2).toFixed(decimals + 2)} × 100 = ${percentage.toFixed(decimals + 2)}%</div>
+                    <div class="step">Rounded percentage to ${decimals} decimal places: ${roundedPercentage}%</div>
+                `;
+            } else {
+                convertSteps.innerHTML = `
+                    <div class="step">Percentage provided: ${percentage}%</div>
+                    <div class="step">Convert percentage to fraction: ${percentage}/100</div>
+                    <div class="step">Simplify fraction: ${fraction}</div>
+                    <div class="step">Convert fraction to ratio: ${ratio}</div>
+                    <div class="step">Decimal value: ${(percentage / 100).toFixed(decimals + 2)}</div>
+                `;
+            }
+            
+            // Generate chart
+            updateConvertChart(roundedPercentage);
+            
+            // Add to history
+            addToHistory(
+                'Fraction & Ratio Conversion',
+                `${roundedPercentage}% = ${fraction} = ${ratio}`,
+                {
+                    fraction: fromFraction ? fraction : null,
+                    ratio: fromRatio ? ratio : null,
+                    percentage: fromPercentage ? percentage : null,
+                    result: roundedPercentage
+                }
+            );
+            
+            // Show result
+            convertResultContainer.style.display = 'block';
+        });
+
+        function updateConvertChart(percentage) {
+            const ctx = document.getElementById('convert-chart').getContext('2d');
+            
+            if (convertChart) {
+                convertChart.destroy();
+            }
+            
+            convertChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Percentage', 'Remaining'],
+                    datasets: [{
+                        data: [percentage, 100 - percentage],
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.8)',
+                            'rgba(200, 200, 200, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(67, 97, 238, 1)',
+                            'rgba(200, 200, 200, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    return `${label}: ${value}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        convertCopyBtn.addEventListener('click', () => {
+            const textToCopy = `Conversion Result:\n${convertResultValue.textContent}\n${convertResultDetails.textContent}`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showSuccess(convertResultContainer, 'Result copied to clipboard!'))
+                .catch(() => showError(convertResultContainer, 'Failed to copy result.'));
+        });
+
+        convertResetBtn.addEventListener('click', () => {
+            fractionInput.value = '';
+            ratioInput.value = '';
+            percentageInput.value = '';
+            convertResultContainer.style.display = 'none';
+            if (convertChart) {
+                convertChart.destroy();
+                convertChart = null;
+            }
+        });
+
+        // Export Functions
+        document.querySelectorAll('.export-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                const calcType = this.getAttribute('data-calc');
+                const resultContainer = document.getElementById(`${calcType}-result`);
+                
+                if (type === 'pdf') {
+                    exportToPDF(resultContainer, calcType);
+                } else if (type === 'csv') {
+                    exportToCSV(resultContainer, calcType);
+                } else if (type === 'txt') {
+                    exportToTXT(resultContainer, calcType);
+                }
+            });
+        });
+
+        function exportToPDF(element, calcType) {
+            // Create a new PDF document
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(18);
+            doc.text('Percentage Calculator Results', 105, 15, { align: 'center' });
+            
+            // Add calculation type
+            doc.setFontSize(14);
+            doc.text(`${getCalcTitle(calcType)} Calculation`, 105, 25, { align: 'center' });
+            
+            // Add date
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 32, { align: 'center' });
+            
+            // Add result
+            doc.setFontSize(12);
+            const resultValue = document.getElementById(`${calcType}-result-value`).textContent;
+            const resultDetails = document.getElementById(`${calcType}-result-details`).textContent;
+            
+            doc.text(`Result: ${resultValue}`, 14, 45);
+            
+            // Split result details into lines
+            const detailsLines = doc.splitTextToSize(resultDetails, 180);
+            doc.text(detailsLines, 14, 55);
+            
+            // Add steps if available
+            const stepsElement = document.getElementById(`${calcType}-steps`);
+            if (stepsElement) {
+                doc.text('Calculation Steps:', 14, 80);
+                
+                const steps = Array.from(stepsElement.querySelectorAll('.step')).map(step => step.textContent);
+                let yPos = 90;
+                
+                steps.forEach(step => {
+                    const lines = doc.splitTextToSize(step, 180);
+                    doc.text(lines, 20, yPos);
+                    yPos += lines.length * 7;
+                });
+            }
+            
+            // Add AI insight if available
+            const insightElement = document.getElementById(`${calcType}-insight`);
+            if (insightElement && insightElement.style.display !== 'none') {
+                doc.text('AI Insight:', 14, yPos + 10);
+                
+                const insightText = document.getElementById(`${calcType}-insight-text`).textContent;
+                const insightLines = doc.splitTextToSize(insightText, 180);
+                
+                doc.text(insightLines, 20, yPos + 20);
+            }
+            
+            // Save the PDF
+            doc.save(`Percentage_Calculator_${getCalcTitle(calcType).replace(' ', '_')}_Results.pdf`);
+        }
+
+        function exportToCSV(element, calcType) {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Add header
+            csvContent += "Percentage Calculator Results\r\n";
+            csvContent += `${getCalcTitle(calcType)} Calculation\r\n`;
+            csvContent += `Generated on: ${new Date().toLocaleString()}\r\n\r\n`;
+            
+            // Add result
+            const resultValue = document.getElementById(`${calcType}-result-value`).textContent;
+            const resultDetails = document.getElementById(`${calcType}-result-details`).textContent;
+            
+            csvContent += `Result,${resultValue}\r\n`;
+            csvContent += `Details,${resultDetails.replace(/\n/g, ' ')}\r\n\r\n`;
+            
+            // Add steps if available
+            const stepsElement = document.getElementById(`${calcType}-steps`);
+            if (stepsElement) {
+                csvContent += "Calculation Steps\r\n";
+                
+                const steps = Array.from(stepsElement.querySelectorAll('.step')).map(step => step.textContent);
+                steps.forEach((step, index) => {
+                    csvContent += `Step ${index + 1},${step}\r\n`;
+                });
+                
+                csvContent += "\r\n";
+            }
+            
+            // Add AI insight if available
+            const insightElement = document.getElementById(`${calcType}-insight`);
+            if (insightElement && insightElement.style.display !== 'none') {
+                csvContent += "AI Insight\r\n";
+                const insightText = document.getElementById(`${calcType}-insight-text`).textContent;
+                csvContent += `${insightText.replace(/\n/g, ' ')}\r\n`;
+            }
+            
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Percentage_Calculator_${getCalcTitle(calcType).replace(' ', '_')}_Results.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportToTXT(element, calcType) {
+            let txtContent = "Percentage Calculator Results\r\n";
+            txtContent += "=============================\r\n\r\n";
+            
+            // Add calculation info
+            txtContent += `${getCalcTitle(calcType)} Calculation\r\n`;
+            txtContent += `Generated on: ${new Date().toLocaleString()}\r\n\r\n`;
+            
+            // Add result
+            const resultValue = document.getElementById(`${calcType}-result-value`).textContent;
+            const resultDetails = document.getElementById(`${calcType}-result-details`).textContent;
+            
+            txtContent += `Result: ${resultValue}\r\n`;
+            txtContent += `Details: ${resultDetails}\r\n\r\n`;
+            
+            // Add steps if available
+            const stepsElement = document.getElementById(`${calcType}-steps`);
+            if (stepsElement) {
+                txtContent += "Calculation Steps:\r\n";
+                
+                const steps = Array.from(stepsElement.querySelectorAll('.step')).map(step => step.textContent);
+                steps.forEach((step, index) => {
+                    txtContent += `${index + 1}. ${step}\r\n`;
+                });
+                
+                txtContent += "\r\n";
+            }
+            
+            // Add AI insight if available
+            const insightElement = document.getElementById(`${calcType}-insight`);
+            if (insightElement && insightElement.style.display !== 'none') {
+                txtContent += "AI Insight:\r\n";
+                const insightText = document.getElementById(`${calcType}-insight-text`).textContent;
+                txtContent += `${insightText}\r\n`;
+            }
+            
+            // Create download link
+            const blob = new Blob([txtContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Percentage_Calculator_${getCalcTitle(calcType).replace(' ', '_')}_Results.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function getCalcTitle(calcType) {
+            switch(calcType) {
+                case 'basic': return 'Basic Percentage';
+                case 'increase': return 'Percentage Increase/Decrease';
+                case 'reverse': return 'Reverse Percentage';
+                case 'difference': return 'Percentage Difference';
+                case 'multi-step': return 'Multi-Step Operations';
+                case 'convert': return 'Fraction & Ratio Conversion';
+                default: return 'Calculation';
+            }
+        }
+
+        // Share Functions
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const platform = this.classList[1].replace('share-', '');
+                const calcType = this.getAttribute('data-calc');
+                shareResult(platform, calcType);
+            });
+        });
+
+        function shareResult(platform, calcType) {
+            const resultValue = document.getElementById(`${calcType}-result-value`).textContent;
+            const resultDetails = document.getElementById(`${calcType}-result-details`).textContent;
+            const title = `${getCalcTitle(calcType)} Result: ${resultValue}`;
+            const text = `${title}\n${resultDetails}\n\nCalculated with Buzz Percentage Calculator`;
+            const url = window.location.href;
+            
+            let shareUrl = '';
+            
+            switch(platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                    break;
+                case 'linkedin':
+                    shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(text)}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
+                    break;
+                case 'email':
+                    shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${text}\n\n${url}`)}`;
+                    break;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            }
+        }
+
+        // Helper Functions
+        function roundNumber(num, decimals, method) {
+            const factor = Math.pow(10, decimals);
+            
+            switch (method) {
+                case 'up':
+                    return Math.ceil(num * factor) / factor;
+                case 'down':
+                    return Math.floor(num * factor) / factor;
+                default:
+                    return Math.round(num * factor) / factor;
+            }
+        }
+
+        function convertToFraction(percentage) {
+            const simplified = simplifyFraction(percentage, 100);
+            return `${simplified.numerator}/${simplified.denominator}`;
+        }
+
+        function simplifyFraction(numerator, denominator) {
+            const gcd = (a, b) => b ? gcd(b, a % b) : a;
+            const divisor = gcd(numerator, denominator);
+            return {
+                numerator: numerator / divisor,
+                denominator: denominator / divisor
+            };
+        }
+
+        function showError(container, message) {
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.textContent = message;
+            
+            // Remove any existing error messages
+            const existingError = container.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            container.prepend(errorElement);
+            container.style.display = 'block';
+        }
+
+        function showSuccess(container, message) {
+            const successElement = document.createElement('div');
+            successElement.className = 'success-message';
+            successElement.textContent = message;
+            
+            // Remove any existing messages
+            const existingMessage = container.querySelector('.success-message, .error-message, .warning-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            container.prepend(successElement);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                successElement.remove();
+            }, 3000);
+        }
+
+        // Initialize with one operation in multi-step
+        addOperationBtn.click();
+    </script>
+</body>
+</html>
