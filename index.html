@@ -94,11 +94,12 @@
             --dark-color: #212529;
             --header-text-color: #ffffff;
             --card-background: #ffffff;
-            --hero-background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+            --hero-background: linear-gradient(135deg, #e6ebff 0%, #d8e0ff 100%);
             --features-background: #f9fafc;
             --footer-background: #212529;
             --footer-text-color: #adb5bd;
             --cta-background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --new-badge-color: #ff6b6b;
         }
 
         /* Light Theme (default) */
@@ -110,7 +111,7 @@
             --dark-color: #212529;
             --header-text-color: #ffffff;
             --card-background: #ffffff;
-            --hero-background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+            --hero-background: linear-gradient(135deg, #e6ebff 0%, #d8e0ff 100%);
             --features-background: #f9fafc;
             --footer-background: #212529;
             --footer-text-color: #adb5bd;
@@ -303,7 +304,7 @@
 
         .hero-content {
             flex: 1;
-            animation: slideInLeft 1s ease-out;
+            animation: fadeInScale 1s ease-out;
         }
 
         .hero-content h1 {
@@ -328,6 +329,7 @@
             transition: var(--transition);
             display: inline-block;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            animation: glow 2s infinite alternate;
         }
 
         .cta-btn:hover {
@@ -335,9 +337,14 @@
             transform: translateY(-2px) scale(1.05);
         }
 
-        @keyframes slideInLeft {
-            0% { opacity: 0; transform: translateX(-50px); }
-            100% { opacity: 1; transform: translateX(0); }
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+            100% { box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4); }
         }
 
         .hero-image {
@@ -347,7 +354,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            animation: slideInRight 1s ease-out;
+            animation: fadeInScale 1s ease-out 0.2s;
+            animation-fill-mode: backwards;
         }
 
         .hero-image picture img {
@@ -355,11 +363,6 @@
             height: auto;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-        }
-
-        @keyframes slideInRight {
-            0% { opacity: 0; transform: translateX(50px); }
-            100% { opacity: 1; transform: translateX(0); }
         }
 
         /* Tools Section */
@@ -373,6 +376,11 @@
             align-items: center;
             margin-bottom: 30px;
             gap: 20px;
+            position: sticky;
+            top: 70px;
+            background: var(--background-color);
+            z-index: 98;
+            padding: 10px 0;
         }
 
         .tools-search {
@@ -403,10 +411,175 @@
             border-color: var(--primary-color);
         }
 
+        .tools-view {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .view-toggle {
+            display: flex;
+            border: 1px solid var(--gray-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .view-toggle button {
+            flex: 1;
+            background: var(--card-background);
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .view-toggle button.active, .view-toggle button:hover {
+            background: var(--primary-color);
+            color: var(--header-text-color);
+        }
+
+        .view-toggle button:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(67, 97, 238, 0.3);
+        }
+
+        .view-toggle button i {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
         .tools-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tools-grid.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            animation: loadingFade 1s infinite;
+        }
+
+        @keyframes loadingFade {
+            0% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Compact View */
+        .tools-grid.compact {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .tools-grid.compact .tool-card {
+            padding: 15px;
+        }
+
+        .tools-grid.compact .tool-icon i {
+            font-size: 24px;
+        }
+
+        .tools-grid.compact .tool-card h3 {
+            font-size: 1rem;
+        }
+
+        .tools-grid.compact .tool-card p {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .tools-grid.compact .tool-btn {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+
+        /* List View */
+        .tools-grid.list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tools-grid.list .tool-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            text-align: left;
+            border: 1px solid var(--light-color);
+            border-radius: var(--border-radius);
+        }
+
+        .tools-grid.list .tool-icon {
+            margin-right: 15px;
+        }
+
+        .tools-grid.list .tool-icon i {
+            font-size: 30px;
+        }
+
+        .tools-grid.list .tool-card h3 {
+            font-size: 1.2rem;
+        }
+
+        .tools-grid.list .tool-card p {
+            font-size: 1rem;
+            color: var(--gray-color);
+        }
+
+        .tools-grid.list .tool-btn {
+            margin-left: auto;
+            padding: 8px 16px;
+        }
+
+        /* Tile View */
+        .tools-grid.tile {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .tools-grid.tile .tool-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            min-height: 150px;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .tools-grid.tile .tool-icon i {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .tools-grid.tile .tool-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .tools-grid.tile .tool-card p {
+            display: none;
+        }
+
+        .tools-grid.tile .tool-btn {
+            display: none;
         }
 
         .tool-card {
@@ -415,15 +588,30 @@
             border-radius: var(--border-radius);
             padding: 25px;
             box-shadow: var(--box-shadow);
-            transition: var(--transition);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
             text-align: center;
             text-decoration: none;
             color: var(--text-color);
+            position: relative;
         }
 
         .tool-card:hover {
             transform: translateY(-5px) scale(1.05);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, var(--card-background) 0%, var(--light-color) 100%);
+        }
+
+        .tool-card.new::after {
+            content: 'New';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--new-badge-color);
+            color: var(--header-text-color);
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
         .tool-icon i {
@@ -745,8 +933,17 @@
                 align-items: stretch;
             }
 
-            .tools-search {
+            .tools-search, .tools-filter, .tools-view {
                 max-width: 100%;
+            }
+
+            .view-toggle {
+                flex-wrap: wrap;
+            }
+
+            .view-toggle button {
+                flex: 1 1 45%;
+                margin: 5px;
             }
 
             .section-nav .container {
@@ -784,6 +981,52 @@
 
             .social-links {
                 justify-content: center;
+            }
+
+            .tools-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .tools-grid.compact {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .tools-grid.tile {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .tools-grid.list .tool-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .tools-grid.list .tool-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .tools-grid.list .tool-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tools-grid.compact {
+                grid-template-columns: 1fr;
+            }
+
+            .tools-grid.tile {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+
+            .view-toggle button {
+                flex: 1 1 100%;
+                margin: 2px 0;
             }
         }
     </style>
@@ -853,9 +1096,17 @@
                         <option value="text">Text Tools</option>
                     </select>
                 </div>
+                <div class="tools-view">
+                    <div class="view-toggle" role="radiogroup" aria-label="Select view mode">
+                        <button data-view="normal" class="active" aria-checked="true"><i class="material-icons">grid_view</i>Normal</button>
+                        <button data-view="compact" aria-checked="false"><i class="material-icons">view_compact</i>Compact</button>
+                        <button data-view="list" aria-checked="false"><i class="material-icons">view_list</i>List</button>
+                        <button data-view="tile" aria-checked="false"><i class="material-icons">apps</i>Tile</button>
+                    </div>
+                </div>
             </div>
-            <div class="tools-grid" id="toolsGrid">
-                <a href="/jpgpngtopdf/" class="tool-card" data-category="pdf">
+            <div class="tools-grid normal" id="toolsGrid">
+                <a href="/jpgpngtopdf/" class="tool-card new" data-category="pdf">
                     <div class="tool-icon">
                         <i class="material-icons">file_copy</i>
                     </div>
@@ -943,7 +1194,7 @@
                     <p>Transform Excel spreadsheets into PDFs.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                <a href="/QRCodeG/" class="tool-card" data-category="text">
+                <a href="/QRCodeG/" class="tool-card new" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">qr_code</i>
                     </div>
@@ -1012,7 +1263,7 @@
                         <i class="material-icons">text_format</i>
                     </div>
                     <h3>Text Case Converter</h3>
-                    <p>Transform text to uppercase, lowercase, and more.</p>
+                    <p>Transform text to uppercase, lowercase, and more.</p> 
                     <span class="tool-btn">Use Tool</span>
                 </a>
                 <a href="/MarkdowntoHTMLC/" class="tool-card" data-category="text">
@@ -1071,7 +1322,7 @@
                     <p>Convert units like length, weight, and more.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                <a href="/passwordgen/" class="tool-card" data-category="text">
+                <a href="/passwordgen/" class="tool-card new" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">vpn_key</i>
                     </div>
@@ -1079,7 +1330,7 @@
                     <p>Create secure and random passwords instantly.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                <a href="/babynames/" class="tool-card" data-category="text">
+                <a href="/babynames/" class="tool-card new" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">child_care</i>
                     </div>
@@ -1127,7 +1378,7 @@
                     <p>Create hilarious memes with ease.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                    <a href="/robotstxt/" class="tool-card" data-category="text">
+                <a href="/robotstxt/" class="tool-card" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">rule</i>
                     </div>
@@ -1135,7 +1386,7 @@
                     <p>Create SEO-friendly robots.txt files easily.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                    <a href="/datetimecalc/" class="tool-card" data-category="calculator">
+                <a href="/datetimecalc/" class="tool-card" data-category="calculator">
                     <div class="tool-icon">
                         <i class="material-icons">access_time</i>
                     </div>
@@ -1143,7 +1394,7 @@
                     <p>Calculate date differences or time intervals easily.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                    <a href="/urlencodedecode/" class="tool-card" data-category="text">
+                <a href="/urlencodedecode/" class="tool-card" data-category="text">
                     <div class="tool-icon">
                         <i class="material-icons">link</i>
                     </div>
@@ -1151,7 +1402,7 @@
                     <p>Encode or decode URLs effortlessly.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                   <a href="/loancalc/" class="tool-card" data-category="calculator">
+                <a href="/loancalc/" class="tool-card" data-category="calculator">
                     <div class="tool-icon">
                         <i class="material-icons">monetization_on</i>
                     </div>
@@ -1167,7 +1418,7 @@
                     <p>Estimate your daily calorie needs instantly.</p>
                     <span class="tool-btn">Use Tool</span>
                 </a>
-                    <a href="/percentagecalc/" class="tool-card" data-category="calculator">
+                <a href="/percentagecalc/" class="tool-card" data-category="calculator">
                     <div class="tool-icon">
                         <i class="material-icons">percent</i>
                     </div>
@@ -1290,7 +1541,7 @@
                         <li><a href="/ColorP/">Color Picker</a></li>
                         <li><a href="/colorpalettegen/">Color Palette Generator</a></li>
                         <li><a href="/caloriecalc/">Calorie Calculator</a></li>
-                        <li><a href="/avatarcreator/">CCustom Avatar Creator</a></li>
+                        <li><a href="/avatarcreator/">Custom Avatar Creator</a></li>
                         <li><a href="/digitalsign/">Digital Signature Creator</a></li>
                         <li><a href="/datetimecalc/">Date & Time Calculator</a></li>
                         <li><a href="/exceltopdf/">Excel to PDF</a></li>
@@ -1461,23 +1712,57 @@
 
             if (toolSearch && toolFilter && toolsGrid) {
                 function filterTools() {
+                    toolsGrid.classList.add('loading');
                     const searchTerm = toolSearch.value.toLowerCase();
                     const category = toolFilter.value;
 
-                    toolCards.forEach(card => {
-                        const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
-                        const cardCategory = card.dataset.category || '';
-                        const matchesSearch = title.includes(searchTerm);
-                        const matchesCategory = category === 'all' || cardCategory === category;
+                    setTimeout(() => {
+                        toolCards.forEach(card => {
+                            const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+                            const cardCategory = card.dataset.category || '';
+                            const matchesSearch = title.includes(searchTerm);
+                            const matchesCategory = category === 'all' || cardCategory === category;
 
-                        card.style.display = matchesSearch && matchesCategory ? 'block' : 'none';
-                    });
+                            card.style.display = matchesSearch && matchesCategory ? 'block' : 'none';
+                        });
+                        toolsGrid.classList.remove('loading');
+                    }, 300);
                 }
 
                 toolSearch.addEventListener('keyup', filterTools);
                 toolFilter.addEventListener('change', filterTools);
             } else {
                 console.warn('Tool search/filter elements not found.');
+            }
+
+            // View Toggle Functionality
+            const viewToggle = document.querySelector('.view-toggle');
+            if (viewToggle && toolsGrid) {
+                function setView(view) {
+                    toolsGrid.className = `tools-grid ${view}`;
+                    localStorage.setItem('toolView', view);
+                    viewToggle.querySelectorAll('button').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.view === view);
+                        btn.setAttribute('aria-checked', btn.dataset.view === view);
+                    });
+                }
+
+                const savedView = localStorage.getItem('toolView') || 'normal';
+                setView(savedView);
+
+                viewToggle.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        setView(button.dataset.view);
+                    });
+                    button.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            button.click();
+                        }
+                    });
+                });
+            } else {
+                console.warn('View toggle or tools grid not found.');
             }
 
             // Mobile Menu Toggle and Navigation
