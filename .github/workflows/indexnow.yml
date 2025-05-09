@@ -60,7 +60,8 @@ jobs:
               "https://toolshub.cam/caloriecalc/",
               "https://toolshub.cam/percentagecalc/",
               "https://toolshub.cam/gradecalc/",
-              "https://toolshub.cam/avatarcreator/"
+              "https://toolshub.cam/avatarcreator/",
+              "https://toolshub.cam/gpacalc/"
             ]
           }'
 
