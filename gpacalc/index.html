@@ -40,15 +40,6 @@
         </script><!DOCTYPE html>
 <html lang="en">
 <head>
-        <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QX6N41VY5J');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Advanced GPA Calculator to track, calculate, predict grades, and manage schedules. Supports weighted/unweighted GPA, semester history, trends, and academic planning for students.">
@@ -66,8 +57,6 @@
     <meta name="twitter:description" content="Calculate, track, predict your GPA, and manage your academic schedule with ease. Features semester history, GPA trends, and grade predictions for students.">
     <meta name="twitter:image" content="https://buzzgpacalculator.com/assets/og-image.jpg">
     <title>Buzz - Advanced GPA Calculator | Track, Predict & Plan Your Grades</title>
-        <link rel="icon" href="/toolshub.ico" type="image/x-icon">
-        <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -595,6 +584,28 @@
                 padding: 8px;
             }
         }
+
+        /* Enhanced home icon styling */
+        .home-icon {
+            background-color: var(--accent-color);
+            padding: 10px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .home-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .home-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -609,7 +620,7 @@
                 <button id="themeToggle" class="btn btn-icon" title="Toggle theme" aria-label="Toggle theme">
                     <i class="fas fa-moon" alt="Theme toggle icon"></i>
                 </button>
-                <a href="/" class="btn btn-icon" title="Home" aria-label="Go to home">
+                <a href="/" class="home-icon" title="Home" aria-label="Go to home">
                     <i class="fas fa-home" alt="Home icon"></i>
                 </a>
             </div>
@@ -894,10 +905,37 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            let maxGPA; // Declare maxGPA once at the function scope
+
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const icon = themeToggle.querySelector('i');
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+
+            themeToggle.addEventListener('click', () => {
+                if (document.documentElement.hasAttribute('data-theme')) {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    icon.classList.replace('fa-sun', 'fa-moon');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    icon.classList.replace('fa-moon', 'fa-sun');
+                }
+                updateCharts(); // Update charts when theme changes
+            });
+
             // Toast notification system
             function showToast(message, type) {
                 if (type === undefined) type = 'success';
-                var toast = document.createElement('div');
+                const toast = document.createElement('div');
                 toast.className = 'toast ' + type;
                 toast.textContent = message;
                 document.body.appendChild(toast);
@@ -910,10 +948,10 @@
 
             // Parse custom scale
             function parseCustomScale(input) {
-                var scale = {};
+                const scale = {};
                 try {
                     input.split(',').forEach(pair => {
-                        var [letter, value] = pair.split('=');
+                        const [letter, value] = pair.split('=');
                         if (letter && value && !isNaN(value)) scale[letter.trim().toUpperCase()] = parseFloat(value.trim());
                     });
                     if (Object.keys(scale).length === 0) throw new Error('Invalid format');
@@ -926,15 +964,15 @@
 
             // Validate course row
             function validateCourseRow(row) {
-                var name = row.querySelector('.course-name').value.trim();
-                var credit = parseFloat(row.querySelector('.course-credit').value);
+                const name = row.querySelector('.course-name').value.trim();
+                const credit = parseFloat(row.querySelector('.course-credit').value);
                 if (!name || isNaN(credit) || credit <= 0) {
                     showToast('Course name and valid credits are required.', 'error');
                     return false;
                 }
-                var scale = document.querySelector('.scale-option.active').dataset.scale;
+                const scale = document.querySelector('.scale-option.active').dataset.scale;
                 if (scale === '100') {
-                    var percentage = parseFloat(row.querySelector('.course-grade').value);
+                    const percentage = parseFloat(row.querySelector('.course-grade').value);
                     if (isNaN(percentage) || percentage < 0 || percentage > 100) {
                         showToast('Percentage must be between 0 and 100.', 'error');
                         return false;
@@ -945,12 +983,12 @@
 
             // Update grade inputs based on scale
             function updateGradeInputs(container) {
-                var scale = document.querySelector('.scale-option.active').dataset.scale;
-                var courseRows = container.querySelectorAll('.course-row');
+                const scale = document.querySelector('.scale-option.active').dataset.scale;
+                const courseRows = container.querySelectorAll('.course-row');
                 courseRows.forEach(row => {
-                    var gradeInput = row.querySelector('.course-grade');
-                    var parent = gradeInput.parentNode;
-                    var newInput;
+                    const gradeInput = row.querySelector('.course-grade');
+                    const parent = gradeInput.parentNode;
+                    let newInput;
 
                     if (scale === '100') {
                         newInput = document.createElement('input');
@@ -964,9 +1002,9 @@
                     } else if (scale === 'custom') {
                         newInput = document.createElement('select');
                         newInput.className = 'course-grade';
-                        var customScale = parseCustomScale(document.getElementById('customScale').value);
+                        const customScale = parseCustomScale(document.getElementById('customScale').value);
                         Object.keys(customScale).forEach(letter => {
-                            var option = document.createElement('option');
+                            const option = document.createElement('option');
                             option.value = letter;
                             option.textContent = `${letter} (${customScale[letter].toFixed(1)})`;
                             newInput.appendChild(option);
@@ -974,9 +1012,9 @@
                     } else {
                         newInput = document.createElement('select');
                         newInput.className = 'course-grade';
-                        var grades = scale === '5.0' ? [['A', 5.0], ['A-', 4.7], ['B+', 4.3], ['B', 4.0], ['B-', 3.7], ['C+', 3.3], ['C', 3.0], ['C-', 2.7], ['D+', 2.3], ['D', 2.0], ['F', 0.0]] : [['A', 4.0], ['A-', 3.7], ['B+', 3.3], ['B', 3.0], ['B-', 2.7], ['C+', 2.3], ['C', 2.0], ['C-', 1.7], ['D+', 1.3], ['D', 1.0], ['F', 0.0]];
+                        const grades = scale === '5.0' ? [['A', 5.0], ['A-', 4.7], ['B+', 4.3], ['B', 4.0], ['B-', 3.7], ['C+', 3.3], ['C', 3.0], ['C-', 2.7], ['D+', 2.3], ['D', 2.0], ['F', 0.0]] : [['A', 4.0], ['A-', 3.7], ['B+', 3.3], ['B', 3.0], ['B-', 2.7], ['C+', 2.3], ['C', 2.0], ['C-', 1.7], ['D+', 1.3], ['D', 1.0], ['F', 0.0]];
                         grades.forEach(([letter, value]) => {
-                            var option = document.createElement('option');
+                            const option = document.createElement('option');
                             option.value = value;
                             option.textContent = `${letter} (${value.toFixed(1)})`;
                             newInput.appendChild(option);
@@ -991,27 +1029,12 @@
 
             // Update course level visibility
             function updateCourseLevelVisibility() {
-                var scale = document.querySelector('.scale-option.active').dataset.scale;
-                var isWeighted = document.getElementById('weightedGPA').checked;
+                const scale = document.querySelector('.scale-option.active').dataset.scale;
+                const isWeighted = document.getElementById('weightedGPA').checked;
                 document.querySelectorAll('.course-level').forEach(level => {
                     level.style.display = (isWeighted && scale !== '100') ? 'block' : 'none';
                 });
             }
-
-            // Theme toggle
-            var themeToggle = document.getElementById('themeToggle');
-            var icon = themeToggle.querySelector('i');
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                icon.classList.replace('fa-moon', 'fa-sun');
-            }
-            themeToggle.addEventListener('click', () => {
-                document.documentElement.toggleAttribute('data-theme');
-                localStorage.setItem('theme', document.documentElement.getAttribute('data-theme') || 'light');
-                icon.classList.toggle('fa-sun', document.documentElement.hasAttribute('data-theme'));
-                icon.classList.toggle('fa-moon', !document.documentElement.hasAttribute('data-theme'));
-                updateCharts();
-            });
 
             // GPA Scale selection
             document.querySelectorAll('.scale-option').forEach(option => {
@@ -1033,7 +1056,7 @@
             });
 
             // Debounce GPA calculation
-            var timeout;
+            let timeout;
             function debounceCalculateGPA() {
                 clearTimeout(timeout);
                 timeout = setTimeout(calculateGPA, 300);
@@ -1041,8 +1064,8 @@
 
             // Add current course
             document.getElementById('addCourse').addEventListener('click', () => {
-                var container = document.getElementById('coursesContainer');
-                var newCourse = document.createElement('div');
+                const container = document.getElementById('coursesContainer');
+                const newCourse = document.createElement('div');
                 newCourse.className = 'course-row';
                 newCourse.innerHTML = `
                     <input type="text" class="course-name" placeholder="Course Name">
@@ -1078,8 +1101,8 @@
 
             // Add future course
             document.getElementById('addFutureCourse').addEventListener('click', () => {
-                var container = document.getElementById('futureCoursesContainer');
-                var newCourse = document.createElement('div');
+                const container = document.getElementById('futureCoursesContainer');
+                const newCourse = document.createElement('div');
                 newCourse.className = 'course-row';
                 newCourse.innerHTML = `
                     <input type="text" class="course-name" placeholder="Future Course Name">
@@ -1115,8 +1138,8 @@
 
             // Add schedule entry
             document.getElementById('addSchedule').addEventListener('click', () => {
-                var tbody = document.getElementById('scheduleTable').querySelector('tbody');
-                var newRow = document.createElement('tr');
+                const tbody = document.getElementById('scheduleTable').querySelector('tbody');
+                const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                     <td><select class="schedule-day">
                         <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday>
@@ -1134,13 +1157,13 @@
             });
 
             // Touch handling for swipe to remove
-            var touchStartX = 0;
+            let touchStartX = 0;
             function handleTouchStart(e) {
                 touchStartX = e.touches[0].clientX;
             }
             function handleTouchMove(e) {
-                var touchEndX = e.touches[0].clientX;
-                var diffX = touchStartX - touchEndX;
+                const touchEndX = e.touches[0].clientX;
+                const diffX = touchStartX - touchEndX;
                 if (diffX > 50) {
                     e.target.closest('.course-row').querySelector('.remove-course').click();
                 }
@@ -1148,39 +1171,41 @@
 
             // Calculate GPA
             function calculateGPA() {
-                var courseRows = document.querySelectorAll('#coursesContainer .course-row');
-                var totalPoints = 0, totalCredits = 0;
-                var scale = document.querySelector('.scale-option.active').dataset.scale;
-                var isWeighted = document.getElementById('weightedGPA').checked;
-                var maxGPA = scale === '5.0' ? 5.0 : 4.0;
+                const courseRows = document.querySelectorAll('#coursesContainer .course-row');
+                let totalPoints = 0, totalCredits = 0;
+                const scale = document.querySelector('.scale-option.active').dataset.scale;
+                const isWeighted = document.getElementById('weightedGPA').checked;
 
+                // Set maxGPA based on scale
                 if (scale === 'custom') {
-                    var customScale = parseCustomScale(document.getElementById('customScale').value);
-                    maxGPA = Math.max(...Object.values(customScale));
+                    const customScale = parseCustomScale(document.getElementById('customScale').value);
+                    maxGPA = Math.max(...Object.values(customScale), 0);
+                } else {
+                    maxGPA = scale === '5.0' ? 5.0 : 4.0;
                 }
 
-                var validRows = 0;
+                let validRows = 0;
                 courseRows.forEach(row => {
                     if (!validateCourseRow(row)) return;
                     validRows++;
-                    var credit = parseFloat(row.querySelector('.course-credit').value) || 0;
-                    var gradeValue = row.querySelector('.course-grade').value;
+                    const credit = parseFloat(row.querySelector('.course-credit').value) || 0;
+                    let gradeValue = row.querySelector('.course-grade').value;
                     if (scale === '100') {
-                        var percentage = parseFloat(gradeValue);
+                        const percentage = parseFloat(gradeValue);
                         gradeValue = percentage >= 93 ? 4.0 : percentage >= 90 ? 3.7 : percentage >= 87 ? 3.3 : percentage >= 83 ? 3.0 : percentage >= 80 ? 2.7 : percentage >= 77 ? 2.3 : percentage >= 73 ? 2.0 : percentage >= 70 ? 1.7 : percentage >= 67 ? 1.3 : percentage >= 65 ? 1.0 : 0.0;
                     } else if (scale === 'custom') {
                         gradeValue = customScale[gradeValue.toUpperCase()] || 0;
                     } else {
                         gradeValue = parseFloat(gradeValue);
                     }
-                    var weight = isWeighted && scale !== '100' ? parseFloat(row.querySelector('.course-level').value) || 1.0 : 1.0;
+                    const weight = isWeighted && scale !== '100' ? parseFloat(row.querySelector('.course-level').value) || 1.0 : 1.0;
                     totalPoints += gradeValue * credit * weight;
                     totalCredits += credit;
                 });
 
-                var gpa = totalCredits > 0 && validRows > 0 ? totalPoints / totalCredits : 0;
-                var gpaElement = document.getElementById('gpaResult');
-                var previousGPA = parseFloat(gpaElement.textContent);
+                const gpa = totalCredits > 0 && validRows > 0 ? totalPoints / totalCredits : 0;
+                const gpaElement = document.getElementById('gpaResult');
+                const previousGPA = parseFloat(gpaElement.textContent);
                 gpaElement.textContent = gpa.toFixed(2);
                 if (previousGPA !== gpa) {
                     gpaElement.classList.remove('pulse');
@@ -1188,21 +1213,21 @@
                     gpaElement.classList.add('pulse');
                 }
 
-                var progressPercent = (gpa / maxGPA) * 100;
+                const progressPercent = (gpa / maxGPA) * 100;
                 document.getElementById('gpaProgress').style.width = progressPercent + '%';
                 document.getElementById('currentGPA').textContent = gpa.toFixed(2);
                 document.getElementById('maxGPA').textContent = maxGPA.toFixed(1);
 
-                var targetGPA = parseFloat(document.getElementById('targetGPA').value);
+                const targetGPA = parseFloat(document.getElementById('targetGPA').value);
                 if (targetGPA && !isNaN(targetGPA)) {
-                    var whatIfResult = document.getElementById('whatIfResult');
-                    var recommendationText = document.getElementById('recommendationText');
+                    const whatIfResult = document.getElementById('whatIfResult');
+                    const recommendationText = document.getElementById('recommendationText');
                     if (gpa >= targetGPA) {
                         recommendationText.textContent = `You've achieved your target GPA of ${targetGPA.toFixed(2)}! Keep it up!`;
                     } else {
-                        var neededPoints = (targetGPA * totalCredits) - totalPoints;
-                        var remainingCredits = 15 - totalCredits;
-                        var neededGPA = remainingCredits > 0 ? neededPoints / remainingCredits : Infinity;
+                        const neededPoints = (targetGPA * totalCredits) - totalPoints;
+                        const remainingCredits = 15 - totalCredits;
+                        const neededGPA = remainingCredits > 0 ? neededPoints / remainingCredits : Infinity;
                         recommendationText.textContent = neededGPA <= maxGPA ? `To reach ${targetGPA.toFixed(2)}, maintain ${neededGPA.toFixed(2)} in ${remainingCredits} credits.` : `Target ${targetGPA.toFixed(2)} is unachievable this semester. Adjust your goal or add courses.`;
                     }
                     whatIfResult.style.display = 'block';
@@ -1210,57 +1235,59 @@
                     document.getElementById('whatIfResult').style.display = 'none';
                 }
 
-                updateGoalProgress(gpa); // Update goal progress with current GPA
+                updateGoalProgress(gpa);
                 return gpa;
             }
 
             // Predict GPA
             function predictGPA() {
-                var currentGPA = calculateGPA();
-                var futureRows = document.querySelectorAll('#futureCoursesContainer .course-row');
-                var totalFuturePoints = 0, totalFutureCredits = 0;
-                var scale = document.querySelector('.scale-option.active').dataset.scale;
-                var isWeighted = document.getElementById('weightedGPA').checked;
-                var maxGPA = scale === '5.0' ? 5.0 : 4.0;
+                const currentGPA = calculateGPA();
+                const futureRows = document.querySelectorAll('#futureCoursesContainer .course-row');
+                let totalFuturePoints = 0, totalFutureCredits = 0;
+                const scale = document.querySelector('.scale-option.active').dataset.scale;
+                const isWeighted = document.getElementById('weightedGPA').checked;
 
+                // Set maxGPA based on scale
                 if (scale === 'custom') {
-                    var customScale = parseCustomScale(document.getElementById('customScale').value);
-                    maxGPA = Math.max(...Object.values(customScale));
+                    const customScale = parseCustomScale(document.getElementById('customScale').value);
+                    maxGPA = Math.max(...Object.values(customScale), 0);
+                } else {
+                    maxGPA = scale === '5.0' ? 5.0 : 4.0;
                 }
 
-                var validFutureRows = 0;
+                let validFutureRows = 0;
                 futureRows.forEach(row => {
                     if (!validateCourseRow(row)) return;
                     validFutureRows++;
-                    var credit = parseFloat(row.querySelector('.course-credit').value) || 0;
-                    var gradeValue = row.querySelector('.course-grade').value;
+                    const credit = parseFloat(row.querySelector('.course-credit').value) || 0;
+                    let gradeValue = row.querySelector('.course-grade').value;
                     if (scale === '100') {
-                        var percentage = parseFloat(gradeValue);
+                        const percentage = parseFloat(gradeValue);
                         gradeValue = percentage >= 93 ? 4.0 : percentage >= 90 ? 3.7 : percentage >= 87 ? 3.3 : percentage >= 83 ? 3.0 : percentage >= 80 ? 2.7 : percentage >= 77 ? 2.3 : percentage >= 73 ? 2.0 : percentage >= 70 ? 1.7 : percentage >= 67 ? 1.3 : percentage >= 65 ? 1.0 : 0.0;
                     } else if (scale === 'custom') {
                         gradeValue = customScale[gradeValue.toUpperCase()] || 0;
                     } else {
                         gradeValue = parseFloat(gradeValue);
                     }
-                    var weight = isWeighted && scale !== '100' ? parseFloat(row.querySelector('.course-level').value) || 1.0 : 1.0;
+                    const weight = isWeighted && scale !== '100' ? parseFloat(row.querySelector('.course-level').value) || 1.0 : 1.0;
                     totalFuturePoints += gradeValue * credit * weight;
                     totalFutureCredits += credit;
                 });
 
-                var semesters = parseInt(document.getElementById('futureSemesters').value);
-                var totalCredits = JSON.parse(localStorage.getItem('gpaSemesters') || '[]').reduce((sum, sem) => sum + sem.credits, 0) + totalFutureCredits;
-                var projectedGPA = totalCredits > 0 ? ((currentGPA * (totalCredits - totalFutureCredits)) + totalFuturePoints) / totalCredits : currentGPA;
-                var variance = 0.2 * (totalFutureCredits / totalCredits); // Simple variance estimate
-                var minGPA = Math.max(0, projectedGPA - variance);
-                var maxGPA = Math.min(maxGPA, projectedGPA + variance);
+                const semesters = parseInt(document.getElementById('futureSemesters').value);
+                const totalCredits = JSON.parse(localStorage.getItem('gpaSemesters') || '[]').reduce((sum, sem) => sum + sem.credits, 0) + totalFutureCredits;
+                const projectedGPA = totalCredits > 0 ? ((currentGPA * (totalCredits - totalFutureCredits)) + totalFuturePoints) / totalCredits : currentGPA;
+                const variance = 0.2 * (totalFutureCredits / totalCredits); // Simple variance estimate
+                const minGPA = Math.max(0, projectedGPA - variance);
+                const maxGPA = Math.min(maxGPA, projectedGPA + variance);
 
-                var projectedElement = document.getElementById('projectedGPA');
+                const projectedElement = document.getElementById('projectedGPA');
                 projectedElement.textContent = `Projected GPA: ${projectedGPA.toFixed(2)} (Range: ${minGPA.toFixed(2)} - ${maxGPA.toFixed(2)})`;
                 projectedElement.style.display = 'block';
             }
 
             // Debounce predict GPA
-            var predictTimeout;
+            let predictTimeout;
             function debouncePredictGPA() {
                 clearTimeout(predictTimeout);
                 predictTimeout = setTimeout(predictGPA, 300);
@@ -1292,7 +1319,7 @@
 
             // Reset calculator
             document.getElementById('resetCalculator').addEventListener('click', () => {
-                var container = document.getElementById('coursesContainer');
+                const container = document.getElementById('coursesContainer');
                 container.innerHTML = `
                     <div class="course-row">
                         <input type="text" class="course-name" placeholder="Course Name">
@@ -1330,73 +1357,73 @@
 
             // Save semester
             document.getElementById('saveSemester').addEventListener('click', () => {
-                var semesterName = prompt("Enter semester name (e.g., Fall 2023):");
+                const semesterName = prompt("Enter semester name (e.g., Fall 2023):");
                 if (!semesterName) {
                     showToast('Semester name is required.', 'error');
                     return;
                 }
-                var courseRows = document.querySelectorAll('#coursesContainer .course-row');
-                var valid = [...courseRows].every(validateCourseRow);
+                const courseRows = document.querySelectorAll('#coursesContainer .course-row');
+                const valid = [...courseRows].every(validateCourseRow);
                 if (!valid) return;
-                var gpa = calculateGPA();
-                var courses = [...courseRows].map(row => ({
+                const gpa = calculateGPA();
+                const courses = [...courseRows].map(row => ({
                     name: row.querySelector('.course-name').value,
                     credit: parseFloat(row.querySelector('.course-credit').value),
                     grade: row.querySelector('.course-grade').value,
                     level: row.querySelector('.course-level').value
                 }));
-                var semester = { name: semesterName, gpa, credits: courses.reduce((sum, c) => sum + c.credit, 0), courses, date: new Date().toISOString() };
-                var semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                const semester = { name: semesterName, gpa, credits: courses.reduce((sum, c) => sum + c.credit, 0), courses, date: new Date().toISOString() };
+                let semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
                 semesters.push(semester);
                 localStorage.setItem('gpaSemesters', JSON.stringify(semesters));
                 showToast(`Semester "${semesterName}" saved with GPA: ${gpa.toFixed(2)}`, 'success');
                 updateSemesterHistory();
                 updateCharts();
-                updateGoalProgress(gpa); // Update goal progress after saving semester
+                updateGoalProgress(gpa);
             });
 
             // Set academic goal
             document.getElementById('setGoal').addEventListener('click', () => {
-                var goalGPA = parseFloat(document.getElementById('goalGPA').value);
-                var goalDate = document.getElementById('goalDate').value;
+                const goalGPA = parseFloat(document.getElementById('goalGPA').value);
+                const goalDate = document.getElementById('goalDate').value;
                 if (isNaN(goalGPA) || goalGPA < 0 || goalGPA > 5 || !goalDate) {
                     showToast('Please enter a valid goal GPA (0-5) and target date.', 'error');
                     return;
                 }
-                var goal = { gpa: goalGPA, date: goalDate };
+                const goal = { gpa: goalGPA, date: goalDate };
                 localStorage.setItem('gpaGoal', JSON.stringify(goal));
                 showToast('Goal set successfully!', 'success');
-                updateGoalProgress(calculateGPA()); // Update progress with current GPA
+                updateGoalProgress(calculateGPA());
             });
 
             // Update goal progress
             function updateGoalProgress(currentGPA) {
-                var goalData = JSON.parse(localStorage.getItem('gpaGoal'));
+                const goalData = JSON.parse(localStorage.getItem('gpaGoal'));
                 if (!goalData) {
                     document.getElementById('goalProgress').style.display = 'none';
                     return;
                 }
 
-                var goalProgress = document.getElementById('goalProgress');
-                var goalStatus = document.getElementById('goalStatus');
-                var goalProgressBar = document.getElementById('goalProgressBar');
+                const goalProgress = document.getElementById('goalProgress');
+                const goalStatus = document.getElementById('goalStatus');
+                const goalProgressBar = document.getElementById('goalProgressBar');
                 goalProgress.style.display = 'block';
 
-                var semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                var cumulativeGPA = semesters.length > 0 ? semesters.reduce((sum, sem) => sum + sem.gpa * sem.credits, 0) / semesters.reduce((sum, sem) => sum + sem.credits, 0) : currentGPA || 0;
-                var progress = Math.min((cumulativeGPA / goalData.gpa) * 100, 100);
+                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                const cumulativeGPA = semesters.length > 0 ? semesters.reduce((sum, sem) => sum + sem.gpa * sem.credits, 0) / semesters.reduce((sum, sem) => sum + sem.credits, 0) : currentGPA || 0;
+                const progress = Math.min((cumulativeGPA / goalData.gpa) * 100, 100);
 
                 if (cumulativeGPA >= goalData.gpa) {
                     goalStatus.textContent = `Goal achieved! Current GPA: ${cumulativeGPA.toFixed(2)} (Target: ${goalData.gpa})`;
                     goalProgressBar.style.width = '100%';
                     goalProgressBar.style.backgroundColor = 'var(--success-color)';
                 } else {
-                    var targetDate = new Date(goalData.date);
-                    var today = new Date();
-                    var timeLeft = (targetDate - today) / (1000 * 60 * 60 * 24); // Days remaining
-                    var daysElapsed = (today - new Date(semesters[0]?.date || today)) / (1000 * 60 * 60 * 24);
-                    var totalDays = timeLeft + daysElapsed;
-                    var progressByTime = totalDays > 0 ? (daysElapsed / totalDays) * 100 : 0;
+                    const targetDate = new Date(goalData.date);
+                    const today = new Date();
+                    const timeLeft = (targetDate - today) / (1000 * 60 * 60 * 24); // Days remaining
+                    const daysElapsed = (today - new Date(semesters[0]?.date || today)) / (1000 * 60 * 60 * 24);
+                    const totalDays = timeLeft + daysElapsed;
+                    const progressByTime = totalDays > 0 ? (daysElapsed / totalDays) * 100 : 0;
                     goalStatus.textContent = `Current GPA: ${cumulativeGPA.toFixed(2)} of ${goalData.gpa} (${progress.toFixed(1)}%), ${timeLeft > 0 ? `${Math.ceil(timeLeft)} days left` : 'Past target date'}`;
                     goalProgressBar.style.width = Math.min(progress, progressByTime) + '%';
                     goalProgressBar.style.backgroundColor = cumulativeGPA >= goalData.gpa ? 'var(--success-color)' : 'var(--primary-color)';
@@ -1405,11 +1432,11 @@
 
             // Update semester history
             function updateSemesterHistory() {
-                var semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                var historyTable = document.getElementById('semesterHistory');
+                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                const historyTable = document.getElementById('semesterHistory');
                 historyTable.innerHTML = semesters.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">No semesters saved yet</td></tr>' : '';
                 semesters.forEach((semester, index) => {
-                    var row = document.createElement('tr');
+                    const row = document.createElement('tr');
                     row.style.borderBottom = '1px solid var(--border-color)';
                     row.innerHTML = `
                         <td style="padding: 10px;">${semester.name}</td>
@@ -1427,7 +1454,7 @@
                     historyTable.appendChild(row);
                 });
                 document.querySelectorAll('.view-semester').forEach(btn => btn.addEventListener('click', () => {
-                    var semester = semesters[btn.dataset.index];
+                    const semester = semesters[btn.dataset.index];
                     showToast(`Semester: ${semester.name}\nGPA: ${semester.gpa.toFixed(2)}\nCredits: ${semester.credits}\nCourses: ${semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')}`, 'success');
                 }));
                 document.querySelectorAll('.delete-semester').forEach(btn => btn.addEventListener('click', () => {
@@ -1437,11 +1464,11 @@
                         showToast(`Semester "${semesters[btn.dataset.index].name}" deleted.`, 'success');
                         updateSemesterHistory();
                         updateCharts();
-                        updateGoalProgress(calculateGPA()); // Update goal progress after deletion
+                        updateGoalProgress(calculateGPA());
                     }
                 }));
-                var totalCredits = semesters.reduce((sum, sem) => sum + sem.credits, 0);
-                var totalPoints = semesters.reduce((sum, sem) => sum + (sem.gpa * sem.credits), 0);
+                const totalCredits = semesters.reduce((sum, sem) => sum + sem.credits, 0);
+                const totalPoints = semesters.reduce((sum, sem) => sum + (sem.gpa * sem.credits), 0);
                 document.getElementById('cumulativeGPA').textContent = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
             }
 
@@ -1457,14 +1484,14 @@
             });
 
             // Initialize charts
-            var trendChart, cumulativeChart;
+            let trendChart, cumulativeChart;
             function updateCharts() {
-                var semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                var isDarkMode = document.documentElement.hasAttribute('data-theme');
-                var textColor = isDarkMode ? '#f8f9fa' : '#2b2d42';
-                var gridColor = isDarkMode ? '#333333' : '#e9ecef';
+                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                const isDarkMode = document.documentElement.hasAttribute('data-theme');
+                const textColor = isDarkMode ? '#f8f9fa' : '#2b2d42';
+                const gridColor = isDarkMode ? '#333333' : '#e9ecef';
                 if (trendChart) trendChart.destroy();
-                var trendCtx = document.getElementById('gpaTrendChart').getContext('2d');
+                const trendCtx = document.getElementById('gpaTrendChart').getContext('2d');
                 trendChart = new Chart(trendCtx, {
                     type: 'line',
                     data: {
@@ -1489,10 +1516,10 @@
                     }
                 });
                 if (cumulativeChart) cumulativeChart.destroy();
-                var cumulativeCtx = document.getElementById('cumulativeChart').getContext('2d');
-                var cumulativeGPAs = semesters.reduce((acc, _, i) => {
-                    var totalPoints = semesters.slice(0, i + 1).reduce((sum, s) => sum + s.gpa * s.credits, 0);
-                    var totalCredits = semesters.slice(0, i + 1).reduce((sum, s) => sum + s.credits, 0);
+                const cumulativeCtx = document.getElementById('cumulativeChart').getContext('2d');
+                const cumulativeGPAs = semesters.reduce((acc, _, i) => {
+                    const totalPoints = semesters.slice(0, i + 1).reduce((sum, s) => sum + s.gpa * s.credits, 0);
+                    const totalCredits = semesters.slice(0, i + 1).reduce((sum, s) => sum + s.credits, 0);
                     acc.push(totalCredits > 0 ? totalPoints / totalCredits : 0);
                     return acc;
                 }, []);
@@ -1529,18 +1556,18 @@
 
             // Export functions
             document.getElementById('exportPDF').addEventListener('click', () => {
-                var doc = new window.jspdf.jsPDF();
-                var semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                const doc = new window.jspdf.jsPDF();
+                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
                 doc.setFontSize(16);
                 doc.text('GPA History Report', 20, 20);
                 doc.setFontSize(12);
-                var y = 30;
+                let y = 30;
                 semesters.forEach(semester => {
                     doc.text(`Semester: ${semester.name}`, 20, y);
                     doc.text(`GPA: ${semester.gpa.toFixed(2)}`, 20, y + 5);
                     doc.text(`Credits: ${semester.credits}`, 20, y + 10);
-                    var coursesText = `Courses: ${semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')}`;
-                    var splitText = doc.splitTextToSize(coursesText, 160);
+                    const coursesText = `Courses: ${semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')}`;
+                    const splitText = doc.splitTextToSize(coursesText, 160);
                     doc.text(splitText, 20, y + 15);
                     y += 15 + splitText.length * 5;
                 });
@@ -1549,22 +1576,22 @@
             });
 
             document.getElementById('exportExcel').addEventListener('click', () => {
-                var semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                var data = [['Semester', 'GPA', 'Credits', 'Courses']];
+                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                const data = [['Semester', 'GPA', 'Credits', 'Courses']];
                 semesters.forEach(semester => data.push([semester.name, semester.gpa.toFixed(2), semester.credits, semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')]));
-                var ws = XLSX.utils.aoa_to_sheet(data);
-                var wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "GPA History");
                 XLSX.writeFile(wb, "gpa_history.xlsx");
                 showToast('Excel exported successfully!', 'success');
             });
 
             document.getElementById('exportCSV').addEventListener('click', () => {
-                var semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                var csv = 'Semester,GPA,Credits,Courses\n';
+                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                let csv = 'Semester,GPA,Credits,Courses\n';
                 semesters.forEach(semester => csv += `"${semester.name}",${semester.gpa.toFixed(2)},${semester.credits},"${semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')}"\n`);
-                var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                var link = document.createElement('a');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = 'gpa_history.csv';
                 link.click();
@@ -1572,12 +1599,12 @@
             });
 
             // Back to Top and Back to Bottom
-            var backToTopBtn = document.getElementById('backToTop');
-            var backToBottomBtn = document.getElementById('backToBottom');
+            const backToTopBtn = document.getElementById('backToTop');
+            const backToBottomBtn = document.getElementById('backToBottom');
             function toggleButtons() {
-                var scrollPosition = window.scrollY || document.documentElement.scrollTop;
-                var windowHeight = window.innerHeight;
-                var documentHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+                const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+                const windowHeight = window.innerHeight;
+                const documentHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
                 backToTopBtn.classList.toggle('hidden', scrollPosition < 100);
                 backToBottomBtn.classList.toggle('hidden', scrollPosition + windowHeight > documentHeight - 100);
             }
@@ -1601,7 +1628,7 @@
             updateCourseLevelVisibility();
             updateSemesterHistory();
             updateCharts();
-            updateGoalProgress(calculateGPA()); // Initialize goal progress with current GPA
+            updateGoalProgress(calculateGPA());
             document.getElementById('calculateGPA').addEventListener('click', calculateGPA);
             document.getElementById('predictGPA').addEventListener('click', predictGPA);
         });
