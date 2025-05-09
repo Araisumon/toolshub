@@ -263,5 +263,11 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+    <url>
+    <loc>https://toolshub.cam/gpacalc/</loc>
+    <lastmod>2025-10-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
 
