@@ -59,7 +59,6 @@
     <link rel="shortcut icon" href="/toolshcombinations" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS remains unchanged from previous version */
         :root {
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
@@ -99,6 +98,12 @@
             background-color: var(--light-color);
             color: var(--text-dark);
             transition: var(--transition);
+        }
+
+        /* Disable transitions during theme switch */
+        body.no-transition,
+        body.no-transition * {
+            transition: none !important;
         }
 
         .container {
@@ -187,9 +192,9 @@
             padding: 2rem;
             box-shadow: var(--shadow);
             margin-bottom: 2rem;
-            transition: var(--transition);
             background-color: var(--light-color);
             border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
         }
 
         .input-group {
@@ -318,7 +323,6 @@
             padding: 2rem;
             box-shadow: var(--shadow);
             margin-bottom: 2rem;
-            transition: var(--transition);
             background-color: var(--light-color);
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
@@ -336,10 +340,17 @@
             color: var(--primary-color);
         }
 
+        .live-indicator {
+            font-size: 0.9rem;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
         .result-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 1.5rem;
+            color: var(--text-dark); /* Ensure text color is consistent */
         }
 
         .result-table th,
@@ -348,6 +359,7 @@
             text-align: left;
             border-bottom: 1px solid #eee;
             font-size: 1.2rem;
+            color: inherit; /* Inherit color to avoid override */
         }
 
         .result-table th {
@@ -357,6 +369,16 @@
 
         .result-table tr:nth-child(even) {
             background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .result-table tbody {
+            min-height: 100px; /* Ensure tbody doesn't collapse */
+            visibility: visible !important; /* Force visibility */
+            display: table-row-group !important; /* Ensure proper display */
+        }
+
+        .result-table td {
+            opacity: 1 !important; /* Prevent fading */
         }
 
         .highlight {
@@ -924,6 +946,7 @@
             <div class="results-header">
                 <h2>Your Age Results</h2>
                 <div class="action-buttons">
+                    <span class="live-indicator" id="liveIndicator" style="display: none;">Live</span>
                     <button class="btn btn-secondary" id="toggleDetails" aria-label="Toggle detailed results">
                         <i class="fas fa-list"></i> Toggle Details
                     </button>
@@ -1033,25 +1056,25 @@
         <section class="share-section">
             <h2>Share Your Results</h2>
             <div class="share-buttons">
-                <a href="#" class="share-button facebook" id="shareFacebook">
+                <a href="#" class="share-button facebook" id="shareFacebook" target="_blank">
                     <i class="fab fa-facebook-f"></i> Facebook
                 </a>
-                <a href="#" class="share-button twitter" id="shareTwitter">
+                <a href="#" class="share-button twitter" id="shareTwitter" target="_blank">
                     <i class="fab fa-twitter"></i> Twitter
                 </a>
-                <a href="#" class="share-button linkedin" id="shareLinkedIn">
+                <a href="#" class="share-button linkedin" id="shareLinkedIn" target="_blank">
                     <i class="fab fa-linkedin-in"></i> LinkedIn
                 </a>
-                <a href="#" class="share-button whatsapp" id="shareWhatsApp">
+                <a href="#" class="share-button whatsapp" id="shareWhatsApp" target="_blank">
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </a>
-                <a href="#" class="share-button pinterest" id="sharePinterest">
+                <a href="#" class="share-button pinterest" id="sharePinterest" target="_blank">
                     <i class="fab fa-pinterest-p"></i> Pinterest
                 </a>
-                <a href="#" class="share-button reddit" id="shareReddit">
+                <a href="#" class="share-button reddit" id="shareReddit" target="_blank">
                     <i class="fab fa-reddit-alien"></i> Reddit
                 </a>
-                <a href="#" class="share-button email" id="shareEmail">
+                <a href="#" class="share-button email" id="shareEmail" target="_blank">
                     <i class="fas fa-envelope"></i> Email
                 </a>
             </div>
@@ -1126,6 +1149,14 @@
             const themeToggle = document.getElementById('themeToggle');
             const scrollTopBtn = document.getElementById('scrollTopBtn');
             const scrollBottomBtn = document.getElementById('scrollBottomBtn');
+            const liveIndicator = document.getElementById('liveIndicator');
+
+            // Clock state
+            let clockInterval = null;
+            // Flag to track if we've already scrolled to results
+            let hasScrolledToResults = false;
+            // Flag to track if results are calculated
+            let isResultsCalculated = false;
 
             // Fallback time zones
             const fallbackTimeZones = {
@@ -1314,6 +1345,9 @@
             }
 
             themeToggle.addEventListener('click', () => {
+                // Disable transitions during theme switch
+                body.classList.add('no-transition');
+
                 darkMode = !darkMode;
                 if (darkMode) {
                     body.setAttribute('data-theme', 'dark');
@@ -1325,6 +1359,16 @@
                     themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
                     themeToggle.setAttribute('aria-label', 'Switch to dark theme');
                     localStorage.setItem('theme', 'light');
+                }
+
+                // Re-enable transitions after a short delay
+                setTimeout(() => {
+                    body.classList.remove('no-transition');
+                }, 100);
+
+                // Recalculate age to update live results after theme switch
+                if (isResultsCalculated && isCompareDateToday()) {
+                    calculateAge();
                 }
             });
 
@@ -1419,11 +1463,6 @@
                     birthDate: formatDate(birthDate),
                     compareDate: formatDate(compareDate),
                     age: resultsTableBody.querySelector('tr:nth-child(1) td:first-child').textContent,
-                    monthsWeeks: resultsTableBody.querySelector('tr:nth-child(2) td:first-child').textContent,
-                    weeksDays: resultsTableBody.querySelector('tr:nth-child(3) td:first-child').textContent,
-                    daysHours: resultsTableBody.querySelector('tr:nth-child(4) td:first-child').textContent,
-                    hoursMinutes: resultsTableBody.querySelector('tr:nth-child(5) td:first-child').textContent,
-                    seconds: resultsTableBody.querySelector('tr:nth-child(6) td:first-child').textContent,
                     nextBirthday: document.getElementById('birthdayInfo').textContent.trim().replace(/\s+/g, ' '),
                     lifeExpectancy: document.getElementById('avgExpectancy').textContent,
                     yearsLived: document.getElementById('yearsLived').textContent,
@@ -1431,6 +1470,33 @@
                     percentLived: document.getElementById('percentLived').textContent
                 };
                 return results;
+            }
+
+            // Stop the clock
+            function stopClock() {
+                if (clockInterval) {
+                    clearInterval(clockInterval);
+                    clockInterval = null;
+                    liveIndicator.style.display = 'none';
+                }
+            }
+
+            // Start the clock
+            function startClock() {
+                stopClock();
+                clockInterval = setInterval(calculateAge, 1000);
+                liveIndicator.style.display = 'inline';
+            }
+
+            // Check if comparison date is today
+            function isCompareDateToday() {
+                const today = new Date();
+                const compareMonth = parseInt(compareMonthSelect.value, 10) || today.getMonth() + 1;
+                const compareDay = parseInt(compareDaySelect.value, 10) || today.getDate();
+                const compareYear = parseInt(compareYearSelect.value, 10) || today.getFullYear();
+                return compareMonth === today.getMonth() + 1 &&
+                       compareDay === today.getDate() &&
+                       compareYear === today.getFullYear();
             }
 
             // Calculate age
@@ -1444,24 +1510,28 @@
 
                 if (!isValidBirthDate()) {
                     showError('birthMonth', 'Please enter a valid birth date');
+                    stopClock();
                     return;
                 }
 
                 const birthDate = new Date(birthYear, birthMonth - 1, birthDay);
                 if (isNaN(birthDate.getTime()) || birthDate.getMonth() !== birthMonth - 1 || birthDate.getDate() !== birthDay) {
                     showError('birthDay', 'Invalid day for the selected month/year');
+                    stopClock();
                     return;
                 }
 
-                const compareDate = new Date(compareYear, compareMonth, compareDay);
+                const compareDate = isCompareDateToday() ? new Date() : new Date(compareYear, compareMonth, compareDay);
                 if (isNaN(compareDate.getTime())) {
                     showError('compareMonth', 'Please enter a valid comparison date');
+                    stopClock();
                     return;
                 }
 
                 const today = new Date();
                 if (compareDate > today) {
                     showError('compareYear', 'Comparison date cannot be in the future');
+                    stopClock();
                     return;
                 }
 
@@ -1471,32 +1541,36 @@
 
                 if (birthDateInZone > compareDateInZone) {
                     showError('birthYear', 'Birth date cannot be after comparison date');
+                    stopClock();
                     return;
                 }
 
                 const diffMs = compareDateInZone - birthDateInZone;
                 const oneDay = 24 * 60 * 60 * 1000;
-                const diffDays = Math.round(diffMs / oneDay);
+                const diffDays = Math.floor(diffMs / oneDay);
                 const years = Math.floor(diffDays / 365.25);
-                const remainingDays = diffDays % 365.25;
-                const months = Math.floor(remainingDays / 30.42);
-                const days = Math.floor(remainingDays % 30.42);
+                const remainingDaysAfterYears = diffDays % 365.25;
+                const months = Math.floor(remainingDaysAfterYears / 30.42);
+                const remainingDaysAfterMonths = remainingDaysAfterYears % 30.42;
+                const weeks = Math.floor(remainingDaysAfterMonths / 7);
+                const days = Math.floor(remainingDaysAfterMonths % 7);
                 const hours = Math.floor((diffMs % oneDay) / (60 * 60 * 1000));
                 const minutes = Math.floor((diffMs % (60 * 60 * 1000)) / (60 * 1000));
                 const seconds = Math.floor((diffMs % (60 * 1000)) / 1000);
                 const totalWeeks = Math.floor(diffDays / 7);
-                const weeksDays = diffDays % 7;
                 const totalMonths = years * 12 + months;
+                const totalDays = diffDays;
                 const totalHours = diffDays * 24 + hours;
                 const totalMinutes = totalHours * 60 + minutes;
                 const totalSeconds = totalMinutes * 60 + seconds;
 
                 resultsTableBody.innerHTML = `
-                    <tr class="highlight"><td>${years} years, ${months} months, ${days} days</td><td>Exact age</td></tr>
-                    <tr><td>Or ${totalMonths} months, ${weeksDays} weeks</td><td>Months and weeks</td></tr>
-                    <tr><td>Or ${totalWeeks} weeks, ${weeksDays} days</td><td>Weeks and days</td></tr>
-                    <tr><td>Or ${diffDays} days, ${hours} hours</td><td>Days and hours</td></tr>
-                    <tr><td>Or ${totalHours} hours, ${minutes} minutes</td><td>Hours and minutes</td></tr>
+                    <tr class="highlight"><td>${years} years, ${months} months, ${weeks} weeks, ${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds</td><td>Exact age</td></tr>
+                    <tr><td>Or ${totalMonths} months and ${remainingDaysAfterMonths.toFixed(2)} days</td><td>Total months</td></tr>
+                    <tr><td>Or ${totalWeeks} weeks and ${days} days</td><td>Total weeks</td></tr>
+                    <tr><td>Or ${totalDays} days and ${hours} hours</td><td>Total days</td></tr>
+                    <tr><td>Or ${totalHours} hours and ${minutes} minutes</td><td>Total hours</td></tr>
+                    <tr><td>Or ${totalMinutes} minutes</td><td>Total minutes</td></tr>
                     <tr><td>Or ${totalSeconds} seconds</td><td>Total seconds</td></tr>
                 `;
 
@@ -1504,7 +1578,7 @@
                     <tr><td>Total Years</td><td>${years}</td><td>Total years lived</td></tr>
                     <tr><td>Total Months</td><td>${totalMonths}</td><td>Total months lived</td></tr>
                     <tr><td>Total Weeks</td><td>${totalWeeks}</td><td>Total weeks lived</td></tr>
-                    <tr><td>Total Days</td><td>${diffDays}</td><td>Total days lived</td></tr>
+                    <tr><td>Total Days</td><td>${totalDays}</td><td>Total days lived</td></tr>
                     <tr><td>Total Hours</td><td>${totalHours}</td><td>Total hours lived</td></tr>
                     <tr><td>Total Minutes</td><td>${totalMinutes}</td><td>Total minutes lived</td></tr>
                     <tr><td>Total Seconds</td><td>${totalSeconds}</td><td>Total seconds lived</td></tr>
@@ -1515,8 +1589,11 @@
                 exportTxtBtn.disabled = false;
                 exportPdfBtn.disabled = false;
 
-                // Scroll to results section
-                window.scrollTo({ top: resultsSection.offsetTop - 100, behavior: 'smooth' });
+                // Scroll to results section only if we haven't already scrolled
+                if (!hasScrolledToResults) {
+                    window.scrollTo({ top: resultsSection.offsetTop - 100, behavior: 'smooth' });
+                    hasScrolledToResults = true;
+                }
 
                 // Calculate next birthday
                 let nextBirthdayYear = compareDateInZone.getFullYear();
@@ -1566,15 +1643,26 @@
                 }
 
                 // Update share links
-                const shareText = `I'm ${years} years old! Calculate your age at `;
                 const shareUrl = window.location.href;
+                const shareText = `I'm ${years} years old! Calculate your age at ${shareUrl}`;
+                const shareTitle = `I'm ${years} years old! Check your age!`;
+
                 document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-                document.getElementById('shareTwitter').href = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-                document.getElementById('shareLinkedIn').href = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`;
-                document.getElementById('shareWhatsApp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + shareUrl)}`;
+                document.getElementById('shareTwitter').href = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+                document.getElementById('shareLinkedIn').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+                document.getElementById('shareWhatsApp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
                 document.getElementById('sharePinterest').href = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&description=${encodeURIComponent(shareText)}`;
-                document.getElementById('shareReddit').href = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`;
-                document.getElementById('shareEmail').href = `mailto:?subject=${encodeURIComponent('Check out my age calculation!')}&body=${encodeURIComponent(shareText + shareUrl)}`;
+                document.getElementById('shareReddit').href = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}`;
+                document.getElementById('shareEmail').href = `mailto:?subject=${encodeURIComponent('Check out my age calculation!')}&body=${encodeURIComponent(shareText)}`;
+
+                // Start clock if comparison date is today
+                if (isCompareDateToday()) {
+                    startClock();
+                } else {
+                    stopClock();
+                }
+
+                isResultsCalculated = true; // Mark results as calculated
             }
 
             function isLeapYear(year) {
@@ -1582,7 +1670,10 @@
             }
 
             // Event listeners
-            calculateBtn.addEventListener('click', calculateAge);
+            calculateBtn.addEventListener('click', () => {
+                hasScrolledToResults = false; // Reset the flag when the user manually recalculates
+                calculateAge();
+            });
 
             quickTodayBtn.addEventListener('click', () => {
                 const today = new Date();
@@ -1590,6 +1681,7 @@
                 compareDaySelect.value = today.getDate();
                 compareYearSelect.value = today.getFullYear();
                 updateDays('compareDay', compareMonthSelect, compareYearSelect);
+                hasScrolledToResults = false; // Reset the flag for this action
                 calculateAge();
             });
 
@@ -1598,6 +1690,7 @@
                     showError('birthMonth', 'Please enter a valid birth date');
                     return;
                 }
+                hasScrolledToResults = false; // Reset the flag for this action
                 calculateAge();
                 window.scrollTo({ top: nextBirthdaySection.offsetTop - 100, behavior: 'smooth' });
             });
@@ -1622,6 +1715,9 @@
                 copyBtn.disabled = true;
                 exportTxtBtn.disabled = true;
                 exportPdfBtn.disabled = true;
+                hasScrolledToResults = false; // Reset the flag on reset
+                stopClock();
+                isResultsCalculated = false; // Reset the calculated flag
             });
 
             toggleDetailsBtn.addEventListener('click', () => {
@@ -1636,12 +1732,7 @@
                              `NID/ID: ${results.nid}\n\n` +
                              `Birth Date: ${results.birthDate}\n` +
                              `Compare Date: ${results.compareDate}\n` +
-                             `Age: ${results.age}\n` +
-                             `Months and Weeks: ${results.monthsWeeks}\n` +
-                             `Weeks and Days: ${results.weeksDays}\n` +
-                             `Days and Hours: ${results.daysHours}\n` +
-                             `Hours and Minutes: ${results.hoursMinutes}\n` +
-                             `Seconds: ${results.seconds}\n\n` +
+                             `Age: ${results.age}\n\n` +
                              `Next Birthday: ${results.nextBirthday}\n\n` +
                              `Life Expectancy: ${results.lifeExpectancy}\n` +
                              `Years Lived: ${results.yearsLived}\n` +
@@ -1676,12 +1767,7 @@
                              `NID/ID: ${results.nid}\n\n` +
                              `Birth Date: ${results.birthDate}\n` +
                              `Compare Date: ${results.compareDate}\n` +
-                             `Age: ${results.age}\n` +
-                             `Months and Weeks: ${results.monthsWeeks}\n` +
-                             `Weeks and Days: ${results.weeksDays}\n` +
-                             `Days and Hours: ${results.daysHours}\n` +
-                             `Hours and Minutes: ${results.hoursMinutes}\n` +
-                             `Seconds: ${results.seconds}\n\n` +
+                             `Age: ${results.age}\n\n` +
                              `Next Birthday: ${results.nextBirthday}\n\n` +
                              `Life Expectancy: ${results.lifeExpectancy}\n` +
                              `Years Lived: ${results.yearsLived}\n` +
@@ -1739,16 +1825,6 @@
                 doc.text(`Compare Date: ${results.compareDate}`, 20, y);
                 y += 6;
                 doc.text(`Age: ${results.age}`, 20, y);
-                y += 6;
-                doc.text(`Months and Weeks: ${results.monthsWeeks}`, 20, y);
-                y += 6;
-                doc.text(`Weeks and Days: ${results.weeksDays}`, 20, y);
-                y += 6;
-                doc.text(`Days and Hours: ${results.daysHours}`, 20, y);
-                y += 6;
-                doc.text(`Hours and Minutes: ${results.hoursMinutes}`, 20, y);
-                y += 6;
-                doc.text(`Seconds: ${results.seconds}`, 20, y);
                 y += 10;
 
                 // Next Birthday
