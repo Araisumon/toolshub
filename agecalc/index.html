@@ -70,6 +70,7 @@
             --text-dark: #212529;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            --highlight-bg: #e6f0fa; /* Light blue for highlighting */
         }
 
         [data-theme="dark"] {
@@ -80,6 +81,7 @@
             --dark-color: #f8f9fa;
             --text-light: #212529;
             --text-dark: #f8f9fa;
+            --highlight-bg: #2a3a5a; /* Darker shade for dark mode */
         }
 
         * {
@@ -231,6 +233,12 @@
             gap: 0.5rem;
         }
 
+        .error {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
         .action-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -327,61 +335,18 @@
             color: var(--primary-color);
         }
 
-        .result-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .result-card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            text-align: center;
-            transition: var(--transition);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            background-color: var(--light-color);
-        }
-
-        .result-card h3 {
-            font-size: 1rem;
-            color: #6c757d;
-            margin-bottom: 0.5rem;
-        }
-
-        .result-card .value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .result-card .unit {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-
-        .detailed-results {
-            margin-top: 2rem;
-        }
-
-        .detailed-results h3 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
         .result-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 1.5rem;
         }
 
-        .result-table th, .result-table td {
-            padding: 0.8rem;
+        .result-table th,
+        .result-table td {
+            padding: 1rem;
             text-align: left;
             border-bottom: 1px solid #eee;
+            font-size: 1.2rem; /* Larger font size for both tables */
         }
 
         .result-table th {
@@ -391,6 +356,20 @@
 
         .result-table tr:nth-child(even) {
             background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .highlight {
+            background-color: var(--highlight-bg);
+            font-weight: bold;
+        }
+
+        .detailed-results {
+            margin-top: 2rem;
+        }
+
+        .detailed-results h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
         }
 
         /* Next Birthday Section */
@@ -736,8 +715,9 @@
                 font-size: 2rem;
             }
 
-            .result-cards {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            .result-table th,
+            .result-table td {
+                font-size: 1.1rem; /* Adjusted for smaller screens */
             }
 
             .countdown-item {
@@ -758,8 +738,9 @@
                 width: 100%;
             }
 
-            .result-cards {
-                grid-template-columns: 1fr;
+            .result-table th,
+            .result-table td {
+                font-size: 1rem; /* Further adjusted for very small screens */
             }
 
             .countdown {
@@ -957,38 +938,17 @@
                     </button>
                 </div>
             </div>
-            <div class="result-cards">
-                <div class="result-card">
-                    <h3>Years</h3>
-                    <div class="value" id="yearsValue">0</div>
-                    <div class="unit">years</div>
-                </div>
-                <div class="result-card">
-                    <h3>Months</h3>
-                    <div class="value" id="monthsValue">0</div>
-                    <div class="unit">months</div>
-                </div>
-                <div class="result-card">
-                    <h3>Weeks</h3>
-                    <div class="value" id="weeksValue">0</div>
-                    <div class="unit">weeks</div>
-                </div>
-                <div class="result-card">
-                    <h3>Days</h3>
-                    <div class="value" id="daysValue">0</div>
-                    <div class="unit">days</div>
-                </div>
-                <div class="result-card">
-                    <h3>Hours</h3>
-                    <div class="value" id="hoursValue">0</div>
-                    <div class="unit">hours</div>
-                </div>
-                <div class="result-card">
-                    <h3>Minutes</h3>
-                    <div class="value" id="minutesValue">0</div>
-                    <div class="unit">minutes</div>
-                </div>
-            </div>
+            <table class="result-table" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Age Breakdown</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    <!-- Results will be inserted here -->
+                </tbody>
+            </table>
             <div class="detailed-results" id="detailedResults">
                 <h3>Detailed Breakdown</h3>
                 <table class="result-table">
@@ -1090,7 +1050,7 @@
         </section>
     </main>
 
-    <div class="theme-toggle" id="themeToggle" role="button" aria-label="Toggle between light and dark theme">
+    <div class="theme-toggle" id="themeToggle" role="button" aria-label="Switch to dark theme">
         <i class="fas fa-moon"></i>
     </div>
 
@@ -1123,55 +1083,37 @@
         </div>
     </footer>
 
-    <script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Set current year in footer
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            // Populate time zones dynamically by continent
+            // DOM elements
+            const birthMonthSelect = document.getElementById('birthMonth');
+            const birthDaySelect = document.getElementById('birthDay');
+            const birthYearSelect = document.getElementById('birthYear');
+            const compareMonthSelect = document.getElementById('compareMonth');
+            const compareDaySelect = document.getElementById('compareDay');
+            const compareYearSelect = document.getElementById('compareYear');
             const timeZoneSelect = document.getElementById('timeZone');
+            const countrySelect = document.getElementById('country');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const toggleDetailsBtn = document.getElementById('toggleDetails');
+            const quickTodayBtn = document.getElementById('quickToday');
+            const quickBirthdayBtn = document.getElementById('quickBirthday');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsTableBody = document.getElementById('resultsTableBody');
+            const nextBirthdaySection = document.getElementById('nextBirthdaySection');
+            const lifeExpectancySection = document.getElementById('lifeExpectancySection');
+            const detailedResults = document.getElementById('detailedResults');
+            const themeToggle = document.getElementById('themeToggle');
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            const scrollBottomBtn = document.getElementById('scrollBottomBtn');
 
-            // Fallback time zones organized by continent
+            // Populate time zones dynamically by continent
             const fallbackTimeZones = {
                 'Africa': [
                     { value: 'Africa/Abidjan', text: 'Africa/Abidjan (GMT+0)' },
@@ -1216,7 +1158,6 @@
                 ]
             };
 
-            // Function to create optgroup for a continent
             function createOptGroup(continent, timeZones) {
                 const optGroup = document.createElement('optgroup');
                 optGroup.label = continent;
@@ -1229,7 +1170,6 @@
                 return optGroup;
             }
 
-            // Populate time zones
             if (Intl && Intl.supportedValuesOf) {
                 const timeZonesByContinent = {
                     'Africa': [],
@@ -1241,7 +1181,6 @@
                     'South America': []
                 };
 
-                // Categorize time zones by continent
                 Intl.supportedValuesOf('timeZone').forEach(tz => {
                     if (tz.startsWith('Africa/')) {
                         timeZonesByContinent['Africa'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
@@ -1254,7 +1193,6 @@
                     } else if (tz.startsWith('Europe/')) {
                         timeZonesByContinent['Europe'].push({ value: tz, text: `${tz} (GMT${getTimeZoneOffset(tz)})` });
                     } else if (tz.startsWith('America/')) {
-                        // Distinguish between North and South America
                         const southAmericanCountries = ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela'];
                         const tzParts = tz.split('/');
                         const region = tzParts[1] || '';
@@ -1266,7 +1204,6 @@
                     }
                 });
 
-                // Sort time zones within each continent by offset and then name
                 Object.keys(timeZonesByContinent).forEach(continent => {
                     timeZonesByContinent[continent].sort((a, b) => {
                         const offsetA = parseOffset(getTimeZoneOffset(a.value));
@@ -1278,20 +1215,17 @@
                     });
                 });
 
-                // Add optgroups to select
                 Object.keys(timeZonesByContinent).forEach(continent => {
                     if (timeZonesByContinent[continent].length > 0) {
                         timeZoneSelect.appendChild(createOptGroup(continent, timeZonesByContinent[continent]));
                     }
                 });
             } else {
-                // Fallback: Use predefined time zones
                 Object.keys(fallbackTimeZones).forEach(continent => {
                     timeZoneSelect.appendChild(createOptGroup(continent, fallbackTimeZones[continent]));
                 });
             }
 
-            // Function to get time zone offset as a string (e.g., "+02:00")
             function getTimeZoneOffset(timeZone) {
                 try {
                     const date = new Date();
@@ -1310,32 +1244,13 @@
                 }
             }
 
-            // Helper function to parse offset string to number for sorting
             function parseOffset(offset) {
                 const [sign, hours, minutes] = offset.match(/([+-])(\d{2}):(\d{2})/).slice(1);
                 const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
                 return sign === '+' ? totalMinutes : -totalMinutes;
             }
 
-            // Populate days and years dynamically
-            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            const birthMonthSelect = document.getElementById('birthMonth');
-            const birthDaySelect = document.getElementById('birthDay');
-            const birthYearSelect = document.getElementById('birthYear');
-            const compareMonthSelect = document.getElementById('compareMonth');
-            const compareDaySelect = document.getElementById('compareDay');
-            const compareYearSelect = document.getElementById('compareYear');
-
-            // Populate days
-            for (let i = 1; i <= 31; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
-                birthDaySelect.appendChild(option.cloneNode(true));
-                compareDaySelect.appendChild(option.cloneNode(true));
-            }
-
-            // Populate years for birthYear (1800 to current year + 10)
+            // Populate years
             const currentYear = new Date().getFullYear();
             for (let i = 1800; i <= currentYear + 10; i++) {
                 const option = document.createElement('option');
@@ -1343,8 +1258,6 @@
                 option.textContent = i;
                 birthYearSelect.appendChild(option);
             }
-
-            // Populate years for compareYear (1800 to 2100)
             for (let i = 1800; i <= 2100; i++) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -1352,7 +1265,35 @@
                 compareYearSelect.appendChild(option);
             }
 
-            // Set default birth date and compare date to today (May 6, 2025)
+            // Dynamic day population
+            function updateDays(selectId, monthSelect, yearSelect) {
+                const select = document.getElementById(selectId);
+                const month = parseInt(monthSelect.value, 10);
+                const year = parseInt(yearSelect.value, 10);
+                const daysInMonth = month ? new Date(year || 2025, month, 0).getDate() : 31;
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Day</option>';
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    select.appendChild(option);
+                }
+                if (currentValue && parseInt(currentValue, 10) <= daysInMonth) {
+                    select.value = currentValue;
+                }
+            }
+
+            birthMonthSelect.addEventListener('change', () => updateDays('birthDay', birthMonthSelect, birthYearSelect));
+            birthYearSelect.addEventListener('change', () => updateDays('birthDay', birthMonthSelect, birthYearSelect));
+            compareMonthSelect.addEventListener('change', () => updateDays('compareDay', compareMonthSelect, compareYearSelect));
+            compareYearSelect.addEventListener('change', () => updateDays('compareDay', compareMonthSelect, compareYearSelect));
+
+            // Initial day population
+            updateDays('birthDay', birthMonthSelect, birthYearSelect);
+            updateDays('compareDay', compareMonthSelect, compareYearSelect);
+
+            // Set default dates
             const today = new Date();
             birthMonthSelect.value = today.getMonth() + 1;
             birthDaySelect.value = today.getDate();
@@ -1361,14 +1302,13 @@
             compareDaySelect.value = today.getDate();
             compareYearSelect.value = today.getFullYear();
 
-            // Theme toggle functionality
-            const themeToggle = document.getElementById('themeToggle');
+            // Theme toggle
             const body = document.body;
             let darkMode = localStorage.getItem('theme') === 'dark';
-
             if (darkMode) {
                 body.setAttribute('data-theme', 'dark');
                 themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                themeToggle.setAttribute('aria-label', 'Switch to light theme');
             }
 
             themeToggle.addEventListener('click', () => {
@@ -1376,18 +1316,17 @@
                 if (darkMode) {
                     body.setAttribute('data-theme', 'dark');
                     themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                    themeToggle.setAttribute('aria-label', 'Switch to light theme');
                     localStorage.setItem('theme', 'dark');
                 } else {
                     body.removeAttribute('data-theme');
                     themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                    themeToggle.setAttribute('aria-label', 'Switch to dark theme');
                     localStorage.setItem('theme', 'light');
                 }
             });
 
-            // Scroll to top/bottom functionality
-            const scrollTopBtn = document.getElementById('scrollTopBtn');
-            const scrollBottomBtn = document.getElementById('scrollBottomBtn');
-
+            // Scroll buttons
             scrollTopBtn.addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
@@ -1401,22 +1340,7 @@
                 scrollBottomBtn.style.display = (window.innerHeight + window.pageYOffset) < document.body.offsetHeight - 300 ? 'flex' : 'none';
             });
 
-            // Age calculation functionality
-            const countrySelect = document.getElementById('country');
-            const calculateBtn = document.getElementById('calculateBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const exportBtn = document.getElementById('exportBtn');
-            const toggleDetailsBtn = document.getElementById('toggleDetails');
-            const quickTodayBtn = document.getElementById('quickToday');
-            const quickBirthdayBtn = document.getElementById('quickBirthday');
-
-            const resultsSection = document.getElementById('resultsSection');
-            const nextBirthdaySection = document.getElementById('nextBirthdaySection');
-            const lifeExpectancySection = document.getElementById('lifeExpectancySection');
-            const detailedResults = document.getElementById('detailedResults');
-
-            // Life expectancy data by country
+            // Life expectancy data
             const lifeExpectancyData = {
                 'US': 77.4,
                 'UK': 81.7,
@@ -1450,164 +1374,17 @@
                 'SA': 76.2
             };
 
-            // Add event listeners to birth date fields to trigger calculation
-            [birthMonthSelect, birthDaySelect, birthYearSelect].forEach(select => {
-                select.addEventListener('change', () => {
-                    if (isValidBirthDate()) {
-                        calculateAge();
-                    }
-                });
-            });
-
-            // Quick calculate for today
-            quickTodayBtn.addEventListener('click', () => {
-                const today = new Date();
-                birthMonthSelect.value = today.getMonth() + 1;
-                birthDaySelect.value = today.getDate();
-                birthYearSelect.value = today.getFullYear();
-                compareMonthSelect.value = today.getMonth() + 1;
-                compareDaySelect.value = today.getDate();
-                compareYearSelect.value = today.getFullYear();
-                calculateAge();
-            });
-
-            // Quick calculate next birthday
-            quickBirthdayBtn.addEventListener('click', () => {
-                if (!isValidBirthDate()) {
-                    alert('Please enter your birth date first');
-                    return;
+            // Inline error display
+            function showError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                let errorDiv = field.parentElement.querySelector('.error');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'error';
+                    field.parentElement.appendChild(errorDiv);
                 }
-                calculateNextBirthday();
-                nextBirthdaySection.style.display = 'block';
-                nextBirthdaySection.scrollIntoView({ behavior: 'smooth' });
-            });
-
-            // Calculate age function
-            function calculateAge() {
-                const birthMonth = parseInt(birthMonthSelect.value, 10);
-                const birthDay = parseInt(birthDaySelect.value, 10);
-                const birthYear = parseInt(birthYearSelect.value, 10);
-                const compareMonth = compareMonthSelect.value ? parseInt(compareMonthSelect.value, 10) - 1 : new Date().getMonth();
-                const compareDay = compareDaySelect.value ? parseInt(compareDaySelect.value, 10) : new Date().getDate();
-                const compareYear = compareYearSelect.value ? parseInt(compareYearSelect.value, 10) : new Date().getFullYear();
-
-                if (!isValidBirthDate()) {
-                    alert('Please enter a valid birth date');
-                    return;
-                }
-
-                const birthDate = new Date(birthYear, birthMonth - 1, birthDay); // Adjust month to 0-based
-                if (isNaN(birthDate.getTime()) || birthDate.getMonth() !== birthMonth - 1 || birthDate.getDate() !== birthDay) {
-                    alert('Please enter a valid birth date');
-                    return;
-                }
-
-                const compareDate = new Date(compareYear, compareMonth, compareDay);
-                if (isNaN(compareDate.getTime())) {
-                    alert('Please enter a valid comparison date');
-                    return;
-                }
-
-                // Adjust for time zone
-                const timeZone = timeZoneSelect.value === 'local' ? Intl.DateTimeFormat().resolvedOptions().timeZone : timeZoneSelect.value;
-                const birthDateInZone = new Date(birthDate.toLocaleString('en-US', { timeZone }));
-                const compareDateInZone = new Date(compareDate.toLocaleString('en-US', { timeZone }));
-
-                if (birthDateInZone > compareDateInZone) {
-                    alert('Birth date cannot be in the future');
-                    return;
-                }
-
-                const diffMs = compareDateInZone - birthDateInZone;
-                const oneDay = 24 * 60 * 60 * 1000;
-                const diffDays = Math.round(diffMs / oneDay);
-                const years = Math.abs(new Date(diffMs).getUTCFullYear() - 1970);
-                const months = years * 12 + compareDateInZone.getMonth() - birthDateInZone.getMonth();
-                const weeks = Math.floor(diffDays / 7);
-                const hours = diffDays * 24;
-                const minutes = hours * 60;
-                const seconds = minutes * 60;
-
-                // Batch DOM updates
-                const updates = [
-                    { id: 'yearsValue', value: years },
-                    { id: 'monthsValue', value: months },
-                    { id: 'weeksValue', value: weeks },
-                    { id: 'daysValue', value: diffDays },
-                    { id: 'hoursValue', value: hours.toLocaleString() },
-                    { id: 'minutesValue', value: minutes.toLocaleString() }
-                ];
-
-                updates.forEach(({ id, value }) => {
-                    document.getElementById(id).textContent = value;
-                });
-
-                // Update detailed results table
-                const detailedResultsBody = document.getElementById('detailedResultsBody');
-                detailedResultsBody.innerHTML = `
-                    <tr>
-                        <td>Years</td>
-                        <td>${years}</td>
-                        <td>Full years since birth</td>
-                    </tr>
-                    <tr>
-                        <td>Months</td>
-                        <td>${months}</td>
-                        <td>Total months since birth</td>
-                    </tr>
-                    <tr>
-                        <td>Weeks</td>
-                        <td>${weeks}</td>
-                        <td>Total weeks since birth</td>
-                    </tr>
-                    <tr>
-                        <td>Days</td>
-                        <td>${diffDays}</td>
-                        <td>Total days since birth</td>
-                    </tr>
-                    <tr>
-                        <td>Hours</td>
-                        <td>${hours.toLocaleString()}</td>
-                        <td>Total hours since birth</td>
-                    </tr>
-                    <tr>
-                        <td>Minutes</td>
-                        <td>${minutes.toLocaleString()}</td>
-                        <td>Total minutes since birth</td>
-                    </tr>
-                    <tr>
-                        <td>Seconds</td>
-                        <td>${seconds.toLocaleString()}</td>
-                        <td>Total seconds since birth</td>
-                    </tr>
-                    <tr>
-                        <td>Birthday</td>
-                        <td>${formatDate(birthDate)}</td>
-                        <td>Your date of birth</td>
-                    </tr>
-                    <tr>
-                        <td>Compared Date</td>
-                        <td>${formatDate(compareDate)}</td>
-                        <td>Date used for comparison</td>
-                    </tr>
-                `;
-
-                // Show sections
-                resultsSection.style.display = 'block';
-                nextBirthdaySection.style.display = 'block';
-                lifeExpectancySection.style.display = 'block';
-
-                // Enable buttons
-                copyBtn.disabled = false;
-                exportBtn.disabled = false;
-
-                // Calculate next birthday and life expectancy
-                calculateNextBirthday();
-                if (countrySelect.value) {
-                    calculateLifeExpectancy(years);
-                }
-
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                errorDiv.textContent = message;
+                setTimeout(() => errorDiv.remove(), 5000);
             }
 
             // Validate birth date
@@ -1617,8 +1394,121 @@
                 const birthYear = parseInt(birthYearSelect.value, 10);
                 return !isNaN(birthMonth) && !isNaN(birthDay) && !isNaN(birthYear) &&
                        birthMonth >= 1 && birthMonth <= 12 &&
-                       birthDay >= 1 && birthDay <= 31 &&
+                       birthDay >= 1 && birthDay <= new Date(birthYear || 2025, birthMonth, 0).getDate() &&
                        birthYear >= 1800 && birthYear <= currentYear + 10;
+            }
+
+            // Calculate age
+            function calculateAge() {
+                const birthMonth = parseInt(birthMonthSelect.value, 10);
+                const birthDay = parseInt(birthDaySelect.value, 10);
+                const birthYear = parseInt(birthYearSelect.value, 10);
+                const compareMonth = compareMonthSelect.value ? parseInt(compareMonthSelect.value, 10) - 1 : new Date().getMonth();
+                const compareDay = compareDaySelect.value ? parseInt(compareDaySelect.value, 10) : new Date().getDate();
+                const compareYear = compareYearSelect.value ? parseInt(compareYearSelect.value, 10) : new Date().getFullYear();
+
+                if (!isValidBirthDate()) {
+                    showError('birthMonth', 'Please enter a valid birth date');
+                    return;
+                }
+
+                const birthDate = new Date(birthYear, birthMonth - 1, birthDay);
+                if (isNaN(birthDate.getTime()) || birthDate.getMonth() !== birthMonth - 1 || birthDate.getDate() !== birthDay) {
+                    showError('birthDay', 'Invalid day for the selected month/year');
+                    return;
+                }
+
+                const compareDate = new Date(compareYear, compareMonth, compareDay);
+                if (isNaN(compareDate.getTime())) {
+                    showError('compareMonth', 'Please enter a valid comparison date');
+                    return;
+                }
+
+                const today = new Date();
+                if (compareDate > today) {
+                    showError('compareYear', 'Comparison date cannot be in the future');
+                    return;
+                }
+
+                const timeZone = timeZoneSelect.value === 'local' ? Intl.DateTimeFormat().resolvedOptions().timeZone : timeZoneSelect.value;
+                const birthDateInZone = new Date(birthDate.toLocaleString('en-US', { timeZone }));
+                const compareDateInZone = new Date(compareDate.toLocaleString('en-US', { timeZone }));
+
+                if (birthDateInZone > compareDateInZone) {
+                    showError('birthYear', 'Birth date cannot be after comparison date');
+                    return;
+                }
+
+                const diffMs = compareDateInZone - birthDateInZone;
+                const oneDay = 24 * 60 * 60 * 1000;
+                const diffDays = Math.round(diffMs / oneDay);
+                const years = Math.floor(diffDays / 365.25);
+                const remainingDays = diffDays % 365.25;
+                const months = Math.floor(remainingDays / 30.42);
+                const days = Math.floor(remainingDays % 30.42);
+                const totalMonths = Math.floor(diffDays / 30.42);
+                const remainingWeeks = Math.floor((diffDays % 30.42) / 7);
+                const totalWeeks = Math.floor(diffDays / 7);
+                const remainingDaysAfterWeeks = diffDays % 7;
+                const remainingHours = Math.floor((diffMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+                const hours = diffDays * 24;
+                const remainingMinutes = Math.floor((diffMs % (60 * 60 * 1000)) / (60 * 1000));
+                const minutes = hours * 60;
+                const seconds = minutes * 60;
+
+                // Update results table
+                resultsTableBody.innerHTML = `
+                    <tr class="highlight">
+                        <td>${years} years, ${months} months, ${days} days</td>
+                        <td>Your age in years, months, and days</td>
+                    </tr>
+                    <tr>
+                        <td>Or ${totalMonths.toLocaleString()} months, ${remainingWeeks} weeks</td>
+                        <td>Total months and remaining weeks since birth</td>
+                    </tr>
+                    <tr>
+                        <td>Or ${totalWeeks.toLocaleString()} weeks, ${remainingDaysAfterWeeks} days</td>
+                        <td>Total weeks and remaining days since birth</td>
+                    </tr>
+                    <tr>
+                        <td>Or ${diffDays.toLocaleString()} days, ${remainingHours} hours</td>
+                        <td>Total days and remaining hours since birth</td>
+                    </tr>
+                    <tr>
+                        <td>Or ${hours.toLocaleString()} hours, ${remainingMinutes} minutes</td>
+                        <td>Total hours and remaining minutes since birth</td>
+                    </tr>
+                    <tr>
+                        <td>Or ${seconds.toLocaleString()} seconds</td>
+                        <td>Total seconds since birth</td>
+                    </tr>
+                `;
+
+                // Update detailed results table
+                document.getElementById('detailedResultsBody').innerHTML = `
+                    <tr><td>Years</td><td>${years}</td><td>Full years since birth</td></tr>
+                    <tr><td>Months</td><td>${totalMonths}</td><td>Total months since birth</td></tr>
+                    <tr><td>Weeks</td><td>${totalWeeks}</td><td>Total weeks since birth</td></tr>
+                    <tr><td>Days</td><td>${diffDays}</td><td>Total days since birth</td></tr>
+                    <tr><td>Hours</td><td>${hours.toLocaleString()}</td><td>Total hours since birth</td></tr>
+                    <tr><td>Minutes</td><td>${minutes.toLocaleString()}</td><td>Total minutes since birth</td></tr>
+                    <tr><td>Seconds</td><td>${seconds.toLocaleString()}</td><td>Total seconds since birth</td></tr>
+                    <tr><td>Birthday</td><td>${formatDate(birthDate)}</td><td>Your date of birth</td></tr>
+                    <tr><td>Compared Date</td><td>${formatDate(compareDate)}</td><td>Date used for comparison</td></tr>
+                `;
+
+                resultsSection.style.display = 'block';
+                nextBirthdaySection.style.display = 'block';
+                lifeExpectancySection.style.display = 'block';
+                copyBtn.disabled = false;
+                exportBtn.disabled = false;
+
+                calculateNextBirthday();
+                if (countrySelect.value) {
+                    calculateLifeExpectancy(years);
+                }
+
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
             }
 
             // Calculate next birthday
@@ -1626,8 +1516,8 @@
                 const birthMonth = parseInt(birthMonthSelect.value, 10) - 1;
                 const birthDay = parseInt(birthDaySelect.value, 10);
                 const birthYear = parseInt(birthYearSelect.value, 10);
-                if (isNaN(birthMonth) || isNaN(birthDay) || isNaN(birthYear)) {
-                    alert('Invalid birth date');
+                if (!isValidBirthDate()) {
+                    showError('birthMonth', 'Invalid birth date');
                     return;
                 }
 
@@ -1642,9 +1532,8 @@
                 let nextYear = todayInZone.getFullYear();
                 let nextBirthday = new Date(nextYear, birthMonthNum, birthDayNum);
 
-                // Handle February 29th for non-leap years
                 if (birthMonthNum === 1 && birthDayNum === 29 && !isLeapYear(nextYear)) {
-                    nextBirthday = new Date(nextYear, 2, 1); // March 1st
+                    nextBirthday = new Date(nextYear, 2, 1);
                 }
 
                 if (nextBirthday < todayInZone) {
@@ -1659,17 +1548,14 @@
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                 const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                const months = (nextBirthday.getFullYear() - todayInZone.getFullYear()) * 12 +
-                              (nextBirthday.getMonth() - todayInZone.getMonth());
+                const months = Math.floor(diffDays / 30.42);
 
-                // Update UI
                 document.getElementById('bdayMonths').textContent = months;
                 document.getElementById('bdayDays').textContent = diffDays;
                 document.getElementById('bdayHours').textContent = diffHours;
                 document.getElementById('bdayMinutes').textContent = diffMinutes;
 
-                const birthdayInfo = document.getElementById('birthdayInfo');
-                birthdayInfo.innerHTML = `
+                document.getElementById('birthdayInfo').innerHTML = `
                     <p>Your next birthday is on <strong>${formatDate(nextBirthday)}</strong>.</p>
                     <p>You will turn <strong>${nextYear - birthYear}</strong> years old.</p>
                 `;
@@ -1678,11 +1564,10 @@
             // Calculate life expectancy
             function calculateLifeExpectancy(age) {
                 const country = countrySelect.value;
-                const avgExpectancy = country && lifeExpectancyData[country] ? lifeExpectancyData[country] : 73.4; // Global average
+                const avgExpectancy = country && lifeExpectancyData[country] ? lifeExpectancyData[country] : 73.4;
                 const yearsRemaining = avgExpectancy - age;
                 const percentLived = (age / avgExpectancy * 100).toFixed(1);
 
-                // Update UI
                 document.getElementById('avgExpectancy').textContent = `${avgExpectancy} years`;
                 document.getElementById('yearsLived').textContent = `${age} years`;
                 document.getElementById('yearsRemaining').textContent = `${yearsRemaining > 0 ? yearsRemaining.toFixed(1) : 0} years`;
@@ -1701,22 +1586,43 @@
                 }
             }
 
-            // Format date in "Month Day Year" format
+            // Format date
             function formatDate(date) {
                 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                 const month = monthNames[date.getMonth()];
                 const day = date.getDate();
                 const year = date.getFullYear();
-                return `${month} ${day} ${year}`;
+                return `${month} ${day}, ${year}`;
             }
 
-            // Check if a year is a leap year
+            // Check leap year
             function isLeapYear(year) {
                 return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
             }
 
             // Event listeners
             calculateBtn.addEventListener('click', calculateAge);
+
+            quickTodayBtn.addEventListener('click', () => {
+                const today = new Date();
+                birthMonthSelect.value = today.getMonth() + 1;
+                birthDaySelect.value = today.getDate();
+                birthYearSelect.value = today.getFullYear();
+                compareMonthSelect.value = today.getMonth() + 1;
+                compareDaySelect.value = today.getDate();
+                compareYearSelect.value = today.getFullYear();
+                calculateAge();
+            });
+
+            quickBirthdayBtn.addEventListener('click', () => {
+                if (!isValidBirthDate()) {
+                    showError('birthMonth', 'Please enter your birth date first');
+                    return;
+                }
+                calculateNextBirthday();
+                nextBirthdaySection.style.display = 'block';
+                nextBirthdaySection.scrollIntoView({ behavior: 'smooth' });
+            });
 
             resetBtn.addEventListener('click', () => {
                 birthMonthSelect.value = '';
@@ -1734,6 +1640,7 @@
                 exportBtn.disabled = true;
                 detailedResults.style.display = 'block';
                 toggleDetailsBtn.innerHTML = '<i class="fas fa-list"></i> Toggle Details';
+                document.querySelectorAll('.error').forEach(e => e.remove());
             });
 
             toggleDetailsBtn.addEventListener('click', () => {
@@ -1747,15 +1654,15 @@
             });
 
             copyBtn.addEventListener('click', () => {
+                const birthDate = new Date(birthYearSelect.value, birthMonthSelect.value - 1, birthDaySelect.value);
                 const resultsText = `Age Calculation Results:
-Birth Date: ${formatDate(new Date(birthYearSelect.value, birthMonthSelect.value - 1, birthDaySelect.value))}
-Age: ${document.getElementById('yearsValue').textContent} years
-Months: ${document.getElementById('monthsValue').textContent}
-Weeks: ${document.getElementById('weeksValue').textContent}
-Days: ${document.getElementById('daysValue').textContent}
-Hours: ${document.getElementById('hoursValue').textContent}
-Minutes: ${document.getElementById('minutesValue').textContent}
-
+Birth Date: ${formatDate(birthDate)}
+Age: ${resultsTableBody.querySelector('tr:nth-child(1) td:first-child').textContent}
+${resultsTableBody.querySelector('tr:nth-child(2) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(3) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(4) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(5) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(6) td:first-child')}
 Calculated by Buzz Age Calculator`;
 
                 if (navigator.clipboard) {
@@ -1767,7 +1674,7 @@ Calculated by Buzz Age Calculator`;
                         }, 2000);
                     }).catch(err => {
                         console.error('Clipboard write failed:', err);
-                        alert('Failed to copy. Please copy manually.');
+                        showError('copyBtn', 'Failed to copy. Please copy manually.');
                     });
                 } else {
                     const textarea = document.createElement('textarea');
@@ -1783,29 +1690,27 @@ Calculated by Buzz Age Calculator`;
                         }, 2000);
                     } catch (err) {
                         console.error('Fallback copy failed:', err);
-                        alert('Failed to copy. Please copy manually.');
+                        showError('copyBtn', 'Failed to copy. Please copy manually.');
                     }
                     document.body.removeChild(textarea);
                 }
             });
 
             exportBtn.addEventListener('click', () => {
+                const birthDate = new Date(birthYearSelect.value, birthMonthSelect.value - 1, birthDaySelect.value);
                 const resultsText = `Age Calculation Results:
-Birth Date: ${formatDate(new Date(birthYearSelect.value, birthMonthSelect.value - 1, birthDaySelect.value))}
-Age: ${document.getElementById('yearsValue').textContent} years
-Months: ${document.getElementById('monthsValue').textContent}
-Weeks: ${document.getElementById('weeksValue').textContent}
-Days: ${document.getElementById('daysValue').textContent}
-Hours: ${document.getElementById('hoursValue').textContent}
-Minutes: ${document.getElementById('minutesValue').textContent}
-
+Birth Date: ${formatDate(birthDate)}
+Age: ${resultsTableBody.querySelector('tr:nth-child(1) td:first-child').textContent}
+${resultsTableBody.querySelector('tr:nth-child(2) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(3) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(4) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(5) td:first-child')}
+${resultsTableBody.querySelector('tr:nth-child(6) td:first-child')}
 Next Birthday: ${document.getElementById('birthdayInfo').textContent.trim().replace(/\s+/g, ' ')}
-
 Life Expectancy: ${document.getElementById('avgExpectancy').textContent}
 Years Lived: ${document.getElementById('yearsLived').textContent}
 Years Remaining: ${document.getElementById('yearsRemaining').textContent}
 Percentage Lived: ${document.getElementById('percentLived').textContent}
-
 Calculated by Buzz Age Calculator`;
 
                 const blob = new Blob([resultsText], { type: 'text/plain' });
@@ -1835,8 +1740,8 @@ Calculated by Buzz Age Calculator`;
             });
 
             function shareResults(platform) {
-                const years = document.getElementById('yearsValue').textContent;
-                const text = `I'm ${years} years old! Calculated my exact age with Buzz Age Calculator.`;
+                const years = resultsTableBody.querySelector('tr:nth-child(1) td:first-child').textContent.split(',')[0].trim();
+                const text = `I'm ${years} old! Calculated my exact age with Buzz Age Calculator.`;
                 const url = window.location.href;
 
                 let shareUrl = '';
@@ -1845,7 +1750,7 @@ Calculated by Buzz Age Calculator`;
                         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}"e=${encodeURIComponent(text)}`;
                         break;
                     case 'twitter':
-                        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                        shareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
                         break;
                     case 'linkedin':
                         shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('My Age Calculation')}&summary=${encodeURIComponent(text)}&source=${encodeURIComponent('Buzz Age Calculator')}`;
