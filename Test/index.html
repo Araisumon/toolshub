@@ -906,6 +906,120 @@
     <div class="floating-btn" id="backToBottom" title="Back to bottom" aria-label="Back to bottom">
         <i class="fas fa-arrow-down" alt="Back to bottom icon"></i>
     </div>
+<!-- Responsive Tool Stripe Start -->
+
+<div id="toolStripe">
+    <h3 id="toolHeading">Explore these powerful tools!</h3>
+    <div id="toolLinks"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const heading = document.getElementById("toolHeading");
+    heading.style.opacity = "1";
+    heading.style.animation = "fadeIn 1s ease-out forwards, glowEffect 2s infinite alternate";
+
+    const tools = [
+        { name: "Age Calculator", url: "https://toolshub.cam/agecalc/" },
+        { name: "Image Compressor", url: "https://toolshub.cam/imagecom/" },
+        { name: "Image Compressor", url: "https://toolshub.cam/imagecom/" },
+        { name: "QR Code Generator", url: "https://toolshub.cam/QRCodeG/" }
+    ];
+
+    const stripe = document.getElementById("toolLinks");
+    tools.forEach((t, i) => {
+        const a = document.createElement("a");
+        a.href = t.url;
+        a.textContent = t.name;
+        a.target = "_blank";
+        a.className = "toolButton";
+        stripe.appendChild(a);
+    });
+});
+</script>
+
+<style>
+/* Responsive Tool Stripe */
+#toolStripe {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    gap: 10px;
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto; /* Adds space above and below */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #3498db, #e74c3c, #f1c40f, #8e44ad);
+    background-size: 400% 400%;
+    animation: backgroundShift 8s infinite alternate ease-in-out;
+}
+
+/* Heading with Dynamic Effect */
+#toolHeading {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+    animation: fadeIn 1s ease-out forwards, glowEffect 2s infinite alternate;
+}
+
+/* Tool Links */
+#toolLinks {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Buttons with Hover Effect */
+.toolButton {
+    color: #ffffff;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px 18px;
+    border-radius: 6px;
+    background: #8e44ad;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: background 0.3s ease-in-out, transform 0.2s;
+    animation: bounceIn 0.6s ease-out forwards;
+}
+.toolButton:hover {
+    background: #d35400;
+    transform: scale(1.1);
+}
+
+/* Animations */
+@keyframes bounceIn {
+    0% { transform: translateY(20px) scale(0.8); opacity: 0; }
+    60% { transform: translateY(-10px) scale(1.1); opacity: 0.8; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes backgroundShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes glowEffect {
+    0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+    50% { text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
+    100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+}
+</style>
+
+<!-- Responsive Tool Stripe End -->
 
     <footer>
         <div class="container">
