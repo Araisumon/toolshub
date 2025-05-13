@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Buzz Blog - Your source for the latest news and articles">
+    <meta name="keywords" content="blog, articles, news, buzz">
+    <title>Buzz Blog</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="brand">Buzz</div>
+        <div class="title">Blog</div>
+        <nav>
+            <a href="index.html" class="nav-link" title="Go to Home Page">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="blog-container" id="posts-list-view">
+            <div class="category-container">
+                <div id="category-nav" class="category-nav">
+                    <!-- Categories will be loaded here dynamically -->
+                </div>
+            </div>
+            <div id="blog-posts">
+                <!-- Blog posts will be loaded here dynamically -->
+                <div class="loading">Loading posts...</div>
+            </div>
+        </section>
+        
+        <section class="post-container" id="single-post-view" style="display: none;">
+            <div id="post-content">
+                <!-- Single post will be loaded here dynamically -->
+            </div>
+
+            <!-- Social Sharing Buttons -->
+            <div class="share-buttons">
+                <button class="share-btn facebook" title="Share on Facebook"><i class="fab fa-facebook"></i></button>
+                <button class="share-btn twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></button>
+                <button class="share-btn linkedin" title="Share on LinkedIn"><i class="fab fa-linkedin"></i></button>
+                <button class="share-btn pinterest" title="Share on Pinterest"><i class="fab fa-pinterest"></i></button>
+                <button class="share-btn email" title="Share via Email"><i class="fas fa-envelope"></i></button>
+            </div>
+            
+            <div class="comments-section">
+                <h3>Comments <span id="comment-count">(0)</span></h3>
+                <div id="comments-container"></div>
+                
+                <form id="comment-form">
+                    <h4>Add a comment</h4>
+                    <div class="form-group">
+                        <input type="text" id="commenter-name" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="commenter-email" placeholder="Your email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="comment-text" placeholder="Your comment" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Post Comment</button>
+                </form>
+            </div>
+            
+            <div class="related-posts">
+                <h3>Related Posts</h3>
+                <div id="related-posts-container"></div>
+            </div>
+            
+            <div class="back-to-home">
+                <a href="#" id="back-to-list" class="read-more" title="Back to all posts"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Buzz Blog. All rights reserved.</p>
+    </footer>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+        <div class="nav-btn" id="back-to-top" title="Back to Top">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="nav-btn" id="back-to-bottom" title="Back to Bottom">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
