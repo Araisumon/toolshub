@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Buzz Blog - Read full articles, leave comments, and engage with interactive content">
+    <meta name="keywords" content="blog, articles, news, buzz, comments, interactive blog, social sharing">
+    <meta property="og:title" content="Buzz Blog - Article">
+    <meta property="og:description" content="Read, comment, and share interesting articles on Buzz Blog">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://buzzblog.example.com/post.html">
+    <meta property="og:image" content="https://source.unsplash.com/random/1200x630/?blog">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Buzz Blog - Article">
+    <meta name="twitter:description" content="Read, comment, and share interesting articles on Buzz Blog">
+    <title>Buzz Blog - Article</title>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "Buzz Blog - Article",
+      "description": "Read, comment, and share interesting articles on Buzz Blog",
+      "datePublished": "",
+      "dateModified": "",
+      "author": {
+        "@type": "Person",
+        "name": ""
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Buzz Blog",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://source.unsplash.com/random/1200x630/?blog"
+        }
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://buzzblog.example.com/post.html"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://source.unsplash.com/random/1200x630/?blog",
+        "width": 1200,
+        "height": 630
+      }
+    }
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="brand">Buzz</div>
+        <div class="title">Blog</div>
+        <nav>
+            <a href="index.html" class="nav-link" title="Go to Home Page">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="blog-container">
+            <div class="category-container">
+                <div id="category-nav" class="category-nav">
+                    <!-- Categories will be loaded here dynamically -->
+                </div>
+            </div>
+            <div id="post-container">
+                <!-- Single post will be loaded here dynamically -->
+                <div class="loading">Loading post...</div>
+            </div>
+            
+            <!-- Social Sharing Buttons -->
+            <div class="social-sharing">
+                <h3>Share This Post</h3>
+                <div class="share-buttons">
+                    <button class="share-btn facebook" title="Share on Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        <span class="share-count" id="facebook-count">0</span>
+                    </button>
+                    <button class="share-btn twitter" title="Share on Twitter">
+                        <i class="fab fa-twitter"></i>
+                        <span class="share-count" id="twitter-count">0</span>
+                    </button>
+                    <button class="share-btn linkedin" title="Share on LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                        <span class="share-count" id="linkedin-count">0</span>
+                    </button>
+                    <button class="share-btn pinterest" title="Share on Pinterest">
+                        <i class="fab fa-pinterest-p"></i>
+                        <span class="share-count" id="pinterest-count">0</span>
+                    </button>
+                    <button class="share-btn email" title="Share via Email">
+                        <i class="fas fa-envelope"></i>
+                        <span class="share-count" id="email-count">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Most Popular Posts -->
+            <div class="popular-posts">
+                <h3>Most Popular Posts</h3>
+                <div id="popular-posts-container">
+                    <!-- Popular posts will be loaded here dynamically -->
+                    <div class="loading">Loading popular posts...</div>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h3>Comments <span id="comment-count">(0)</span></h3>
+                <div id="comments-container">
+                    <!-- Comments will be loaded here dynamically -->
+                </div>
+                <form id="comment-form" class="comment-form">
+                    <h4>Leave a Comment</h4>
+                    <div class="form-group">
+                        <label for="commenter-name">Name</label>
+                        <input type="text" id="commenter-name" name="commenter-name" required placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="commenter-email">Email</label>
+                        <input type="email" id="commenter-email" name="commenter-email" required placeholder="Your email (will not be published)">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-text">Comment</label>
+                        <textarea id="comment-text" name="comment-text" required placeholder="Your comment" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="submit-comment">Post Comment</button>
+                </form>
+            </div>
+            
+            <!-- Related Posts Section -->
+            <div class="related-posts">
+                <h3>Related Posts</h3>
+                <div id="related-posts-container">
+                    <!-- Related posts will be loaded here dynamically -->
+                </div>
+            </div>
+            
+            <!-- Newsletter Subscription -->
+            <div class="newsletter-section">
+                <h3>Subscribe to Our Newsletter</h3>
+                <p>Get the latest posts delivered right to your inbox.</p>
+                <form id="newsletter-form" class="newsletter-form">
+                    <div class="form-group">
+                        <input type="email" id="subscriber-email" name="subscriber-email" required placeholder="Your email address">
+                        <button type="submit" class="subscribe-btn">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Interactive Poll -->
+            <div class="poll-section">
+                <h3>Quick Poll</h3>
+                <div id="poll-container">
+                    <!-- Poll will be loaded here dynamically -->
+                </div>
+            </div>
+            
+            <div class="back-to-home">
+                <a href="index.html" class="read-more" title="Back to all posts"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Buzz Blog. All rights reserved.</p>
+    </footer>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+        <div class="nav-btn" id="back-to-top" title="Back to Top">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="nav-btn" id="back-to-bottom" title="Back to Bottom">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Lazy loading script -->
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Initialize lazy loading
+        var lazyLoadInstance = new LazyLoad({
+            elements_selector: ".lazy",
+            threshold: 0
+        });
+    </script>
+</body>
+</html>

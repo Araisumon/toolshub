@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Buzz Blog Admin Panel - Manage your blog posts">
+    <title>Buzz Blog - Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="brand">Buzz</div>
+        <div class="title">Blog</div>
+        <nav>
+            <a href="index.html" class="nav-link" title="Go to Home Page">Home</a>
+            <button id="logout-btn" class="nav-link" title="Logout from admin panel">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="admin-container" id="admin-container">
+            <div class="admin-header">
+                <h1 class="admin-title">Admin Panel</h1>
+            </div>
+
+            <form id="post-form" class="post-form">
+                <h2 id="form-title">Create New Post</h2>
+                <input type="hidden" id="post-id" name="post-id" value="">
+                
+                <div class="form-group">
+                    <label for="title">Post Title</label>
+                    <input type="text" id="title" name="title" required placeholder="Enter post title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="image-source">Image Source</label>
+                    <div class="image-source-tabs">
+                        <button type="button" id="url-tab" class="image-tab active">URL</button>
+                        <button type="button" id="upload-tab" class="image-tab">Upload</button>
+                    </div>
+                    <div id="url-input" class="image-input active">
+                        <input type="url" id="image" name="image" placeholder="Enter image URL">
+                    </div>
+                    <div id="file-input" class="image-input">
+                        <input type="file" id="image-file" name="image-file" accept="image/*">
+                    </div>
+                    <div id="image-preview" class="image-preview"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Post Content</label>
+                    <textarea id="content" name="content" required placeholder="Write your post content here"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <!-- Categories will be populated dynamically -->
+                    </select>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="admin-btn">Create Post</button>
+            </form>
+
+            <div class="post-management">
+                <h2>Manage Posts</h2>
+                <div id="post-list" class="post-list">
+                    <!-- Posts will be loaded here dynamically -->
+                    <div class="loading">Loading posts...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Buzz Blog. All rights reserved.</p>
+    </footer>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+        <div class="nav-btn" id="back-to-top" title="Back to Top">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="nav-btn" id="back-to-bottom" title="Back to Bottom">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
