@@ -19,58 +19,28 @@
     </header>
 
     <main>
-        <section class="blog-container" id="posts-list-view">
+        <section class="blog-container">
             <div class="category-container">
                 <div id="category-nav" class="category-nav">
                     <!-- Categories will be loaded here dynamically -->
                 </div>
             </div>
+            <div class="view-switcher" id="view-switcher">
+                <button class="view-btn" data-view="normal" title="Normal View"><i class="fas fa-th-large"></i> Normal</button>
+                <button class="view-btn" data-view="compact" title="Compact View"><i class="fas fa-bars"></i> Compact</button>
+                <button class="view-btn" data-view="list" title="List View"><i class="fas fa-list"></i> List</button>
+                <button class="view-btn" data-view="tile" title="Tile View"><i class="fas fa-th"></i> Tile</button>
+            </div>
             <div id="blog-posts">
                 <!-- Blog posts will be loaded here dynamically -->
                 <div class="loading">Loading posts...</div>
             </div>
-        </section>
-        
-        <section class="post-container" id="single-post-view" style="display: none;">
-            <div id="post-content">
+            <div id="post-container" style="display: none;">
                 <!-- Single post will be loaded here dynamically -->
+                <div class="loading">Loading post...</div>
             </div>
-
-            <!-- Social Sharing Buttons -->
-            <div class="share-buttons">
-                <button class="share-btn facebook" title="Share on Facebook"><i class="fab fa-facebook"></i></button>
-                <button class="share-btn twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></button>
-                <button class="share-btn linkedin" title="Share on LinkedIn"><i class="fab fa-linkedin"></i></button>
-                <button class="share-btn pinterest" title="Share on Pinterest"><i class="fab fa-pinterest"></i></button>
-                <button class="share-btn email" title="Share via Email"><i class="fas fa-envelope"></i></button>
-            </div>
-            
-            <div class="comments-section">
-                <h3>Comments <span id="comment-count">(0)</span></h3>
-                <div id="comments-container"></div>
-                
-                <form id="comment-form">
-                    <h4>Add a comment</h4>
-                    <div class="form-group">
-                        <input type="text" id="commenter-name" placeholder="Your name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="commenter-email" placeholder="Your email" required>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="comment-text" placeholder="Your comment" required></textarea>
-                    </div>
-                    <button type="submit" class="submit-btn">Post Comment</button>
-                </form>
-            </div>
-            
-            <div class="related-posts">
-                <h3>Related Posts</h3>
-                <div id="related-posts-container"></div>
-            </div>
-            
-            <div class="back-to-home">
-                <a href="#" id="back-to-list" class="read-more" title="Back to all posts"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <div class="back-to-home" style="display: none;">
+                <a href="index.html" class="read-more" title="Back to all posts"><i class="fas fa-arrow-left"></i> Back to Home</a>
             </div>
         </section>
     </main>
