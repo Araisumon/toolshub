@@ -143,109 +143,27 @@ const adminUser = {
 };
 
 function login(username, password) {
-    // Clear any existing session data first
-    localStorage.removeItem('buzzBlogUser');
-    
     if (username === adminUser.username && checkPassword(password, adminUser.passwordHash)) {
         currentUser = adminUser;
-        // Store minimal session data
-        localStorage.setItem('buzzBlogUser', JSON.stringify({ 
-            username: adminUser.username,
-            timestamp: Date.now() 
-        }));
+        localStorage.setItem('buzzBlogUser', JSON.stringify({ username: adminUser.username }));
         return true;
     }
     return false;
 }
 
 function logout() {
-    // Clear all session data
     currentUser = null;
     localStorage.removeItem('buzzBlogUser');
-    
-    // Redirect to login page with a flag to indicate logout
-    window.location.href = 'login.html?logout=true';
+    window.location.href = 'index.html';
 }
 
 function checkLoggedIn() {
     const user = localStorage.getItem('buzzBlogUser');
     if (user) {
-        const session = JSON.parse(user);
-        
-        // Check if session exists and is not too old (24 hours)
-        if (session && session.timestamp && (Date.now() - session.timestamp < 86400000)) {
-            currentUser = session;
-            return true;
-        }
-        
-        // Clear expired session
-        localStorage.removeItem('buzzBlogUser');
+        currentUser = JSON.parse(user);
+        return true;
     }
     return false;
-}
-
-// View management
-function showPostView(postId) {
-    document.getElementById('posts-list-view').style.display = 'none';
-    document.getElementById('single-post-view').style.display = 'block';
-    
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    
-    // Render post content
-    document.getElementById('post-content').innerHTML = `
-        <article class="post">
-            <h2 class="post-title">${post.title}</h2>
-            <div class="post-meta">
-                <span class="post-date">${new Date(post.date).toLocaleDateString()}</span>
-                <span class="post-category">${post.category}</span>
-            </div>
-            <img src="${post.image}" alt="${post.title}" class="post-image">
-            <div class="post-content">
-                <p>${post.content}</p>
-            </div>
-            
-            <!-- Social sharing buttons -->
-            <div class="share-buttons">
-                <button class="share-btn facebook" title="Share on Facebook"><i class="fab fa-facebook"></i></button>
-                <button class="share-btn twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></button>
-                <button class="share-btn linkedin" title="Share on LinkedIn"><i class="fab fa-linkedin"></i></button>
-                <button class="share-btn pinterest" title="Share on Pinterest"><i class="fab fa-pinterest"></i></button>
-                <button class="share-btn email" title="Share via Email"><i class="fas fa-envelope"></i></button>
-            </div>
-        </article>
-    `;
-    
-    // Setup comments and related posts
-    setupComments(post.id);
-    loadRelatedPosts(post);
-    setupSocialSharing(post);
-    
-    // Update URL without reloading
-    window.history.pushState({ postId }, '', `#post=${postId}`);
-}
-
-function showListView() {
-    document.getElementById('posts-list-view').style.display = 'block';
-    document.getElementById('single-post-view').style.display = 'none';
-    window.history.pushState({}, '', window.location.pathname);
-}
-
-// Handle back button
-window.addEventListener('popstate', (event) => {
-    if (event.state && event.state.postId) {
-        showPostView(event.state.postId);
-    } else {
-        showListView();
-    }
-});
-
-// Initialize view based on URL
-if (window.location.hash.includes('post=')) {
-    const postId = window.location.hash.split('=')[1];
-    showPostView(postId);
-} else {
-    showListView();
 }
 
 // Featured Posts Rendering
@@ -268,395 +186,71 @@ function renderFeaturedPosts() {
         const postElement = document.createElement('article');
         postElement.className = 'featured-post-card'; // A different class for styling
         postElement.innerHTML = `
-            <a href="post.html?id=${post.id}" class="featured-post-link">
-                <img src="${post.image}" alt="${post.title}" class="featured-post-image">
-                <div class="featured-post-content">
-                    <h3 class="featured-post-title">${post.title}</h3>
-                    <p class="featured-post-summary">${truncateText(post.content, 20)}</p>
-                    <a href="post.html?id=${post.id}" class="read-more-btn">Read More</a>
-                </div>
-            </a>
+            <img src="${post.image}" alt="${post.title}" class="featured-post-image">
+            <div class="featured-post-content">
+                <h3 class="featured-post-title">${post.title}</h3>
+                <p class="featured-post-summary">${truncateText(post.content, 20)}</p>
+                <a href="index.html?id=${post.id}" class="read-more-btn">Read More</a>
+            </div>
         `;
         featuredPostsContainer.appendChild(postElement);
     });
 }
 
-// Social sharing functionality
-function setupSocialSharing(post) {
-    const shareButtons = document.querySelectorAll('.share-buttons .share-btn');
-    if (!shareButtons.length) return;
-    
-    const postUrl = encodeURIComponent(window.location.href);
-    const postTitle = encodeURIComponent(post.title);
-    const postImage = encodeURIComponent(post.image);
-    
-    shareButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            let shareUrl = '';
-            
-            if (button.classList.contains('facebook')) {
-                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${postUrl}`;
-            } else if (button.classList.contains('twitter')) {
-                shareUrl = `https://twitter.com/intent/tweet?url=${postUrl}&text=${postTitle}`;
-            } else if (button.classList.contains('linkedin')) {
-                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${postUrl}`;
-            } else if (button.classList.contains('pinterest')) {
-                shareUrl = `https://pinterest.com/pin/create/button/?url=${postUrl}&media=${postImage}&description=${postTitle}`;
-            } else if (button.classList.contains('email')) {
-                shareUrl = `mailto:?subject=${postTitle}&body=Check out this post: ${postUrl}`;
-            }
-            
-            if (shareUrl) {
-                window.open(shareUrl, '_blank');
-                trackSocialShare(button.classList[1]);
-            }
-        });
-    });
-}
-
-function trackSocialShare(platform) {
-    const analyticsData = {
-        platform: platform,
-        postId: window.location.hash.split('=')[1],
-        timestamp: new Date().toISOString()
-    };
-    
-    // Save to localStorage for analytics
-    let shares = JSON.parse(localStorage.getItem('buzzBlogSocialShares') || '[]');
-    shares.push(analyticsData);
-    localStorage.setItem('buzzBlogSocialShares', JSON.stringify(shares));
-}
-
-// Comments functionality
-function setupComments(postId) {
-    const commentForm = document.getElementById('comment-form');
-    if (!commentForm) return;
-    
-    // Load existing comments
-    loadComments(postId);
-    
-    commentForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const name = document.getElementById('commenter-name').value;
-        const email = document.getElementById('commenter-email').value;
-        const text = document.getElementById('comment-text').value;
-        
-        if (!name || !email || !text) return;
-        
-        addComment(postId, name, email, text);
-        
-        // Reset form
-        commentForm.reset();
-    });
-}
-
-function loadComments(postId) {
-    const commentsContainer = document.getElementById('comments-container');
-    const commentCount = document.getElementById('comment-count');
-    if (!commentsContainer || !commentCount) return;
-    
-    // Get comments from localStorage
-    let comments = JSON.parse(localStorage.getItem(`buzzBlogComments_${postId}`) || '[]');
-    
-    // Update comment count
-    commentCount.textContent = `(${comments.length})`;
-    
-    // Display comments
-    commentsContainer.innerHTML = '';
-    
-    if (comments.length === 0) {
-        commentsContainer.innerHTML = '<p class="no-comments">No comments yet. Be the first to comment!</p>';
-        return;
-    }
-    
-    comments.forEach(comment => {
-        const commentElement = document.createElement('div');
-        commentElement.className = 'comment';
-        commentElement.innerHTML = `
-            <div class="comment-header">
-                <h4 class="commenter-name">${comment.name}</h4>
-                <span class="comment-date">${new Date(comment.date).toLocaleDateString()}</span>
-            </div>
-            <div class="comment-body">
-                <p>${comment.text}</p>
-            </div>
-        `;
-        commentsContainer.appendChild(commentElement);
-    });
-}
-
-function addComment(postId, name, email, text) {
-    // Get existing comments
-    let comments = JSON.parse(localStorage.getItem(`buzzBlogComments_${postId}`) || '[]');
-    
-    // Add new comment
-    comments.push({
-        id: generateId(),
-        name,
-        email,
-        text,
-        date: new Date().toISOString()
-    });
-    
-    // Save comments
-    localStorage.setItem(`buzzBlogComments_${postId}`, JSON.stringify(comments));
-    
-    // Reload comments
-    loadComments(postId);
-}
-
-// Newsletter subscription
-function setupNewsletter() {
-    const newsletterForm = document.getElementById('newsletter-form');
-    if (!newsletterForm) return;
-    
-    newsletterForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('subscriber-email').value;
-        if (!email) return;
-        
-        // Save subscriber
-        let subscribers = JSON.parse(localStorage.getItem('buzzBlogSubscribers') || '[]');
-        
-        // Check if already subscribed
-        if (!subscribers.includes(email)) {
-            subscribers.push(email);
-            localStorage.setItem('buzzBlogSubscribers', JSON.stringify(subscribers));
-            
-            // Show success message
-            const formGroup = newsletterForm.querySelector('.form-group');
-            const successMessage = document.createElement('p');
-            successMessage.className = 'success-message';
-            successMessage.textContent = 'Thank you for subscribing!';
-            formGroup.appendChild(successMessage);
-            
-            // Reset form
-            newsletterForm.reset();
-            
-            // Remove success message after 3 seconds
-            setTimeout(() => {
-                successMessage.remove();
-            }, 3000);
-        } else {
-            // Show already subscribed message
-            const formGroup = newsletterForm.querySelector('.form-group');
-            const infoMessage = document.createElement('p');
-            infoMessage.className = 'info-message';
-            infoMessage.textContent = 'You are already subscribed!';
-            formGroup.appendChild(infoMessage);
-            
-            // Remove info message after 3 seconds
-            setTimeout(() => {
-                infoMessage.remove();
-            }, 3000);
-        }
-    });
-}
-
-// Related posts functionality
-function loadRelatedPosts(currentPost) {
-    const relatedPostsContainer = document.getElementById('related-posts-container');
-    if (!relatedPostsContainer) return;
-    
-    // Find posts in the same category with additional relevance criteria
-    const relatedPosts = posts
-        .filter(post => 
-            post.id !== currentPost.id && 
-            (post.category === currentPost.category || 
-            post.tags?.some(tag => currentPost.tags?.includes(tag)))
-        )
-        .sort((a, b) => {
-            // Sort by relevance: same category > shared tags > date
-            const categoryMatchA = a.category === currentPost.category ? 1 : 0;
-            const categoryMatchB = b.category === currentPost.category ? 1 : 0;
-            const tagMatchA = a.tags?.filter(tag => currentPost.tags?.includes(tag)).length || 0;
-            const tagMatchB = b.tags?.filter(tag => currentPost.tags?.includes(tag)).length || 0;
-            
-            if (categoryMatchA !== categoryMatchB) return categoryMatchB - categoryMatchA;
-            if (tagMatchA !== tagMatchB) return tagMatchB - tagMatchA;
-            return new Date(b.date) - new Date(a.date);
-        })
-        .slice(0, 3);
-    
-    if (relatedPosts.length === 0) {
-        relatedPostsContainer.innerHTML = '<p>No related posts found.</p>';
-        return;
-    }
-    
-    relatedPostsContainer.innerHTML = relatedPosts.map(post => `
-        <article class="related-post">
-            <a href="#post=${post.id}" class="related-post-link">
-                <img src="${post.image}" alt="${post.title}" class="related-post-image">
-                <div class="related-post-content">
-                    <h4 class="related-post-title">${post.title}</h4>
-                    <p class="related-post-summary">${truncateText(post.content, 15)}</p>
-                    <div class="related-post-meta">
-                        <span class="related-post-date">${new Date(post.date).toLocaleDateString()}</span>
-                        <span class="related-post-category">${post.category}</span>
-                    </div>
-                </div>
-            </a>
-        </article>
-    `).join('');
-}
-
-// Interactive poll functionality
-function setupPoll(postId) {
-    const pollContainer = document.getElementById('poll-container');
-    if (!pollContainer) return;
-    
-    // For demo purposes, create a simple poll related to the post
-    const pollOptions = [
-        'Very helpful',
-        'Somewhat helpful',
-        'Not helpful'
-    ];
-    
-    // Check if user has already voted
-    const hasVoted = localStorage.getItem(`buzzBlogPoll_${postId}`) !== null;
-    
-    if (hasVoted) {
-        // Show poll results
-        showPollResults(postId, pollOptions);
-    } else {
-        // Show poll form
-        pollContainer.innerHTML = `
-            <form id="poll-form" class="poll-form">
-                <p class="poll-question">How helpful was this article?</p>
-                ${pollOptions.map((option, index) => `
-                    <div class="poll-option">
-                        <input type="radio" id="poll-option-${index}" name="poll-option" value="${index}">
-                        <label for="poll-option-${index}">${option}</label>
-                    </div>
-                `).join('')}
-                <button type="submit" class="poll-submit">Vote</button>
-            </form>
-        `;
-        
-        // Add event listener to poll form
-        const pollForm = document.getElementById('poll-form');
-        pollForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const selectedOption = document.querySelector('input[name="poll-option"]:checked');
-            if (!selectedOption) return;
-            
-            const optionIndex = parseInt(selectedOption.value);
-            
-            // Save vote
-            savePollVote(postId, optionIndex);
-            
-            // Show poll results
-            showPollResults(postId, pollOptions);
-        });
-    }
-}
-
-function savePollVote(postId, optionIndex) {
-    // Get existing poll results
-    let pollResults = JSON.parse(localStorage.getItem(`buzzBlogPollResults_${postId}`) || '[]');
-    
-    // Initialize results array if needed
-    if (!Array.isArray(pollResults) || pollResults.length === 0) {
-        pollResults = [0, 0, 0]; // Initialize with zeros for each option
-    }
-    
-    // Increment vote count for selected option
-    pollResults[optionIndex]++;
-    
-    // Save poll results
-    localStorage.setItem(`buzzBlogPollResults_${postId}`, JSON.stringify(pollResults));
-    
-    // Mark user as voted
-    localStorage.setItem(`buzzBlogPoll_${postId}`, 'voted');
-}
-
-function showPollResults(postId, pollOptions) {
-    const pollContainer = document.getElementById('poll-container');
-    if (!pollContainer) return;
-    
-    // Get poll results
-    let pollResults = JSON.parse(localStorage.getItem(`buzzBlogPollResults_${postId}`) || '[0,0,0]');
-    
-    // Calculate total votes
-    const totalVotes = pollResults.reduce((sum, count) => sum + count, 0);
-    
-    // Create results HTML
-    pollContainer.innerHTML = `
-        <div class="poll-results">
-            <p class="poll-question">How helpful was this article?</p>
-            <p class="poll-total-votes">Total votes: ${totalVotes}</p>
-            ${pollOptions.map((option, index) => {
-                const voteCount = pollResults[index] || 0;
-                const percentage = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
-                
-                return `
-                    <div class="poll-result">
-                        <div class="poll-result-label">${option}</div>
-                        <div class="poll-result-bar-container">
-                            <div class="poll-result-bar" style="width: ${percentage}%"></div>
-                            <div class="poll-result-percentage">${percentage}%</div>
-                        </div>
-                        <div class="poll-result-count">${voteCount} vote${voteCount !== 1 ? 's' : ''}</div>
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
-
 // Blog post rendering
+let currentView = localStorage.getItem('buzzBlogView') || 'compact';
+
+function setView(view) {
+    currentView = view;
+    localStorage.setItem('buzzBlogView', view);
+    renderPosts();
+    updateViewSwitcher();
+}
+
+function updateViewSwitcher() {
+    const switcher = document.getElementById('view-switcher');
+    if (!switcher) return;
+    switcher.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === currentView);
+    });
+}
+
 function renderPosts() {
     const blogPostsContainer = document.getElementById('blog-posts');
     if (!blogPostsContainer) return;
 
-    // Add sorting controls if not present
-    if (!document.getElementById('sort-controls')) {
-        const sortControls = document.createElement('div');
-        sortControls.id = 'sort-controls';
-        sortControls.className = 'sort-controls';
-        sortControls.innerHTML = `
-            <label for="sort-select">Sort by:</label>
-            <select id="sort-select">
-                <option value="latest">Latest</option>
-                <option value="popular">Popular</option>
-                <option value="oldest">Oldest</option>
-            </select>
-        `;
-        blogPostsContainer.parentNode.insertBefore(sortControls, blogPostsContainer);
-        document.getElementById('sort-select').addEventListener('change', renderPosts);
-    }
+    blogPostsContainer.innerHTML = '';
 
-    // Get active category filter
-    const activeCategory = sessionStorage.getItem('activeBlogCategory') || 'all';
-    // Get selected sort option
-    const sortSelect = document.getElementById('sort-select');
-    const sortValue = sortSelect ? sortSelect.value : 'latest';
-
-    // Sort posts
-    let sortedPosts = [...posts];
-    if (sortValue === 'latest') {
-        sortedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-    } else if (sortValue === 'oldest') {
-        sortedPosts.sort((a, b) => new Date(a.date) - new Date(b.date));
-    } else if (sortValue === 'popular') {
-        sortedPosts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-    }
-
-    // Filter by category if not 'all'
-    if (activeCategory !== 'all') {
-        sortedPosts = sortedPosts.filter(post => post.category === activeCategory);
-    }
-
-    if (sortedPosts.length === 0) {
-        blogPostsContainer.innerHTML = `<div class="no-posts">No posts available in the "${activeCategory}" category.</div>`;
+    if (posts.length === 0) {
+        blogPostsContainer.innerHTML = '<div class="no-posts">No posts available. Check back later!</div>';
         return;
     }
+    
+    // Get active category filter
+    const activeCategory = sessionStorage.getItem('activeBlogCategory') || 'all';
+    const activeSort = sessionStorage.getItem('activeBlogSort') || 'latest';
+    
+    // Sort posts by selected sort
+    let sortedPosts = [...posts];
+    if (activeSort === 'latest') {
+        sortedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else if (activeSort === 'oldest') {
+        sortedPosts.sort((a, b) => new Date(a.date) - new Date(b.date));
+    } else if (activeSort === 'popular') {
+        sortedPosts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    }
+    
+    // Filter by category if not 'all'
+    let filteredPosts = sortedPosts;
+    if (activeCategory !== 'all') {
+        filteredPosts = sortedPosts.filter(post => post.category === activeCategory);
+        if (filteredPosts.length === 0) {
+            blogPostsContainer.innerHTML = `<div class="no-posts">No posts available in the "${activeCategory}" category.</div>`;
+            return;
+        }
+    }
 
-    blogPostsContainer.innerHTML = '';
-    sortedPosts.forEach(post => {
+    filteredPosts.forEach(post => {
         const postElement = document.createElement('article');
         postElement.className = 'blog-post compact';
         postElement.id = `post-${post.id}`;
@@ -745,7 +339,7 @@ function addPostActionListeners() {
                     navigator.share({
                         title: post.title,
                         text: truncateText(post.content, 30),
-                        url: `${window.location.origin}/post.html?id=${post.id}`
+                        url: `${window.location.origin}/index.html?id=${post.id}`
                     }).catch(err => {
                         console.error('Share failed:', err);
                         fallbackShare(post);
@@ -793,7 +387,7 @@ function addPostExpansionListeners() {
 
 function fallbackShare(post) {
     // Fallback for browsers that don't support navigator.share
-    const shareUrl = `${window.location.origin}/post.html?id=${post.id}`;
+    const shareUrl = `${window.location.origin}/index.html?id=${post.id}`;
     const tempInput = document.createElement('input');
     document.body.appendChild(tempInput);
     tempInput.value = shareUrl;
@@ -809,7 +403,9 @@ function renderCategoryNav() {
     if (!categoryNav) return;
     
     const activeCategory = sessionStorage.getItem('activeBlogCategory') || 'all';
+    const activeSort = sessionStorage.getItem('activeBlogSort') || 'latest';
     
+    categoryNav.innerHTML = '';
     // Add 'All' category
     const allCategoryLink = document.createElement('a');
     allCategoryLink.href = '#';
@@ -828,20 +424,35 @@ function renderCategoryNav() {
         categoryNav.appendChild(categoryLink);
     });
     
+    // Sorting controls
+    const sortContainer = document.createElement('div');
+    sortContainer.className = 'sort-controls';
+    sortContainer.innerHTML = `
+        <label>Sort by: </label>
+        <select id="sort-select">
+            <option value="latest" ${activeSort === 'latest' ? 'selected' : ''}>Latest</option>
+            <option value="popular" ${activeSort === 'popular' ? 'selected' : ''}>Popular</option>
+            <option value="oldest" ${activeSort === 'oldest' ? 'selected' : ''}>Oldest</option>
+        </select>
+    `;
+    categoryNav.appendChild(sortContainer);
+    
     // Add event listeners
     document.querySelectorAll('.category-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const category = this.getAttribute('data-category');
             sessionStorage.setItem('activeBlogCategory', category);
-            
+            // Re-render posts
+            renderPosts();
             // Update active class
             document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active'));
             this.classList.add('active');
-            
-            // Re-render posts
-            renderPosts();
         });
+    });
+    document.getElementById('sort-select').addEventListener('change', function(e) {
+        sessionStorage.setItem('activeBlogSort', this.value);
+        renderPosts();
     });
 }
 
@@ -1137,13 +748,22 @@ function renderLoginForm() {
 // Single post page functions
 function renderSinglePost() {
     const postContainer = document.getElementById('post-container');
-    if (!postContainer) return;
+    const blogPostsContainer = document.getElementById('blog-posts');
+    const backToHomeLink = document.querySelector('.back-to-home');
+
+    if (!postContainer || !blogPostsContainer || !backToHomeLink) return;
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
 
     if (!postId) {
-        postContainer.innerHTML = '<div class="no-posts">Post not found.</div>';
+        // No post ID, ensure main blog view is shown
+        blogPostsContainer.style.display = 'block';
+        postContainer.style.display = 'none';
+        backToHomeLink.style.display = 'none';
+        document.title = 'Buzz Blog'; // Reset title
+        renderPosts(); // Render the list of posts
+        renderFeaturedPosts();
         return;
     }
 
@@ -1151,9 +771,17 @@ function renderSinglePost() {
 
     if (!post) {
         postContainer.innerHTML = '<div class="no-posts">Post not found.</div>';
+        blogPostsContainer.style.display = 'none';
+        postContainer.style.display = 'block';
+        backToHomeLink.style.display = 'block';
+        document.title = 'Post Not Found - Buzz Blog';
         return;
     }
 
+    // Display single post view
+    blogPostsContainer.style.display = 'none';
+    postContainer.style.display = 'block';
+    backToHomeLink.style.display = 'block';
     document.title = `${post.title} - Buzz Blog`; // Update page title
 
     postContainer.innerHTML = `
@@ -1179,33 +807,22 @@ function renderSinglePost() {
                 </button>
             </div>
         </article>
+        <div id="related-posts-container">
+            <h3>Related Posts</h3>
+            <div id="related-posts" class="related-posts-grid"></div>
+        </div>
     `;
 
     // Add event listeners for like, dislike, and share buttons
     addPostActionListeners();
-    
-    // Initialize social sharing
-    setupSocialSharing(post);
-    
-    // Initialize comments section
-    setupComments(postId);
-    
-    // Initialize related posts
-    loadRelatedPosts(post);
-    
-    // Initialize newsletter subscription
-    setupNewsletter();
-    
-    // Initialize interactive poll
-    setupPoll(postId);
 
     // Render related posts
     if (post.category) {
         renderRelatedPosts(post.id, post.category);
     } else {
-        // Fallback if post has no category, maybe show recent posts excluding current one
         renderRelatedPosts(post.id, null); 
     }
+    hideLoadingMessage(); // Ensure loading message is hidden
 }
 
 // Old renderSinglePost function to be replaced by the one above
@@ -1326,8 +943,13 @@ function renderRelatedPosts(currentPostId, currentPostCategory) {
     related = related.slice(0, 3);
 
     if (related.length === 0) {
-        relatedPostsContainer.innerHTML = '<p>No related posts found.</p>';
+        // relatedPostsContainer.innerHTML = '<p>No related posts found.</p>'; // Keep it clean if no related posts
+        const relatedPostsSection = document.getElementById('related-posts-container');
+        if(relatedPostsSection) relatedPostsSection.style.display = 'none';
         return;
+    } else {
+        const relatedPostsSection = document.getElementById('related-posts-container');
+        if(relatedPostsSection) relatedPostsSection.style.display = 'block';
     }
 
     related.forEach(post => {
@@ -1337,7 +959,7 @@ function renderRelatedPosts(currentPostId, currentPostCategory) {
             <img src="${post.image}" alt="${post.title}" class="related-post-image">
             <div class="related-post-content">
                 <h4 class="related-post-title">${post.title}</h4>
-                <a href="post.html?id=${post.id}" class="read-more-btn">Read More</a>
+                <a href="index.html?id=${post.id}" class="read-more-btn">Read More</a>
             </div>
         `;
         relatedPostsContainer.appendChild(postElement);
@@ -1367,18 +989,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Check which page we're on and render accordingly
     const currentPath = window.location.pathname;
+    const viewSwitcher = document.getElementById('view-switcher');
+    if (viewSwitcher) {
+        viewSwitcher.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                setView(this.getAttribute('data-view'));
+            });
+        });
+        updateViewSwitcher();
+    }
     
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+
     if (currentPath.includes('admin.html')) {
         renderAdminPanel();
     } else if (currentPath.includes('login.html')) {
         renderLoginForm();
-    } else if (currentPath.includes('post.html')) {
+    } else if (currentPath.includes('index.html') || currentPath === '/' || currentPath.endsWith('/blog/')) { // Covers index.html and root
         renderCategoryNav();
-        renderSinglePost(); // This function will be modified to call renderRelatedPosts
+        if (postId) {
+            renderSinglePost(); // Handles showing single post and hiding blog list
+        } else {
+            // Home page / Blog list view
+            document.getElementById('blog-posts').style.display = 'block';
+            document.getElementById('post-container').style.display = 'none';
+            const backToHomeLink = document.querySelector('.back-to-home');
+            if(backToHomeLink) backToHomeLink.style.display = 'none';
+            renderFeaturedPosts();
+            renderPosts();
+        }
     } else {
-        // Home page
+        // Fallback for any other paths, could be an error page or redirect to home
+        // For now, assume it's the home page if no other condition met
         renderCategoryNav();
-        renderFeaturedPosts(); // Add this call for the homepage
+        renderFeaturedPosts();
         renderPosts();
     }
     
