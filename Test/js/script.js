@@ -198,23 +198,13 @@ function renderFeaturedPosts() {
 }
 
 // Blog post rendering
-let currentView = localStorage.getItem('buzzBlogView') || 'compact';
+// Removed view switcher functionality since we're only using compact view
 
-function setView(view) {
-    currentView = view;
-    localStorage.setItem('buzzBlogView', view);
-    renderPosts();
-    updateViewSwitcher();
-}
 
-function updateViewSwitcher() {
-    const switcher = document.getElementById('view-switcher');
-    if (!switcher) return;
-    switcher.querySelectorAll('.view-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-view') === currentView);
-    });
-}
 
+
+
+// Blog post rendering
 function renderPosts() {
     const blogPostsContainer = document.getElementById('blog-posts');
     if (!blogPostsContainer) return;
@@ -252,23 +242,27 @@ function renderPosts() {
 
     filteredPosts.forEach(post => {
         const postElement = document.createElement('article');
-        postElement.className = 'blog-post compact';
+        postElement.className = 'blog-post';
         postElement.id = `post-${post.id}`;
         postElement.setAttribute('data-id', post.id);
 
-        const wordCountNum = wordCount(post.content);
-        const displayContent = post.content;
+        // Create a small thumbnail version of the image for the header
+        const thumbnailHtml = post.image ? 
+            `<img src="${post.image}" alt="${post.title}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 10px;">` : '';
 
         postElement.innerHTML = `
             <div class="post-header">
-                <h2 class="post-title">${post.title}</h2>
-                <div class="post-category"><span class="category-tag">${post.category || 'Uncategorized'}</span></div>
+                ${thumbnailHtml}
+                <div class="post-header-content">
+                    <h2 class="post-title">${post.title}</h2>
+                    <div class="post-category"><span class="category-tag">${post.category || 'Uncategorized'}</span></div>
+                </div>
                 <div class="expand-indicator"><i class="fas fa-chevron-down"></i></div>
             </div>
             <div class="post-expanded-content">
                 <img src="${post.image}" alt="${post.title}" class="post-image">
                 <div class="post-content">
-                    <div class="post-text">${displayContent}</div>
+                    <div class="post-text">${post.content}</div>
                     <div class="post-actions">
                         <div class="like-buttons">
                             <button class="like-btn" title="Like this post" data-id="${post.id}">
@@ -298,6 +292,9 @@ function renderPosts() {
     // Hide loading message after rendering
     hideLoadingMessage();
 }
+
+// Add event listeners for search
+
 
 function addPostActionListeners() {
     // Like buttons
@@ -354,7 +351,7 @@ function addPostActionListeners() {
 
 // Add post expansion functionality
 function addPostExpansionListeners() {
-    document.querySelectorAll('.blog-post.compact .post-header').forEach(header => {
+    document.querySelectorAll('.blog-post .post-header').forEach(header => {
         header.addEventListener('click', function(e) {
             // Prevent event from bubbling up
             e.stopPropagation();
@@ -976,6 +973,148 @@ function hideLoadingMessage() {
     });
 }
 
+// Add advanced search functionality
+function initAdvancedSearch() {
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const searchTitle = document.getElementById('search-title');
+    const searchContent = document.getElementById('search-content');
+    const searchCategory = document.getElementById('search-category');
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        if (searchTerm === '') {
+            renderPosts(); // Show all posts if search is empty
+            return;
+        }
+        
+        // Get search options
+        const inTitle = searchTitle.checked;
+        const inContent = searchContent.checked;
+        const inCategory = searchCategory.checked;
+        
+        // Filter posts based on search options
+        const filteredPosts = posts.filter(post => {
+            let match = false;
+            
+            if (inTitle && post.title.toLowerCase().includes(searchTerm)) {
+                match = true;
+            }
+            
+            if (inContent && post.content.toLowerCase().includes(searchTerm)) {
+                match = true;
+            }
+            
+            if (inCategory && post.category && post.category.toLowerCase().includes(searchTerm)) {
+                match = true;
+            }
+            
+            return match;
+        });
+        
+        renderFilteredPosts(filteredPosts, searchTerm);
+    }
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', performSearch);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Add clear search with Escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                renderPosts(); // Show all posts
+            }
+        });
+    }
+}
+
+function renderFilteredPosts(filteredPosts, searchTerm) {
+    const blogPostsContainer = document.getElementById('blog-posts');
+    if (!blogPostsContainer) return;
+    
+    blogPostsContainer.innerHTML = '';
+    
+    if (filteredPosts.length === 0) {
+        blogPostsContainer.innerHTML = `<div class="no-posts">No posts found matching "${searchTerm}".</div>`;
+        return;
+    }
+    
+    // Add a search results header
+    const resultsHeader = document.createElement('div');
+    resultsHeader.className = 'search-results-header';
+    resultsHeader.innerHTML = `<h3>Found ${filteredPosts.length} results for "${searchTerm}"</h3>
+                              <button id="clear-search" class="clear-search-btn">Clear Search</button>`;
+    blogPostsContainer.appendChild(resultsHeader);
+    
+    // Render the filtered posts using the existing post rendering logic
+    filteredPosts.forEach(post => {
+        // Use your existing post rendering code here
+        const postElement = document.createElement('article');
+        postElement.className = 'blog-post';
+        postElement.id = `post-${post.id}`;
+        postElement.setAttribute('data-id', post.id);
+
+        // Create a small thumbnail version of the image for the header
+        const thumbnailHtml = post.image ? 
+            `<img src="${post.image}" alt="${post.title}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 10px;">` : '';
+
+        postElement.innerHTML = `
+            <div class="post-header">
+                ${thumbnailHtml}
+                <div class="post-header-content">
+                    <h2 class="post-title">${post.title}</h2>
+                    <div class="post-category"><span class="category-tag">${post.category || 'Uncategorized'}</span></div>
+                </div>
+                <div class="expand-indicator"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="post-expanded-content">
+                <img src="${post.image}" alt="${post.title}" class="post-image">
+                <div class="post-content">
+                    <div class="post-text">${post.content}</div>
+                    <div class="post-actions">
+                        <div class="like-buttons">
+                            <button class="like-btn" title="Like this post" data-id="${post.id}">
+                                <i class="fas fa-thumbs-up"></i> <span>${post.likes || 0}</span>
+                            </button>
+                            <button class="dislike-btn" title="Dislike this post" data-id="${post.id}">
+                                <i class="fas fa-thumbs-down"></i> <span>${post.dislikes || 0}</span>
+                            </button>
+                        </div>
+                        <button class="share-btn" title="Share this post" data-id="${post.id}">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        blogPostsContainer.appendChild(postElement);
+    });
+    
+    // Add event listeners for post actions
+    addPostActionListeners();
+    
+    // Add event listeners for post expansion
+    addPostExpansionListeners();
+    
+    // Add event listener to clear search
+    const clearSearchBtn = document.getElementById('clear-search');
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            document.getElementById('search-input').value = '';
+            renderPosts(); // Render all posts again
+        });
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     // Hide loading message after a maximum timeout (failsafe)
@@ -989,15 +1128,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Check which page we're on and render accordingly
     const currentPath = window.location.pathname;
-    const viewSwitcher = document.getElementById('view-switcher');
-    if (viewSwitcher) {
-        viewSwitcher.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                setView(this.getAttribute('data-view'));
-            });
-        });
-        updateViewSwitcher();
-    }
     
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
@@ -1052,4 +1182,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', toggleTheme);
     }
+    
+    // Initialize dynamic header
+    initDynamicHeader();
+    
+    // Initialize advanced search functionality
+    // initAdvancedSearch(); // Replaced by addSearchListeners
+    
 });
