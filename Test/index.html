@@ -1342,9 +1342,9 @@
                 const roundedCorners = document.getElementById('rounded-corners').checked;
                 const addBorder = document.getElementById('add-border').checked;
                 const borderColorInput = document.getElementById('border-color');
-                const borderColor = borderColorInput.disabled ? '#000000' : (borderColorInput.value || '#000000');
+                const borderColor = borderColorInput.disabled ? '#000000' : borderColorInput.value || '#000000';
                 const borderWidthInput = document.getElementById('border-width');
-                const borderWidth = borderWidthInput.disabled ? 2 : (parseInt(borderWidthInput.value) || 2);
+                const borderWidth = borderWidthInput.disabled ? 2 : parseInt(borderWidthInput.value) || 2;
                 const animate = document.getElementById('animate-favicon').checked;
                 const grayscale = document.getElementById('grayscale').checked;
                 const invertColors = document.getElementById('invert-colors').checked;
@@ -1665,10 +1665,18 @@
         document.getElementById('add-border').addEventListener('change', function() {
             const borderColor = document.getElementById('border-color');
             const borderWidth = document.getElementById('border-width');
-            borderColor.disabled = !this.checked;
-            borderWidth.disabled = !this.checked;
+            const isChecked = this.checked;
+            borderColor.disabled = !isChecked;
+            borderWidth.disabled = !isChecked;
+            if (!isChecked) {
+                borderColor.value = '#000000';
+                borderWidth.value = 2;
+            }
             updatePreview();
         });
+
+        document.getElementById('border-color').addEventListener('input', updatePreview);
+        document.getElementById('border-width').addEventListener('input', updatePreview);
 
         document.getElementById('auto-crop-btn').addEventListener('click', () => {
             document.getElementById('crop-size').value = 75;
@@ -1894,7 +1902,7 @@
                 let shareUrl;
                 switch (platform) {
                     case 'facebook':
-                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}"e=${encodeURIComponent(shareData.text)}`;
+                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}&e=${encodeURIComponent(shareData.text)}`;
                         break;
                     case 'twitter':
                         shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`;
