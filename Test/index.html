@@ -49,6 +49,25 @@
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.0/dist/svg.min.js"></script>
+    <script>
+        // Initialize global array to store custom size favicons
+        window.customSizeFavicons = [];
+        
+        // Function to convert data URL to Blob
+        function dataURLToBlob(dataURL) {
+            const parts = dataURL.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            const uInt8Array = new Uint8Array(rawLength);
+            
+            for (let i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            
+            return new Blob([uInt8Array], { type: contentType });
+        }
+    </script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -1153,6 +1172,32 @@
                             </div>
                         </div>
                     </div>
+                    <div class="control-group" id="custom-size-container">
+                        <label>
+                            <input type="checkbox" id="enable-custom-size" aria-label="Enable custom size">
+                            Custom Size
+                            <div class="tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">Specify exact dimensions for your favicon. This will generate an additional favicon with your custom dimensions.</span>
+                            </div>
+                        </label>
+                        <div id="custom-size-controls" style="display: none; margin-top: 10px; padding: 10px; background-color: rgba(67, 97, 238, 0.05); border-radius: 5px; border: 1px solid rgba(67, 97, 238, 0.2);">
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label for="custom-width" style="font-size: 0.9rem;">Width (px)</label>
+                                    <input type="number" id="custom-width" min="16" max="1024" value="192" style="width: 100%; padding: 5px;" aria-label="Custom width in pixels">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label for="custom-height" style="font-size: 0.9rem;">Height (px)</label>
+                                    <input type="number" id="custom-height" min="16" max="1024" value="192" style="width: 100%; padding: 5px;" aria-label="Custom height in pixels">
+                                </div>
+                            </div>
+                            <div class="checkbox-group" style="margin-top: 10px;">
+                                <input type="checkbox" id="maintain-aspect-ratio" checked aria-label="Maintain aspect ratio">
+                                <label for="maintain-aspect-ratio" style="font-size: 0.9rem;">Maintain aspect ratio</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="control-group">
                         <label for="zip-option">
                             <input type="checkbox" id="zip-option" checked aria-label="Package files in ZIP">
@@ -1522,13 +1567,16 @@
             reader.readAsDataURL(file);
         }
 
-        function generateSvgFavicon(baseSize = 100) {
+        function generateSvgFavicon(baseSize = 100, customHeight = null) {
             try {
+                // If customHeight is provided, use it, otherwise use baseSize (square)
+                const height = customHeight || baseSize;
+                
                 let svgContent;
                 if (isSvg) {
                     const draw = SVG().svg(uploadedImage);
-                    draw.viewbox(0, 0, baseSize, baseSize);
-                    draw.size(baseSize, baseSize);
+                    draw.viewbox(0, 0, baseSize, height);
+                    draw.size(baseSize, height);
                     draw.css({
                         'background': 'white',
                         '@media (prefers-color-scheme: dark)': {
@@ -1537,8 +1585,8 @@
                     });
                     svgContent = draw.svg();
                 } else {
-                    const svg = SVG().size(baseSize, baseSize).viewbox(0, 0, baseSize, baseSize);
-                    svg.image(uploadedImage).size(baseSize, baseSize);
+                    const svg = SVG().size(baseSize, height).viewbox(0, 0, baseSize, height);
+                    svg.image(uploadedImage).size(baseSize, height);
                     svg.css({
                         'background': 'white',
                         '@media (prefers-color-scheme: dark)': {
@@ -1556,7 +1604,7 @@
             }
         }
 
-        async function rasterizeSvg(svgContent, size) {
+        async function rasterizeSvg(svgContent, width, height = null) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
@@ -1564,10 +1612,12 @@
 
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.width = size;
-                    canvas.height = size;
+                    // If height is not provided, use width (square)
+                    const finalHeight = height || width;
+                    canvas.width = width;
+                    canvas.height = finalHeight;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, size, size);
+                    ctx.drawImage(img, 0, 0, width, finalHeight);
                     URL.revokeObjectURL(url);
                     const dataUrl = canvas.toDataURL('image/png');
                     resolve(dataUrl);
@@ -1667,17 +1717,22 @@
             return imageData;
         }
 
-        function processImage(size = 32, forIco = false) {
+        function processImage(size = 32, forIco = false, customHeight = null) {
             return new Promise((resolve, reject) => {
                 if (!uploadedImage) {
                     reject(new Error('No image uploaded'));
                     return;
                 }
 
+                // Handle custom dimensions
+                let width = size;
+                let height = customHeight || size; // If customHeight is provided, use it, otherwise use size (square)
+
                 if (isSvg && !forIco) {
                     try {
-                        const svg = generateSvgFavicon(size);
-                        rasterizeSvg(svg, size).then(dataUrl => {
+                        // Pass both dimensions to SVG generator
+                        const svg = generateSvgFavicon(width, height);
+                        rasterizeSvg(svg, width, height).then(dataUrl => {
                             resolve({ dataUrl, animate: document.getElementById('animate-favicon').checked });
                         }).catch(err => reject(err));
                     } catch (e) {
@@ -1708,10 +1763,10 @@
                     return;
                 }
 
-                canvas.width = size;
-                canvas.height = size;
+                canvas.width = width;
+                canvas.height = height;
 
-                ctx.clearRect(0, 0, size, size);
+                ctx.clearRect(0, 0, width, height);
                 ctx.globalAlpha = 1.0;
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.shadowColor = 'transparent';
@@ -1727,7 +1782,7 @@
                         ctx.save();
                         ctx.globalAlpha = transparency;
                         ctx.fillStyle = bgColor;
-                        ctx.fillRect(0, 0, size, size);
+                        ctx.fillRect(0, 0, width, height);
                         ctx.restore();
 
                         if (dropShadow) {
@@ -1741,11 +1796,19 @@
                         if (roundedCorners) {
                             ctx.save();
                             ctx.beginPath();
-                            ctx.arc(size / 2, size / 2, (size / 2) - 2, 0, Math.PI * 2);
+                            // For non-square dimensions, use an ellipse instead of a circle
+                            if (width === height) {
+                                ctx.arc(width / 2, height / 2, (width / 2) - 2, 0, Math.PI * 2);
+                            } else {
+                                // Use ellipse for non-square dimensions
+                                const radiusX = (width / 2) - 2;
+                                const radiusY = (height / 2) - 2;
+                                ctx.ellipse(width / 2, height / 2, radiusX, radiusY, 0, 0, Math.PI * 2);
+                            }
                             ctx.clip();
                         }
                         
-                        let imgSize, offsetX, offsetY;
+                        let imgWidth, imgHeight, offsetX, offsetY;
                         
                         // Get rotation and zoom values
                         const rotation = parseInt(document.getElementById('rotation').value) || 0;
@@ -1753,47 +1816,45 @@
                         
                         // Use custom crop selection if available
                         if (cropWidth > 0 && cropHeight > 0) {
-                            imgSize = Math.max(cropWidth, cropHeight);
+                            imgWidth = cropWidth;
+                            imgHeight = cropHeight;
                             offsetX = cropOffsetX;
                             offsetY = cropOffsetY;
                         } else {
                             // Fall back to the slider-based crop
-                            imgSize = Math.min(img.width, img.height) * cropSize;
-                            offsetX = (img.width - imgSize) / 2;
-                            offsetY = (img.height - imgSize) / 2;
+                            const cropDimension = Math.min(img.width, img.height) * cropSize;
+                            imgWidth = cropDimension;
+                            imgHeight = cropDimension;
+                            offsetX = (img.width - imgWidth) / 2;
+                            offsetY = (img.height - imgHeight) / 2;
                         }
                         
                         // Apply zoom factor
-                        imgSize = imgSize * (100 / zoom);
+                        imgWidth = imgWidth * (100 / zoom);
+                        imgHeight = imgHeight * (100 / zoom);
                         
-                        const drawSize = size - (2 * padding);
-                        
-                        // Apply rotation if needed
-                        if (rotation !== 0) {
-                            ctx.save();
-                            ctx.translate(size / 2, size / 2);
-                            ctx.rotate(rotation * Math.PI / 180);
-                            ctx.translate(-size / 2, -size / 2);
-                        }
+                        // Calculate draw dimensions with padding
+                        const drawWidth = width - (2 * padding);
+                        const drawHeight = height - (2 * padding);
                         
                         // Apply rotation if needed
                         if (rotation !== 0) {
                             ctx.save();
-                            ctx.translate(size / 2, size / 2);
+                            ctx.translate(width / 2, height / 2);
                             ctx.rotate(rotation * Math.PI / 180);
-                            ctx.translate(-size / 2, -size / 2);
+                            ctx.translate(-width / 2, -height / 2);
                         }
 
                         ctx.drawImage(
                             img,
                             offsetX,
                             offsetY,
-                            imgSize,
-                            imgSize,
+                            imgWidth,
+                            imgHeight,
                             padding,
                             padding,
-                            drawSize,
-                            drawSize
+                            drawWidth,
+                            drawHeight
                         );
 
                         if (roundedCorners) {
@@ -1804,7 +1865,7 @@
                             ctx.restore();
                         }
 
-                        let imageData = ctx.getImageData(0, 0, size, size);
+                        let imageData = ctx.getImageData(0, 0, width, height);
                         imageData = adjustImageData(imageData, brightnessFactor, contrastFactor, saturationFactor, grayscale, invertColors);
                         ctx.putImageData(imageData, 0, 0);
 
@@ -1813,7 +1874,7 @@
                             ctx.strokeStyle = borderColor;
                             ctx.lineWidth = Math.max(1, Math.min(5, borderWidth));
                             ctx.beginPath();
-                            ctx.rect(padding, padding, drawSize, drawSize);
+                            ctx.rect(padding, padding, drawWidth, drawHeight);
                             ctx.stroke();
                             ctx.restore();
                         }
@@ -1824,8 +1885,21 @@
                         }
 
                         if (forIco) {
-                            const imageData = ctx.getImageData(0, 0, size, size);
-                            const bmpBuffer = createBmpBuffer(imageData, size);
+                            // ICO format requires square dimensions, so we'll use the width for both
+                            // This is a limitation of the ICO format
+                            const squareSize = Math.max(width, height);
+                            const squareCanvas = document.createElement('canvas');
+                            squareCanvas.width = squareSize;
+                            squareCanvas.height = squareSize;
+                            const squareCtx = squareCanvas.getContext('2d');
+                            
+                            // Center the image in the square canvas
+                            const offsetX = (squareSize - width) / 2;
+                            const offsetY = (squareSize - height) / 2;
+                            squareCtx.drawImage(canvas, offsetX, offsetY);
+                            
+                            const squareImageData = squareCtx.getImageData(0, 0, squareSize, squareSize);
+                            const bmpBuffer = createBmpBuffer(squareImageData, squareSize);
                             resolve({ data: bmpBuffer, animate });
                         } else {
                             const dataUrl = canvas.toDataURL('image/png');
@@ -2713,6 +2787,42 @@
             });
         });
 
+        // Custom size functionality
+        const enableCustomSize = document.getElementById('enable-custom-size');
+        const customSizeControls = document.getElementById('custom-size-controls');
+        const customWidth = document.getElementById('custom-width');
+        const customHeight = document.getElementById('custom-height');
+        const maintainAspectRatio = document.getElementById('maintain-aspect-ratio');
+        
+        enableCustomSize.addEventListener('change', function() {
+            customSizeControls.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Maintain aspect ratio functionality
+        let aspectRatio = customWidth.value / customHeight.value;
+        
+        customWidth.addEventListener('input', function() {
+            if (maintainAspectRatio.checked) {
+                customHeight.value = Math.round(this.value / aspectRatio);
+            } else {
+                aspectRatio = this.value / customHeight.value;
+            }
+        });
+        
+        customHeight.addEventListener('input', function() {
+            if (maintainAspectRatio.checked) {
+                customWidth.value = Math.round(this.value * aspectRatio);
+            } else {
+                aspectRatio = customWidth.value / this.value;
+            }
+        });
+        
+        maintainAspectRatio.addEventListener('change', function() {
+            if (this.checked) {
+                aspectRatio = customWidth.value / customHeight.value;
+            }
+        });
+
         downloadBtn.addEventListener('click', async function() {
             if (!uploadedImage) {
                 showNotification('Please upload an image first.', 'warning');
@@ -2726,6 +2836,107 @@
             const sizes = Array.from(document.querySelectorAll('.format-option[data-size] input:checked'))
                 .map(input => parseInt(input.id.split('-')[1]));
             const zipOption = document.getElementById('zip-option').checked;
+            
+            // Check if custom size is enabled
+            const customSizeEnabled = document.getElementById('enable-custom-size').checked;
+            if (customSizeEnabled) {
+                const customWidth = parseInt(document.getElementById('custom-width').value);
+                const customHeight = parseInt(document.getElementById('custom-height').value);
+                if (customWidth >= 16 && customWidth <= 1024 && customHeight >= 16 && customHeight <= 1024) {
+                    console.log(`Processing custom size: ${customWidth}x${customHeight}`);
+                    
+                    // Process custom size for each format
+                    for (const format of formats) {
+                        if (format === 'svg') {
+                            // For SVG, we can handle non-square dimensions
+                            const svg = generateSvgFavicon(customWidth, customHeight);
+                            if (zipOption) {
+                                // We'll add this to the main ZIP file later
+                                window.customSizeFavicons = window.customSizeFavicons || [];
+                                window.customSizeFavicons.push({
+                                    format: 'svg',
+                                    width: customWidth,
+                                    height: customHeight,
+                                    data: svg,
+                                    isBinary: false
+                                });
+                                console.log(`Prepared custom SVG favicon ${customWidth}x${customHeight} for ZIP`);
+                            } else {
+                                const blob = new Blob([svg], { type: 'image/svg+xml' });
+                                saveAs(blob, `favicon-${customWidth}x${customHeight}.svg`);
+                                console.log(`Generated custom SVG favicon ${customWidth}x${customHeight}`);
+                            }
+                        } else if (format === 'ico') { 
+                            // For ICO, we'll create a separate ICO file with the custom size
+                            // ICO format works best with square dimensions, so we'll use the larger dimension
+                            try {
+                                // Handle non-square dimensions by using the larger dimension
+                                // and making it a standard ICO size
+                                let icoSize = Math.max(customWidth, customHeight);
+                                // Find the closest standard ICO size
+                                const standardSizes = [16, 32, 48, 64, 128, 256];
+                                let closestSize = standardSizes.reduce((prev, curr) => 
+                                    Math.abs(curr - icoSize) < Math.abs(prev - icoSize) ? curr : prev
+                                );
+                                
+                                console.log(`Processing custom ICO size: original ${customWidth}x${customHeight}, using ${closestSize}x${closestSize}`);
+                                
+                                const icoBuffer = await generateIco([closestSize]);
+                                if (icoBuffer) {
+                                    if (zipOption) {
+                                        // Store for later inclusion in the main ZIP
+                                        window.customSizeFavicons = window.customSizeFavicons || [];
+                                        window.customSizeFavicons.push({
+                                            format: 'ico',
+                                            width: customWidth,
+                                            height: customHeight,
+                                            data: icoBuffer,
+                                            isBinary: true,
+                                            actualSize: closestSize
+                                        });
+                                        console.log(`Prepared custom ICO favicon ${customWidth}x${customHeight} for ZIP (actual size: ${closestSize}x${closestSize})`);
+                                    } else {
+                                        const blob = new Blob([icoBuffer], { type: 'image/x-icon' });
+                                        saveAs(blob, `favicon-${customWidth}x${customHeight}.ico`);
+                                        console.log(`Generated custom ICO favicon ${customWidth}x${customHeight} (actual size: ${closestSize}x${closestSize})`);
+                                    }
+                                }
+                                if (customWidth !== customHeight) {
+                                    console.log(`Note: ICO format requires square dimensions. Your icon was adjusted to ${closestSize}x${closestSize}`);
+                                    showNotification(`ICO format requires square dimensions. Your icon was adjusted to ${closestSize}x${closestSize}`, 'info');
+                                }
+                            } catch (e) {
+                                console.error(`Error generating custom size for ICO:`, e);
+                            }
+                        } else { // PNG, WebP, etc.
+                            try {
+                                const { dataUrl } = await processImage(customWidth, false, customHeight);
+                                const blob = dataURLToBlob(dataUrl);
+                                if (zipOption) {
+                                    // Store for later inclusion in the main ZIP
+                                    window.customSizeFavicons = window.customSizeFavicons || [];
+                                    window.customSizeFavicons.push({
+                                        format: format,
+                                        width: customWidth,
+                                        height: customHeight,
+                                        data: dataUrl.split(',')[1],
+                                        isBase64: true
+                                    });
+                                    console.log(`Prepared custom ${format.toUpperCase()} favicon ${customWidth}x${customHeight} for ZIP`);
+                                } else {
+                                    saveAs(blob, `favicon-${customWidth}x${customHeight}.${format}`);
+                                    console.log(`Generated custom ${format.toUpperCase()} favicon ${customWidth}x${customHeight}`);
+                                }
+                            } catch (e) {
+                                console.error(`Error generating custom size for ${format}:`, e);
+                            }
+                        }
+                    }
+                } else {
+                    console.warn(`Invalid custom dimensions: ${customWidth}x${customHeight}`);
+                    showNotification('Custom dimensions must be between 16 and 1024 pixels', 'warning');
+                }
+            }
 
             if (!formats.length || !sizes.length) {
                 alert('Please select at least one format and size.');
@@ -2765,6 +2976,24 @@
                             console.log(`Added favicon-${size}x${size}.${format} to ZIP`);
                         }
                     }
+                    // Add any custom size favicons to the ZIP file
+                    if (window.customSizeFavicons && window.customSizeFavicons.length > 0) {
+                        console.log(`Adding ${window.customSizeFavicons.length} custom size favicons to ZIP`);
+                        for (const favicon of window.customSizeFavicons) {
+                            const filename = `favicon-${favicon.width}x${favicon.height}.${favicon.format}`;
+                            if (favicon.isBinary) {
+                                zip.file(filename, favicon.data);
+                            } else if (favicon.isBase64) {
+                                zip.file(filename, favicon.data, { base64: true });
+                            } else {
+                                zip.file(filename, favicon.data);
+                            }
+                            console.log(`Added custom favicon ${filename} to ZIP`);
+                        }
+                        // Clear the custom favicons array after adding to ZIP
+                        window.customSizeFavicons = [];
+                    }
+                    
                     const blob = await zip.generateAsync({ type: 'blob' });
                     saveAs(blob, 'favicons.zip');
                     console.log('ZIP file generated successfully');
