@@ -1,0 +1,3191 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online favicon generator. Create high-quality favicons in multiple formats (PNG, ICO, SVG, WebP) with real-time preview and advanced editing tools.">
+    <meta name="keywords" content="favicon generator, icon maker, website icon, png to ico, svg favicon, webp favicon">
+    <title>Buzz - Advanced Favicon Generator for Modern Websites</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.0/dist/svg.min.js"></script>
+    <script>
+        // Initialize global array to store custom size favicons
+        window.customSizeFavicons = [];
+        
+        // Function to convert data URL to Blob
+        function dataURLToBlob(dataURL) {
+            const parts = dataURL.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            const uInt8Array = new Uint8Array(rawLength);
+            
+            for (let i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            
+            return new Blob([uInt8Array], { type: contentType });
+        }
+    </script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-bg: #f8f9fa;
+            --dark-bg: #212529;
+            --light-text: #f8f9fa;
+            --dark-text: #212529;
+            --header-bg: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --light-bg: #212529;
+            --dark-bg: #f8f9fa;
+            --light-text: #212529;
+            --dark-text: #f8f9fa;
+            --header-bg: linear-gradient(135deg, #212529 0%, #343a40 100%);
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .title {
+            font-size: 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid white;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+        }
+
+        .btn-accent:hover {
+            background-color: #d91a6d;
+        }
+
+        .btn-reset-upload {
+            background-color: var(--accent-color);
+            border: 2px solid #e6006f;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .btn-reset-upload:hover {
+            background-color: #d91a6d;
+            transform: scale(1.05);
+        }
+
+        .btn-reset-upload i {
+            font-size: 1.2rem;
+        }
+
+        .btn-reset {
+            background-color: var(--accent-color);
+            border: 2px solid #e6006f;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 1rem auto 0;
+        }
+
+        .btn-reset:hover {
+            background-color: #d91a6d;
+            transform: scale(1.05);
+        }
+
+        .btn-reset i {
+            font-size: 1.2rem;
+        }
+
+        .main {
+            padding: 2rem 0;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .section-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-row .card {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--accent-color);
+        }
+
+        .drop-area {
+            border: 2px dashed var(--primary-color);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .drop-area:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .drop-area.active {
+            background-color: rgba(67, 97, 238, 0.2);
+            border-style: solid;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+
+        .preview-item {
+            text-align: center;
+        }
+
+        .preview-browser {
+            width: 300px;
+            height: 60px;
+            background-color: #e9ecef;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            position: relative;
+        }
+
+        .preview-browser.dark {
+            background-color: #495057;
+        }
+
+        .preview-browser::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 30px;
+            height: 30px;
+            background-color: #adb5bd;
+            border-radius: 50%;
+        }
+
+        .preview-browser::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 55px;
+            width: 120px;
+            height: 30px;
+            background-color: #adb5bd;
+            border-radius: 15px;
+        }
+
+        .preview-browser.dark::before,
+        .preview-browser.dark::after {
+            background-color: #6c757d;
+        }
+
+        .preview-favicon {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="range"],
+        input[type="color"],
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            background-color: var(--card-bg);
+            color: var(--dark-text);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #ced4da;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .formats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .format-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .format-option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .tooltip i {
+            color: var(--primary-color);
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-text);
+            color: var(--light-text);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .share-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .facebook {
+            background-color: #3b5998;
+        }
+
+        .twitter {
+            background-color: #1da1f2;
+        }
+
+        .linkedin {
+            background-color: #0077b5;
+        }
+
+        .pinterest {
+            background-color: #e60023;
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-to-top:hover {
+            background-color: var(--secondary-color);
+        }
+
+        footer {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--light-text);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        #preview-section {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+            z-index: 50;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        #preview-section .card-title {
+            margin-bottom: 0.5rem;
+        }
+
+        .main-content {
+            margin-right: 360px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .brand, .title {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-row {
+                flex-direction: column;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            #preview-section {
+                position: static;
+                width: 100%;
+                max-height: none;
+                margin-bottom: 1.5rem;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+
+            .preview-browser {
+                width: 250px;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .animated-favicon {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Processing animation styles */
+        .processing {
+            position: relative;
+        }
+        
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            z-index: 10;
+            font-size: 1.5rem;
+        }
+        
+        /* Fade transition for preview updates */
+        .preview-favicon {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        /* Recommendations section */
+        .recommendations {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .recommendations h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .recommendations ul {
+            margin: 0.5rem 0 0;
+            padding-left: 1.5rem;
+        }
+        
+        .recommendations li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Social sharing styles */
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .share-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .share-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .share-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .share-btn.facebook:hover {
+            background-color: #324b81;
+        }
+        
+        .share-btn.twitter:hover {
+            background-color: #0c85d0;
+        }
+        
+        .share-btn.linkedin:hover {
+            background-color: #005b8e;
+        }
+        
+        .share-btn.pinterest:hover {
+            background-color: #c30019;
+        }
+        
+        /* Processing animation */
+        @keyframes processing-pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .processing .preview-item {
+            animation: processing-pulse 1.5s infinite ease-in-out;
+        }
+        
+        /* Notification system styles */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background-color: white;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            max-width: 350px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-icon {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        .notification-message {
+            font-size: 0.9rem;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: #adb5bd;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0;
+            margin-left: 10px;
+        }
+        
+        .notification-close:hover {
+            color: var(--dark-text);
+        }
+        
+        .notification.success .notification-icon {
+            color: #28a745;
+        }
+        
+        .notification.info .notification-icon {
+            color: var(--primary-color);
+        }
+        
+        .notification.warning .notification-icon {
+            color: #ffc107;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="brand">
+                <i class="fas fa-bolt"></i>
+                <span>Buzz</span>
+            </div>
+            <div class="title">Favicon Generator</div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn btn-outline" title="Toggle dark mode" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/" class="btn" title="Go to homepage" aria-label="Go to homepage">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container main-content">
+            <section class="hero">
+                <h1>Create Perfect Favicons in Seconds</h1>
+                <p>Generate high-quality favicons for all devices and browsers. Supports PNG, ICO, SVG, and WebP formats with real-time preview.</p>
+            </section>
+            
+            <!-- Notification system for real-time feedback -->
+            <div id="notification" class="notification" style="display: none;">
+                <div class="notification-content">
+                    <i class="notification-icon"></i>
+                    <span class="notification-message"></span>
+                </div>
+                <button class="notification-close" aria-label="Close notification">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="section-row">
+                <section class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-upload"></i>
+                        Upload Your Image
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-text">Upload any image (JPG, PNG, SVG) to convert it into a favicon. For best results, use square images.</span>
+                        </div>
+                    </h2>
+                    <div id="drop-area" class="drop-area">
+                        <p><i class="fas fa-cloud-upload-alt" style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary-color);"></i></p>
+                        <p>Drag & drop your image here or click to browse</p>
+                        <input type="file" id="file-input" accept="image/*,.svg" style="display: none;">
+                        <button id="browse-btn" class="btn" style="margin-top: 1rem;" aria-label="Select image file">Select Image</button>
+                    </div>
+                    <div id="image-info" style="display: none; text-align: center; margin-top: 1rem;">
+                        <p id="filename" style="font-weight: bold; margin-bottom: 10px;"></p>
+                        <div id="upload-preview-container" style="margin: 15px auto; max-width: 300px; border: 2px solid var(--primary-color); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <img id="upload-preview" style="max-width: 100%; display: block;" alt="Uploaded image preview">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0;">
+                            <p style="font-size: 0.9rem; color: #666; margin: 0;"><i class="fas fa-info-circle" style="color: var(--primary-color); margin-right: 5px;"></i> Original image preview</p>
+                            <button id="restore-original-btn" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.8rem;">
+                                <i class="fas fa-undo"></i> Restore Original
+                            </button>
+                        </div>
+                        <button id="reset-btn" class="btn btn-reset-upload" aria-label="Reset upload">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="section-row">
+                <section class="card" id="edit-section" style="display: none;">
+                    <h2 class="card-title">
+                        <i class="fas fa-edit"></i>
+                        Customize Your Favicon
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-text">Adjust your favicon's appearance. Crop, resize, add padding or background to ensure it looks perfect everywhere.</span>
+                        </div>
+                    </h2>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="crop-selection">Crop Selection</label>
+                            <div class="crop-controls" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; background-color: rgba(67, 97, 238, 0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(67, 97, 238, 0.2);">
+                                <div>
+                                    <label for="aspect-ratio" style="font-weight: 600; display: flex; align-items: center;">
+                                        <i class="fas fa-crop-alt" style="margin-right: 8px; color: var(--primary-color);"></i> Aspect Ratio:
+                                        <div class="tooltip" style="margin-left: 5px;">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span class="tooltip-text">Choose a preset aspect ratio for your favicon or select 'Free' for custom proportions.</span>
+                                        </div>
+                                    </label>
+                                    <select id="aspect-ratio" class="crop-control" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px;">
+                                        <option value="free">Free Form</option>
+                                        <option value="1:1" selected>Square (1:1) - Recommended</option>
+                                        <option value="16:9">Landscape (16:9)</option>
+                                        <option value="9:16">Portrait (9:16)</option>
+                                        <option value="4:3">Standard (4:3)</option>
+                                        <option value="3:2">Photo (3:2)</option>
+                                        <option value="2:1">Wide (2:1)</option>
+                                        <option value="1:2">Tall (1:2)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="rotation" style="font-weight: 600; display: flex; align-items: center;">
+                                        <i class="fas fa-sync" style="margin-right: 8px; color: var(--primary-color);"></i> Rotation:
+                                        <div class="tooltip" style="margin-left: 5px;">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span class="tooltip-text">Rotate your image to the desired angle.</span>
+                                        </div>
+                                    </label>
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                                        <button id="rotate-left" class="btn" style="padding: 5px 10px;" aria-label="Rotate left"><i class="fas fa-undo"></i></button>
+                                        <input type="range" id="rotation" class="crop-control" min="-180" max="180" value="0" step="1" style="flex-grow: 1;">
+                                        <button id="rotate-right" class="btn" style="padding: 5px 10px;" aria-label="Rotate right"><i class="fas fa-redo"></i></button>
+                                        <span id="rotation-value" style="min-width: 40px; text-align: right;">0°</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="zoom" style="font-weight: 600; display: flex; align-items: center;">
+                                        <i class="fas fa-search-plus" style="margin-right: 8px; color: var(--primary-color);"></i> Zoom:
+                                        <div class="tooltip" style="margin-left: 5px;">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span class="tooltip-text">Zoom in to focus on specific parts of your image.</span>
+                                        </div>
+                                    </label>
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                                        <button id="zoom-out" class="btn" style="padding: 5px 10px;" aria-label="Zoom out"><i class="fas fa-search-minus"></i></button>
+                                        <input type="range" id="zoom" class="crop-control" min="100" max="300" value="100" step="5" style="flex-grow: 1;">
+                                        <button id="zoom-in" class="btn" style="padding: 5px 10px;" aria-label="Zoom in"><i class="fas fa-search-plus"></i></button>
+                                        <span id="zoom-value" style="min-width: 50px; text-align: right;">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="crop-preview-container" style="display: flex; gap: 15px; margin-bottom: 15px; display: none;">
+                                <div style="flex: 1; text-align: center;">
+                                    <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Original Image</p>
+                                    <div style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid #adb5bd;">
+                                        <img id="original-preview" style="max-width: 100%; display: block;" alt="Original image">
+                                    </div>
+                                </div>
+                                <div style="flex: 1; text-align: center;">
+                                    <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Preview with Changes</p>
+                                    <div style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid var(--primary-color);">
+                                        <img id="modified-preview" style="max-width: 100%; display: block;" alt="Modified image preview">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="crop-container" style="position: relative; margin-bottom: 15px; display: none; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid var(--primary-color);">
+                                <div style="position: relative; overflow: hidden;">
+                                    <img id="crop-preview" style="max-width: 100%; display: block; transform-origin: center;" alt="Image for cropping">
+                                    <div id="crop-overlay" style="position: absolute; top: 0; left: 0; border: 2px dashed var(--primary-color); background-color: rgba(67, 97, 238, 0.2); cursor: move;">
+                                        <div class="crop-guide" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid rgba(255,255,255,0.5); pointer-events: none;">
+                                            <div style="position: absolute; top: 33.33%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.5);"></div>
+                                            <div style="position: absolute; top: 66.66%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.5);"></div>
+                                            <div style="position: absolute; left: 33.33%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.5);"></div>
+                                            <div style="position: absolute; left: 66.66%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.5);"></div>
+                                        </div>
+                                    </div>
+                                    <div class="crop-handle top-left" style="position: absolute; width: 12px; height: 12px; background: var(--primary-color); border: 2px solid white; border-radius: 50%; cursor: nw-resize; margin-top: -6px; margin-left: -6px;"></div>
+                                    <div class="crop-handle top-right" style="position: absolute; width: 12px; height: 12px; background: var(--primary-color); border: 2px solid white; border-radius: 50%; cursor: ne-resize; margin-top: -6px; margin-right: -6px;"></div>
+                                    <div class="crop-handle bottom-left" style="position: absolute; width: 12px; height: 12px; background: var(--primary-color); border: 2px solid white; border-radius: 50%; cursor: sw-resize; margin-bottom: -6px; margin-left: -6px;"></div>
+                                    <div class="crop-handle bottom-right" style="position: absolute; width: 12px; height: 12px; background: var(--primary-color); border: 2px solid white; border-radius: 50%; cursor: se-resize; margin-bottom: -6px; margin-right: -6px;"></div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <button id="show-crop-btn" class="btn" style="flex-grow: 1;">
+                                    <i class="fas fa-crop-alt" style="margin-right: 5px;"></i> Select Crop Area
+                                </button>
+                                <button id="apply-crop-btn" class="btn" style="flex-grow: 1;">
+                                    <i class="fas fa-check" style="margin-right: 5px;"></i> Apply Crop
+                                </button>
+                            </div>
+                            <div class="control-group" style="margin-top: 10px;">
+                                <label for="crop-size">Quick Crop Size</label>
+                                <input type="range" id="crop-size" min="50" max="100" value="100" aria-label="Adjust crop size">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>50%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="padding">Padding</label>
+                            <input type="range" id="padding" min="0" max="30" value="0" aria-label="Adjust padding">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>0px</span>
+                                <span>30px</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="bg-color">Background Color</label>
+                            <input type="color" id="bg-color" value="#ffffff" aria-label="Select background color">
+                        </div>
+                        <div class="control-group">
+                            <label for="transparency">Transparency</label>
+                            <input type="range" id="transparency" min="0" max="100" value="100" aria-label="Adjust transparency">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>0%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Effects</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="rounded-corners" aria-label="Toggle rounded corners">
+                                <label for="rounded-corners">Rounded Corners</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="add-border" aria-label="Toggle border">
+                                <label for="add-border">Add Border</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="animate-favicon" aria-label="Toggle animation">
+                                <label for="animate-favicon">Animate</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="grayscale" aria-label="Toggle grayscale effect">
+                                <label for="grayscale">Grayscale</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="invert-colors" aria-label="Toggle invert colors effect">
+                                <label for="invert-colors">Invert Colors</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="drop-shadow" aria-label="Toggle drop shadow effect">
+                                <label for="drop-shadow">Drop Shadow</label>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="border-color">Border Color</label>
+                            <input type="color" id="border-color" value="#000000" disabled aria-label="Select border color">
+                        </div>
+                        <div class="control-group">
+                            <label for="border-width">Border Width</label>
+                            <input type="range" id="border-width" min="1" max="5" value="2" disabled aria-label="Adjust border width">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>1px</span>
+                                <span>5px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Auto-Adjust</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <button id="auto-crop-btn" class="btn" aria-label="Apply smart crop">
+                                <i class="fas fa-crop-alt"></i> Smart Crop
+                            </button>
+                            <button id="auto-center-btn" class="btn" aria-label="Center content">
+                                <i class="fas fa-align-center"></i> Center Content
+                            </button>
+                            <button id="adjust-brightness-btn" class="btn" aria-label="Adjust brightness">
+                                <i class="fas fa-sun"></i> Adjust Brightness
+                            </button>
+                            <button id="adjust-contrast-btn" class="btn" aria-label="Adjust contrast">
+                                <i class="fas fa-adjust"></i> Adjust Contrast
+                            </button>
+                            <button id="enhance-colors-btn" class="btn" aria-label="Enhance colors">
+                                <i class="fas fa-palette"></i> Enhance Colors
+                            </button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <button id="reset-settings-btn" class="btn btn-reset" aria-label="Reset all settings">
+                            <i class="fas fa-undo"></i> Reset Settings
+                        </button>
+                    </div>
+                </section>
+
+                <section class="card" id="export-section" style="display: none;">
+                    <h2 class="card-title">
+                        <i class="fas fa-download"></i>
+                        Export Options
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-text">Choose formats and sizes for your favicon. ICO files can contain multiple sizes in a single file. SVG files are scalable, so sizes will generate SVGs with adjusted viewboxes.</span>
+                        </div>
+                    </h2>
+                    <div class="control-group">
+                        <label>Formats</label>
+                        <div class="formats-grid">
+                            <div class="format-option selected" data-format="png">
+                                <input type="checkbox" id="format-png" checked aria-label="Select PNG format">
+                                <label for="format-png">PNG</label>
+                            </div>
+                            <div class="format-option selected" data-format="ico">
+                                <input type="checkbox" id="format-ico" checked aria-label="Select ICO format">
+                                <label for="format-ico">ICO</label>
+                            </div>
+                            <div class="format-option" data-format="svg">
+                                <input type="checkbox" id="format-svg" aria-label="Select SVG format">
+                                <label for="format-svg">SVG</label>
+                            </div>
+                            <div class="format-option" data-format="webp">
+                                <input type="checkbox" id="format-webp" aria-label="Select WebP format">
+                                <label for="format-webp">WebP</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Sizes</label>
+                        <div class="formats-grid">
+                            <div class="format-option selected" data-size="16">
+                                <input type="checkbox" id="size-16" checked aria-label="Select 16x16 size">
+                                <label for="size-16">16×16</label>
+                            </div>
+                            <div class="format-option selected" data-size="32">
+                                <input type="checkbox" id="size-32" checked aria-label="Select 32x32 size">
+                                <label for="size-32">32×32</label>
+                            </div>
+                            <div class="format-option selected" data-size="48">
+                                <input type="checkbox" id="size-48" checked aria-label="Select 48x48 size">
+                                <label for="size-48">48×48</label>
+                            </div>
+                            <div class="format-option" data-size="64">
+                                <input type="checkbox" id="size-64" aria-label="Select 64x64 size">
+                                <label for="size-64">64×64</label>
+                            </div>
+                            <div class="format-option selected" data-size="128">
+                                <input type="checkbox" id="size-128" checked aria-label="Select 128x128 size">
+                                <label for="size-128">128×128</label>
+                            </div>
+                            <div class="format-option" data-size="256">
+                                <input type="checkbox" id="size-256" aria-label="Select 256x256 size">
+                                <label for="size-256">256×256</label>
+                            </div>
+                            <div class="format-option" data-size="512">
+                                <input type="checkbox" id="size-512" aria-label="Select 512x512 size">
+                                <label for="size-512">512×512</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group" id="custom-size-container">
+                        <label>
+                            <input type="checkbox" id="enable-custom-size" aria-label="Enable custom size">
+                            Custom Size
+                            <div class="tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">Specify exact dimensions for your favicon. This will generate an additional favicon with your custom dimensions.</span>
+                            </div>
+                        </label>
+                        <div id="custom-size-controls" style="display: none; margin-top: 10px; padding: 10px; background-color: rgba(67, 97, 238, 0.05); border-radius: 5px; border: 1px solid rgba(67, 97, 238, 0.2);">
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label for="custom-width" style="font-size: 0.9rem;">Width (px)</label>
+                                    <input type="number" id="custom-width" min="16" max="1024" value="192" style="width: 100%; padding: 5px;" aria-label="Custom width in pixels">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label for="custom-height" style="font-size: 0.9rem;">Height (px)</label>
+                                    <input type="number" id="custom-height" min="16" max="1024" value="192" style="width: 100%; padding: 5px;" aria-label="Custom height in pixels">
+                                </div>
+                            </div>
+                            <div class="checkbox-group" style="margin-top: 10px;">
+                                <input type="checkbox" id="maintain-aspect-ratio" checked aria-label="Maintain aspect ratio">
+                                <label for="maintain-aspect-ratio" style="font-size: 0.9rem;">Maintain aspect ratio</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="zip-option">
+                            <input type="checkbox" id="zip-option" checked aria-label="Package files in ZIP">
+                            Package all files in a ZIP archive
+                        </label>
+                    </div>
+                    <div class="actions">
+                        <button id="download-btn" class="btn btn-accent" disabled aria-label="Download favicon">
+                            <i class="fas fa-download"></i> Download Favicon
+                        </button>
+                        <button id="generate-html-btn" class="btn" aria-label="Generate HTML code">
+                            <i class="fas fa-code"></i> Generate HTML Code
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="section-row">
+                <section class="card" id="html-code-section" style="display: none;">
+                    <h2 class="card-title">
+                        <i class="fas fa-code"></i>
+                        HTML Implementation
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-text">Copy this code to your website's <head> section to implement your favicon across all devices.</span>
+                        </div>
+                    </h2>
+                    <textarea id="html-code" style="width: 100%; height: 150px; padding: 10px; border-radius: 5px; border: 1px solid #ced4da; background-color: var(--card-bg); color: var(--dark-text); font-family: monospace;" readonly aria-label="HTML code for favicon implementation"></textarea>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button id="copy-html-btn" class="btn" aria-label="Copy HTML to clipboard">
+                            <i class="fas fa-copy"></i> Copy to Clipboard
+                        </button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-share-alt"></i>
+                        Share Your Creation
+                    </h2>
+                    <div class="share-buttons">
+                        <div class="share-btn facebook" title="Share on Facebook" aria-label="Share on Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </div>
+                        <div class="share-btn twitter" title="Share on Twitter" aria-label="Share on Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </div>
+                        <div class="share-btn linkedin" title="Share on LinkedIn" aria-label="Share on LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <div class="share-btn pinterest" title="Share on Pinterest" aria-label="Share on Pinterest">
+                            <i class="fab fa-pinterest-p"></i>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <section id="preview-section" style="display: none;">
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-eye"></i>
+                    Live Preview
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltip-text">See how your favicon will appear in different contexts. Toggle between light and dark mode to test visibility.</span>
+                    </div>
+                </h2>
+                <div class="preview-container">
+                    <div class="preview-item">
+                        <p>Browser Tab (Light)</p>
+                        <div class="preview-browser">
+                            <img id="preview-favicon-light" class="preview-favicon" src="" alt="Favicon Preview">
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <p>Browser Tab (Dark)</p>
+                        <div class="preview-browser dark">
+                            <img id="preview-favicon-dark" class="preview-favicon" src="" alt="Favicon Preview">
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <p>Mobile</p>
+                        <div style="width: 60px; height: 60px; background-color: #e9ecef; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <img id="preview-favicon-mobile" src="" alt="Mobile Favicon" style="width: 36px; height: 36px;">
+                        </div>
+                    </div>
+                </div>
+                <div id="recommendations" class="recommendations" style="display: none;"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-links">
+                <a href="#" aria-label="Privacy Policy">Privacy Policy</a>
+                <a href="#" aria-label="Terms of Service">Terms of Service</a>
+                <a href="#" aria-label="Contact Us">Contact Us</a>
+                <a href="#" aria-label="API">API</a>
+                <a href="#" aria-label="Blog">Blog</a>
+            </div>
+            <p>© 2025 Buzz Favicon Generator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div class="scroll-to-top" id="scroll-to-top" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        const themeToggle = document.getElementById('theme-toggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            themeToggle.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            try {
+                localStorage.setItem('theme', theme);
+            } catch (e) {
+                console.error('Failed to save theme to localStorage:', e);
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme') || (prefersDarkScheme.matches ? 'dark' : 'light');
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        });
+
+        prefersDarkScheme.addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const browseBtn = document.getElementById('browse-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const filename = document.getElementById('filename');
+        const previewSection = document.getElementById('preview-section');
+        const editSection = document.getElementById('edit-section');
+        const exportSection = document.getElementById('export-section');
+        const htmlCodeSection = document.getElementById('html-code-section');
+        const downloadBtn = document.getElementById('download-btn');
+
+        let uploadedImage = null;
+        let isSvg = false;
+        let brightnessFactor = 1;
+        let contrastFactor = 1;
+        let saturationFactor = 1;
+        
+        // Crop selection variables
+        let cropOffsetX = 0;
+        let cropOffsetY = 0;
+        let cropWidth = 0;
+        let cropHeight = 0;
+        let cropRotation = 0;
+        let isDragging = false;
+        let isResizing = false;
+        let resizeHandle = null;
+        let startX = 0;
+        let startY = 0;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('active');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('active');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        browseBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFiles(fileInput.files);
+            }
+        });
+
+        resetBtn.addEventListener('click', resetUpload);
+
+        function resetUpload() {
+            uploadedImage = null;
+            isSvg = false;
+            brightnessFactor = 1;
+            contrastFactor = 1;
+            saturationFactor = 1;
+            dropArea.style.display = 'block';
+            document.getElementById('image-info').style.display = 'none';
+            previewSection.style.display = 'none';
+            editSection.style.display = 'none';
+            exportSection.style.display = 'none';
+            htmlCodeSection.style.display = 'none';
+            fileInput.value = '';
+            downloadBtn.disabled = true;
+            resetEditSettings();
+        }
+
+        function resetEditSettings() {
+            document.getElementById('crop-size').value = 100;
+            document.getElementById('padding').value = 0;
+            document.getElementById('bg-color').value = '#ffffff';
+            document.getElementById('transparency').value = 100;
+            document.getElementById('rounded-corners').checked = false;
+            document.getElementById('add-border').checked = false;
+            document.getElementById('animate-favicon').checked = false;
+            document.getElementById('grayscale').checked = false;
+            document.getElementById('invert-colors').checked = false;
+            document.getElementById('drop-shadow').checked = false;
+            document.getElementById('border-color').value = '#000000';
+            document.getElementById('border-color').disabled = true;
+            document.getElementById('border-width').value = 2;
+            document.getElementById('border-width').disabled = true;
+            brightnessFactor = 1;
+            contrastFactor = 1;
+            
+            // Reset transformation values
+            document.getElementById('rotation').value = 0;
+            document.getElementById('rotation-value').textContent = '0°';
+            document.getElementById('zoom').value = 100;
+            document.getElementById('zoom-value').textContent = '100%';
+            document.getElementById('aspect-ratio').value = '1:1';
+            
+            // Reset crop selection
+            cropOffsetX = 0;
+            cropOffsetY = 0;
+            cropWidth = 0;
+            cropHeight = 0;
+            
+            // Reset crop preview transform if it exists
+            const cropPreview = document.getElementById('crop-preview');
+            if (cropPreview) {
+                cropPreview.style.transform = 'scale(1) rotate(0deg)';
+            }
+            
+            // Reset crop container if visible
+            const cropContainer = document.getElementById('crop-container');
+            if (cropContainer && cropContainer.style.display !== 'none') {
+                cropContainer.style.display = 'none';
+                document.getElementById('show-crop-btn').innerHTML = '<i class="fas fa-crop-alt" style="margin-right: 5px;"></i> Select Crop Area';
+            }
+            saturationFactor = 1;
+            
+            // Reset crop selection
+            if (document.getElementById('crop-container').style.display !== 'none') {
+                document.getElementById('crop-container').style.display = 'none';
+                document.getElementById('show-crop-btn').textContent = 'Select Crop Area';
+            }
+            cropOffsetX = 0;
+            cropOffsetY = 0;
+            cropWidth = 0;
+            cropHeight = 0;
+            
+            updatePreview();
+        }
+
+        function handleFiles(files) {
+            if (files.length > 1) {
+                alert('Please upload only one image at a time.');
+                return;
+            }
+
+            const file = files[0];
+            if (!file.type.match('image/*') && file.type !== 'image/svg+xml') {
+                alert('Please select an image file (JPG, PNG, SVG).');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size exceeds 5MB. Please upload a smaller image.');
+                return;
+            }
+
+            filename.textContent = file.name;
+            document.getElementById('image-info').style.display = 'block';
+            dropArea.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    uploadedImage = e.target.result;
+                    if (!uploadedImage.startsWith('data:image/')) {
+                        throw new Error('Invalid image data URL');
+                    }
+                    isSvg = file.type === 'image/svg+xml';
+                    if (isSvg) {
+                        uploadedImage = uploadedImage.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+                        if (!uploadedImage.includes('<svg')) {
+                            throw new Error('Invalid SVG content');
+                        }
+                    }
+                    
+                    // Set up upload preview image
+                    const uploadPreview = document.getElementById('upload-preview');
+                    uploadPreview.src = uploadedImage;
+                    
+                    // Set up crop preview image
+                    const cropPreview = document.getElementById('crop-preview');
+                    cropPreview.src = uploadedImage;
+                    cropPreview.onload = function() {
+                        // Reset crop selection variables
+                        cropOffsetX = 0;
+                        cropOffsetY = 0;
+                        cropWidth = 0;
+                        cropHeight = 0;
+                    };
+                    
+                    updatePreview();
+                    previewSection.style.display = 'block';
+                    editSection.style.display = 'block';
+                    exportSection.style.display = 'block';
+                    downloadBtn.disabled = false;
+                } catch (e) {
+                    alert('Failed to read the image file: ' + e.message);
+                    console.error('FileReader error:', e);
+                    resetUpload();
+                }
+            };
+            reader.onerror = function() {
+                alert('Error reading the file. Please try again.');
+                resetUpload();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function generateSvgFavicon(baseSize = 100, customHeight = null) {
+            try {
+                // If customHeight is provided, use it, otherwise use baseSize (square)
+                const height = customHeight || baseSize;
+                
+                let svgContent;
+                if (isSvg) {
+                    const draw = SVG().svg(uploadedImage);
+                    draw.viewbox(0, 0, baseSize, height);
+                    draw.size(baseSize, height);
+                    draw.css({
+                        'background': 'white',
+                        '@media (prefers-color-scheme: dark)': {
+                            'background': 'black'
+                        }
+                    });
+                    svgContent = draw.svg();
+                } else {
+                    const svg = SVG().size(baseSize, height).viewbox(0, 0, baseSize, height);
+                    svg.image(uploadedImage).size(baseSize, height);
+                    svg.css({
+                        'background': 'white',
+                        '@media (prefers-color-scheme: dark)': {
+                            'background': 'black'
+                        }
+                    });
+                    svgContent = svg.svg();
+                }
+                if (!svgContent) {
+                    throw new Error('Failed to generate SVG content');
+                }
+                return svgContent;
+            } catch (e) {
+                throw new Error('SVG generation failed: ' + e.message);
+            }
+        }
+
+        async function rasterizeSvg(svgContent, width, height = null) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(svgBlob);
+
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // If height is not provided, use width (square)
+                    const finalHeight = height || width;
+                    canvas.width = width;
+                    canvas.height = finalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, finalHeight);
+                    URL.revokeObjectURL(url);
+                    const dataUrl = canvas.toDataURL('image/png');
+                    resolve(dataUrl);
+                };
+
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Failed to rasterize SVG'));
+                };
+
+                img.src = url;
+            });
+        }
+
+        function adjustImageData(imageData, brightness, contrast, saturation, grayscale = false, invert = false) {
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, data[i] * brightness);
+                data[i + 1] = Math.min(255, data[i + 1] * brightness);
+                data[i + 2] = Math.min(255, data[i + 2] * brightness);
+            }
+
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, Math.max(0, (data[i] - 128) * contrast + 128));
+                data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * contrast + 128));
+                data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * contrast + 128));
+            }
+
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i] / 255;
+                let g = data[i + 1] / 255;
+                let b = data[i + 2] / 255;
+
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+
+                if (max === min) {
+                    h = s = 0;
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+
+                s = Math.min(1, s * saturation);
+
+                if (s === 0) {
+                    r = g = b = l;
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1/6) return p + (q - p) * 6 * t;
+                        if (t < 1/2) return q;
+                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                        return p;
+                    };
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1/3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1/3);
+                }
+
+                data[i] = r * 255;
+                data[i + 1] = g * 255;
+                data[i + 2] = b * 255;
+            }
+
+            if (grayscale) {
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                    data[i] = gray;
+                    data[i + 1] = gray;
+                    data[i + 2] = gray;
+                }
+            }
+
+            if (invert) {
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = 255 - data[i];
+                    data[i + 1] = 255 - data[i + 1];
+                    data[i + 2] = 255 - data[i + 2];
+                }
+            }
+
+            return imageData;
+        }
+
+        function processImage(size = 32, forIco = false, customHeight = null) {
+            return new Promise((resolve, reject) => {
+                if (!uploadedImage) {
+                    reject(new Error('No image uploaded'));
+                    return;
+                }
+
+                // Handle custom dimensions
+                let width = size;
+                let height = customHeight || size; // If customHeight is provided, use it, otherwise use size (square)
+
+                if (isSvg && !forIco) {
+                    try {
+                        // Pass both dimensions to SVG generator
+                        const svg = generateSvgFavicon(width, height);
+                        rasterizeSvg(svg, width, height).then(dataUrl => {
+                            resolve({ dataUrl, animate: document.getElementById('animate-favicon').checked });
+                        }).catch(err => reject(err));
+                    } catch (e) {
+                        reject(new Error('SVG processing failed: ' + e.message));
+                    }
+                    return;
+                }
+
+                const cropSize = parseFloat(document.getElementById('crop-size').value) / 100 || 1;
+                const padding = parseInt(document.getElementById('padding').value) || 0;
+                const bgColor = document.getElementById('bg-color').value || '#ffffff';
+                const transparency = (parseInt(document.getElementById('transparency').value) || 100) / 100;
+                const roundedCorners = document.getElementById('rounded-corners').checked;
+                const addBorder = document.getElementById('add-border').checked;
+                const borderColorInput = document.getElementById('border-color');
+                const borderColor = borderColorInput.disabled ? '#000000' : borderColorInput.value || '#000000';
+                const borderWidthInput = document.getElementById('border-width');
+                const borderWidth = borderWidthInput.disabled ? 2 : parseInt(borderWidthInput.value) || 2;
+                const animate = document.getElementById('animate-favicon').checked;
+                const grayscale = document.getElementById('grayscale').checked;
+                const invertColors = document.getElementById('invert-colors').checked;
+                const dropShadow = document.getElementById('drop-shadow').checked;
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    reject(new Error('Failed to get canvas context'));
+                    return;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                ctx.clearRect(0, 0, width, height);
+                ctx.globalAlpha = 1.0;
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+
+                const img = new Image();
+                img.src = uploadedImage;
+
+                img.onload = () => {
+                    try {
+                        ctx.save();
+                        ctx.globalAlpha = transparency;
+                        ctx.fillStyle = bgColor;
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.restore();
+
+                        if (dropShadow) {
+                            ctx.save();
+                            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                            ctx.shadowBlur = 4;
+                            ctx.shadowOffsetX = 2;
+                            ctx.shadowOffsetY = 2;
+                        }
+
+                        if (roundedCorners) {
+                            ctx.save();
+                            ctx.beginPath();
+                            // For non-square dimensions, use an ellipse instead of a circle
+                            if (width === height) {
+                                ctx.arc(width / 2, height / 2, (width / 2) - 2, 0, Math.PI * 2);
+                            } else {
+                                // Use ellipse for non-square dimensions
+                                const radiusX = (width / 2) - 2;
+                                const radiusY = (height / 2) - 2;
+                                ctx.ellipse(width / 2, height / 2, radiusX, radiusY, 0, 0, Math.PI * 2);
+                            }
+                            ctx.clip();
+                        }
+                        
+                        let imgWidth, imgHeight, offsetX, offsetY;
+                        
+                        // Get rotation and zoom values
+                        const rotation = parseInt(document.getElementById('rotation').value) || 0;
+                        const zoom = parseInt(document.getElementById('zoom').value) || 100;
+                        
+                        // Use custom crop selection if available
+                        if (cropWidth > 0 && cropHeight > 0) {
+                            imgWidth = cropWidth;
+                            imgHeight = cropHeight;
+                            offsetX = cropOffsetX;
+                            offsetY = cropOffsetY;
+                        } else {
+                            // Fall back to the slider-based crop
+                            const cropDimension = Math.min(img.width, img.height) * cropSize;
+                            imgWidth = cropDimension;
+                            imgHeight = cropDimension;
+                            offsetX = (img.width - imgWidth) / 2;
+                            offsetY = (img.height - imgHeight) / 2;
+                        }
+                        
+                        // Apply zoom factor
+                        imgWidth = imgWidth * (100 / zoom);
+                        imgHeight = imgHeight * (100 / zoom);
+                        
+                        // Calculate draw dimensions with padding
+                        const drawWidth = width - (2 * padding);
+                        const drawHeight = height - (2 * padding);
+                        
+                        // Apply rotation if needed
+                        if (rotation !== 0) {
+                            ctx.save();
+                            ctx.translate(width / 2, height / 2);
+                            ctx.rotate(rotation * Math.PI / 180);
+                            ctx.translate(-width / 2, -height / 2);
+                        }
+
+                        ctx.drawImage(
+                            img,
+                            offsetX,
+                            offsetY,
+                            imgWidth,
+                            imgHeight,
+                            padding,
+                            padding,
+                            drawWidth,
+                            drawHeight
+                        );
+
+                        if (roundedCorners) {
+                            ctx.restore();
+                        }
+
+                        if (dropShadow) {
+                            ctx.restore();
+                        }
+
+                        let imageData = ctx.getImageData(0, 0, width, height);
+                        imageData = adjustImageData(imageData, brightnessFactor, contrastFactor, saturationFactor, grayscale, invertColors);
+                        ctx.putImageData(imageData, 0, 0);
+
+                        if (addBorder) {
+                            ctx.save();
+                            ctx.strokeStyle = borderColor;
+                            ctx.lineWidth = Math.max(1, Math.min(5, borderWidth));
+                            ctx.beginPath();
+                            ctx.rect(padding, padding, drawWidth, drawHeight);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+
+                        const testPixel = ctx.getImageData(0, 0, 1, 1).data;
+                        if (testPixel.every(val => val === 0) && transparency === 0 && !addBorder) {
+                            console.warn('Canvas appears empty, but transparency is 0, proceeding.');
+                        }
+
+                        if (forIco) {
+                            // ICO format requires square dimensions, so we'll use the width for both
+                            // This is a limitation of the ICO format
+                            const squareSize = Math.max(width, height);
+                            const squareCanvas = document.createElement('canvas');
+                            squareCanvas.width = squareSize;
+                            squareCanvas.height = squareSize;
+                            const squareCtx = squareCanvas.getContext('2d');
+                            
+                            // Center the image in the square canvas
+                            const offsetX = (squareSize - width) / 2;
+                            const offsetY = (squareSize - height) / 2;
+                            squareCtx.drawImage(canvas, offsetX, offsetY);
+                            
+                            const squareImageData = squareCtx.getImageData(0, 0, squareSize, squareSize);
+                            const bmpBuffer = createBmpBuffer(squareImageData, squareSize);
+                            resolve({ data: bmpBuffer, animate });
+                        } else {
+                            const dataUrl = canvas.toDataURL('image/png');
+                            if (!dataUrl.startsWith('data:image/png')) {
+                                throw new Error('Invalid canvas data URL');
+                            }
+                            resolve({ dataUrl, animate });
+                        }
+                    } catch (e) {
+                        console.error('Image processing failed:', e);
+                        reject(new Error('Image processing failed: ' + e.message));
+                    }
+                };
+
+                img.onerror = () => {
+                    console.error('Failed to load image for processing');
+                    reject(new Error('Failed to load image'));
+                };
+            });
+        }
+
+        function createBmpBuffer(imageData, size) {
+            const width = size;
+            const height = size;
+            const bpp = 32;
+            const bytesPerPixel = bpp / 8;
+            const rowSize = Math.ceil((width * bpp) / 32) * 4;
+            const pixelDataSize = rowSize * height;
+            const infoHeaderSize = 40;
+            const andMaskRowSize = Math.ceil(width / 8);
+            const andMaskPaddedRowSize = Math.ceil(andMaskRowSize / 4) * 4;
+            const andMaskSize = andMaskPaddedRowSize * height;
+            const totalSize = infoHeaderSize + pixelDataSize + andMaskSize;
+
+            const buffer = new ArrayBuffer(totalSize);
+            const view = new DataView(buffer);
+
+            view.setUint32(0, infoHeaderSize, true);
+            view.setInt32(4, width, true);
+            view.setInt32(8, height, true);
+            view.setUint16(12, 1, true);
+            view.setUint16(14, bpp, true);
+            view.setUint32(16, 0, true);
+            view.setUint32(20, pixelDataSize + andMaskSize, true);
+            view.setUint32(24, 0, true);
+            view.setUint32(28, 0, true);
+            view.setUint32(32, 0, true);
+            view.setUint32(36, 0, true);
+
+            const pixels = imageData.data;
+            const dataOffset = infoHeaderSize;
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const pixelIndex = (y * width + x) * 4;
+                    const offset = dataOffset + (height - 1 - y) * rowSize + x * bytesPerPixel;
+                    view.setUint8(offset + 0, pixels[pixelIndex + 2]);
+                    view.setUint8(offset + 1, pixels[pixelIndex + 1]);
+                    view.setUint8(offset + 2, pixels[pixelIndex + 0]);
+                    view.setUint8(offset + 3, pixels[pixelIndex + 3]);
+                }
+                for (let p = width * bytesPerPixel; p < rowSize; p++) {
+                    view.setUint8(dataOffset + (height - 1 - y) * rowSize + p, 0);
+                }
+            }
+
+            const andMaskOffset = dataOffset + pixelDataSize;
+            for (let y = 0; y < height; y++) {
+                let byteIndex = andMaskOffset + (height - 1 - y) * andMaskPaddedRowSize;
+                let bitPos = 0;
+                let currentByte = 0;
+                for (let x = 0; x < width; x++) {
+                    const pixelIndex = (y * width + x) * 4;
+                    const alpha = pixels[pixelIndex + 3];
+                    if (alpha < 128) {
+                        currentByte |= (1 << (7 - (x % 8)));
+                    }
+                    bitPos++;
+                    if (bitPos === 8 || x === width - 1) {
+                        view.setUint8(byteIndex, currentByte);
+                        byteIndex++;
+                        currentByte = 0;
+                        bitPos = 0;
+                    }
+                }
+                for (let p = andMaskRowSize; p < andMaskPaddedRowSize; p++) {
+                    view.setUint8(andMaskOffset + (height - 1 - y) * andMaskPaddedRowSize + p, 0);
+                }
+            }
+
+            console.log(`Generated BMP for size ${size}x${size}: Total size=${totalSize} bytes, XOR size=${pixelDataSize}, AND size=${andMaskSize}`);
+            return buffer;
+        }
+
+        function writeNumberToBuffer(buffer, offset, value, size) {
+            const view = new DataView(buffer);
+            if (size === 1) {
+                view.setUint8(offset, value);
+            } else if (size === 2) {
+                view.setUint16(offset, value, true);
+            } else if (size === 4) {
+                view.setUint32(offset, value, true);
+            }
+        }
+
+        async function generateIco(sizes) {
+            try {
+                if (!sizes || sizes.length === 0) {
+                    throw new Error('No sizes provided for ICO generation');
+                }
+
+                console.log(`Generating ICO file with sizes: ${sizes.join(', ')}`);
+
+                const images = [];
+                for (const size of sizes) {
+                    if (!size || isNaN(size)) {
+                        console.error(`Invalid size value: ${size}`);
+                        throw new Error('Invalid size value provided');
+                    }
+                    console.log(`Processing image for size ${size}x${size}`);
+                    const { data } = await processImage(size, true);
+                    if (!data || data.byteLength < 40) {
+                        console.error(`Invalid BMP data for size ${size}x${size}: ${data ? data.byteLength : 'null'} bytes`);
+                        throw new Error(`Failed to generate BMP data for size ${size}x${size}`);
+                    }
+                    console.log(`Successfully generated BMP data for size ${size}x${size}: ${data.byteLength} bytes`);
+                    images.push({ size, data });
+                }
+
+                if (images.length === 0) {
+                    throw new Error('No valid images generated for ICO file');
+                }
+
+                const numImages = images.length;
+                console.log(`Number of images to include in ICO: ${numImages}`);
+
+                const headerSize = 6;
+                const entrySize = 16;
+                let totalImageDataSize = 0;
+                images.forEach(img => {
+                    totalImageDataSize += img.data.byteLength;
+                    console.log(`Image data size for ${img.size}x${img.size}: ${img.data.byteLength} bytes`);
+                });
+
+                const totalSize = headerSize + (entrySize * numImages) + totalImageDataSize;
+                console.log(`Total ICO file size: ${totalSize} bytes`);
+
+                const icoBuffer = new ArrayBuffer(totalSize);
+                const view = new DataView(icoBuffer);
+
+                writeNumberToBuffer(icoBuffer, 0, 0, 2);
+                writeNumberToBuffer(icoBuffer, 2, 1, 2);
+                writeNumberToBuffer(icoBuffer, 4, numImages, 2);
+                console.log(`ICO Header written: Reserved=0, Type=1, NumImages=${numImages}`);
+
+                let offset = headerSize + (entrySize * numImages);
+                for (let i = 0; i < numImages; i++) {
+                    const img = images[i];
+                    const entryOffset = headerSize + (i * entrySize);
+                    const sizeValue = img.size === 256 ? 0 : img.size;
+                    writeNumberToBuffer(icoBuffer, entryOffset + 0, sizeValue, 1);
+                    writeNumberToBuffer(icoBuffer, entryOffset + 1, sizeValue, 1);
+                    writeNumberToBuffer(icoBuffer, entryOffset + 2, 0, 1);
+                    writeNumberToBuffer(icoBuffer, entryOffset + 3, 0, 1);
+                    writeNumberToBuffer(icoBuffer, entryOffset + 4, 1, 2);
+                    writeNumberToBuffer(icoBuffer, entryOffset + 6, 32, 2);
+                    writeNumberToBuffer(icoBuffer, entryOffset + 8, img.data.byteLength, 4);
+                    writeNumberToBuffer(icoBuffer, entryOffset + 12, offset, 4);
+                    console.log(`Directory Entry ${i + 1}: Size=${sizeValue}x${sizeValue}, Data Size=${img.data.byteLength} bytes, Offset=${offset}`);
+                    offset += img.data.byteLength;
+                }
+
+                let currentOffset = headerSize + (entrySize * numImages);
+                for (const img of images) {
+                    const imgData = new Uint8Array(img.data);
+                    const target = new Uint8Array(icoBuffer, currentOffset, imgData.length);
+                    target.set(imgData);
+                    console.log(`Writing image data for size ${img.size}x${img.size} at offset ${currentOffset}, size ${imgData.length} bytes`);
+                    currentOffset += imgData.length;
+                }
+
+                const icoBytes = new Uint8Array(icoBuffer.slice(0, Math.min(32, totalSize)));
+                console.log('ICO file first 32 bytes (hex):', Array.from(icoBytes).map(b => b.toString(16).padStart(2, '0')).join(' '));
+
+                return icoBuffer;
+            } catch (e) {
+                console.error(`ICO generation failed: ${e.message}`);
+                alert(`Failed to generate ICO file: ${e.message}. Other formats will still be available.`);
+                return null;
+            }
+        }
+
+        // Crop selection functionality
+        document.getElementById('show-crop-btn').addEventListener('click', function() {
+            const cropContainer = document.getElementById('crop-container');
+            const cropPreviewContainer = document.querySelector('.crop-preview-container');
+            
+            if (cropContainer.style.display === 'none') {
+                cropContainer.style.display = 'block';
+                this.innerHTML = '<i class="fas fa-check" style="margin-right: 5px;"></i> Apply Crop';
+                
+                // Show the side-by-side preview
+                cropPreviewContainer.style.display = 'flex';
+                
+                const cropPreview = document.getElementById('crop-preview');
+                const cropOverlay = document.getElementById('crop-overlay');
+                const handles = document.querySelectorAll('.crop-handle');
+                const originalPreview = document.getElementById('original-preview');
+                const modifiedPreview = document.getElementById('modified-preview');
+                
+                // Set the original preview image
+                originalPreview.src = uploadedImage;
+                
+                // Initialize crop overlay to cover the entire image
+                const rect = cropPreview.getBoundingClientRect();
+                cropOverlay.style.width = rect.width + 'px';
+                cropOverlay.style.height = rect.height + 'px';
+                cropOverlay.style.top = '0px';
+                cropOverlay.style.left = '0px';
+                
+                // Position the handles
+                updateHandlePositions();
+                
+                // Initialize the modified preview
+                modifiedPreview.src = cropPreview.src;
+                
+                // Set up drag events for the crop overlay
+                cropOverlay.addEventListener('mousedown', startDragging);
+                
+                // Set up resize events for the handles
+                handles.forEach(handle => {
+                    handle.addEventListener('mousedown', startResizing);
+                });
+                
+                document.addEventListener('mousemove', moveHandler);
+                document.addEventListener('mouseup', stopHandler);
+                
+                // Update the modified preview initially
+                setTimeout(() => {
+                    const cropControlsObj = initCropControls();
+                    if (cropControlsObj && cropControlsObj.updateModifiedPreview) {
+                        cropControlsObj.updateModifiedPreview();
+                    }
+                }, 100);
+            } else {
+                // Apply the crop
+                applyCrop();
+                cropContainer.style.display = 'none';
+                cropPreviewContainer.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-crop-alt" style="margin-right: 5px;"></i> Select Crop Area';
+                
+                // Remove event listeners
+                document.removeEventListener('mousemove', moveHandler);
+                document.removeEventListener('mouseup', stopHandler);
+            }
+        });
+        
+        function startDragging(e) {
+            e.preventDefault();
+            isDragging = true;
+            isResizing = false;
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+        
+        function startResizing(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            isDragging = false;
+            isResizing = true;
+            resizeHandle = e.target.className.split(' ')[1]; // Get handle position (top-left, etc.)
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+        
+        function moveHandler(e) {
+            if (!isDragging && !isResizing) return;
+            
+            e.preventDefault();
+            
+            const cropOverlay = document.getElementById('crop-overlay');
+            const rect = cropOverlay.getBoundingClientRect();
+            const cropPreview = document.getElementById('crop-preview');
+            const previewRect = cropPreview.getBoundingClientRect();
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            if (isDragging) {
+                // Calculate new position, ensuring it stays within the image boundaries
+                let newLeft = rect.left - previewRect.left + deltaX;
+                let newTop = rect.top - previewRect.top + deltaY;
+                
+                // Constrain to image boundaries
+                newLeft = Math.max(0, Math.min(newLeft, previewRect.width - rect.width));
+                newTop = Math.max(0, Math.min(newTop, previewRect.height - rect.height));
+                
+                cropOverlay.style.left = newLeft + 'px';
+                cropOverlay.style.top = newTop + 'px';
+                
+                updateHandlePositions();
+            } else if (isResizing) {
+                let newWidth = rect.width;
+                let newHeight = rect.height;
+                let newLeft = rect.left - previewRect.left;
+                let newTop = rect.top - previewRect.top;
+                
+                // Adjust dimensions based on which handle is being dragged
+                if (resizeHandle.includes('right')) {
+                    newWidth = Math.max(50, rect.width + deltaX);
+                    // Constrain to image boundaries
+                    newWidth = Math.min(newWidth, previewRect.width - newLeft);
+                }
+                
+                if (resizeHandle.includes('bottom')) {
+                    newHeight = Math.max(50, rect.height + deltaY);
+                    // Constrain to image boundaries
+                    newHeight = Math.min(newHeight, previewRect.height - newTop);
+                }
+                
+                if (resizeHandle.includes('left')) {
+                    const maxLeftAdjust = rect.width - 50; // Ensure minimum width of 50px
+                    const leftAdjust = Math.max(-maxLeftAdjust, Math.min(deltaX, rect.width - 50));
+                    newLeft += leftAdjust;
+                    newWidth -= leftAdjust;
+                    // Constrain to image boundaries
+                    newLeft = Math.max(0, newLeft);
+                }
+                
+                if (resizeHandle.includes('top')) {
+                    const maxTopAdjust = rect.height - 50; // Ensure minimum height of 50px
+                    const topAdjust = Math.max(-maxTopAdjust, Math.min(deltaY, rect.height - 50));
+                    newTop += topAdjust;
+                    newHeight -= topAdjust;
+                    // Constrain to image boundaries
+                    newTop = Math.max(0, newTop);
+                }
+                
+                cropOverlay.style.width = newWidth + 'px';
+                cropOverlay.style.height = newHeight + 'px';
+                cropOverlay.style.left = newLeft + 'px';
+                cropOverlay.style.top = newTop + 'px';
+                
+                updateHandlePositions();
+            }
+            
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+        
+        function stopHandler() {
+            isDragging = false;
+            isResizing = false;
+        }
+        
+        function updateHandlePositions() {
+            const cropOverlay = document.getElementById('crop-overlay');
+            const rect = cropOverlay.getBoundingClientRect();
+            const cropPreview = document.getElementById('crop-preview');
+            const previewRect = cropPreview.getBoundingClientRect();
+            
+            const left = rect.left - previewRect.left;
+            const top = rect.top - previewRect.top;
+            const width = rect.width;
+            const height = rect.height;
+            
+            const handles = {
+                'top-left': { left: left - 5 + 'px', top: top - 5 + 'px' },
+                'top-right': { left: left + width - 5 + 'px', top: top - 5 + 'px' },
+                'bottom-left': { left: left - 5 + 'px', top: top + height - 5 + 'px' },
+                'bottom-right': { left: left + width - 5 + 'px', top: top + height - 5 + 'px' }
+            };
+            
+            Object.keys(handles).forEach(position => {
+                const handle = document.querySelector(`.crop-handle.${position}`);
+                handle.style.left = handles[position].left;
+                handle.style.top = handles[position].top;
+            });
+        }
+        
+        // Initialize crop control event listeners
+        function initCropControls() {
+            const aspectRatio = document.getElementById('aspect-ratio');
+            const rotation = document.getElementById('rotation');
+            const rotationValue = document.getElementById('rotation-value');
+            const zoom = document.getElementById('zoom');
+            const zoomValue = document.getElementById('zoom-value');
+            const rotateLeft = document.getElementById('rotate-left');
+            const rotateRight = document.getElementById('rotate-right');
+            const zoomIn = document.getElementById('zoom-in');
+            const zoomOut = document.getElementById('zoom-out');
+            const applyCropBtn = document.getElementById('apply-crop-btn');
+            const cropPreviewContainer = document.querySelector('.crop-preview-container');
+            
+            // Aspect ratio change handler
+            aspectRatio.addEventListener('change', function() {
+                if (this.value === 'free') return;
+                
+                const cropOverlay = document.getElementById('crop-overlay');
+                const [widthRatio, heightRatio] = this.value.split(':').map(Number);
+                
+                // Get current dimensions
+                const rect = cropOverlay.getBoundingClientRect();
+                const currentWidth = rect.width;
+                
+                // Calculate new height based on aspect ratio
+                const newHeight = (currentWidth * heightRatio) / widthRatio;
+                
+                // Apply new dimensions
+                cropOverlay.style.height = newHeight + 'px';
+                
+                // Update handle positions
+                updateHandlePositions();
+                
+                // Update the modified preview
+                updateModifiedPreview();
+            });
+            
+            // Rotation change handler
+            rotation.addEventListener('input', function() {
+                const value = this.value;
+                rotationValue.textContent = value + '°';
+                updateImageTransform();
+                updateModifiedPreview();
+            });
+            
+            // Zoom change handler
+            zoom.addEventListener('input', function() {
+                const value = this.value;
+                zoomValue.textContent = value + '%';
+                updateImageTransform();
+                updateModifiedPreview();
+            });
+            
+            // Rotate left button handler
+            rotateLeft.addEventListener('click', function() {
+                const currentValue = parseInt(rotation.value);
+                const newValue = Math.max(-180, currentValue - 15);
+                rotation.value = newValue;
+                rotationValue.textContent = newValue + '°';
+                updateImageTransform();
+                updateModifiedPreview();
+            });
+            
+            // Rotate right button handler
+            rotateRight.addEventListener('click', function() {
+                const currentValue = parseInt(rotation.value);
+                const newValue = Math.min(180, currentValue + 15);
+                rotation.value = newValue;
+                rotationValue.textContent = newValue + '°';
+                updateImageTransform();
+                updateModifiedPreview();
+            });
+            
+            // Zoom in button handler
+            zoomIn.addEventListener('click', function() {
+                const currentValue = parseInt(zoom.value);
+                const newValue = Math.min(300, currentValue + 10);
+                zoom.value = newValue;
+                zoomValue.textContent = newValue + '%';
+                updateImageTransform();
+                updateModifiedPreview();
+            });
+            
+            // Zoom out button handler
+            zoomOut.addEventListener('click', function() {
+                const currentValue = parseInt(zoom.value);
+                const newValue = Math.max(100, currentValue - 10);
+                zoom.value = newValue;
+                zoomValue.textContent = newValue + '%';
+                updateImageTransform();
+                updateModifiedPreview();
+            });
+            
+            // Apply crop button handler
+            applyCropBtn.addEventListener('click', function() {
+                applyCrop();
+                // Hide crop container after applying
+                document.getElementById('crop-container').style.display = 'none';
+                document.getElementById('show-crop-btn').innerHTML = '<i class="fas fa-crop-alt" style="margin-right: 5px;"></i> Select Crop Area';
+                // Hide the side-by-side preview
+                cropPreviewContainer.style.display = 'none';
+            });
+            
+            // Helper function to update image transform
+            function updateImageTransform() {
+                const cropPreview = document.getElementById('crop-preview');
+                const rotationVal = rotation.value;
+                const zoomVal = zoom.value;
+                cropPreview.style.transform = `scale(${zoomVal/100}) rotate(${rotationVal}deg)`;
+            }
+            
+            // Helper function to update the modified preview in real-time
+            function updateModifiedPreview() {
+                const modifiedPreview = document.getElementById('modified-preview');
+                const cropPreview = document.getElementById('crop-preview');
+                const cropOverlay = document.getElementById('crop-overlay');
+                
+                // Create a temporary canvas to apply the crop and transformations
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Get the crop dimensions relative to the original image
+                const previewRect = cropPreview.getBoundingClientRect();
+                const overlayRect = cropOverlay.getBoundingClientRect();
+                
+                // Get rotation and zoom values
+                const rotation = parseInt(document.getElementById('rotation').value) || 0;
+                const zoom = parseInt(document.getElementById('zoom').value) / 100 || 1;
+                
+                // Set canvas size to match the crop overlay
+                canvas.width = overlayRect.width;
+                canvas.height = overlayRect.height;
+                
+                // Calculate scale factors considering zoom
+                const scaleX = (cropPreview.naturalWidth / previewRect.width) / zoom;
+                const scaleY = (cropPreview.naturalHeight / previewRect.height) / zoom;
+                
+                // Calculate crop coordinates
+                const left = (overlayRect.left - previewRect.left) * scaleX;
+                const top = (overlayRect.top - previewRect.top) * scaleY;
+                const width = overlayRect.width * scaleX;
+                const height = overlayRect.height * scaleY;
+                
+                // Apply transformations to the canvas
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(rotation * Math.PI / 180);
+                ctx.drawImage(
+                    cropPreview,
+                    left, top, width, height,
+                    -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height
+                );
+                ctx.restore();
+                
+                // Update the modified preview with the canvas result
+                modifiedPreview.src = canvas.toDataURL();
+            }
+            
+            // Return the updateModifiedPreview function so it can be called from outside
+            return {
+                updateModifiedPreview: updateModifiedPreview
+            };
+        }
+        
+        // Call this function when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCropControls();
+            
+            // Add event listener for restore original button
+            document.getElementById('restore-original-btn').addEventListener('click', restoreOriginalImage);
+        });
+        
+        function applyCrop() {
+            const cropOverlay = document.getElementById('crop-overlay');
+            const cropPreview = document.getElementById('crop-preview');
+            
+            // Get the crop dimensions relative to the original image
+            const previewRect = cropPreview.getBoundingClientRect();
+            const overlayRect = cropOverlay.getBoundingClientRect();
+            
+            // Get rotation and zoom values
+            const rotation = parseInt(document.getElementById('rotation').value);
+            const zoom = parseInt(document.getElementById('zoom').value) / 100;
+            
+            // Calculate scale factors considering zoom
+            const scaleX = (cropPreview.naturalWidth / previewRect.width) / zoom;
+            const scaleY = (cropPreview.naturalHeight / previewRect.height) / zoom;
+            
+            // Calculate crop coordinates
+            const left = (overlayRect.left - previewRect.left) * scaleX;
+            const top = (overlayRect.top - previewRect.top) * scaleY;
+            const width = overlayRect.width * scaleX;
+            const height = overlayRect.height * scaleY;
+            
+            // Store the crop coordinates and transformation values for use in processImage
+            cropOffsetX = left;
+            cropOffsetY = top;
+            cropWidth = width;
+            cropHeight = height;
+            
+            // Store rotation value for use in processImage
+            cropRotation = rotation;
+            
+            // Hide the side-by-side preview
+            const cropPreviewContainer = document.querySelector('.crop-preview-container');
+            if (cropPreviewContainer) {
+                cropPreviewContainer.style.display = 'none';
+            }
+            
+            // Show notification
+            showNotification('Crop applied successfully!', 'success');
+            
+            // Update preview with the new crop
+            updatePreview();
+        }
+        
+        // Function to restore original image without resetting the upload
+        function restoreOriginalImage() {
+            // Reset all transformations by calling resetEditSettings
+            resetEditSettings();
+            
+            // Update the preview with original image
+            updatePreview();
+            
+            // Hide the side-by-side preview if visible
+            const cropPreviewContainer = document.querySelector('.crop-preview-container');
+            if (cropPreviewContainer) {
+                cropPreviewContainer.style.display = 'none';
+            }
+            
+            // Hide crop container if visible
+            const cropContainer = document.getElementById('crop-container');
+            if (cropContainer) {
+                cropContainer.style.display = 'none';
+            }
+            
+            // Reset the crop button text
+            document.getElementById('show-crop-btn').innerHTML = '<i class="fas fa-crop-alt" style="margin-right: 5px;"></i> Select Crop Area';
+            
+            // Show notification
+            showNotification('Image restored to original state', 'success');
+        }
+        
+        // Helper function to show notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            let iconClass = 'fa-info-circle';
+            if (type === 'success') iconClass = 'fa-check-circle';
+            if (type === 'error') iconClass = 'fa-exclamation-circle';
+            
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${iconClass} notification-icon"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close"><i class="fas fa-times"></i></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add close button functionality
+            notification.querySelector('.notification-close').addEventListener('click', function() {
+                notification.remove();
+            });
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Reset custom crop when using the slider
+        document.getElementById('crop-size').addEventListener('input', function() {
+            cropOffsetX = 0;
+            cropOffsetY = 0;
+            cropWidth = 0;
+            cropHeight = 0;
+            updatePreview();
+        });
+        
+        const updatePreview = debounce(async () => {
+            try {
+                // Show processing animation
+                const previewContainer = document.querySelector('.preview-container');
+                previewContainer.classList.add('processing');
+                
+                // Add loading indicator
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.className = 'loading-indicator';
+                loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                previewContainer.appendChild(loadingIndicator);
+                
+                const { dataUrl, animate } = await processImage(32);
+                const favicons = [
+                    document.getElementById('preview-favicon-light'),
+                    document.getElementById('preview-favicon-dark'),
+                    document.getElementById('preview-favicon-mobile')
+                ];
+
+                // Apply with transition effect
+                favicons.forEach(favicon => {
+                    // Create a fade effect
+                    favicon.style.opacity = '0';
+                    setTimeout(() => {
+                        favicon.src = dataUrl;
+                        favicon.classList.toggle('animated-favicon', animate);
+                        favicon.style.opacity = '1';
+                    }, 150);
+                });
+                
+                // Update recommendations based on current settings
+                updateRecommendations();
+                
+                // Remove loading indicator
+                setTimeout(() => {
+                    previewContainer.classList.remove('processing');
+                    if (loadingIndicator && loadingIndicator.parentNode) {
+                        loadingIndicator.parentNode.removeChild(loadingIndicator);
+                    }
+                }, 300);
+            } catch (e) {
+                console.error('Preview update failed:', e);
+                alert('Failed to update preview: ' + e.message);
+            }
+        }, 100);
+
+        const editControls = ['crop-size', 'padding', 'bg-color', 'transparency',
+                            'rounded-corners', 'add-border', 'animate-favicon',
+                            'grayscale', 'invert-colors', 'drop-shadow',
+                            'border-color', 'border-width'];
+
+        editControls.forEach(controlId => {
+            const element = document.getElementById(controlId);
+            element.addEventListener('input', updatePreview);
+            element.addEventListener('change', updatePreview);
+        });
+
+        document.getElementById('add-border').addEventListener('change', function() {
+            const borderColor = document.getElementById('border-color');
+            const borderWidth = document.getElementById('border-width');
+            const isChecked = this.checked;
+            borderColor.disabled = !isChecked;
+            borderWidth.disabled = !isChecked;
+            if (!isChecked) {
+                borderColor.value = '#000000';
+                borderWidth.value = 2;
+            }
+            updatePreview();
+        });
+
+        document.getElementById('border-color').addEventListener('input', updatePreview);
+        document.getElementById('border-width').addEventListener('input', updatePreview);
+
+        document.getElementById('auto-crop-btn').addEventListener('click', () => {
+            document.getElementById('crop-size').value = 75;
+            updatePreview();
+            showNotification('Auto-crop applied successfully!', 'success');
+        });
+
+        document.getElementById('auto-center-btn').addEventListener('click', () => {
+            document.getElementById('padding').value = 5;
+            updatePreview();
+            showNotification('Auto-center applied successfully!', 'success');
+        });
+
+        document.getElementById('adjust-brightness-btn').addEventListener('click', () => {
+            brightnessFactor *= 1.1;
+            updatePreview();
+        });
+
+        document.getElementById('adjust-contrast-btn').addEventListener('click', () => {
+            contrastFactor *= 1.1;
+            updatePreview();
+        });
+
+        document.getElementById('enhance-colors-btn').addEventListener('click', () => {
+            saturationFactor *= 1.2;
+            updatePreview();
+        });
+
+        document.getElementById('reset-settings-btn').addEventListener('click', () => {
+            resetEditSettings();
+            showNotification('All settings have been reset to default values', 'info');
+        });
+        
+        // Social sharing functionality
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const url = encodeURIComponent(window.location.href);
+                const title = encodeURIComponent('Check out this awesome favicon I created with Buzz Favicon Generator!');
+                const imageUrl = document.getElementById('preview-favicon-light').src;
+                
+                let shareUrl = '';
+                if (this.classList.contains('facebook')) {
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                } else if (this.classList.contains('twitter')) {
+                    shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+                } else if (this.classList.contains('linkedin')) {
+                    shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+                } else if (this.classList.contains('pinterest')) {
+                    shareUrl = `https://pinterest.com/pin/create/button/?url=${url}&description=${title}&media=${encodeURIComponent(imageUrl)}`;
+                }
+                
+                if (shareUrl) {
+                    window.open(shareUrl, '_blank', 'width=600,height=400');
+                }
+            });
+        });
+        
+        // Function to show notifications
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('.notification-icon');
+            const messageEl = notification.querySelector('.notification-message');
+            
+            // Set icon based on notification type
+            if (type === 'success') {
+                icon.className = 'notification-icon fas fa-check-circle';
+            } else if (type === 'info') {
+                icon.className = 'notification-icon fas fa-info-circle';
+            } else if (type === 'warning') {
+                icon.className = 'notification-icon fas fa-exclamation-triangle';
+            }
+            
+            // Set message and show notification
+            messageEl.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'flex';
+            
+            // Auto-hide after duration
+            if (duration > 0) {
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, duration);
+            }
+        }
+        
+        // Close notification on click
+        document.querySelector('.notification-close').addEventListener('click', function() {
+            document.getElementById('notification').style.display = 'none';
+        });
+        
+        // Function to provide personalized recommendations
+        function updateRecommendations() {
+            const recommendations = [];
+            
+            // Get current settings
+            const transparency = parseInt(document.getElementById('transparency').value) || 100;
+            const padding = parseInt(document.getElementById('padding').value) || 0;
+            const roundedCorners = document.getElementById('rounded-corners').checked;
+            const addBorder = document.getElementById('add-border').checked;
+            const animate = document.getElementById('animate-favicon').checked;
+            
+            // Generate recommendations based on current settings
+            if (transparency < 50) {
+                recommendations.push('Consider increasing transparency for better visibility on different backgrounds.');
+            }
+            
+            if (padding === 0) {
+                recommendations.push('Adding a small padding (5-10px) can improve visibility when displayed at small sizes.');
+            }
+            
+            if (!roundedCorners) {
+                recommendations.push('Rounded corners can give your favicon a modern look, especially for app-style icons.');
+            }
+            
+            if (!addBorder && transparency > 80) {
+                recommendations.push('Adding a border can help define the edges of your favicon on similar-colored backgrounds.');
+            }
+            
+            if (!animate && document.querySelectorAll('.format-option[data-format] input:checked').length > 2) {
+                recommendations.push('Consider enabling animation for attention-grabbing effects in browser tabs.');
+            }
+            
+            // Display recommendations
+            const recommendationsSection = document.getElementById('recommendations');
+            if (recommendations.length > 0) {
+                let html = `<h3><i class="fas fa-lightbulb"></i> Personalized Recommendations</h3><ul>`;
+                recommendations.forEach(rec => {
+                    html += `<li>${rec}</li>`;
+                });
+                html += '</ul>';
+                recommendationsSection.innerHTML = html;
+                recommendationsSection.style.display = 'block';
+                
+                // Show a notification about new recommendations
+                if (recommendationsSection.style.display === 'none') {
+                    showNotification('New recommendations available based on your settings!', 'info');
+                }
+            } else {
+                recommendationsSection.style.display = 'none';
+            }
+        }
+
+        document.querySelectorAll('.format-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                    this.classList.toggle('selected');
+                }
+            });
+        });
+
+        // Custom size functionality
+        const enableCustomSize = document.getElementById('enable-custom-size');
+        const customSizeControls = document.getElementById('custom-size-controls');
+        const customWidth = document.getElementById('custom-width');
+        const customHeight = document.getElementById('custom-height');
+        const maintainAspectRatio = document.getElementById('maintain-aspect-ratio');
+        
+        enableCustomSize.addEventListener('change', function() {
+            customSizeControls.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Maintain aspect ratio functionality
+        let aspectRatio = customWidth.value / customHeight.value;
+        
+        customWidth.addEventListener('input', function() {
+            if (maintainAspectRatio.checked) {
+                customHeight.value = Math.round(this.value / aspectRatio);
+            } else {
+                aspectRatio = this.value / customHeight.value;
+            }
+        });
+        
+        customHeight.addEventListener('input', function() {
+            if (maintainAspectRatio.checked) {
+                customWidth.value = Math.round(this.value * aspectRatio);
+            } else {
+                aspectRatio = customWidth.value / this.value;
+            }
+        });
+        
+        maintainAspectRatio.addEventListener('change', function() {
+            if (this.checked) {
+                aspectRatio = customWidth.value / customHeight.value;
+            }
+        });
+
+        downloadBtn.addEventListener('click', async function() {
+            if (!uploadedImage) {
+                showNotification('Please upload an image first.', 'warning');
+                return;
+            }
+            
+            showNotification('Preparing your favicon package...', 'info', 0);
+
+            const formats = Array.from(document.querySelectorAll('.format-option[data-format] input:checked'))
+                .map(input => input.id.split('-')[1]);
+            const sizes = Array.from(document.querySelectorAll('.format-option[data-size] input:checked'))
+                .map(input => parseInt(input.id.split('-')[1]));
+            const zipOption = document.getElementById('zip-option').checked;
+            
+            // Check if custom size is enabled
+            const customSizeEnabled = document.getElementById('enable-custom-size').checked;
+            if (customSizeEnabled) {
+                const customWidth = parseInt(document.getElementById('custom-width').value);
+                const customHeight = parseInt(document.getElementById('custom-height').value);
+                if (customWidth >= 16 && customWidth <= 1024 && customHeight >= 16 && customHeight <= 1024) {
+                    console.log(`Processing custom size: ${customWidth}x${customHeight}`);
+                    
+                    // Process custom size for each format
+                    for (const format of formats) {
+                        if (format === 'svg') {
+                            // For SVG, we can handle non-square dimensions
+                            const svg = generateSvgFavicon(customWidth, customHeight);
+                            if (zipOption) {
+                                // We'll add this to the main ZIP file later
+                                window.customSizeFavicons = window.customSizeFavicons || [];
+                                window.customSizeFavicons.push({
+                                    format: 'svg',
+                                    width: customWidth,
+                                    height: customHeight,
+                                    data: svg,
+                                    isBinary: false
+                                });
+                                console.log(`Prepared custom SVG favicon ${customWidth}x${customHeight} for ZIP`);
+                            } else {
+                                const blob = new Blob([svg], { type: 'image/svg+xml' });
+                                saveAs(blob, `favicon-${customWidth}x${customHeight}.svg`);
+                                console.log(`Generated custom SVG favicon ${customWidth}x${customHeight}`);
+                            }
+                        } else if (format === 'ico') { 
+                            // For ICO, we'll create a separate ICO file with the custom size
+                            // ICO format works best with square dimensions, so we'll use the larger dimension
+                            try {
+                                // Handle non-square dimensions by using the larger dimension
+                                // and making it a standard ICO size
+                                let icoSize = Math.max(customWidth, customHeight);
+                                // Find the closest standard ICO size
+                                const standardSizes = [16, 32, 48, 64, 128, 256];
+                                let closestSize = standardSizes.reduce((prev, curr) => 
+                                    Math.abs(curr - icoSize) < Math.abs(prev - icoSize) ? curr : prev
+                                );
+                                
+                                console.log(`Processing custom ICO size: original ${customWidth}x${customHeight}, using ${closestSize}x${closestSize}`);
+                                
+                                const icoBuffer = await generateIco([closestSize]);
+                                if (icoBuffer) {
+                                    if (zipOption) {
+                                        // Store for later inclusion in the main ZIP
+                                        window.customSizeFavicons = window.customSizeFavicons || [];
+                                        window.customSizeFavicons.push({
+                                            format: 'ico',
+                                            width: customWidth,
+                                            height: customHeight,
+                                            data: icoBuffer,
+                                            isBinary: true,
+                                            actualSize: closestSize
+                                        });
+                                        console.log(`Prepared custom ICO favicon ${customWidth}x${customHeight} for ZIP (actual size: ${closestSize}x${closestSize})`);
+                                    } else {
+                                        const blob = new Blob([icoBuffer], { type: 'image/x-icon' });
+                                        saveAs(blob, `favicon-${customWidth}x${customHeight}.ico`);
+                                        console.log(`Generated custom ICO favicon ${customWidth}x${customHeight} (actual size: ${closestSize}x${closestSize})`);
+                                    }
+                                }
+                                if (customWidth !== customHeight) {
+                                    console.log(`Note: ICO format requires square dimensions. Your icon was adjusted to ${closestSize}x${closestSize}`);
+                                    showNotification(`ICO format requires square dimensions. Your icon was adjusted to ${closestSize}x${closestSize}`, 'info');
+                                }
+                            } catch (e) {
+                                console.error(`Error generating custom size for ICO:`, e);
+                            }
+                        } else { // PNG, WebP, etc.
+                            try {
+                                const { dataUrl } = await processImage(customWidth, false, customHeight);
+                                const blob = dataURLToBlob(dataUrl);
+                                if (zipOption) {
+                                    // Store for later inclusion in the main ZIP
+                                    window.customSizeFavicons = window.customSizeFavicons || [];
+                                    window.customSizeFavicons.push({
+                                        format: format,
+                                        width: customWidth,
+                                        height: customHeight,
+                                        data: dataUrl.split(',')[1],
+                                        isBase64: true
+                                    });
+                                    console.log(`Prepared custom ${format.toUpperCase()} favicon ${customWidth}x${customHeight} for ZIP`);
+                                } else {
+                                    saveAs(blob, `favicon-${customWidth}x${customHeight}.${format}`);
+                                    console.log(`Generated custom ${format.toUpperCase()} favicon ${customWidth}x${customHeight}`);
+                                }
+                            } catch (e) {
+                                console.error(`Error generating custom size for ${format}:`, e);
+                            }
+                        }
+                    }
+                } else {
+                    console.warn(`Invalid custom dimensions: ${customWidth}x${customHeight}`);
+                    showNotification('Custom dimensions must be between 16 and 1024 pixels', 'warning');
+                }
+            }
+
+            if (!formats.length || !sizes.length) {
+                alert('Please select at least one format and size.');
+                return;
+            }
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+            try {
+                if (zipOption) {
+                    const zip = new JSZip();
+                    for (const format of formats) {
+                        if (format === 'svg') {
+                            for (const size of sizes) {
+                                const svg = generateSvgFavicon(size);
+                                zip.file(`favicon-${size}x${size}.svg`, svg);
+                            }
+                            continue;
+                        }
+                        if (format === 'ico') {
+                            const icoSizes = sizes.filter(s => [16, 32, 48, 64, 128, 256].includes(s));
+                            console.log('ICO sizes selected:', icoSizes);
+                            if (icoSizes.length > 0) {
+                                const icoBuffer = await generateIco(icoSizes);
+                                if (icoBuffer) {
+                                    zip.file(`favicon.ico`, icoBuffer);
+                                    console.log(`Added favicon.ico with sizes ${icoSizes.join('x')} to ZIP`);
+                                }
+                            }
+                            continue;
+                        }
+                        for (const size of sizes) {
+                            const { dataUrl } = await processImage(size);
+                            const base64Data = dataUrl.split(',')[1];
+                            zip.file(`favicon-${size}x${size}.${format}`, base64Data, { base64: true });
+                            console.log(`Added favicon-${size}x${size}.${format} to ZIP`);
+                        }
+                    }
+                    // Add any custom size favicons to the ZIP file
+                    if (window.customSizeFavicons && window.customSizeFavicons.length > 0) {
+                        console.log(`Adding ${window.customSizeFavicons.length} custom size favicons to ZIP`);
+                        for (const favicon of window.customSizeFavicons) {
+                            const filename = `favicon-${favicon.width}x${favicon.height}.${favicon.format}`;
+                            if (favicon.isBinary) {
+                                zip.file(filename, favicon.data);
+                            } else if (favicon.isBase64) {
+                                zip.file(filename, favicon.data, { base64: true });
+                            } else {
+                                zip.file(filename, favicon.data);
+                            }
+                            console.log(`Added custom favicon ${filename} to ZIP`);
+                        }
+                        // Clear the custom favicons array after adding to ZIP
+                        window.customSizeFavicons = [];
+                    }
+                    
+                    const blob = await zip.generateAsync({ type: 'blob' });
+                    saveAs(blob, 'favicons.zip');
+                    console.log('ZIP file generated successfully');
+                } else {
+                    const format = formats[0];
+                    if (formats.length > 1) {
+                        showNotification('When not using ZIP, please select only one format.', 'warning');
+                        return;
+                    }
+                    
+                    showNotification(`Processing ${format.toUpperCase()} format...`, 'info', 0);
+                    
+                    if (format === 'svg') {
+                        const size = sizes[0];
+                        if (sizes.length > 1) {
+                            showNotification('When not using ZIP, please select only one size for SVG.', 'warning');
+                            return;
+                        }
+                        const svg = generateSvgFavicon(size);
+                        const blob = new Blob([svg], { type: 'image/svg+xml' });
+                        saveAs(blob, `favicon-${size}x${size}.svg`);
+                        console.log(`Generated favicon-${size}x${size}.svg`);
+                        showNotification(`Your SVG favicon has been downloaded successfully!`, 'success');
+                    } else if (format === 'ico') {
+                        const icoSizes = sizes.filter(s => [16, 32, 48, 64, 128, 256].includes(s));
+                        console.log('ICO sizes selected (single file):', icoSizes);
+                        if (icoSizes.length === 0) {
+                            throw new Error('No valid ICO sizes selected (16, 32, 48, 64, 128, 256)');
+                        }
+                        const icoBuffer = await generateIco(icoSizes);
+                        if (!icoBuffer) {
+                            throw new Error('Failed to generate ICO file');
+                        }
+                        const blob = new Blob([icoBuffer], { type: 'image/x-icon' });
+                        saveAs(blob, 'favicon.ico');
+                        console.log(`Generated favicon.ico with sizes ${icoSizes.join('x')}`);
+                        showNotification(`Your ICO favicon has been downloaded successfully!`, 'success');
+                    } else {
+                        const size = sizes[0];
+                        if (sizes.length > 1) {
+                            showNotification('When not using ZIP, please select only one size for this format.', 'warning');
+                            return;
+                        }
+                        const { dataUrl } = await processImage(size);
+                        const link = document.createElement('a');
+                        link.href = dataUrl;
+                        link.download = `favicon-${size}x${size}.${format}`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        console.log(`Generated favicon-${size}x${size}.${format}`);
+                        showNotification(`Your ${format.toUpperCase()} favicon has been downloaded successfully!`, 'success');
+                    }
+                }
+            } catch (e) {
+                console.error('Download failed:', e);
+                showNotification('Failed to generate favicon files: ' + e.message, 'warning');
+            } finally {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-download"></i> Download Favicon';
+            }
+        });
+
+        document.getElementById('generate-html-btn').addEventListener('click', function() {
+            if (!uploadedImage) {
+                showNotification('Please upload an image first.', 'warning');
+                return;
+            }
+            
+            showNotification('Generating HTML code...', 'info', 1500);
+
+            const formats = Array.from(document.querySelectorAll('.format-option[data-format] input:checked'))
+                .map(input => input.id.split('-')[1]);
+            const sizes = Array.from(document.querySelectorAll('.format-option[data-size] input:checked'))
+                .map(input => parseInt(input.id.split('-')[1]));
+
+            let htmlCode = `<!-- Favicon HTML for your website -->\n`;
+            if (formats.includes('ico')) {
+                const icoSizes = sizes.filter(s => [16, 32, 48, 64, 128, 256].includes(s));
+                if (icoSizes.length > 0) {
+                    htmlCode += `<link rel="alternate icon" href="/favicon.ico" type="image/x-icon" sizes="${icoSizes.join('x')}">\n`;
+                }
+            }
+            if (formats.includes('svg')) {
+                sizes.forEach(size => {
+                    htmlCode += `<link rel="icon" href="/favicon-${size}x${size}.svg" type="image/svg+xml" sizes="${size}x${size}">\n`;
+                });
+            }
+            formats.forEach(format => {
+                if (format === 'png' || format === 'webp') {
+                    sizes.forEach(size => {
+                        htmlCode += `<link rel="icon" href="/favicon-${size}x${size}.${format}" type="image/${format}" sizes="${size}x${size}">\n`;
+                    });
+                }
+            });
+            htmlCode += `<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n`;
+            htmlCode += `<link rel="manifest" href="/site.webmanifest">\n`;
+
+            document.getElementById('html-code').value = htmlCode;
+            htmlCodeSection.style.display = 'block';
+            htmlCodeSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        document.getElementById('copy-html-btn').addEventListener('click', function() {
+            const htmlCode = document.getElementById('html-code');
+            htmlCode.select();
+            try {
+                document.execCommand('copy');
+                this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                showNotification('HTML code copied to clipboard!', 'success');
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i> Copy to Clipboard';
+                }, 2000);
+            } catch (e) {
+                console.error('Failed to copy HTML code:', e);
+                showNotification('Failed to copy HTML code. Please copy it manually.', 'warning');
+            }
+        });
+
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!uploadedImage) {
+                    showNotification('Please upload an image first to share.', 'warning');
+                    return;
+                }
+                
+                showNotification('Preparing your image for sharing...', 'info', 1500);
+
+                const platform = this.classList[1];
+                const baseUrl = window.location.origin + window.location.pathname;
+                const shareData = {
+                    title: 'Check out my favicon created with Buzz!',
+                    text: 'I created a custom favicon using Buzz Favicon Generator. Try it out! Download it here: ',
+                    url: baseUrl
+                };
+
+                try {
+                    const { dataUrl } = await processImage(32);
+                    const downloadLink = `${baseUrl}?download=${encodeURIComponent(dataUrl.split(',')[1])}`;
+                    shareData.text += downloadLink;
+                } catch (e) {
+                    console.warn('Failed to generate download link for sharing:', e);
+                    shareData.text += `${baseUrl} (Download not available)`;
+                }
+
+                let shareUrl;
+                switch (platform) {
+                    case 'facebook':
+                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}&e=${encodeURIComponent(shareData.text)}`;
+                        break;
+                    case 'twitter':
+                        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`;
+                        break;
+                    case 'linkedin':
+                        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareData.url)}&title=${encodeURIComponent(shareData.title)}&summary=${encodeURIComponent(shareData.text)}`;
+                        break;
+                    case 'pinterest':
+                        shareUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareData.url)}&description=${encodeURIComponent(shareData.text)}`;
+                        break;
+                    default:
+                        return;
+                }
+
+                try {
+                    if (navigator.share && window.innerWidth <= 768) {
+                        await navigator.share({
+                            title: shareData.title,
+                            text: shareData.text,
+                            url: shareData.url
+                        });
+                    } else {
+                        window.open(shareUrl, '_blank', 'noopener,noreferrer,width=600,height=400');
+                    }
+                } catch (e) {
+                    console.error(`Failed to share on ${platform}:`, e);
+                    alert(`Failed to share on ${platform}. Please try again or copy the link manually: ${shareData.url}`);
+                }
+            });
+        });
+
+        const scrollToTopBtn = document.getElementById('scroll-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
