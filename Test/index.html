@@ -61,6 +61,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -255,6 +256,43 @@
 
         .form-group {
             margin-bottom: 15px;
+        }
+        
+        /* Export section styles */
+        #exportName, #exportNote {
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        #exportName:focus, #exportNote:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(247, 37, 133, 0.2);
+        }
+        
+        #exportNote {
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .export-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .export-buttons .btn {
+            min-width: 140px;
+            justify-content: center;
+        }
+        
+        @keyframes processing-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .btn .fa-spinner {
+            animation: processing-pulse 1s infinite;
         }
 
         label {
@@ -880,15 +918,25 @@
                 </div>
 
                 <div style="margin-top: 20px;">
-                    <button id="exportPDF" class="btn btn-outline" aria-label="Export as PDF">
-                        <i class="fas fa-file-pdf" alt="PDF export icon"></i> Export as PDF
-                    </button>
-                    <button id="exportExcel" class="btn btn-outline" aria-label="Export as Excel">
-                        <i class="fas fa-file-excel" alt="Excel export icon"></i> Export as Excel
-                    </button>
-                    <button id="exportCSV" class="btn btn-outline" aria-label="Export as CSV">
-                        <i class="fas fa-file-csv" alt="CSV export icon"></i> Export as CSV
-                    </button>
+                    <div class="form-group">
+                        <label for="exportName">Name (optional)</label>
+                        <input type="text" id="exportName" placeholder="Report Title">
+                    </div>
+                    <div class="form-group">
+                        <label for="exportNote">Note (optional)</label>
+                        <textarea id="exportNote" placeholder="Additional notes or comments"></textarea>
+                    </div>
+                    <div class="export-buttons">
+                        <button id="exportPDF" class="btn btn-outline" aria-label="Export as PDF">
+                            <i class="fas fa-file-pdf" alt="PDF export icon"></i> Export as PDF
+                        </button>
+                        <button id="exportExcel" class="btn btn-outline" aria-label="Export as Excel">
+                            <i class="fas fa-file-excel" alt="Excel export icon"></i> Export as Excel
+                        </button>
+                        <button id="exportCSV" class="btn btn-outline" aria-label="Export as CSV">
+                            <i class="fas fa-file-csv" alt="CSV export icon"></i> Export as CSV
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1561,46 +1609,225 @@
 
             // Export functions
             document.getElementById('exportPDF').addEventListener('click', () => {
-                const doc = new window.jspdf.jsPDF();
-                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                doc.setFontSize(16);
-                doc.text('GPA History Report', 20, 20);
-                doc.setFontSize(12);
-                let y = 30;
+                // Show processing animation
+                const exportBtn = document.getElementById('exportPDF');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                exportBtn.disabled = true;
+                
+                setTimeout(() => { // Small delay to allow animation to be visible
+                    const doc = new window.jspdf.jsPDF();
+                    const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                    const today = new Date();
+                    const dateStr = `${today.toLocaleDateString()}`;
+                    const selectedScaleOption = document.querySelector('.gpa-scale .scale-option.active');
+                    const gpaScaleText = selectedScaleOption ? selectedScaleOption.textContent : 'N/A';
+                    
+                    // Get optional name
+                    const reportName = document.getElementById('exportName').value.trim();
+
+                    // Header
+                    doc.setFontSize(18);
+                    doc.text(reportName || 'GPA History Report', doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
+                    doc.setFontSize(10);
+                    doc.text(`Date: ${dateStr}`, 14, 30);
+                    doc.text(`GPA Scale: ${gpaScaleText}`, doc.internal.pageSize.getWidth() - 14, 30, { align: 'right' });
+
+                // Table Data
+                const tableColumn = ["Semester", "GPA", "Credits", "Courses"];
+                const tableRows = [];
+
                 semesters.forEach(semester => {
-                    doc.text(`Semester: ${semester.name}`, 20, y);
-                    doc.text(`GPA: ${semester.gpa.toFixed(2)}`, 20, y + 5);
-                    doc.text(`Credits: ${semester.credits}`, 20, y + 10);
-                    const coursesText = `Courses: ${semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')}`;
-                    const splitText = doc.splitTextToSize(coursesText, 160);
-                    doc.text(splitText, 20, y + 15);
-                    y += 15 + splitText.length * 5;
+                    const courseDetails = semester.courses.map(c => `${c.name} (Grade: ${c.grade}, Credits: ${c.credits}, Level: ${c.level || 'N/A'})`).join('\n');
+                    const semesterData = [
+                        semester.name,
+                        semester.gpa.toFixed(2),
+                        semester.credits,
+                        courseDetails
+                    ];
+                    tableRows.push(semesterData);
                 });
-                doc.save('gpa_history.pdf');
-                showToast('PDF exported successfully!', 'success');
+
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 40,
+                    theme: 'striped', // 'striped', 'grid', 'plain'
+                    headStyles: { fillColor: [67, 97, 238] }, // --primary-color
+                    styles: { cellPadding: 2, fontSize: 8, halign: 'left' },
+                    columnStyles: {
+                        0: { halign: 'left' }, // Semester
+                        1: { halign: 'center' }, // GPA
+                        2: { halign: 'center' }, // Credits
+                        3: { cellWidth: 'auto', halign: 'left' } // Courses column
+                    },
+                    didDrawPage: function (data) {
+                        // Footer with optional note
+                        const reportNote = document.getElementById('exportNote').value.trim();
+                        let footerStr = reportNote || "Generated by Buzz GPA Calculator";
+                        doc.setFontSize(8);
+                        doc.setTextColor(150);
+                        doc.text(footerStr, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
+                        doc.text(`Page ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.getWidth() - data.settings.margin.right, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
+                    }
+                });
+
+                doc.save('gpa_history_report.pdf');
+                showToast('PDF report exported successfully!', 'success');
+                
+                // Restore button state
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+                }, 800); // Delay to show animation
             });
 
             document.getElementById('exportExcel').addEventListener('click', () => {
-                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                const data = [['Semester', 'GPA', 'Credits', 'Courses']];
-                semesters.forEach(semester => data.push([semester.name, semester.gpa.toFixed(2), semester.credits, semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')]));
+                // Show processing animation
+                const exportBtn = document.getElementById('exportExcel');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                exportBtn.disabled = true;
+                
+                setTimeout(() => { // Small delay to allow animation to be visible
+                    const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                    
+                    // Get optional name and note
+                    const reportName = document.getElementById('exportName').value.trim();
+                    const reportNote = document.getElementById('exportNote').value.trim();
+                    
+                    // Add name and note to headers if provided
+                    const headers = ['Semester', 'GPA', 'Credits', 'Courses Details'];
+                    const data = [];
+                    
+                    // Add title row if name is provided
+                    if (reportName) {
+                        data.push([reportName, '', '', '']);
+                    }
+                    
+                    data.push(headers);
+
+                semesters.forEach(semester => {
+                    const courseDetails = semester.courses.map(c => 
+                        `${c.name} (Grade: ${c.grade}, Credits: ${c.credits}, Level: ${c.level || 'N/A'})`
+                    ).join(';\n'); // Join multiple courses with a semicolon and newline for better readability in Excel cell
+
+                    data.push([
+                        semester.name,
+                        semester.gpa.toFixed(2),
+                        semester.credits,
+                        courseDetails
+                    ]);
+                });
+
                 const ws = XLSX.utils.aoa_to_sheet(data);
+                // Set column widths for better readability
+                ws['!cols'] = [
+                    { wch: 20 }, // Semester
+                    { wch: 10 }, // GPA
+                    { wch: 10 }, // Credits
+                    { wch: 80 }  // Courses Details (wider for detailed info)
+                ];
+
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "GPA History");
-                XLSX.writeFile(wb, "gpa_history.xlsx");
-                showToast('Excel exported successfully!', 'success');
+                XLSX.utils.book_append_sheet(wb, ws, "GPA History Report");
+                
+                // Add note as the last row if provided
+                if (reportNote) {
+                    const noteRowIndex = data.length + 1;
+                    ws[XLSX.utils.encode_cell({r: noteRowIndex, c: 0})] = {v: reportNote, t: 's'};
+                }
+                
+                XLSX.writeFile(wb, "gpa_history_report.xlsx");
+                showToast('Excel report exported successfully!', 'success');
+                
+                // Restore button state
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+                }, 800); // Delay to show animation
             });
 
             document.getElementById('exportCSV').addEventListener('click', () => {
-                const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
-                let csv = 'Semester,GPA,Credits,Courses\n';
-                semesters.forEach(semester => csv += `"${semester.name}",${semester.gpa.toFixed(2)},${semester.credits},"${semester.courses.map(c => `${c.name} (${c.grade})`).join(', ')}"\n`);
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                // Show processing animation
+                const exportBtn = document.getElementById('exportCSV');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                exportBtn.disabled = true;
+                
+                setTimeout(() => { // Small delay to allow animation to be visible
+                    const semesters = JSON.parse(localStorage.getItem('gpaSemesters') || '[]');
+                    
+                    // Get optional name and note
+                    const reportName = document.getElementById('exportName').value.trim();
+                    const reportNote = document.getElementById('exportNote').value.trim();
+                    
+                    // Function to escape double quotes in CSV fields
+                    const escapeCsvField = (field) => {
+                        if (field === null || typeof field === 'undefined') return '';
+                        let strField = String(field);
+                        // If field contains comma, newline or double quote, then enclose in double quotes.
+                        if (strField.includes(',') || strField.includes('\n') || strField.includes('"')) {
+                            // Escape existing double quotes by doubling them
+                            strField = strField.replace(/"/g, '""');
+                            return `"${strField}"`;
+                        }
+                        return strField;
+                    };
+                    
+                    const headers = ['Semester', 'GPA', 'Credits', 'Courses Details'];
+                    let csvContent = '';
+                    
+                    // Add title row if name is provided
+                    if (reportName) {
+                        csvContent += escapeCsvField(reportName) + ',,,\n';
+                    }
+                    
+                    csvContent += headers.join(',') + '\n';
+
+                semesters.forEach(semester => {
+                    const courseDetails = semester.courses.map(c => 
+                        `${c.name} (Grade: ${c.grade}, Credits: ${c.credits}, Level: ${c.level || 'N/A'})`
+                    ).join('; '); // Join multiple courses with a semicolon for better readability in a single cell
+
+                    // Function to escape double quotes in CSV fields
+                    const escapeCsvField = (field) => {
+                        if (field === null || typeof field === 'undefined') return '';
+                        let strField = String(field);
+                        // If field contains comma, newline or double quote, then enclose in double quotes.
+                        if (strField.includes(',') || strField.includes('\n') || strField.includes('"')) {
+                            // Escape existing double quotes by doubling them
+                            strField = strField.replace(/"/g, '""');
+                            return `"${strField}"`;
+                        }
+                        return strField;
+                    };
+
+                    const row = [
+                        escapeCsvField(semester.name),
+                        semester.gpa.toFixed(2),
+                        semester.credits,
+                        escapeCsvField(courseDetails)
+                    ];
+                    csvContent += row.join(',') + '\n';
+                });
+
+                const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' }); // Added BOM for Excel compatibility
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'gpa_history.csv';
+                link.setAttribute('download', 'gpa_history_report.csv');
+                document.body.appendChild(link); // Required for Firefox
+                // Add note as the last row if provided
+                if (reportNote) {
+                    csvContent += escapeCsvField(reportNote) + ',,,\n';
+                }
+                
                 link.click();
-                showToast('CSV exported successfully!', 'success');
+                document.body.removeChild(link);
+                showToast('CSV report exported successfully!', 'success');
+                
+                // Restore button state
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+                }, 800); // Delay to show animation
             });
 
             // Back to Top and Back to Bottom
