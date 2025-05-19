@@ -713,9 +713,9 @@
                 <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button class="home-btn" title="Go to Home" aria-label="Go to Home">
-                    <a href="/" title="Home"><i class="fas fa-home"></i></a>
-                </button>
+                <a href="/" class="home-btn" title="Go to Home" aria-label="Go to Home">
+                    <i class="fas fa-home"></i>
+                </a>
             </div>
         </div>
     </header>
@@ -1011,6 +1011,16 @@
                         <a href="#" class="share-btn whatsapp" id="shareWhatsApp" aria-label="Share on WhatsApp">
                             <i class="fab fa-whatsapp"></i> WhatsApp
                         </a>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="exportName">Name (Optional)</label>
+                        <input type="text" id="exportName" class="form-control" placeholder="e.g., John Doe" aria-label="Export Name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exportNote">Note (Optional)</label>
+                        <textarea id="exportNote" class="form-control" placeholder="Add any additional notes here..." rows="2" aria-label="Export Note"></textarea>
                     </div>
                     
                     <div style="margin-top: 15px;">

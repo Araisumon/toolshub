@@ -853,19 +853,56 @@ document.getElementById('copyResultsBtn')?.addEventListener('click', () => {
 document.getElementById('exportPdfBtn')?.addEventListener('click', () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    const exportName = document.getElementById('exportName').value.trim();
+    const exportNote = document.getElementById('exportNote').value.trim();
+    
+    let yPosition = 10;
     doc.setFontSize(16);
-    doc.text('Buzz Grade Calculator - Report', 10, 10);
+    
+    // Add name at the top if provided
+    if (exportName) {
+        doc.text(`Name: ${exportName}`, 10, yPosition);
+        yPosition += 10;
+    }
+    
+    doc.text('Buzz Grade Calculator - Report', 10, yPosition);
+    yPosition += 10;
+    
     doc.setFontSize(12);
-    doc.text(`Current Grade: ${document.getElementById('currentGrade').textContent}% (${document.getElementById('currentLetter').textContent})`, 10, 20);
-    doc.text(`Projected Grade: ${document.getElementById('projectedGrade').textContent}% (${document.getElementById('projectedLetter').textContent})`, 10, 30);
-    doc.text(`GPA: ${document.getElementById('gpaValue').textContent}`, 10, 40);
-    doc.text(`Total Weight: ${document.getElementById('totalWeight').textContent}%`, 10, 50);
+    doc.text(`Current Grade: ${document.getElementById('currentGrade').textContent}% (${document.getElementById('currentLetter').textContent})`, 10, yPosition);
+    yPosition += 10;
+    
+    doc.text(`Projected Grade: ${document.getElementById('projectedGrade').textContent}% (${document.getElementById('projectedLetter').textContent})`, 10, yPosition);
+    yPosition += 10;
+    
+    doc.text(`GPA: ${document.getElementById('gpaValue').textContent}`, 10, yPosition);
+    yPosition += 10;
+    
+    doc.text(`Total Weight: ${document.getElementById('totalWeight').textContent}%`, 10, yPosition);
+    yPosition += 10;
+    
     doc.setFontSize(14);
-    doc.text('Grade Items:', 10, 60);
+    doc.text('Grade Items:', 10, yPosition);
+    yPosition += 10;
+    
     gradeItems.forEach((item, i) => {
         doc.setFontSize(10);
-        doc.text(`${item.name} (${item.category}): ${item.score + item.extraCredit}/${item.maxScore} (${item.percentage.toFixed(1)}%), Weight: ${item.weight}%`, 10, 70 + i * 10);
+        doc.text(`${item.name} (${item.category}): ${item.score + item.extraCredit}/${item.maxScore} (${item.percentage.toFixed(1)}%), Weight: ${item.weight}%`, 10, yPosition);
+        yPosition += 10;
     });
+    
+    // Add note at the bottom if provided
+    if (exportNote) {
+        doc.setFontSize(12);
+        doc.text('Note:', 10, yPosition);
+        yPosition += 10;
+        doc.setFontSize(10);
+        
+        // Split note into multiple lines if it's too long
+        const splitNote = doc.splitTextToSize(exportNote, 180);
+        doc.text(splitNote, 10, yPosition);
+    }
+    
     doc.save('grade_report.pdf');
 });
 
@@ -876,6 +913,58 @@ document.getElementById('exportExcelBtn')?.addEventListener('click', () => {
         return;
     }
 
+    const exportName = document.getElementById('exportName').value.trim();
+    const exportNote = document.getElementById('exportNote').value.trim();
+    
+    // Create array for Excel data
+    let excelData = [];
+    
+    // Add name at the top if provided
+    if (exportName) {
+        excelData.push({
+            'Item Name': 'Name:',
+            'Category': exportName,
+            'Score': '',
+            'Max Score': '',
+            'Percentage (%)': '',
+            'Weight (%)': '',
+            'Due Date': ''
+        });
+        // Add empty row after name
+        excelData.push({
+            'Item Name': '',
+            'Category': '',
+            'Score': '',
+            'Max Score': '',
+            'Percentage (%)': '',
+            'Weight (%)': '',
+            'Due Date': ''
+        });
+    }
+    
+    // Add title row
+    excelData.push({
+        'Item Name': 'Buzz Grade Calculator - Report',
+        'Category': '',
+        'Score': '',
+        'Max Score': '',
+        'Percentage (%)': '',
+        'Weight (%)': '',
+        'Due Date': ''
+    });
+    
+    // Add empty row after title
+    excelData.push({
+        'Item Name': '',
+        'Category': '',
+        'Score': '',
+        'Max Score': '',
+        'Percentage (%)': '',
+        'Weight (%)': '',
+        'Due Date': ''
+    });
+    
+    // Add grade items
     const data = gradeItems.map(item => ({
         'Item Name': item.name,
         'Category': item.category,
@@ -885,7 +974,11 @@ document.getElementById('exportExcelBtn')?.addEventListener('click', () => {
         'Weight (%)': item.weight,
         'Due Date': item.dueDate ? formatDate(item.dueDate) : '--'
     }));
+    
+    // Add all grade items to the Excel data
+    excelData = excelData.concat(data);
 
+    // Add summary row
     const summary = {
         'Item Name': 'Summary',
         'Category': '',
@@ -895,16 +988,50 @@ document.getElementById('exportExcelBtn')?.addEventListener('click', () => {
         'Weight (%)': document.getElementById('totalWeight').textContent,
         'Due Date': ''
     };
-    data.push(summary);
+    excelData.push(summary);
+    
+    // Add note at the bottom if provided
+    if (exportNote) {
+        // Add empty row before note
+        excelData.push({
+            'Item Name': '',
+            'Category': '',
+            'Score': '',
+            'Max Score': '',
+            'Percentage (%)': '',
+            'Weight (%)': '',
+            'Due Date': ''
+        });
+        
+        excelData.push({
+            'Item Name': 'Note:',
+            'Category': '',
+            'Score': '',
+            'Max Score': '',
+            'Percentage (%)': '',
+            'Weight (%)': '',
+            'Due Date': ''
+        });
+        
+        excelData.push({
+            'Item Name': exportNote,
+            'Category': '',
+            'Score': '',
+            'Max Score': '',
+            'Percentage (%)': '',
+            'Weight (%)': '',
+            'Due Date': ''
+        });
+    }
 
     try {
-        const ws = XLSX.utils.json_to_sheet(data, {
+        const ws = XLSX.utils.json_to_sheet(excelData, {
             header: ['Item Name', 'Category', 'Score', 'Max Score', 'Percentage (%)', 'Weight (%)', 'Due Date']
         });
 
         ws['!cols'] = [
-            { wch: 20 }, // Item Name
-            { wch: 15 }, // Category
+            { wch: 30 }, // Item Name (increased width for notes)
+            { wch: 20 }, // Category
             { wch: 10 }, // Score
             { wch: 10 }, // Max Score
             { wch: 12 }, // Percentage
