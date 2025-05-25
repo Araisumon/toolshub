@@ -1,0 +1,158 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartShop - Sign up to start shopping with personalized recommendations and seamless checkout.">
+    <meta name="keywords" content="e-commerce, sign up, SmartShop, AI shopping">
+    <meta name="author" content="SmartShop">
+    <!-- Open Graph -->
+    <meta property="og:title" content="SmartShop - Sign Up">
+    <meta property="og:description" content="Join SmartShop to enjoy personalized shopping with AI-driven recommendations.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630?text=SmartShop">
+    <meta property="og:url" content="https://smartshop.example.com/signup">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SmartShop - Sign Up">
+    <meta name="twitter:description" content="Join SmartShop to enjoy personalized shopping with AI-driven recommendations.">
+    <meta name="twitter:image" content="https://via.placeholder.com/1200x630?text=SmartShop">
+    <title>SmartShop - Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "SmartShop Sign Up",
+        "url": "https://smartshop.example.com/signup",
+        "description": "Sign up for SmartShop to start shopping with personalized recommendations and seamless checkout."
+    }
+    </script>
+
+    <header>
+        <div class="container">
+            <div class="top-bar">
+                <div class="logo">
+                    <i class="fas fa-robot" data-tooltip="SmartShop Home"></i>
+                    SmartShop
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="signup-section">
+            <div class="container">
+                <form class="signup-form" id="signup-form">
+                    <h2>Sign Up</h2>
+                    <div class="form-group">
+                        <label for="email">Email (Username)</label>
+                        <input type="email" id="email" name="email" required aria-label="Email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required aria-label="Password">
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" name="mobile" required aria-label="Mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" required aria-label="Address"></textarea>
+                    </div>
+                    <button type="submit" class="cta-button" data-tooltip="Create Account">Sign Up</button>
+                </form>
+                <a href="index.html" class="back-home" data-tooltip="Return to Home Page">Back to Home</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© 2025 SmartShop. All Rights Reserved. Powered by AI Technology.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Handle form submission
+        const signupForm = document.getElementById('signup-form');
+
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const submitButton = signupForm.querySelector('button[type="submit"]');
+            submitButton.classList.add('loading');
+            submitButton.disabled = true;
+
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                mobile: document.getElementById('mobile').value,
+                address: document.getElementById('address').value
+            };
+
+            setTimeout(() => {
+                // Store data in localStorage (for demo purposes)
+                localStorage.setItem('userData', JSON.stringify(formData));
+
+                // Show alert with entered details
+                alert(`Sign-up successful!\n\nDetails:\nEmail: ${formData.email}\nMobile: ${formData.mobile}\nAddress: ${formData.address}`);
+
+                // Clear form
+                signupForm.reset();
+
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+
+                // Redirect to index.html
+                window.location.href = 'index.html';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
