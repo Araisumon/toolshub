@@ -49,14 +49,14 @@
     <!-- Open Graph Tags -->
     <meta property="og:title" content="About ToolsHub - Free Online Tools">
     <meta property="og:description" content="ToolsHub offers 100+ free tools for image compression, PDF merging, QR code generation, and more. Learn about our mission!">
-    <meta property="og:image" content="https://toolshub.cam/tools-illustration.webp">
+    <meta property="og:image" content="https://toolshub.cam/images/tools-illustration.webp">
     <meta property="og:url" content="https://toolshub.cam/about">
     <meta property="og:type" content="website">
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="About ToolsHub - Free Online Tools">
     <meta name="twitter:description" content="ToolsHub offers 100+ free tools for image compression, PDF merging, QR code generation, and more. Learn about our mission!">
-    <meta name="twitter:image" content="https://toolshub.cam/tools-illustration.webp">
+    <meta name="twitter:image" content="https://toolshub.cam/images/tools-illustration.webp">
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
     <script>
@@ -110,6 +110,7 @@
             --footer-background: #212529;
             --footer-text-color: #adb5bd;
             --cta-background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .theme-dark {
@@ -125,6 +126,7 @@
             --footer-background: #121212;
             --footer-text-color: #b0b0b0;
             --cta-background: linear-gradient(135deg, #4a6cff 0%, #3a0ca3 100%);
+            --box-shadow: 0 4px 6px rgba(255, 255, 255, 0.05);
         }
 
         .theme-high-contrast {
@@ -142,6 +144,7 @@
             --cta-background: linear-gradient(135deg, #00ccff 0%, #0066cc 100%);
             --primary-color: #00ccff;
             --secondary-color: #0066cc;
+            --box-shadow: 0 0 0 2px #ffffff;
         }
 
         .theme-modern {
@@ -159,6 +162,7 @@
             --cta-background: linear-gradient(135deg, #667eea 0%, #4c51bf 100%);
             --primary-color: #667eea;
             --secondary-color: #4c51bf;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
         }
 
         * {
@@ -301,12 +305,33 @@
         }
 
         .about-image {
-            width: 400px;
-            max-width: 100%;
+            width: 40%;
+            max-width: 400px;
             height: auto;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            display: block;
             margin: 0 auto;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .about-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Fallback if image fails to load */
+        .about-image img {
+            background-color: var(--light-color);
+            border: 1px solid var(--gray-color);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
         }
 
         footer {
@@ -452,7 +477,7 @@
             }
 
             .about-image {
-                width: 100%;
+                width: 80%;
                 max-width: 300px;
                 margin: 30px auto;
             }
@@ -481,6 +506,15 @@
             .about-container {
                 flex-direction: row;
                 text-align: left;
+                align-items: flex-start;
+            }
+
+            .about-content {
+                flex: 1;
+            }
+
+            .about-image {
+                flex: 0 0 auto;
             }
         }
     </style>
@@ -526,8 +560,8 @@
             </div>
             <div class="about-image">
                 <picture>
-                    <source srcset="/tools-illustration.webp" type="image/webp">
-                    <img src="/tools-illustration.png" alt="ToolsHub Illustration" loading="lazy">
+                    <source srcset="/images/tools-illustration.webp" type="image/webp">
+                    <img src="/images/tools-illustration.png" alt="Illustration of ToolsHub's free online tools for developers, designers, and marketers" loading="lazy">
                 </picture>
             </div>
         </div>
