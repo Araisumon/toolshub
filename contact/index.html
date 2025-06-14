@@ -55,7 +55,7 @@
     <title>Contact ToolsHub | Send Feedback for Free Online Tools</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Contact ToolsHub to share feedback or inquiries about our 100+ free online tools. Fill out our form to reach us at.">
+    <meta name="description" content="Contact ToolsHub to share feedback or inquiries about our 100+ free online tools. Fill out our form to reach us.">
     <meta name="keywords" content="contact toolshub, feedback toolshub, free online tools support">
     <meta name="author" content="ToolsHub">
     <!-- Open Graph Tags -->
@@ -626,7 +626,7 @@
     <section class="contact-section" id="contact">
         <div class="container contact-container">
             <h1>Contact Us</h1>
-            <p>We'd love to hear from you! Share your feedback, suggestions, or inquiries about ToolsHub's free online tools. Fill out the form below to reach us at araiforex@gmail.com.</p>
+            <p>We'd love to hear from you! Share your feedback, suggestions, or inquiries about ToolsHub's free online tools. Fill out the form below to reach us.</p>
             <form class="contact-form" id="contactForm" action="https://formspree.io/f/xrbkkbrp" method="POST" novalidate>
                 <div class="form-group">
                     <label for="name">Name</label>
@@ -641,7 +641,10 @@
                     <textarea id="message" name="message" placeholder="Your Feedback or Inquiry" required aria-required="true"></textarea>
                 </div>
                 <input type="hidden" name="_subject" value="ToolsHub Contact Form Submission">
-                <input type="hidden" name="_to" value="araiforex@gmail.com">
+                <div style="display: none;">
+                    <label for="website">Website</label>
+                    <input type="text" id="website" name="_gotcha">
+                </div>
                 <button type="submit" class="form-submit">Send Message</button>
                 <div class="form-message" id="formMessage"></div>
             </form>
