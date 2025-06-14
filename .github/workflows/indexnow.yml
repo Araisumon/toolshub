@@ -65,7 +65,8 @@ jobs:
               "https://toolshub.cam/favicongen/",
               "https://toolshub.cam/loremipsumgen/",
               "https://toolshub.cam/about/",
-              "https://toolshub.cam/contact/"
+              "https://toolshub.cam/contact/",
+              "https://toolshub.cam/privacy/"
             ]
           }'
 
