@@ -275,5 +275,17 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+    <url>
+    <loc>https://toolshub.cam/about/</loc>
+    <lastmod>2025-14-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+    <url>
+    <loc>https://toolshub.cam/contact/</loc>
+    <lastmod>2025-14-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
 
