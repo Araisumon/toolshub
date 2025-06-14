@@ -38,7 +38,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- reCAPTCHA API -->
-    <script src="https://www.google.com/recaptcha/api.js?render=YOUR_ACTUAL_SITE_KEY" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lf-A2ErAAAAABiJ7Xh484Y2p5BO9o1GLW1TzGus" async defer></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -815,7 +815,7 @@
                         formMessage.classList.remove('success', 'error');
 
                         // Execute reCAPTCHA and get token
-                        const recaptchaResponse = await grecaptcha.execute('YOUR_ACTUAL_SITE_KEY', { action: 'submit' });
+                        const recaptchaResponse = await grecaptcha.execute('6Lf-A2ErAAAAABiJ7Xh484Y2p5BO9o1GLW1TzGus', { action: 'submit' });
                         document.getElementById('g-recaptcha-response').value = recaptchaResponse;
 
                         const formData = new FormData(contactForm);
