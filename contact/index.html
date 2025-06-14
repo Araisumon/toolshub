@@ -642,9 +642,10 @@
                 </div>
                 <input type="hidden" name="_subject" value="ToolsHub Contact Form Submission">
                 <div style="display: none;">
-                    <label for="website">Website</label>
-                    <input type="text" id="website" name="_gotcha">
+                    <label for="honeypot">Leave this field empty</label>
+                    <input type="text" id="honeypot" name="_gotcha">
                 </div>
+                <input type="hidden" id="timestamp" name="timestamp" value="">
                 <button type="submit" class="form-submit">Send Message</button>
                 <div class="form-message" id="formMessage"></div>
             </form>
@@ -847,8 +848,12 @@
 
                 const contactForm = document.getElementById('contactForm');
                 const formMessage = document.getElementById('formMessage');
+                const timestampInput = document.getElementById('timestamp');
 
-                if (contactForm && formMessage) {
+                if (contactForm && formMessage && timestampInput) {
+                    // Set initial timestamp when form loads
+                    timestampInput.value = new Date().getTime();
+
                     contactForm.addEventListener('submit', async (e) => {
                         e.preventDefault();
                         formMessage.style.display = 'none';
@@ -858,6 +863,25 @@
                         const name = formData.get('name').trim();
                         const email = formData.get('email').trim();
                         const message = formData.get('message').trim();
+                        const honeypot = formData.get('_gotcha').trim();
+                        const startTime = parseInt(timestampInput.value);
+                        const currentTime = new Date().getTime();
+                        const timeDiff = (currentTime - startTime) / 1000; // Convert to seconds
+
+                        // Spam checks
+                        if (honeypot !== '') {
+                            formMessage.textContent = 'Invalid submission detected. Please try again.';
+                            formMessage.classList.add('error');
+                            formMessage.style.display = 'block';
+                            return;
+                        }
+
+                        if (timeDiff < 2) { // Minimum 2 seconds to submit
+                            formMessage.textContent = 'Please take a moment to fill out the form.';
+                            formMessage.classList.add('error');
+                            formMessage.style.display = 'block';
+                            return;
+                        }
 
                         if (!name || !email || !message) {
                             formMessage.textContent = 'Please fill out all required fields.';
@@ -897,7 +921,7 @@
                         }
                     });
                 } else {
-                    console.warn('Contact form or message element not found.');
+                    console.warn('Contact form, message element, or timestamp input not found.');
                 }
 
                 const backToTopBtn = document.getElementById('backToTop');
