@@ -40,39 +40,42 @@
         </script><!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      if (typeof gtag === 'function') {
+        gtag('js', new Date());
+        gtag('config', 'G-QX6N41VY5J');
+      } else {
+        console.warn('Google Analytics failed to load.');
+      }
+    </script>
+    <title>About ToolsHub | Free Online Tools for Developers & Creators</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About ToolsHub | Free Online Tools for Everyone</title>
-    <meta name="description" content="Learn about ToolsHub, your go-to platform for 100+ free online tools for developers, designers, and marketers. Discover our mission and why we’re trusted worldwide.">
+    <meta name="description" content="Learn about ToolsHub, a platform offering 100+ free online tools for developers, designers, and marketers to simplify tasks like image compression, PDF merging, and QR code generation.">
     <meta name="keywords" content="about toolshub, free online tools, developer tools, designer tools, marketer tools">
     <meta name="author" content="ToolsHub">
     <!-- Open Graph Tags -->
     <meta property="og:title" content="About ToolsHub - Free Online Tools">
-    <meta property="og:description" content="ToolsHub offers 100+ free tools for image compression, PDF merging, QR code generation, and more. Learn about our mission!">
-    <meta property="og:image" content="https://toolshub.cam/images/tools-illustration.webp">
+    <meta property="og:description" content="Discover ToolsHub's mission to provide free, accessible tools for everyone. No signup required!">
+    <meta property="og:image" content="https://toolshub.cam/tools-illustration.webp">
     <meta property="og:url" content="https://toolshub.cam/about">
     <meta property="og:type" content="website">
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="About ToolsHub - Free Online Tools">
-    <meta name="twitter:description" content="ToolsHub offers 100+ free tools for image compression, PDF merging, QR code generation, and more. Learn about our mission!">
-    <meta name="twitter:image" content="https://toolshub.cam/images/tools-illustration.webp">
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-QX6N41VY5J');
-    </script>
-    <!-- Dependencies -->
+    <meta name="twitter:description" content="Discover ToolsHub's mission to provide free, accessible tools for everyone. No signup required!">
+    <meta name="twitter:image" content="https://toolshub.cam/tools-illustration.webp">
     <link rel="icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #4361ee;
@@ -110,7 +113,6 @@
             --footer-background: #212529;
             --footer-text-color: #adb5bd;
             --cta-background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .theme-dark {
@@ -126,7 +128,6 @@
             --footer-background: #121212;
             --footer-text-color: #b0b0b0;
             --cta-background: linear-gradient(135deg, #4a6cff 0%, #3a0ca3 100%);
-            --box-shadow: 0 4px 6px rgba(255, 255, 255, 0.05);
         }
 
         .theme-high-contrast {
@@ -144,7 +145,6 @@
             --cta-background: linear-gradient(135deg, #00ccff 0%, #0066cc 100%);
             --primary-color: #00ccff;
             --secondary-color: #0066cc;
-            --box-shadow: 0 0 0 2px #ffffff;
         }
 
         .theme-modern {
@@ -162,7 +162,6 @@
             --cta-background: linear-gradient(135deg, #667eea 0%, #4c51bf 100%);
             --primary-color: #667eea;
             --secondary-color: #4c51bf;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
         }
 
         * {
@@ -264,27 +263,72 @@
 
         .about-section {
             padding: 80px 0;
-            background: var(--features-background);
+            background: var(--hero-background);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            animation: pulse 10s infinite;
+            z-index: 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.5; }
         }
 
         .about-container {
-            display: flex;
-            flex-direction: column;
-            gap: 40px;
-            align-items: center;
+            position: relative;
+            z-index: 1;
             text-align: center;
         }
 
-        .about-content h1 {
+        .about-container h1 {
             font-size: 2.8rem;
             margin-bottom: 20px;
             color: var(--text-color);
         }
 
-        .about-content p {
+        .about-container p {
             font-size: 1.2rem;
             color: var(--gray-color);
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .mission-card {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            margin: 20px auto;
+            max-width: 800px;
+            transition: var(--transition);
+        }
+
+        .mission-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .mission-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .mission-card p {
+            color: var(--gray-color);
         }
 
         .cta-btn {
@@ -297,6 +341,7 @@
             transition: var(--transition);
             display: inline-block;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            animation: glow 2s infinite alternate;
         }
 
         .cta-btn:hover {
@@ -304,34 +349,9 @@
             transform: translateY(-2px) scale(1.05);
         }
 
-        .about-image {
-            width: 40%;
-            max-width: 400px;
-            height: auto;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            display: block;
-            margin: 0 auto;
-            opacity: 0;
-            animation: fadeIn 1s ease-in-out forwards;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .about-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Fallback if image fails to load */
-        .about-image img {
-            background-color: var(--light-color);
-            border: 1px solid var(--gray-color);
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
+        @keyframes glow {
+            0% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+            100% { box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4); }
         }
 
         footer {
@@ -442,6 +462,11 @@
             transform: translateY(-2px);
         }
 
+        .back-to-top:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
         .back-to-top i {
             font-size: 1.5rem;
         }
@@ -457,11 +482,11 @@
                 padding: 20px;
                 text-align: center;
             }
-
+            
             .navbar.active {
                 display: block;
             }
-
+            
             .navbar ul {
                 flex-direction: column;
                 gap: 15px;
@@ -471,15 +496,16 @@
                 display: block;
             }
 
-            .about-container {
-                flex-direction: column;
-                text-align: center;
+            .about-section {
+                padding: 60px 0;
             }
 
-            .about-image {
-                width: 80%;
-                max-width: 300px;
-                margin: 30px auto;
+            .about-container h1 {
+                font-size: 2.2rem;
+            }
+
+            .mission-card {
+                padding: 20px;
             }
 
             .footer-container {
@@ -502,19 +528,17 @@
             }
         }
 
-        @media (min-width: 768px) {
-            .about-container {
-                flex-direction: row;
-                text-align: left;
-                align-items: flex-start;
+        @media (max-width: 480px) {
+            .about-container h1 {
+                font-size: 1.8rem;
             }
 
-            .about-content {
-                flex: 1;
+            .about-container p {
+                font-size: 1rem;
             }
 
-            .about-image {
-                flex: 0 0 auto;
+            .mission-card h2 {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -528,7 +552,7 @@
             </div>
             <nav class="navbar" id="navbar">
                 <ul>
-                    <li><a href="/">Home</a></li>
+                    <li><a href="/#home">Home</a></li>
                     <li><a href="/#tools">Tools</a></li>
                     <li><a href="/#features">Features</a></li>
                     <li><a href="/blog">Blog</a></li>
@@ -548,22 +572,19 @@
         </div>
     </header>
 
-    <section class="about-section" id="about" role="main" aria-label="About ToolsHub">
+    <section class="about-section" id="about">
         <div class="container about-container">
-            <div class="about-content">
-                <h1>About ToolsHub</h1>
-                <p>ToolsHub is your one-stop platform for over 100 free online tools designed to simplify tasks for developers, designers, and marketers. From compressing images and merging PDFs to generating QR codes and calculating ages, our tools are fast, secure, and easy to use—no signup required!</p>
-                <p>Our mission is to empower everyone with accessible, browser-based tools that work offline and across all devices. Founded by a team passionate about productivity, ToolsHub processes files locally to ensure your data stays private and secure.</p>
-                <p>Join thousands of users worldwide who trust ToolsHub to streamline their workflows. Explore our tools or check out our blog for tips and updates!</p>
-                <a href="/#tools" class="cta-btn">Explore Tools</a>
-                <a href="/blog" class="cta-btn" style="background: var(--secondary-color); margin-left: 10px;">Read Our Blog</a>
+            <h1>About ToolsHub</h1>
+            <p>ToolsHub is your go-to platform for over 100 free online tools designed to simplify tasks for developers, designers, marketers, and everyday users. Our mission is to provide accessible, efficient, and secure tools that enhance productivity without the need for signups or downloads.</p>
+            <div class="mission-card">
+                <h2>Our Purpose</h2>
+                <p>At ToolsHub, we believe technology should make life easier. We created this platform to empower users with tools for tasks like compressing images, merging PDFs, generating QR codes, calculating ages, and more—all in one place. Our tools are built to be fast, secure, and compatible with all devices, ensuring you can work anywhere, anytime.</p>
             </div>
-            <div class="about-image">
-                <picture>
-                    <source srcset="/tools-illustration.webp" type="/webp">
-                    <img src="/tools-illustration.png" alt="Illustration of ToolsHub's free online tools for developers, designers, and marketers" loading="lazy">
-                </picture>
+            <div class="mission-card">
+                <h2>Why Choose Us?</h2>
+                <p>With a focus on user experience, ToolsHub offers a seamless interface, offline processing for most tools, and no data uploads to protect your privacy. Whether you're a professional or a casual user, our tools are designed to save you time and effort.</p>
             </div>
+            <a href="/#tools" class="cta-btn">Explore Our Tools</a>
         </div>
     </section>
 
@@ -588,9 +609,9 @@
                         <li><a href="/digitalsign/">Digital Signature Creator</a></li>
                         <li><a href="/datetimecalc/">Date & Time Calculator</a></li>
                         <li><a href="/exceltopdf/">Excel to PDF</a></li>
-                        <li><a href="/favicongen/">Favicon Generator</a></li>
                         <li><a href="/fileencryptor/">File Encryptor/Decryptor</a></li>
                         <li><a href="/ForexTC/">Forex Trading Clock</a></li>
+                        <li><a href="/favicongen/">Favicon Generator</a></li>
                         <li><a href="/gradientgen/">Gradient Generator</a></li>
                         <li><a href="/gradecalc/">Grade Calculator</a></li>
                         <li><a href="/gpacalc/">GPA Calculator</a></li>
@@ -688,6 +709,8 @@
                         themeToggleBtn.click();
                     }
                 });
+            } else {
+                console.warn('Theme toggle button not found.');
             }
 
             function updateThemeButton(theme) {
@@ -723,7 +746,28 @@
                     mobileMenuBtn.addEventListener('click', () => {
                         navbar.classList.toggle('active');
                     });
+                } else {
+                    console.warn('Mobile menu button or navbar not found.');
                 }
+
+                const anchors = document.querySelectorAll('a[href^="#"]');
+                anchors.forEach(anchor => {
+                    anchor.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = anchor.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                            if (history.pushState) {
+                                history.pushState(null, null, targetId);
+                            } else {
+                                location.hash = targetId;
+                            }
+                        } else {
+                            console.warn(`Anchor target ${targetId} not found.`);
+                        }
+                    });
+                });
 
                 const navLinks = document.querySelectorAll('.navbar a');
                 if (navbar) {
@@ -734,6 +778,8 @@
                             }
                         });
                     });
+                } else {
+                    console.warn('Navbar not found for nav links.');
                 }
 
                 const backToTopBtn = document.getElementById('backToTop');
@@ -778,18 +824,21 @@
                     });
 
                     updateButtonState();
+                } else {
+                    console.warn('Back to top/bottom button not found.');
                 }
+            });
 
-                window.addEventListener('resize', () => {
-                    if (navbar && window.innerWidth > 768) {
-                        navbar.classList.remove('active');
-                    }
-                });
-
-                gtag('event', 'page_view', { 'page_title': 'About ToolsHub' });
+            window.addEventListener('resize', () => {
+                const navbar = document.getElementById('navbar');
+                if (navbar && window.innerWidth > 768) {
+                    navbar.classList.remove('active');
+                } else if (!navbar) {
+                    console.warn('Navbar not found during resize.');
+                }
             });
         } catch (error) {
-            console.error('JavaScript error in ToolsHub About:', error.message);
+            console.error('JavaScript error in ToolsHub:', error.message, error.stack);
         }
     </script>
 </body>
