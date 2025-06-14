@@ -1,1 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      if (typeof gtag === 'function') {
+        gtag('js', new Date());
+        gtag('config', 'G-QX6N41VY5J');
+      } else {
+        console.warn('Google Analytics failed to load.');
+      }
+    </script>
+    <title>Privacy Policy | ToolsHub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Read the Privacy Policy for ToolsHub to understand how we collect, use, and protect your data when using our free online tools.">
+    <meta name="keywords" content="toolshub privacy policy, data protection, free tools privacy">
+    <meta name="author" content="ToolsHub">
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Privacy Policy - ToolsHub">
+    <meta property="og:description" content="Learn how ToolsHub handles your data with our Privacy Policy for our free online tools.">
+    <meta property="og:image" content="https://toolshub.cam/tools-illustration.webp">
+    <meta property="og:url" content="https://toolshub.cam/privacy">
+    <meta property="og:type" content="website">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Privacy Policy - ToolsHub">
+    <meta name="twitter:description" content="Learn how ToolsHub handles your data with our Privacy Policy for our free online tools.">
+    <meta name="twitter:image" content="https://toolshub.cam/tools-illustration.webp">
+    <link rel="icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #4895ef;
+            --gradient-header: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --background-color: #ffffff;
+            --text-color: #212529;
+            --gray-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --header-text-color: #ffffff;
+            --card-background: #ffffff;
+            --hero-background: linear-gradient(135deg, #e6ebff 0%, #d8e0ff 100%);
+            --features-background: #f9fafc;
+            --footer-background: #212529;
+            --footer-text-color: #adb5bd;
+            --cta-background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --new-badge-color: #ff6b6b;
+        }
 
+        .theme-light {
+            --background-color: #ffffff;
+            --text-color: #212529;
+            --gray-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --header-text-color: #ffffff;
+            --card-background: #ffffff;
+            --hero-background: linear-gradient(135deg, #e6ebff 0%, #d8e0ff 100%);
+            --features-background: #f9fafc;
+            --footer-background: #212529;
+            --footer-text-color: #adb5bd;
+            --cta-background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+        }
+
+        .theme-dark {
+            --background-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --gray-color: #a0a0a0;
+            --light-color: #2c2c2c;
+            --dark-color: #e0e0e0;
+            --header-text-color: #e0e0e0;
+            --card-background: #2c2c2c;
+            --hero-background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+            --features-background: #262626;
+            --footer-background: #121212;
+            --footer-text-color: #b0b0b0;
+            --cta-background: linear-gradient(135deg, #4a6cff 0%, #3a0ca3 100%);
+        }
+
+        .theme-high-contrast {
+            --background-color: #000000;
+            --text-color: #ffffff;
+            --gray-color: #cccccc;
+            --light-color: #333333;
+            --dark-color: #ffffff;
+            --header-text-color: #ffffff;
+            --card-background: #222222;
+            --hero-background: linear-gradient(135deg, #000000 0%, #111111 100%);
+            --features-background: #111111;
+            --footer-background: #000000;
+            --footer-text-color: #cccccc;
+            --cta-background: linear-gradient(135deg, #00ccff 0%, #0066cc 100%);
+            --primary-color: #00ccff;
+            --secondary-color: #0066cc;
+        }
+
+        .theme-modern {
+            --background-color: #f4f7fa;
+            --text-color: #2d3748;
+            --gray-color: #718096;
+            --light-color: #ffffff;
+            --dark-color: #2d3748;
+            --header-text-color: #ffffff;
+            --card-background: #ffffff;
+            --hero-background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            --features-background: #edf2f7;
+            --footer-background: #2d3748;
+            --footer-text-color: #a0aec0;
+            --cta-background: linear-gradient(135deg, #667eea 0%, #4c51bf 100%);
+            --primary-color: #667eea;
+            --secondary-color: #4c51bf;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--gradient-header);
+            color: var(--header-text-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--header-text-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .brand i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .navbar ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: var(--header-text-color);
+            font-weight: 500;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .navbar a:hover, .navbar a.active {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .mobile-menu-btn, .theme-toggle-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--header-text-color);
+        }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .theme-toggle-btn:hover, .theme-toggle-btn:focus {
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        .theme-toggle-btn span {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .privacy-section {
+            padding: 80px 0;
+            background: var(--hero-background);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .privacy-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            animation: pulse 10s infinite;
+            z-index: 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        .privacy-container {
+            position: relative;
+            z-index: 1;
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .privacy-container h1 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .privacy-container h2 {
+            font-size: 1.8rem;
+            margin: 30px 0 15px;
+            color: var(--text-color);
+        }
+
+        .privacy-container p {
+            font-size: 1.1rem;
+            color: var(--gray-color);
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .privacy-container ul {
+            list-style-type: disc;
+            margin: 10px 0 15px 20px;
+            color: var(--gray-color);
+        }
+
+        .privacy-container ul li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background-color: var(--footer-background);
+            color: var(--footer-text-color);
+            padding: 50px 0 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--header-text-color);
+        }
+
+        .footer-brand i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            flex: 1;
+        }
+
+        .footer-column {
+            min-width: 150px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: var(--header-text-color);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column a {
+            color: var(--footer-text-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-column a:hover {
+            color: var(--header-text-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            color: var(--footer-text-color);
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--footer-text-color);
+            font-size: 0.9rem;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: var(--header-text-color);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            cursor: pointer;
+            display: none;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+        }
+
+        .back-to-top:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .back-to-top:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        .back-to-top i {
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--gradient-header);
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .navbar.active {
+                display: block;
+            }
+            
+            .navbar ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .mobile-menu-btn, .theme-toggle-btn {
+                display: block;
+            }
+
+            .privacy-section {
+                padding: 60px 0;
+            }
+
+            .privacy-container h1 {
+                font-size: 2.2rem;
+            }
+
+            .privacy-container h2 {
+                font-size: 1.5rem;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-column {
+                min-width: 100%;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .privacy-container h1 {
+                font-size: 1.8rem;
+            }
+
+            .privacy-container h2 {
+                font-size: 1.3rem;
+            }
+
+            .privacy-container p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <header>
+        <div class="container header-container">
+            <div class="brand">
+                <i class="material-icons">build</i>
+                <span>ToolsHub</span>
+            </div>
+            <nav class="navbar" id="navbar">
+                <ul>
+                    <li><a href="/#home">Home</a></li>
+                    <li><a href="/#tools">Tools</a></li>
+                    <li><a href="/#features">Features</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/privacy" class="active">Privacy</a></li>
+                </ul>
+            </nav>
+            <div class="header-buttons">
+                <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle theme">
+                    <i class="material-icons">light_mode</i>
+                    <span>Light</span>
+                </button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation">
+                    <i class="material-icons">menu</i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="privacy-section" id="privacy">
+        <div class="container privacy-container">
+            <h1>Privacy Policy</h1>
+            <p>Last Updated: June 15, 2025</p>
+            <p>At ToolsHub, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website (toolshub.cam) and use our free online tools. By accessing or using our services, you agree to the terms outlined in this policy.</p>
+
+            <h2>1. Information We Collect</h2>
+            <p>We may collect the following types of information:</p>
+            <ul>
+                <li><strong>Personal Information:</strong> Name and email address when you use our contact form.</li>
+                <li><strong>Usage Data:</strong> Information about how you interact with our tools (e.g., pages visited, time spent) collected via Google Analytics.</li>
+                <li><strong>Cookies and Tracking Technologies:</strong> We use cookies to enhance your experience and analyze site usage.</li>
+            </ul>
+
+            <h2>2. How We Use Your Information</h2>
+            <p>We use your information to:</p>
+            <ul>
+                <li>Provide, operate, and maintain our website and tools.</li>
+                <li>Respond to your inquiries or feedback submitted via the contact form.</li>
+                <li>Improve our services and develop new features.</li>
+                <li>Comply with legal obligations and protect against fraud or abuse.</li>
+            </ul>
+
+            <h2>3. How We Share Your Information</h2>
+            <p>We do not sell or rent your personal information. We may share it with:</p>
+            <ul>
+                <li><strong>Service Providers:</strong> Third parties (e.g., Formspree, Google Analytics) to process data on our behalf, under strict confidentiality agreements.</li>
+                <li><strong>Legal Requirements:</strong> If required by law or to protect our rights and safety.</li>
+            </ul>
+
+            <h2>4. Data Security</h2>
+            <p>We implement reasonable security measures to protect your data from unauthorized access or disclosure. However, no online transmission is fully secure, and we cannot guarantee absolute security.</p>
+
+            <h2>5. Your Rights and Choices</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access, correct, or delete your personal information by contacting us.</li>
+                <li>Opt-out of marketing communications (if any) by following unsubscribe instructions.</li>
+                <li>Disable cookies through your browser settings, though this may affect site functionality.</li>
+            </ul>
+
+            <h2>6. Third-Party Links</h2>
+    <p>Our site may contain links to third-party websites. We are not responsible for the privacy practices or content of these sites. Please review their privacy policies.</p>
+
+    <h2>7. Children’s Privacy</h2>
+    <p>Our services are not intended for children under 13. We do not knowingly collect data from children. If we learn we have, we will delete it promptly.</p>
+
+    <h2>8. Changes to This Privacy Policy</h2>
+    <p>We may update this policy as needed. Changes will be posted here with an updated "Last Updated" date. We encourage you to review this page periodically.</p>
+
+    <h2>9. Contact Us</h2>
+    <p>If you have questions about this Privacy Policy, contact us at:</p>
+    <ul>
+        <li>Via our <a href="/contact">Contact Page</a></li>
+    </ul>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <i class="material-icons">build</i>
+                <span>ToolsHub</span>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>Tools</h3>
+                    <ul>
+                        <li><a href="/agecalc/">Age Calculator</a></li>
+                        <li><a href="/babynames/">Baby's Name Generator</a></li>
+                        <li><a href="/Base64ED/">Base64 Encoder Decoder</a></li>
+                        <li><a href="/budgetcalc/">Budget Calculator</a></li>
+                        <li><a href="/ColorP/">Color Picker</a></li>
+                        <li><a href="/colorpalettegen/">Color Palette Generator</a></li>
+                        <li><a href="/caloriecalc/">Calorie Calculator</a></li>
+                        <li><a href="/avatarcreator/">Custom Avatar Creator</a></li>
+                        <li><a href="/digitalsign/">Digital Signature Creator</a></li>
+                        <li><a href="/datetimecalc/">Date & Time Calculator</a></li>
+                        <li><a href="/exceltopdf/">Excel to PDF</a></li>
+                        <li><a href="/fileencryptor/">File Encryptor/Decryptor</a></li>
+                        <li><a href="/ForexTC/">Forex Trading Clock</a></li>
+                        <li><a href="/favicongen/">Favicon Generator</a></li>
+                        <li><a href="/gradientgen/">Gradient Generator</a></li>
+                        <li><a href="/gradecalc/">Grade Calculator</a></li>
+                        <li><a href="/gpacalc/">GPA Calculator</a></li>
+                        <li><a href="/imagecom/">Image Compressor</a></li>
+                        <li><a href="/imagecon/">Image Converter</a></li>
+                        <li><a href="/imageresizer/">Image Resizer</a></li>
+                        <li><a href="/imageview/">Image Viewer</a></li>
+                        <li><a href="/iplocationfinder/">IP Location Finder</a></li>
+                        <li><a href="/jsonformatter/">JSON Formatter & Validator</a></li>
+                        <li><a href="/jpgpngtopdf/">JPG/PNG to PDF Converter</a></li>
+                        <li><a href="/loremipsumgen/">Lorem Ipsum Generator</a></li>
+                        <li><a href="/MarkdowntoHTMLC/">Markdown to HTML Converter</a></li>
+                        <li><a href="/metatags/">Meta Tag Generator</a></li>
+                        <li><a href="/memegen/">Meme Generator</a></li>
+                        <li><a href="/loancalc/">Loan Calculator</a></li>
+                        <li><a href="/passwordgen/">Password Generator</a></li>
+                        <li><a href="/pdfcom/">PDF Compressor</a></li>
+                        <li><a href="/pdfmerger/">PDF Merger</a></li>
+                        <li><a href="/pdfsplit/">PDF Split</a></li>
+                        <li><a href="/pdftoimages/">PDF to Images</a></li>
+                        <li><a href="/pomodorotimer/">Pomodoro Timer</a></li>
+                        <li><a href="/percentagecalc/">Percentage Calculator</a></li>
+                        <li><a href="/QRCodeG/">QR Code Generator</a></li>
+                        <li><a href="/RandomQG/">Random Quote Generator</a></li>
+                        <li><a href="/robotstxt/">Robots.txt Generator</a></li>
+                        <li><a href="/TextCC/">Text Case Converter</a></li>
+                        <li><a href="/TypingSpeedT/">Typing Speed Tester</a></li>
+                        <li><a href="/unitconverter/">Unit Converter</a></li>
+                        <li><a href="/WordChaCou/">Word & Character Counter</a></li>
+                        <li><a href="/wordtopdf/">Word to PDF</a></li>
+                        <li><a href="/urlencodedecode/">URL Encoder/Decoder</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <ul class="social-links">
+                        <li><a href="https://twitter.com/intent/tweet?url=https://toolshub.cam&text=Check%20out%20ToolsHub%20for%20100%2B%20free%20online%20tools!" target="_blank" aria-label="Share on Twitter"><i class="fab fa-twitter"></i></a></li>
+                        <li><a href="https://www.linkedin.com/shareArticle?mini=true&url=https://toolshub.cam" target="_blank" aria-label="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li>
+                        <li><a href="https://github.com/toolshub" target="_blank" aria-label="View on GitHub"><i class="fab fa-github"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <script>document.write(new Date().getFullYear());</script> ToolsHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="material-icons">arrow_upward</i>
+    </button>
+
+    <script>
+        try {
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const themes = ['light', 'dark', 'high-contrast', 'modern'];
+            let currentThemeIndex = 0;
+
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+            currentThemeIndex = themes.indexOf(savedTheme);
+            document.body.className = `theme-${savedTheme}`;
+            updateThemeButton(savedTheme);
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                const newTheme = e.matches ? 'dark' : 'light';
+                if (!localStorage.getItem('theme')) {
+                    document.body.className = `theme-${newTheme}`;
+                    currentThemeIndex = themes.indexOf(newTheme);
+                    updateThemeButton(newTheme);
+                }
+            });
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+                    const newTheme = themes[currentThemeIndex];
+                    document.body.className = `theme-${newTheme}`;
+                    localStorage.setItem('theme', newTheme);
+                    updateThemeButton(newTheme);
+                });
+
+                themeToggleBtn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        themeToggleBtn.click();
+                    }
+                });
+            } else {
+                console.warn('Theme toggle button not found.');
+            }
+
+            function updateThemeButton(theme) {
+                if (!themeToggleBtn) return;
+                const icon = themeToggleBtn.querySelector('i');
+                const text = themeToggleBtn.querySelector('span');
+                if (!icon || !text) return;
+                switch (theme) {
+                    case 'light':
+                        icon.textContent = 'light_mode';
+                        text.textContent = 'Light';
+                        break;
+                    case 'dark':
+                        icon.textContent = 'dark_mode';
+                        text.textContent = 'Dark';
+                        break;
+                    case 'high-contrast':
+                        icon.textContent = 'contrast';
+                        text.textContent = 'High Contrast';
+                        break;
+                    case 'modern':
+                        icon.textContent = 'palette';
+                        text.textContent = 'Modern';
+                        break;
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                const navbar = document.getElementById('navbar');
+
+                if (mobileMenuBtn && navbar) {
+                    mobileMenuBtn.addEventListener('click', () => {
+                        navbar.classList.toggle('active');
+                    });
+                } else {
+                    console.warn('Mobile menu button or navbar not found.');
+                }
+
+                const anchors = document.querySelectorAll('a[href^="#"]');
+                anchors.forEach(anchor => {
+                    anchor.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = anchor.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                            if (history.pushState) {
+                                history.pushState(null, null, targetId);
+                            } else {
+                                location.hash = targetId;
+                            }
+                        } else {
+                            console.warn(`Anchor target ${targetId} not found.`);
+                        }
+                    });
+                });
+
+                const navLinks = document.querySelectorAll('.navbar a');
+                if (navbar) {
+                    navLinks.forEach(link => {
+                        link.addEventListener('click', () => {
+                            if (window.innerWidth <= 768) {
+                                navbar.classList.remove('active');
+                            }
+                        });
+                    });
+                } else {
+                    console.warn('Navbar not found for nav links.');
+                }
+
+                const backToTopBtn = document.getElementById('backToTop');
+                let isTopMode = true;
+
+                if (backToTopBtn) {
+                    function updateButtonState() {
+                        const scrollY = window.scrollY;
+                        const windowHeight = window.innerHeight;
+                        const documentHeight = document.documentElement.scrollHeight;
+
+                        if (scrollY > 300) {
+                            isTopMode = true;
+                            backToTopBtn.style.display = 'block';
+                            backToTopBtn.setAttribute('aria-label', 'Back to top');
+                            backToTopBtn.querySelector('i').textContent = 'arrow_upward';
+                        } else if (scrollY + windowHeight < documentHeight - 300) {
+                            isTopMode = false;
+                            backToTopBtn.style.display = 'block';
+                            backToTopBtn.setAttribute('aria-label', 'Back to bottom');
+                            backToTopBtn.querySelector('i').textContent = 'arrow_downward';
+                        } else {
+                            backToTopBtn.style.display = 'none';
+                        }
+                    }
+
+                    window.addEventListener('scroll', updateButtonState);
+
+                    backToTopBtn.addEventListener('click', () => {
+                        if (isTopMode) {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+                        }
+                    });
+
+                    backToTopBtn.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            backToTopBtn.click();
+                        }
+                    });
+
+                    updateButtonState();
+                } else {
+                    console.warn('Back to top/bottom button not found.');
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                const navbar = document.getElementById('navbar');
+                if (navbar && window.innerWidth > 768) {
+                    navbar.classList.remove('active');
+                } else if (!navbar) {
+                    console.warn('Navbar not found during resize.');
+                }
+            });
+        } catch (error) {
+            console.error('JavaScript error in ToolsHub:', error.message, error.stack);
+        }
+    </script>
+</body>
+</html>
