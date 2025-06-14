@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
@@ -76,6 +37,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY" async defer></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -641,11 +604,7 @@
                     <textarea id="message" name="message" placeholder="Your Feedback or Inquiry" required aria-required="true"></textarea>
                 </div>
                 <input type="hidden" name="_subject" value="ToolsHub Contact Form Submission">
-                <div style="display: none;">
-                    <label for="honeypot">Leave this field empty</label>
-                    <input type="text" id="honeypot" name="_gotcha">
-                </div>
-                <input type="hidden" id="timestamp" name="timestamp" value="">
+                <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response">
                 <button type="submit" class="form-submit">Send Message</button>
                 <div class="form-message" id="formMessage"></div>
             </form>
@@ -848,40 +807,21 @@
 
                 const contactForm = document.getElementById('contactForm');
                 const formMessage = document.getElementById('formMessage');
-                const timestampInput = document.getElementById('timestamp');
 
-                if (contactForm && formMessage && timestampInput) {
-                    // Set initial timestamp when form loads
-                    timestampInput.value = new Date().getTime();
-
+                if (contactForm && formMessage) {
                     contactForm.addEventListener('submit', async (e) => {
                         e.preventDefault();
                         formMessage.style.display = 'none';
                         formMessage.classList.remove('success', 'error');
 
+                        // Execute reCAPTCHA and get token
+                        const recaptchaResponse = await grecaptcha.execute('YOUR_SITE_KEY', { action: 'submit' });
+                        document.getElementById('g-recaptcha-response').value = recaptchaResponse;
+
                         const formData = new FormData(contactForm);
                         const name = formData.get('name').trim();
                         const email = formData.get('email').trim();
                         const message = formData.get('message').trim();
-                        const honeypot = formData.get('_gotcha').trim();
-                        const startTime = parseInt(timestampInput.value);
-                        const currentTime = new Date().getTime();
-                        const timeDiff = (currentTime - startTime) / 1000; // Convert to seconds
-
-                        // Spam checks
-                        if (honeypot !== '') {
-                            formMessage.textContent = 'Invalid submission detected. Please try again.';
-                            formMessage.classList.add('error');
-                            formMessage.style.display = 'block';
-                            return;
-                        }
-
-                        if (timeDiff < 2) { // Minimum 2 seconds to submit
-                            formMessage.textContent = 'Please take a moment to fill out the form.';
-                            formMessage.classList.add('error');
-                            formMessage.style.display = 'block';
-                            return;
-                        }
 
                         if (!name || !email || !message) {
                             formMessage.textContent = 'Please fill out all required fields.';
@@ -912,7 +852,7 @@
                                 formMessage.style.display = 'block';
                                 contactForm.reset();
                             } else {
-                                throw new Error('Form submission failed.');
+                                throw new Error('Form submission failed. Please try again.');
                             }
                         } catch (error) {
                             formMessage.textContent = 'Sorry, there was an error sending your message. Please try again later.';
@@ -921,7 +861,7 @@
                         }
                     });
                 } else {
-                    console.warn('Contact form, message element, or timestamp input not found.');
+                    console.warn('Contact form or message element not found.');
                 }
 
                 const backToTopBtn = document.getElementById('backToTop');
