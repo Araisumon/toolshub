@@ -268,6 +268,9 @@
                         <i class="material-icons">content_copy</i> Copy Updated JSON
                     </button>
                 </div>
+                <div id="adminNote" style="display: none; font-size: 0.9rem; color: #4361ee; margin-top: 8px;">
+                    ✅ Admin Mode Active • Remember to copy JSON after changes
+                </div>
             </div>
 
             <div class="filters">
@@ -413,7 +416,7 @@
     </footer>
 
     <script>
-        const SECRET_PARAM = "sumonikbal2026";   // ← Your new secret URL parameter
+        const SECRET_PARAM = "sumon2026tools";   // ← Your new secret URL parameter
 
         let allPosts = [];
         let editingId = null;
@@ -434,9 +437,9 @@
             }
             renderPosts();
 
-            // Show admin buttons only with secret URL
             if (isAdminMode()) {
                 document.getElementById('adminActions').style.display = 'flex';
+                document.getElementById('adminNote').style.display = 'block';
             }
         }
 
@@ -444,13 +447,13 @@
             const toast = document.getElementById('toast');
             document.getElementById('toastMessage').textContent = message;
             toast.style.display = 'flex';
-            setTimeout(() => toast.style.display = 'none', 4000);
+            setTimeout(() => toast.style.display = 'none', 4500);
         }
 
         function copyUpdatedJSON() {
             const jsonStr = JSON.stringify(allPosts, null, 2);
             navigator.clipboard.writeText(jsonStr).then(() => {
-                showToast("✅ JSON copied! Now update posts.json on GitHub.");
+                showToast("✅ JSON copied successfully! Paste it into posts.json on GitHub.");
             }).catch(() => {
                 prompt("Copy this JSON and paste into posts.json on GitHub:", jsonStr);
             });
@@ -672,7 +675,7 @@
             if (draftTimer) clearInterval(draftTimer);
 
             renderPosts();
-            showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent.");
+            showToast("✅ Post saved successfully! Click 'Copy Updated JSON' to make it permanent on GitHub.");
         }
 
         function showDeleteConfirm(id) {
@@ -693,7 +696,7 @@
             cancelDelete();
         }
 
-        // Theme + Mobile Menu
+        // Theme + Mobile
         document.addEventListener('DOMContentLoaded', () => {
             loadPosts();
 
@@ -719,7 +722,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ ToolsHub Blog - Secret Admin Mode: ?sumonikbal2026', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ ToolsHub Blog - Secret Admin Mode: ?sumon2026tools', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
