@@ -185,7 +185,6 @@
             font-size: 0.85rem;
             color: #4361ee;
             margin: 8px 0 12px 0;
-            font-style: italic;
         }
 
         #deleteConfirmModal .modal-content { max-width: 420px; }
@@ -357,7 +356,7 @@
 
                     <label style="display:block; margin:10px 0 8px; font-weight:600;">Featured Image</label>
                     <div class="image-instruction">
-                        ↑ First upload your image to the <strong>/blog/images/</strong> folder on GitHub, then paste the direct URL below.
+                        First upload your image to the <strong>/blog/images/</strong> folder on GitHub, then paste the direct URL below.
                     </div>
                     <div id="dropZone" class="image-upload-area">
                         <i class="material-icons" style="font-size:2.8rem;color:#4361ee;">cloud_upload</i>
@@ -459,9 +458,9 @@
         function copyUpdatedJSON() {
             const jsonStr = JSON.stringify(allPosts, null, 2);
             navigator.clipboard.writeText(jsonStr).then(() => {
-                showToast("✅ JSON copied! Paste into posts.json on GitHub.");
+                showToast("✅ JSON copied! Paste into posts.json on GitHub and commit.");
             }).catch(() => {
-                prompt("Copy this JSON and paste into posts.json:", jsonStr);
+                prompt("Copy this JSON and paste into posts.json on GitHub:", jsonStr);
             });
         }
 
@@ -579,7 +578,7 @@
             document.getElementById('postModal').style.display = 'none';
         }
 
-        // Image Preview Only (No Base64 Saving)
+        // Image Preview Only
         const dropZone = document.getElementById('dropZone');
         dropZone.addEventListener('click', () => document.getElementById('imageUpload').click());
         dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -601,7 +600,6 @@
             reader.onload = ev => {
                 document.getElementById('imagePreview').src = ev.target.result;
                 document.getElementById('imagePreview').style.display = 'block';
-                // Do NOT save Base64 — user must upload to GitHub manually
             };
             reader.readAsDataURL(file);
         }
@@ -681,7 +679,7 @@
             if (draftTimer) clearInterval(draftTimer);
 
             renderPosts();
-            showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent.");
+            showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent on GitHub.");
         }
 
         function showDeleteConfirm(id) {
@@ -728,7 +726,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ ToolsHub Blog - Secret Admin Mode: ?sumon2026tools', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ ToolsHub Blog Final Version - Secret: ?sumon2026tools', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
