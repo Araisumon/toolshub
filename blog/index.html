@@ -195,6 +195,22 @@
             border: 1px solid #ffeaa7;
         }
 
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
         .empty-state { text-align: center; padding: 80px 20px; color: var(--gray-color); }
 
         footer { background: #212529; color: #adb5bd; padding: 50px 0 20px; }
@@ -207,6 +223,7 @@
             .mobile-menu-btn, .theme-toggle-btn { display: block; }
             .blog-grid { grid-template-columns: 1fr; }
             .filters { flex-direction: column; align-items: stretch; }
+            .blog-header { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -238,12 +255,12 @@
     <section class="blog-section">
         <div class="container">
             <div id="storageNotice" class="storage-notice">
-                <strong>GitHub Note:</strong> All changes are temporary in the browser. Click <strong>"Copy Updated JSON"</strong> → paste into <code>posts.json</code> on GitHub → commit to make them permanent.
+                <strong>GitHub Note:</strong> Changes are temporary until you copy the JSON and update <code>posts.json</code> on GitHub.
             </div>
 
             <div class="blog-header">
                 <h1>ToolsHub Blog</h1>
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <div id="adminActions" style="display:none; gap:12px; flex-wrap:wrap;">
                     <button onclick="showAddPostModal()" class="cta-btn">
                         <i class="material-icons">add</i> New Post
                     </button>
@@ -381,6 +398,12 @@
         </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="material-icons">check_circle</i>
+        <span id="toastMessage"></span>
+    </div>
+
     <footer>
         <div class="container">
             <div class="footer-bottom">
@@ -390,6 +413,7 @@
     </footer>
 
     <script>
+        const ADMIN_PASSWORD = "admin123"; // ← Change this to your own secret password
         let allPosts = [];
         let editingId = null;
         let postToDelete = null;
@@ -406,14 +430,19 @@
             renderPosts();
         }
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.style.display = 'flex';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
         function copyUpdatedJSON() {
             const jsonStr = JSON.stringify(allPosts, null, 2);
             navigator.clipboard.writeText(jsonStr).then(() => {
-                const msg = document.createElement('div');
-                msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#28a745;color:white;padding:12px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:3000;';
-                msg.textContent = '✅ JSON copied! Now update posts.json on GitHub.';
-                document.body.appendChild(msg);
-                setTimeout(() => msg.remove(), 4000);
+                showToast("✅ JSON copied! Now update posts.json on GitHub.");
             }).catch(() => {
                 prompt("Copy this JSON and paste into posts.json on GitHub:", jsonStr);
             });
@@ -494,7 +523,21 @@
 
         function closeReadModal() { document.getElementById('readModal').style.display = 'none'; }
 
+        function askForAdminAccess() {
+            const pass = prompt("Enter admin password to access editor:");
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('adminActions').style.display = 'flex';
+                return true;
+            } else {
+                alert("Incorrect password.");
+                return false;
+            }
+        }
+
         function showAddPostModal() {
+            if (!document.getElementById('adminActions').style.display.includes('flex')) {
+                if (!askForAdminAccess()) return;
+            }
             editingId = null;
             document.getElementById('modalFormTitle').textContent = 'Create New Post';
             document.getElementById('postForm').reset();
@@ -507,6 +550,9 @@
         }
 
         function editPost(id) {
+            if (!document.getElementById('adminActions').style.display.includes('flex')) {
+                if (!askForAdminAccess()) return;
+            }
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
             editingId = id;
@@ -531,7 +577,7 @@
             document.getElementById('postModal').style.display = 'none';
         }
 
-        // Image Drag & Drop + Upload
+        // Image handling (drag & drop + upload)
         const dropZone = document.getElementById('dropZone');
         dropZone.addEventListener('click', () => document.getElementById('imageUpload').click());
         dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -633,10 +679,14 @@
             if (draftTimer) clearInterval(draftTimer);
 
             renderPosts();
-            alert("✅ Post saved in browser.\n\nClick 'Copy Updated JSON' to make it permanent on GitHub.");
+            showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent.");
         }
 
         function showDeleteConfirm(id) {
+            if (!document.getElementById('adminActions').style.display.includes('flex')) {
+                if (!confirm("Enter admin mode to delete?")) return;
+                if (!askForAdminAccess()) return;
+            }
             postToDelete = id;
             document.getElementById('deleteConfirmModal').style.display = 'flex';
         }
@@ -654,7 +704,7 @@
             cancelDelete();
         }
 
-        // Theme + Mobile
+        // Theme + Mobile Menu
         document.addEventListener('DOMContentLoaded', () => {
             loadPosts();
 
@@ -680,7 +730,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ Improved ToolsHub Blog connected to posts.json!', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ Final ToolsHub Blog is live with admin protection!', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
