@@ -4,8 +4,8 @@
     "title": "How to Compress Images Without Losing Quality",
     "category": "Tutorials",
     "date": "2025-03-28",
-    "excerpt": "Reduce file sizes by up to 80% while keeping perfect quality using our Image Compressor tool.",
-    "content": "<p>Our advanced compression algorithms help you shrink images significantly without visible quality loss.</p>",
+    "excerpt": "Master our powerful Image Compressor tool and reduce file sizes by up to 80% while keeping perfect visual quality.",
+    "content": "<p>Our Image Compressor uses advanced algorithms to dramatically shrink PNG, JPG, and WebP files without noticeable quality loss.</p><h3>Step-by-step guide</h3><ol><li>Upload your image</li><li>Choose compression level</li><li>Download the optimized version instantly</li></ol><p>Perfect for web developers, bloggers, and anyone who needs fast-loading websites!</p>",
     "image": "https://picsum.photos/id/1015/800/400"
   },
   {
@@ -13,8 +13,44 @@
     "title": "5 Productivity Hacks Using Our Pomodoro Timer",
     "category": "Productivity",
     "date": "2025-03-29",
-    "excerpt": "Boost your focus and track streaks with the built-in Pomodoro Timer.",
-    "content": "<p>Custom work/break intervals and beautiful progress visualization.</p>",
+    "excerpt": "Boost your focus and get more done with the built-in Pomodoro Timer and task tracker.",
+    "content": "<p>The Pomodoro technique has never been easier. Our timer integrates seamlessly with your workflow.</p><ul><li>Custom work/break intervals</li><li>Beautiful progress rings</li><li>Export session reports</li><li>Daily streak tracking</li></ul>",
     "image": "https://picsum.photos/id/201/800/400"
+  },
+  {
+    "id": 1730172800000,
+    "title": "New Feature: PDF Merger & Splitter Released",
+    "category": "Product Updates",
+    "date": "2025-03-30",
+    "excerpt": "We just launched powerful PDF tools — merge, split, compress, and convert PDFs instantly in your browser.",
+    "content": "<p>No software installation required. All processing happens locally in your browser for maximum privacy.</p><h3>What’s new</h3><p>• Merge multiple PDFs<br>• Split by page ranges<br>• Compress large files<br>• Password protection</p>",
+    "image": "https://picsum.photos/id/251/800/400"
+  },
+  {
+    "id": 1730259200000,
+    "title": "Best Password Practices in 2025",
+    "category": "Tips & Tricks",
+    "date": "2025-03-31",
+    "excerpt": "How our Password Generator creates truly secure passwords and why you should stop reusing them.",
+    "content": "<p>Our generator now includes passphrase mode, emoji support, and instant strength checking. Stop using weak passwords today!</p>",
+    "image": ""
+  },
+  {
+    "id": 1730345600000,
+    "title": "QR Code Generator Just Got an Upgrade",
+    "category": "Developer Tools",
+    "date": "2025-04-01",
+    "excerpt": "Generate beautiful, customizable QR codes with logos, colors, and even animated frames.",
+    "content": "<p>Perfect for business cards, product packaging, or marketing campaigns. All QR codes are scannable and look professional.</p>",
+    "image": "https://picsum.photos/id/1005/800/400"
+  },
+  {
+    "id": 1730432000000,
+    "title": "How to Create Professional Avatars in Seconds",
+    "category": "Design",
+    "date": "2025-04-02",
+    "excerpt": "Turn any photo into a stunning avatar using our new AI-powered Avatar Creator.",
+    "content": "<p>Choose from 20+ styles and instantly generate profile pictures for social media, GitHub, LinkedIn, or forums.</p>",
+    "image": "https://picsum.photos/id/1009/800/400"
   }
 ]
