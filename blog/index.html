@@ -238,7 +238,7 @@
     <section class="blog-section">
         <div class="container">
             <div id="storageNotice" class="storage-notice">
-                <strong>GitHub Note:</strong> Changes are temporary until you copy the JSON and update <code>posts.json</code> on GitHub.
+                <strong>GitHub Note:</strong> All changes are temporary in the browser. Click <strong>"Copy Updated JSON"</strong> → paste into <code>posts.json</code> on GitHub → commit to make them permanent.
             </div>
 
             <div class="blog-header">
@@ -409,7 +409,11 @@
         function copyUpdatedJSON() {
             const jsonStr = JSON.stringify(allPosts, null, 2);
             navigator.clipboard.writeText(jsonStr).then(() => {
-                alert("✅ JSON copied to clipboard!\n\n1. Go to GitHub → /blog/posts.json\n2. Click 'Edit'\n3. Paste the JSON (replace everything)\n4. Scroll down and click 'Commit changes'");
+                const msg = document.createElement('div');
+                msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#28a745;color:white;padding:12px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:3000;';
+                msg.textContent = '✅ JSON copied! Now update posts.json on GitHub.';
+                document.body.appendChild(msg);
+                setTimeout(() => msg.remove(), 4000);
             }).catch(() => {
                 prompt("Copy this JSON and paste into posts.json on GitHub:", jsonStr);
             });
@@ -527,7 +531,7 @@
             document.getElementById('postModal').style.display = 'none';
         }
 
-        // Image handling
+        // Image Drag & Drop + Upload
         const dropZone = document.getElementById('dropZone');
         dropZone.addEventListener('click', () => document.getElementById('imageUpload').click());
         dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -554,10 +558,10 @@
             reader.readAsDataURL(file);
         }
 
-        // Rich Text Editor
+        // Rich Text
         function formatText(command, value = null) {
             if (command === 'createLink') {
-                const url = prompt('Enter the link URL:');
+                const url = prompt('Enter link URL:');
                 if (url) document.execCommand('createLink', false, url);
             } else {
                 document.execCommand(command, false, value);
@@ -629,7 +633,7 @@
             if (draftTimer) clearInterval(draftTimer);
 
             renderPosts();
-            alert("Post updated in browser.\n\nClick 'Copy Updated JSON' to save it permanently on GitHub.");
+            alert("✅ Post saved in browser.\n\nClick 'Copy Updated JSON' to make it permanent on GitHub.");
         }
 
         function showDeleteConfirm(id) {
@@ -650,7 +654,7 @@
             cancelDelete();
         }
 
-        // Theme + Mobile Menu
+        // Theme + Mobile
         document.addEventListener('DOMContentLoaded', () => {
             loadPosts();
 
@@ -676,7 +680,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ ToolsHub Blog is now connected to posts.json on GitHub!', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ Improved ToolsHub Blog connected to posts.json!', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
