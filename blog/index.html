@@ -260,7 +260,7 @@
 
             <div class="blog-header">
                 <h1>ToolsHub Blog</h1>
-                <div id="adminActions" style="display:none; gap:12px; flex-wrap:wrap;">
+                <div id="adminActions" style="display: none; gap:12px; flex-wrap:wrap;">
                     <button onclick="showAddPostModal()" class="cta-btn">
                         <i class="material-icons">add</i> New Post
                     </button>
@@ -398,7 +398,7 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- Toast -->
     <div id="toast" class="toast">
         <i class="material-icons">check_circle</i>
         <span id="toastMessage"></span>
@@ -413,11 +413,16 @@
     </footer>
 
     <script>
-        const ADMIN_PASSWORD = "admin123"; // ← Change this to your own secret password
+        const SECRET_PARAM = "admin=true";   // Change this if you want a different secret URL
         let allPosts = [];
         let editingId = null;
         let postToDelete = null;
         let draftTimer = null;
+
+        // Check if admin mode is enabled via URL
+        function isAdminMode() {
+            return window.location.search.includes(SECRET_PARAM);
+        }
 
         async function loadPosts() {
             try {
@@ -428,15 +433,18 @@
                 allPosts = [];
             }
             renderPosts();
+
+            // Show admin buttons only in secret URL
+            if (isAdminMode()) {
+                document.getElementById('adminActions').style.display = 'flex';
+            }
         }
 
         function showToast(message) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMessage').textContent = message;
             toast.style.display = 'flex';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 4000);
+            setTimeout(() => toast.style.display = 'none', 4000);
         }
 
         function copyUpdatedJSON() {
@@ -475,8 +483,10 @@
                         <div class="blog-card-footer">
                             <span style="font-size:0.85rem;color:var(--gray-color);">Read more →</span>
                             <div>
+                                ${isAdminMode() ? `
                                 <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-right:8px;">✏️</button>
                                 <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:#e74c3c;">🗑️</button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -523,21 +533,7 @@
 
         function closeReadModal() { document.getElementById('readModal').style.display = 'none'; }
 
-        function askForAdminAccess() {
-            const pass = prompt("Enter admin password to access editor:");
-            if (pass === ADMIN_PASSWORD) {
-                document.getElementById('adminActions').style.display = 'flex';
-                return true;
-            } else {
-                alert("Incorrect password.");
-                return false;
-            }
-        }
-
         function showAddPostModal() {
-            if (!document.getElementById('adminActions').style.display.includes('flex')) {
-                if (!askForAdminAccess()) return;
-            }
             editingId = null;
             document.getElementById('modalFormTitle').textContent = 'Create New Post';
             document.getElementById('postForm').reset();
@@ -550,9 +546,6 @@
         }
 
         function editPost(id) {
-            if (!document.getElementById('adminActions').style.display.includes('flex')) {
-                if (!askForAdminAccess()) return;
-            }
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
             editingId = id;
@@ -577,7 +570,7 @@
             document.getElementById('postModal').style.display = 'none';
         }
 
-        // Image handling (drag & drop + upload)
+        // Image handling
         const dropZone = document.getElementById('dropZone');
         dropZone.addEventListener('click', () => document.getElementById('imageUpload').click());
         dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -683,10 +676,6 @@
         }
 
         function showDeleteConfirm(id) {
-            if (!document.getElementById('adminActions').style.display.includes('flex')) {
-                if (!confirm("Enter admin mode to delete?")) return;
-                if (!askForAdminAccess()) return;
-            }
             postToDelete = id;
             document.getElementById('deleteConfirmModal').style.display = 'flex';
         }
@@ -730,7 +719,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ Final ToolsHub Blog is live with admin protection!', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ ToolsHub Blog - Secret Admin Mode Active (use ?admin=true)', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
