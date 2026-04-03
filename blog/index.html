@@ -192,15 +192,6 @@
         .btn-cancel { background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 8px; }
         .btn-delete { background: #e74c3c; color: white; border: none; padding: 12px 24px; border-radius: 8px; }
 
-        .storage-notice {
-            background: #fff3cd;
-            color: #856404;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border: 1px solid #ffeaa7;
-        }
-
         .toast {
             position: fixed;
             bottom: 20px;
@@ -260,9 +251,6 @@
 
     <section class="blog-section">
         <div class="container">
-            <div id="storageNotice" class="storage-notice">
-                <strong>GitHub Note:</strong> Changes are temporary until you copy the JSON and update <code>posts.json</code> on GitHub.
-            </div>
 
             <div class="blog-header">
                 <h1>ToolsHub Blog</h1>
@@ -458,7 +446,7 @@
         function copyUpdatedJSON() {
             const jsonStr = JSON.stringify(allPosts, null, 2);
             navigator.clipboard.writeText(jsonStr).then(() => {
-                showToast("✅ JSON copied! Paste into posts.json on GitHub and commit.");
+                showToast("✅ JSON copied! Paste into posts.json on GitHub.");
             }).catch(() => {
                 prompt("Copy this JSON and paste into posts.json on GitHub:", jsonStr);
             });
@@ -679,7 +667,7 @@
             if (draftTimer) clearInterval(draftTimer);
 
             renderPosts();
-            showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent on GitHub.");
+            showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent.");
         }
 
         function showDeleteConfirm(id) {
