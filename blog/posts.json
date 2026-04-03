@@ -1,1 +1,20 @@
-
+[
+  {
+    "id": 1730000000000,
+    "title": "How to Compress Images Without Losing Quality",
+    "category": "Tutorials",
+    "date": "2025-03-28",
+    "excerpt": "Reduce file sizes by up to 80% while keeping perfect quality using our Image Compressor tool.",
+    "content": "<p>Our advanced compression algorithms help you shrink images significantly without visible quality loss.</p>",
+    "image": "https://picsum.photos/id/1015/800/400"
+  },
+  {
+    "id": 1730086400000,
+    "title": "5 Productivity Hacks Using Our Pomodoro Timer",
+    "category": "Productivity",
+    "date": "2025-03-29",
+    "excerpt": "Boost your focus and track streaks with the built-in Pomodoro Timer.",
+    "content": "<p>Custom work/break intervals and beautiful progress visualization.</p>",
+    "image": "https://picsum.photos/id/201/800/400"
+  }
+]
