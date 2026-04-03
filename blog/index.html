@@ -181,6 +181,13 @@
             box-shadow: var(--box-shadow);
         }
 
+        .image-instruction {
+            font-size: 0.85rem;
+            color: #4361ee;
+            margin: 8px 0 12px 0;
+            font-style: italic;
+        }
+
         #deleteConfirmModal .modal-content { max-width: 420px; }
         .delete-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 25px; }
         .btn-cancel { background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 8px; }
@@ -268,9 +275,6 @@
                         <i class="material-icons">content_copy</i> Copy Updated JSON
                     </button>
                 </div>
-                <div id="adminNote" style="display: none; font-size: 0.9rem; color: #4361ee; margin-top: 8px;">
-                    ✅ Admin Mode Active • Remember to copy JSON after changes
-                </div>
             </div>
 
             <div class="filters">
@@ -351,14 +355,17 @@
                         </div>
                     </div>
 
-                    <label style="display:block; margin:10px 0 5px; font-weight:600;">Featured Image</label>
+                    <label style="display:block; margin:10px 0 8px; font-weight:600;">Featured Image</label>
+                    <div class="image-instruction">
+                        ↑ First upload your image to the <strong>/blog/images/</strong> folder on GitHub, then paste the direct URL below.
+                    </div>
                     <div id="dropZone" class="image-upload-area">
                         <i class="material-icons" style="font-size:2.8rem;color:#4361ee;">cloud_upload</i>
-                        <p>Drag &amp; drop image or click to upload</p>
+                        <p>Drag &amp; drop for preview only</p>
                         <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
                     </div>
                     <img id="imagePreview" alt="Preview">
-                    <input type="text" id="postImage" placeholder="Or paste image URL" style="width:100%; margin-top:10px; padding:12px; border:1px solid #ccc; border-radius:8px;">
+                    <input type="text" id="postImage" placeholder="https://raw.githubusercontent.com/Araisumon/toolshub/main/blog/images/your-image.jpg" style="width:100%; margin-top:10px; padding:12px; border:1px solid #ccc; border-radius:8px;">
 
                     <label style="display:block; margin:15px 0 5px; font-weight:600;">Excerpt</label>
                     <textarea id="postExcerpt" rows="3" required style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px;"></textarea>
@@ -416,7 +423,7 @@
     </footer>
 
     <script>
-        const SECRET_PARAM = "sumon2026tools";   // ← Your new secret URL parameter
+        const SECRET_PARAM = "sumon2026tools";
 
         let allPosts = [];
         let editingId = null;
@@ -439,7 +446,6 @@
 
             if (isAdminMode()) {
                 document.getElementById('adminActions').style.display = 'flex';
-                document.getElementById('adminNote').style.display = 'block';
             }
         }
 
@@ -453,9 +459,9 @@
         function copyUpdatedJSON() {
             const jsonStr = JSON.stringify(allPosts, null, 2);
             navigator.clipboard.writeText(jsonStr).then(() => {
-                showToast("✅ JSON copied successfully! Paste it into posts.json on GitHub.");
+                showToast("✅ JSON copied! Paste into posts.json on GitHub.");
             }).catch(() => {
-                prompt("Copy this JSON and paste into posts.json on GitHub:", jsonStr);
+                prompt("Copy this JSON and paste into posts.json:", jsonStr);
             });
         }
 
@@ -573,7 +579,7 @@
             document.getElementById('postModal').style.display = 'none';
         }
 
-        // Image handling
+        // Image Preview Only (No Base64 Saving)
         const dropZone = document.getElementById('dropZone');
         dropZone.addEventListener('click', () => document.getElementById('imageUpload').click());
         dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -595,7 +601,7 @@
             reader.onload = ev => {
                 document.getElementById('imagePreview').src = ev.target.result;
                 document.getElementById('imagePreview').style.display = 'block';
-                document.getElementById('postImage').value = ev.target.result;
+                // Do NOT save Base64 — user must upload to GitHub manually
             };
             reader.readAsDataURL(file);
         }
@@ -675,7 +681,7 @@
             if (draftTimer) clearInterval(draftTimer);
 
             renderPosts();
-            showToast("✅ Post saved successfully! Click 'Copy Updated JSON' to make it permanent on GitHub.");
+            showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent.");
         }
 
         function showDeleteConfirm(id) {
