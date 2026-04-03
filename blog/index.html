@@ -413,13 +413,13 @@
     </footer>
 
     <script>
-        const SECRET_PARAM = "admin=true";   // Change this if you want a different secret URL
+        const SECRET_PARAM = "sumonikbal2026";   // ← Your new secret URL parameter
+
         let allPosts = [];
         let editingId = null;
         let postToDelete = null;
         let draftTimer = null;
 
-        // Check if admin mode is enabled via URL
         function isAdminMode() {
             return window.location.search.includes(SECRET_PARAM);
         }
@@ -434,7 +434,7 @@
             }
             renderPosts();
 
-            // Show admin buttons only in secret URL
+            // Show admin buttons only with secret URL
             if (isAdminMode()) {
                 document.getElementById('adminActions').style.display = 'flex';
             }
@@ -719,7 +719,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ ToolsHub Blog - Secret Admin Mode Active (use ?admin=true)', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ ToolsHub Blog - Secret Admin Mode: ?sumonikbal2026', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
