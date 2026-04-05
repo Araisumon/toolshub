@@ -125,9 +125,9 @@
             background: none;
             border: none;
             color: var(--gray-color);
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             cursor: pointer;
-            padding: 4px;
+            padding: 4px 6px;
         }
         .share-btn:hover {
             color: var(--primary-color);
@@ -441,6 +441,7 @@
 
     <script>
         const SECRET_PARAM = "sumon2026tools";
+        const SITE_URL = "https://toolshub.cam";
 
         let allPosts = [];
         let editingId = null;
@@ -482,6 +483,31 @@
             });
         }
 
+        function sharePost(platform, id) {
+            const post = allPosts.find(p => p.id === id);
+            if (!post) return;
+
+            const title = encodeURIComponent(post.title);
+            const postUrl = encodeURIComponent(`${SITE_URL}/blog#post-${post.id}`);
+
+            let shareUrl = '';
+
+            if (platform === 'twitter') {
+                shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${postUrl}`;
+            } else if (platform === 'facebook') {
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${postUrl}`;
+            } else if (platform === 'copy') {
+                navigator.clipboard.writeText(decodeURIComponent(postUrl)).then(() => {
+                    showToast("✅ Post link copied!");
+                });
+                return;
+            }
+
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            }
+        }
+
         function renderPosts(filtered = null) {
             const container = document.getElementById('postsContainer');
             const empty = document.getElementById('emptyState');
@@ -497,6 +523,7 @@
             posts.forEach(post => {
                 const card = document.createElement('div');
                 card.className = 'blog-card';
+                card.id = `post-${post.id}`;
                 card.innerHTML = `
                     ${post.image ? `<img src="${post.image}" alt="${post.title}">` : `<div style="height:200px;background:linear-gradient(135deg,#4361ee,#3a0ca3);color:white;display:flex;align-items:center;justify-content:center;font-size:3rem;"><i class="material-icons">article</i></div>`}
                     <div class="blog-card-content">
@@ -510,7 +537,7 @@
                             <span style="font-size:0.85rem;color:var(--gray-color);">Read more →</span>
                             <div style="display:flex; gap:12px; align-items:center;">
                                 <div class="share-buttons">
-                                    <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on Twitter">𝕏</button>
+                                    <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on X">𝕏</button>
                                     <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on Facebook">f</button>
                                     <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Copy Link">🔗</button>
                                 </div>
@@ -525,31 +552,6 @@
                 card.onclick = () => viewPost(post.id);
                 container.appendChild(card);
             });
-        }
-
-        function sharePost(platform, id) {
-            const post = allPosts.find(p => p.id === id);
-            if (!post) return;
-
-            const title = encodeURIComponent(post.title);
-            const url = encodeURIComponent(window.location.origin + "/blog");
-
-            let shareUrl = '';
-
-            if (platform === 'twitter') {
-                shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${url}`;
-            } else if (platform === 'facebook') {
-                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            } else if (platform === 'copy') {
-                navigator.clipboard.writeText(window.location.origin + "/blog").then(() => {
-                    showToast("✅ Link copied to clipboard!");
-                });
-                return;
-            }
-
-            if (shareUrl) {
-                window.open(shareUrl, '_blank');
-            }
         }
 
         function filterPosts() {
