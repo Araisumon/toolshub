@@ -95,6 +95,7 @@
             box-shadow: var(--box-shadow);
             transition: var(--transition);
             cursor: pointer;
+            position: relative;
         }
         .blog-card:hover { transform: translateY(-8px); }
         .blog-card img { width: 100%; height: 200px; object-fit: cover; }
@@ -102,8 +103,35 @@
         .blog-card-meta { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--gray-color); margin-bottom: 12px; }
         .blog-card h3 { font-size: 1.35rem; margin-bottom: 10px; }
         .blog-card p { color: var(--gray-color); margin-bottom: 20px; }
-        .blog-card-footer { display: flex; justify-content: space-between; align-items: center; }
-        .category { background: #e0e7ff; color: #4361ee; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .blog-card-footer { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .category { 
+            background: #e0e7ff; 
+            color: #4361ee; 
+            padding: 4px 12px; 
+            border-radius: 9999px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .share-btn {
+            background: none;
+            border: none;
+            color: var(--gray-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .share-btn:hover {
+            color: var(--primary-color);
+        }
 
         .modal {
             display: none;
@@ -480,9 +508,14 @@
                         <p>${post.excerpt}</p>
                         <div class="blog-card-footer">
                             <span style="font-size:0.85rem;color:var(--gray-color);">Read more →</span>
-                            <div>
+                            <div style="display:flex; gap:12px; align-items:center;">
+                                <div class="share-buttons">
+                                    <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on Twitter">𝕏</button>
+                                    <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on Facebook">f</button>
+                                    <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Copy Link">🔗</button>
+                                </div>
                                 ${isAdminMode() ? `
-                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-right:8px;">✏️</button>
+                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-left:auto;">✏️</button>
                                 <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:#e74c3c;">🗑️</button>
                                 ` : ''}
                             </div>
@@ -492,6 +525,31 @@
                 card.onclick = () => viewPost(post.id);
                 container.appendChild(card);
             });
+        }
+
+        function sharePost(platform, id) {
+            const post = allPosts.find(p => p.id === id);
+            if (!post) return;
+
+            const title = encodeURIComponent(post.title);
+            const url = encodeURIComponent(window.location.origin + "/blog");
+
+            let shareUrl = '';
+
+            if (platform === 'twitter') {
+                shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${url}`;
+            } else if (platform === 'facebook') {
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            } else if (platform === 'copy') {
+                navigator.clipboard.writeText(window.location.origin + "/blog").then(() => {
+                    showToast("✅ Link copied to clipboard!");
+                });
+                return;
+            }
+
+            if (shareUrl) {
+                window.open(shareUrl, '_blank');
+            }
         }
 
         function filterPosts() {
