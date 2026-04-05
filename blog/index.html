@@ -124,15 +124,35 @@
         .share-btn {
             background: none;
             border: none;
-            color: var(--gray-color);
-            font-size: 1.3rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
             cursor: pointer;
-            padding: 4px 7px;
-            transition: color 0.2s;
+            transition: all 0.2s ease;
         }
         .share-btn:hover {
-            color: var(--primary-color);
+            transform: scale(1.15);
         }
+
+        /* Different colors for each platform */
+        .share-x { color: #000000; }
+        .share-x:hover { background: #000000; color: white; }
+
+        .share-facebook { color: #1877F2; }
+        .share-facebook:hover { background: #1877F2; color: white; }
+
+        .share-linkedin { color: #0A66C2; }
+        .share-linkedin:hover { background: #0A66C2; color: white; }
+
+        .share-whatsapp { color: #25D366; }
+        .share-whatsapp:hover { background: #25D366; color: white; }
+
+        .share-copy { color: #6c757d; }
+        .share-copy:hover { background: #6c757d; color: white; }
 
         .modal {
             display: none;
@@ -543,11 +563,11 @@
                             <span style="font-size:0.85rem;color:var(--gray-color);">Read more →</span>
                             <div style="display:flex; gap:12px; align-items:center;">
                                 <div class="share-buttons">
-                                    <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on X">𝕏</button>
-                                    <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on Facebook">f</button>
-                                    <button onclick="sharePost('linkedin', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on LinkedIn">in</button>
-                                    <button onclick="sharePost('whatsapp', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on WhatsApp">💬</button>
-                                    <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Copy Link">🔗</button>
+                                    <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-x" title="Share on X">𝕏</button>
+                                    <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-facebook" title="Share on Facebook">f</button>
+                                    <button onclick="sharePost('linkedin', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-linkedin" title="Share on LinkedIn">in</button>
+                                    <button onclick="sharePost('whatsapp', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-whatsapp" title="Share on WhatsApp">💬</button>
+                                    <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-copy" title="Copy Link">🔗</button>
                                 </div>
                                 ${isAdminMode() ? `
                                 <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-left:auto;">✏️</button>
