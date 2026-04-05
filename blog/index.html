@@ -119,15 +119,16 @@
 
         .share-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         .share-btn {
             background: none;
             border: none;
             color: var(--gray-color);
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            padding: 4px 6px;
+            padding: 4px 7px;
+            transition: color 0.2s;
         }
         .share-btn:hover {
             color: var(--primary-color);
@@ -489,22 +490,27 @@
 
             const title = encodeURIComponent(post.title);
             const postUrl = encodeURIComponent(`${SITE_URL}/blog#post-${post.id}`);
+            const message = encodeURIComponent(`Check out this great article from ToolsHub: "${post.title}"`);
 
             let shareUrl = '';
 
             if (platform === 'twitter') {
-                shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${postUrl}`;
+                shareUrl = `https://twitter.com/intent/tweet?text=${message}&url=${postUrl}`;
             } else if (platform === 'facebook') {
                 shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${postUrl}`;
+            } else if (platform === 'linkedin') {
+                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${postUrl}`;
+            } else if (platform === 'whatsapp') {
+                shareUrl = `https://wa.me/?text=${message}%20${postUrl}`;
             } else if (platform === 'copy') {
-                navigator.clipboard.writeText(decodeURIComponent(postUrl)).then(() => {
-                    showToast("✅ Post link copied!");
+                navigator.clipboard.writeText(`${SITE_URL}/blog#post-${post.id}`).then(() => {
+                    showToast("✅ Post link copied to clipboard!");
                 });
                 return;
             }
 
             if (shareUrl) {
-                window.open(shareUrl, '_blank', 'width=600,height=400');
+                window.open(shareUrl, '_blank', 'width=600,height=500');
             }
         }
 
@@ -539,6 +545,8 @@
                                 <div class="share-buttons">
                                     <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on X">𝕏</button>
                                     <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on Facebook">f</button>
+                                    <button onclick="sharePost('linkedin', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on LinkedIn">in</button>
+                                    <button onclick="sharePost('whatsapp', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Share on WhatsApp">💬</button>
                                     <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn" title="Copy Link">🔗</button>
                                 </div>
                                 ${isAdminMode() ? `
