@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
     
-    <!-- Default Open Graph (for main blog page) -->
+    <!-- Default Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ToolsHub">
     <meta property="og:url" content="https://toolshub.cam/blog">
@@ -492,6 +492,16 @@
             if (isAdminMode()) {
                 document.getElementById('adminActions').style.display = 'flex';
             }
+
+            // Check if a specific post is requested via ?post=ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('post');
+            if (postId) {
+                setTimeout(() => {
+                    const post = allPosts.find(p => p.id == postId);
+                    if (post) viewPost(post.id);
+                }, 800);
+            }
         }
 
         function showToast(message) {
@@ -515,9 +525,9 @@
             if (!post) return;
 
             const title = encodeURIComponent(post.title);
-            const excerpt = encodeURIComponent(post.excerpt || "Read this insightful article on ToolsHub");
+            const excerpt = encodeURIComponent(post.excerpt || "Read this article on ToolsHub");
             const image = post.image ? encodeURIComponent(post.image) : encodeURIComponent("https://toolshub.cam/tools-illustration.webp");
-            const postUrl = encodeURIComponent(`${SITE_URL}/blog#post-${post.id}`);
+            const postUrl = encodeURIComponent(`${SITE_URL}/blog?post=${post.id}`);
 
             let shareUrl = '';
 
@@ -530,7 +540,7 @@
             } else if (platform === 'whatsapp') {
                 shareUrl = `https://wa.me/?text=${title}%20${postUrl}`;
             } else if (platform === 'copy') {
-                navigator.clipboard.writeText(`${SITE_URL}/blog#post-${post.id}`).then(() => {
+                navigator.clipboard.writeText(`${SITE_URL}/blog?post=${post.id}`).then(() => {
                     showToast("✅ Post link copied to clipboard!");
                 });
                 return;
@@ -618,13 +628,14 @@
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
 
-            // Update dynamic meta tags for better social sharing when the modal is opened
+            // Update dynamic Open Graph meta for proper social sharing
             document.title = post.title + " | ToolsHub Blog";
             document.querySelector('meta[property="og:title"]').setAttribute("content", post.title);
             document.querySelector('meta[property="og:description"]').setAttribute("content", post.excerpt || "Read this article on ToolsHub");
             if (post.image) {
                 document.querySelector('meta[property="og:image"]').setAttribute("content", post.image);
             }
+            document.querySelector('meta[property="og:url"]').setAttribute("content", `${SITE_URL}/blog?post=${post.id}`);
 
             document.getElementById('modalTitle').textContent = post.title;
             document.getElementById('modalMeta').innerHTML = `${post.date} • ${post.category}`;
@@ -635,11 +646,12 @@
 
         function closeReadModal() { 
             document.getElementById('readModal').style.display = 'none';
-            // Reset meta tags when closing modal
+            // Reset meta tags
             document.title = "ToolsHub Blog | Insights, Tips &amp; Tool Updates";
             document.querySelector('meta[property="og:title"]').setAttribute("content", "ToolsHub Blog | Insights, Tips &amp; Tool Updates");
             document.querySelector('meta[property="og:description"]').setAttribute("content", "Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.");
             document.querySelector('meta[property="og:image"]').setAttribute("content", "https://toolshub.cam/tools-illustration.webp");
+            document.querySelector('meta[property="og:url"]').setAttribute("content", "https://toolshub.cam/blog");
         }
 
         function showAddPostModal() {
