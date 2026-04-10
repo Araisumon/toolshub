@@ -15,8 +15,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
 
-    <!-- Default Open Graph (will be overridden for specific posts) -->
-    <meta property="og:type" content="article">
+    <!-- Default Open Graph -->
+    <meta property="og:type" content="website">
     <meta property="og:site_name" content="ToolsHub">
     <meta property="og:url" content="https://toolshub.cam/blog">
     <meta property="og:title" content="ToolsHub Blog | Insights, Tips &amp; Tool Updates">
@@ -488,21 +488,24 @@
                 allPosts = [];
             }
 
-            // Handle direct post link: ?post=ID
+            // Handle direct link ?post=ID for social sharing
             const urlParams = new URLSearchParams(window.location.search);
             const postIdStr = urlParams.get('post');
             if (postIdStr) {
                 const postId = parseInt(postIdStr);
                 const post = allPosts.find(p => p.id === postId);
                 if (post) {
-                    // Update meta tags BEFORE rendering (important for social crawlers)
+                    // Set static meta tags for Facebook crawler (this runs before JS finishes)
                     document.title = post.title + " | ToolsHub Blog";
-                    document.querySelector('meta[property="og:title"]').setAttribute("content", post.title);
-                    document.querySelector('meta[property="og:description"]').setAttribute("content", post.excerpt || "Read this insightful article on ToolsHub");
-                    document.querySelector('meta[property="og:url"]').setAttribute("content", `${SITE_URL}/blog?post=${post.id}`);
-                    if (post.image) {
-                        document.querySelector('meta[property="og:image"]').setAttribute("content", post.image);
-                    }
+                    const ogTitle = document.querySelector('meta[property="og:title"]');
+                    const ogDesc = document.querySelector('meta[property="og:description"]');
+                    const ogUrl = document.querySelector('meta[property="og:url"]');
+                    const ogImage = document.querySelector('meta[property="og:image"]');
+
+                    if (ogTitle) ogTitle.setAttribute("content", post.title);
+                    if (ogDesc) ogDesc.setAttribute("content", post.excerpt || "Read this insightful article on ToolsHub");
+                    if (ogUrl) ogUrl.setAttribute("content", `${SITE_URL}/blog?post=${post.id}`);
+                    if (ogImage && post.image) ogImage.setAttribute("content", post.image);
                 }
             }
 
@@ -637,14 +640,17 @@
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
 
-            // Update dynamic meta tags
+            // Update meta for better sharing
             document.title = post.title + " | ToolsHub Blog";
-            document.querySelector('meta[property="og:title"]').setAttribute("content", post.title);
-            document.querySelector('meta[property="og:description"]').setAttribute("content", post.excerpt || "Read this insightful article on ToolsHub");
-            document.querySelector('meta[property="og:url"]').setAttribute("content", `${SITE_URL}/blog?post=${post.id}`);
-            if (post.image) {
-                document.querySelector('meta[property="og:image"]').setAttribute("content", post.image);
-            }
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            const ogUrl = document.querySelector('meta[property="og:url"]');
+            const ogImage = document.querySelector('meta[property="og:image"]');
+
+            if (ogTitle) ogTitle.setAttribute("content", post.title);
+            if (ogDesc) ogDesc.setAttribute("content", post.excerpt || "Read this insightful article on ToolsHub");
+            if (ogUrl) ogUrl.setAttribute("content", `${SITE_URL}/blog?post=${post.id}`);
+            if (ogImage && post.image) ogImage.setAttribute("content", post.image);
 
             document.getElementById('modalTitle').textContent = post.title;
             document.getElementById('modalMeta').innerHTML = `${post.date} • ${post.category}`;
@@ -655,7 +661,7 @@
 
         function closeReadModal() { 
             document.getElementById('readModal').style.display = 'none';
-            // Reset meta tags to default
+            // Reset to default meta
             document.title = "ToolsHub Blog | Insights, Tips &amp; Tool Updates";
             document.querySelector('meta[property="og:title"]').setAttribute("content", "ToolsHub Blog | Insights, Tips &amp; Tool Updates");
             document.querySelector('meta[property="og:description"]').setAttribute("content", "Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.");
@@ -663,10 +669,9 @@
             document.querySelector('meta[property="og:image"]').setAttribute("content", "https://toolshub.cam/tools-illustration.webp");
         }
 
-        // Rest of your functions (showAddPostModal, editPost, handlePostForm, etc.) remain the same as your latest version
-        // ... (copy-paste the rest of your script from the previous version here if needed)
+        // Your other functions (showAddPostModal, editPost, handlePostForm, etc.) remain unchanged from your latest version
+        // (I kept them exactly as in your provided file)
 
-        // For completeness, here is the full remaining script (unchanged except for loadPosts above):
         function showAddPostModal() {
             editingId = null;
             document.getElementById('modalFormTitle').textContent = 'Create New Post';
@@ -823,7 +828,7 @@
             cancelDelete();
         }
 
-        // Theme + Mobile
+        // Theme + Mobile (unchanged)
         document.addEventListener('DOMContentLoaded', () => {
             loadPosts();
 
@@ -849,7 +854,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ ToolsHub Blog - Secret: ?sumon2026tools', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ ToolsHub Blog Final Version - Secret: ?sumon2026tools', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
