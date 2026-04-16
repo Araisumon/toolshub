@@ -9,14 +9,19 @@
       gtag('config', 'G-QX6N41VY5J');
     </script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9959787693675083" crossorigin="anonymous"></script>
-    
-    <title>ToolsHub Blog | Insights, Tips &amp; Tool Updates</title>
+
+    <title>ToolsHub Blog | Insights, Tips & Tool Updates</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
-    <meta property="og:title" content="ToolsHub Blog | Insights, Tips &amp; Tool Updates">
-    <meta property="og:description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
-    <meta property="og:image" content="https://toolshub.cam/tools-illustration.webp">
+    <meta id="metaTitle" property="og:title" content="ToolsHub Blog | Insights, Tips & Tool Updates">
+    <meta id="metaDesc" property="og:description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
+    <meta id="metaImage" property="og:image" content="https://toolshub.cam/tools-illustration.webp">
+    <meta id="metaUrl" property="og:url" content="https://toolshub.cam/blog">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta id="metaTwitterTitle" name="twitter:title" content="ToolsHub Blog | Insights, Tips & Tool Updates">
+    <meta id="metaTwitterDesc" name="twitter:description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
+    <meta id="metaTwitterImage" name="twitter:image" content="https://toolshub.cam/tools-illustration.webp">
     <link rel="icon" href="/toolshub.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -77,6 +82,8 @@
             align-items: center;
             gap: 8px;
             box-shadow: var(--box-shadow);
+            cursor: pointer;
+            border: none;
         }
         .cta-btn:hover { transform: translateY(-2px); }
 
@@ -103,18 +110,49 @@
         .blog-card-meta { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--gray-color); margin-bottom: 12px; }
         .blog-card h3 { font-size: 1.35rem; margin-bottom: 10px; }
         .blog-card p { color: var(--gray-color); margin-bottom: 20px; }
-        .blog-card-footer { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+        .blog-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .category { 
-            background: #e0e7ff; 
-            color: #4361ee; 
-            padding: 4px 12px; 
-            border-radius: 9999px; 
-            font-size: 0.75rem; 
-            font-weight: 600; 
+        .category {
+            background: #e0e7ff;
+            color: #4361ee;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Audio Button on Card */
+        .audio-btn-card {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(67, 97, 238, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .audio-btn-card:hover {
+            background: #3a0ca3;
+            transform: scale(1.1);
+        }
+        .audio-btn-card.playing {
+            background: #28a745;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
         }
 
         .share-buttons {
@@ -134,26 +172,107 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .share-btn:hover {
-            transform: scale(1.15);
-        }
+        .share-btn:hover { transform: scale(1.15); }
 
-        /* Different colors for each platform */
         .share-x { color: #000000; }
         .share-x:hover { background: #000000; color: white; }
-
         .share-facebook { color: #1877F2; }
         .share-facebook:hover { background: #1877F2; color: white; }
-
         .share-linkedin { color: #0A66C2; }
         .share-linkedin:hover { background: #0A66C2; color: white; }
-
         .share-whatsapp { color: #25D366; }
         .share-whatsapp:hover { background: #25D366; color: white; }
-
         .share-copy { color: #6c757d; }
         .share-copy:hover { background: #6c757d; color: white; }
 
+        /* Share Modal */
+        .share-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .share-modal-content {
+            background: var(--card-background);
+            width: 90%;
+            max-width: 500px;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            position: relative;
+        }
+        .share-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .share-modal-header h3 { font-size: 1.5rem; }
+        .close-share-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gray-color);
+        }
+        .share-preview {
+            background: var(--hero-background);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .share-preview-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        .share-preview-desc {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            margin-bottom: 10px;
+        }
+        .share-preview-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .share-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .share-platforms {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .share-platform-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: white;
+        }
+        .share-platform-btn:hover { transform: translateY(-2px); }
+        .share-twitter { background: #000000; }
+        .share-fb { background: #1877F2; }
+        .share-linkedin-btn { background: #0A66C2; }
+        .share-wa { background: #25D366; }
+        .share-copy-btn { background: var(--gray-color); }
+        .share-native-btn { background: var(--primary-color); }
+
+        /* Read Modal */
         .modal {
             display: none;
             position: fixed;
@@ -180,7 +299,79 @@
             justify-content: space-between;
             align-items: center;
         }
+        .modal-header h2 { font-size: 1.5rem; max-width: 80%; }
         .modal-body { padding: 30px; overflow-y: auto; flex: 1; }
+
+        /* Audio Player in Modal */
+        .audio-player {
+            background: linear-gradient(135deg, #4361ee20, #3a0ca320);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #4361ee30;
+        }
+        .audio-player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .audio-player-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .audio-control-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .audio-control-btn:hover { background: var(--secondary-color); transform: scale(1.05); }
+        .audio-control-btn.stop { background: #e74c3c; }
+        .audio-control-btn.stop:hover { background: #c0392b; }
+        .speed-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+        .audio-progress {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .audio-progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .audio-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--gray-color);
+        }
 
         .rich-toolbar {
             background: #f8f9fa;
@@ -238,8 +429,8 @@
 
         #deleteConfirmModal .modal-content { max-width: 420px; }
         .delete-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 25px; }
-        .btn-cancel { background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 8px; }
-        .btn-delete { background: #e74c3c; color: white; border: none; padding: 12px 24px; border-radius: 8px; }
+        .btn-cancel { background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; }
+        .btn-delete { background: #e74c3c; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; }
 
         .toast {
             position: fixed;
@@ -270,6 +461,8 @@
             .blog-grid { grid-template-columns: 1fr; }
             .filters { flex-direction: column; align-items: stretch; }
             .blog-header { flex-direction: column; align-items: stretch; }
+            .share-platforms { grid-template-columns: 1fr; }
+            .modal-header h2 { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -318,7 +511,7 @@
                 <select id="categoryFilter" onchange="filterPosts()">
                     <option value="">All Categories</option>
                     <option value="Tutorials">Tutorials</option>
-                    <option value="Tips &amp; Tricks">Tips &amp; Tricks</option>
+                    <option value="Tips & Tricks">Tips & Tricks</option>
                     <option value="Product Updates">Product Updates</option>
                     <option value="Productivity">Productivity</option>
                     <option value="Developer Tools">Developer Tools</option>
@@ -347,13 +540,90 @@
     <div id="readModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div id="modalTitle" style="font-size:1.8rem; font-weight:600;"></div>
+                <h2 id="modalTitle"></h2>
                 <button onclick="closeReadModal()" style="font-size:2rem; background:none; border:none; cursor:pointer;">×</button>
             </div>
             <div class="modal-body">
+                <!-- Audio Player -->
+                <div id="audioPlayer" class="audio-player" style="display: none;">
+                    <div class="audio-player-header">
+                        <div class="audio-player-title">
+                            <i class="material-icons">headphones</i>
+                            <span>Listen to this article</span>
+                        </div>
+                        <div class="audio-controls">
+                            <select id="speedSelect" class="speed-select" onchange="changeSpeed()">
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2x</option>
+                            </select>
+                            <button onclick="stopAudio()" class="audio-control-btn stop" title="Stop">
+                                <i class="material-icons">stop</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="audio-progress" onclick="seekAudio(event)">
+                        <div id="audioProgressBar" class="audio-progress-bar"></div>
+                    </div>
+                    <div class="audio-time">
+                        <span id="audioCurrentTime">0:00</span>
+                        <span id="audioDuration">0:00</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button onclick="togglePlayPause()" id="playPauseBtn" class="audio-control-btn" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="material-icons" id="playPauseIcon">play_arrow</i>
+                        </button>
+                    </div>
+                </div>
+
                 <div id="modalMeta" style="color:var(--gray-color); margin-bottom:20px;"></div>
                 <div id="modalImage"></div>
                 <div id="modalContent" style="line-height:1.8; font-size:1.1rem;"></div>
+
+                <!-- Share Section in Modal -->
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <span style="font-weight: 600; color: var(--text-color);">Share this article:</span>
+                        <div id="modalShareButtons" class="share-buttons"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="share-modal">
+        <div class="share-modal-content">
+            <div class="share-modal-header">
+                <h3>Share Article</h3>
+                <button onclick="closeShareModal()" class="close-share-modal">×</button>
+            </div>
+            <div class="share-preview">
+                <div id="sharePreviewTitle" class="share-preview-title"></div>
+                <div id="sharePreviewDesc" class="share-preview-desc"></div>
+                <div id="sharePreviewTags" class="share-preview-tags"></div>
+            </div>
+            <div class="share-platforms">
+                <button onclick="shareToPlatform('twitter')" class="share-platform-btn share-twitter">
+                    <i class="fab fa-x-twitter"></i> Share on X
+                </button>
+                <button onclick="shareToPlatform('facebook')" class="share-platform-btn share-fb">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </button>
+                <button onclick="shareToPlatform('linkedin')" class="share-platform-btn share-linkedin-btn">
+                    <i class="fab fa-linkedin-in"></i> LinkedIn
+                </button>
+                <button onclick="shareToPlatform('whatsapp')" class="share-platform-btn share-wa">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button onclick="shareToPlatform('copy')" class="share-platform-btn share-copy-btn">
+                    <i class="material-icons">link</i> Copy Link
+                </button>
+                <button onclick="shareNative()" class="share-platform-btn share-native-btn">
+                    <i class="material-icons">share</i> Native Share
+                </button>
             </div>
         </div>
     </div>
@@ -377,7 +647,7 @@
                             <label style="display:block; margin-bottom:5px; font-weight:600;">Category</label>
                             <select id="postCategory" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px;">
                                 <option value="Tutorials">Tutorials</option>
-                                <option value="Tips &amp; Tricks">Tips &amp; Tricks</option>
+                                <option value="Tips & Tricks">Tips & Tricks</option>
                                 <option value="Product Updates">Product Updates</option>
                                 <option value="Productivity">Productivity</option>
                                 <option value="Developer Tools">Developer Tools</option>
@@ -393,13 +663,16 @@
                         </div>
                     </div>
 
-                    <label style="display:block; margin:10px 0 8px; font-weight:600;">Featured Image</label>
+                    <label style="display:block; margin:10px 0 5px; font-weight:600;">Topics/Tags (comma separated)</label>
+                    <input type="text" id="postTopics" placeholder="e.g., AI, tools, productivity, tutorial" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:8px;">
+
+                    <label style="display:block; margin:15px 0 8px; font-weight:600;">Featured Image</label>
                     <div class="image-instruction">
                         First upload your image to the <strong>/blog/images/</strong> folder on GitHub, then paste the direct URL below.
                     </div>
                     <div id="dropZone" class="image-upload-area">
                         <i class="material-icons" style="font-size:2.8rem;color:#4361ee;">cloud_upload</i>
-                        <p>Drag &amp; drop for preview only</p>
+                        <p>Drag & drop for preview only</p>
                         <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
                     </div>
                     <img id="imagePreview" alt="Preview">
@@ -421,7 +694,7 @@
                     <div id="postContent" contenteditable="true" style="min-height:340px; border:1px solid #ddd; padding:16px; border-radius:8px; outline:none;"></div>
 
                     <div style="margin-top:25px; text-align:right;">
-                        <button type="button" onclick="closePostModal()" style="padding:12px 24px; margin-right:10px; background:#ccc; border:none; border-radius:8px;">Cancel</button>
+                        <button type="button" onclick="closePostModal()" style="padding:12px 24px; margin-right:10px; background:#ccc; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
                         <button type="submit" id="saveBtn" class="cta-btn">Publish Post</button>
                     </div>
                 </form>
@@ -468,6 +741,15 @@
         let editingId = null;
         let postToDelete = null;
         let draftTimer = null;
+        let currentSharePost = null;
+
+        // Audio/TTS variables
+        let currentUtterance = null;
+        let isPlaying = false;
+        let currentPostId = null;
+        let estimatedDuration = 0;
+        let speechProgress = 0;
+        let speechInterval = null;
 
         function isAdminMode() {
             return window.location.search.includes(SECRET_PARAM);
@@ -504,26 +786,72 @@
             });
         }
 
-        function sharePost(platform, id) {
+        // Update meta tags for social sharing
+        function updateMetaTags(post) {
+            const postUrl = `${SITE_URL}/blog#post-${post.id}`;
+
+            document.getElementById('metaTitle').content = post.title;
+            document.getElementById('metaDesc').content = post.excerpt;
+            document.getElementById('metaImage').content = post.image || 'https://toolshub.cam/tools-illustration.webp';
+            document.getElementById('metaUrl').content = postUrl;
+
+            document.getElementById('metaTwitterTitle').content = post.title;
+            document.getElementById('metaTwitterDesc').content = post.excerpt;
+            document.getElementById('metaTwitterImage').content = post.image || 'https://toolshub.cam/tools-illustration.webp';
+
+            // Update canonical URL
+            let canonical = document.querySelector('link[rel="canonical"]');
+            if (!canonical) {
+                canonical = document.createElement('link');
+                canonical.rel = 'canonical';
+                document.head.appendChild(canonical);
+            }
+            canonical.href = postUrl;
+        }
+
+        // Reset meta tags to defaults
+        function resetMetaTags() {
+            document.getElementById('metaTitle').content = 'ToolsHub Blog | Insights, Tips & Tool Updates';
+            document.getElementById('metaDesc').content = 'Latest articles, tutorials, tips, and updates about ToolsHub\'s 100+ free online tools.';
+            document.getElementById('metaImage').content = 'https://toolshub.cam/tools-illustration.webp';
+            document.getElementById('metaUrl').content = `${SITE_URL}/blog`;
+            document.getElementById('metaTwitterTitle').content = 'ToolsHub Blog | Insights, Tips & Tool Updates';
+            document.getElementById('metaTwitterDesc').content = 'Latest articles, tutorials, tips, and updates about ToolsHub\'s 100+ free online tools.';
+            document.getElementById('metaTwitterImage').content = 'https://toolshub.cam/tools-illustration.webp';
+        }
+
+        // Share functions
+        function sharePost(platform, id, event) {
+            if (event) event.stopImmediatePropagation();
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
 
-            const title = encodeURIComponent(post.title);
-            const postUrl = encodeURIComponent(`${SITE_URL}/blog#post-${post.id}`);
-            const message = encodeURIComponent(`Check out this great article from ToolsHub: "${post.title}"`);
+            currentSharePost = post;
+            const postUrl = `${SITE_URL}/blog#post-${post.id}`;
+
+            // Get topics as tags
+            let hashtags = [];
+            if (post.topics) {
+                hashtags = post.topics.split(',').map(t => '#' + t.trim().replace(/\s+/g, '')).slice(0, 3);
+            }
 
             let shareUrl = '';
+            const title = encodeURIComponent(post.title);
+            const desc = encodeURIComponent(post.excerpt);
+            const url = encodeURIComponent(postUrl);
 
             if (platform === 'twitter') {
-                shareUrl = `https://twitter.com/intent/tweet?text=${message}&url=${postUrl}`;
+                const text = encodeURIComponent(`${post.title} ${hashtags.join(' '}`);
+                shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
             } else if (platform === 'facebook') {
-                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${postUrl}`;
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
             } else if (platform === 'linkedin') {
-                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${postUrl}`;
+                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
             } else if (platform === 'whatsapp') {
-                shareUrl = `https://wa.me/?text=${message}%20${postUrl}`;
+                const text = encodeURIComponent(`${post.title}\n\n${post.excerpt}\n\n${hashtags.join(' ')}\n\n${postUrl}`);
+                shareUrl = `https://wa.me/?text=${text}`;
             } else if (platform === 'copy') {
-                navigator.clipboard.writeText(`${SITE_URL}/blog#post-${post.id}`).then(() => {
+                navigator.clipboard.writeText(postUrl).then(() => {
                     showToast("✅ Post link copied to clipboard!");
                 });
                 return;
@@ -531,6 +859,240 @@
 
             if (shareUrl) {
                 window.open(shareUrl, '_blank', 'width=600,height=500');
+            }
+        }
+
+        function openShareModal(id, event) {
+            if (event) event.stopImmediatePropagation();
+            const post = allPosts.find(p => p.id === id);
+            if (!post) return;
+
+            currentSharePost = post;
+
+            // Update preview
+            document.getElementById('sharePreviewTitle').textContent = post.title;
+            document.getElementById('sharePreviewDesc').textContent = post.excerpt;
+
+            // Generate tags
+            let tagsHtml = '';
+            if (post.topics) {
+                const topics = post.topics.split(',').map(t => t.trim()).slice(0, 5);
+                topics.forEach(topic => {
+                    tagsHtml += `<span class="share-tag">#${topic.replace(/\s+/g, '')}</span>`;
+                });
+            }
+            document.getElementById('sharePreviewTags').innerHTML = tagsHtml || `<span class="share-tag">#${post.category.replace(/\s+/g, '')}</span>`;
+
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+            currentSharePost = null;
+        }
+
+        function shareToPlatform(platform) {
+            if (!currentSharePost) return;
+            sharePost(platform, currentSharePost.id);
+            closeShareModal();
+        }
+
+        function shareNative() {
+            if (!currentSharePost) return;
+
+            const postUrl = `${SITE_URL}/blog#post-${currentSharePost.id}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: currentSharePost.title,
+                    text: currentSharePost.excerpt,
+                    url: postUrl
+                }).catch(() => {});
+            } else {
+                shareToPlatform('copy');
+            }
+            closeShareModal();
+        }
+
+        // Audio/TTS Functions
+        function extractTextContent(html) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            return temp.textContent || temp.innerText || '';
+        }
+
+        function calculateReadTime(text) {
+            const wordsPerMinute = 150;
+            const words = text.trim().split(/\s+/).length;
+            return Math.ceil(words / wordsPerMinute);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function startAudio(post) {
+            // Stop any existing audio
+            stopAudio();
+
+            currentPostId = post.id;
+            const textContent = extractTextContent(post.content);
+            const plainText = textContent.replace(/\s+/g, ' ').trim();
+
+            if (!plainText) {
+                showToast("No content available to read");
+                return;
+            }
+
+            // Estimate duration based on reading speed (150 words per minute at 1x speed)
+            const words = plainText.split(/\s+/).length;
+            estimatedDuration = (words / 150) * 60; // in seconds
+            speechProgress = 0;
+
+            // Show audio player
+            document.getElementById('audioPlayer').style.display = 'block';
+            document.getElementById('audioDuration').textContent = formatTime(estimatedDuration);
+            document.getElementById('audioCurrentTime').textContent = '0:00';
+            document.getElementById('audioProgressBar').style.width = '0%';
+
+            // Create utterance
+            currentUtterance = new SpeechSynthesisUtterance(plainText);
+            currentUtterance.rate = parseFloat(document.getElementById('speedSelect').value);
+            currentUtterance.pitch = 1;
+            currentUtterance.lang = 'en-US';
+
+            // Update button
+            updatePlayPauseButton(true);
+
+            // Start progress tracking
+            speechInterval = setInterval(() => {
+                if (isPlaying) {
+                    speechProgress += 0.1 * currentUtterance.rate;
+                    const progress = Math.min((speechProgress / estimatedDuration) * 100, 100);
+                    document.getElementById('audioProgressBar').style.width = progress + '%';
+                    document.getElementById('audioCurrentTime').textContent = formatTime(speechProgress);
+                }
+            }, 100);
+
+            currentUtterance.onend = () => {
+                stopAudio();
+                showToast("🎧 Finished reading!");
+            };
+
+            currentUtterance.onerror = () => {
+                stopAudio();
+                showToast("Audio playback was interrupted");
+            };
+
+            speechSynthesis.speak(currentUtterance);
+            isPlaying = true;
+
+            // Update card button
+            const cardBtn = document.querySelector(`[data-audio-id="${post.id}"]`);
+            if (cardBtn) cardBtn.classList.add('playing');
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                speechSynthesis.pause();
+                isPlaying = false;
+                updatePlayPauseButton(false);
+            } else {
+                if (speechSynthesis.paused) {
+                    speechSynthesis.resume();
+                    isPlaying = true;
+                    updatePlayPauseButton(true);
+                } else if (currentUtterance) {
+                    speechSynthesis.speak(currentUtterance);
+                    isPlaying = true;
+                    updatePlayPauseButton(true);
+                }
+            }
+        }
+
+        function stopAudio() {
+            speechSynthesis.cancel();
+            isPlaying = false;
+            currentUtterance = null;
+            currentPostId = null;
+            speechProgress = 0;
+
+            if (speechInterval) {
+                clearInterval(speechInterval);
+                speechInterval = null;
+            }
+
+            // Hide audio player
+            document.getElementById('audioPlayer').style.display = 'none';
+
+            // Reset all card buttons
+            document.querySelectorAll('.audio-btn-card').forEach(btn => btn.classList.remove('playing'));
+
+            updatePlayPauseButton(false);
+        }
+
+        function updatePlayPauseButton(playing) {
+            const icon = document.getElementById('playPauseIcon');
+            icon.textContent = playing ? 'pause' : 'play_arrow';
+        }
+
+        function changeSpeed() {
+            const speed = parseFloat(document.getElementById('speedSelect').value);
+            if (currentUtterance) {
+                // Need to restart for speed change to take effect
+                const post = allPosts.find(p => p.id === currentPostId);
+                if (post) {
+                    startAudio(post);
+                    document.getElementById('speedSelect').value = speed.toString();
+                }
+            }
+        }
+
+        function seekAudio(event) {
+            // For TTS, we can't actually seek, but we can restart from roughly that point
+            // This is a limitation of the Web Speech API
+            const rect = event.currentTarget.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const percentage = clickX / rect.width;
+
+            if (currentPostId && currentUtterance) {
+                // Restart from approximate position
+                const post = allPosts.find(p => p.id === currentPostId);
+                if (post) {
+                    const textContent = extractTextContent(post.content);
+                    const plainText = textContent.replace(/\s+/g, ' ').trim();
+
+                    // Calculate character position
+                    const charPosition = Math.floor(plainText.length * percentage);
+                    const truncatedText = plainText.substring(charPosition);
+
+                    speechProgress = estimatedDuration * percentage;
+
+                    currentUtterance = new SpeechSynthesisUtterance(truncatedText);
+                    currentUtterance.rate = parseFloat(document.getElementById('speedSelect').value);
+                    currentUtterance.lang = 'en-US';
+
+                    speechSynthesis.cancel();
+                    speechSynthesis.speak(currentUtterance);
+                    isPlaying = true;
+                    updatePlayPauseButton(true);
+                }
+            }
+        }
+
+        function playAudioFromCard(id, event) {
+            if (event) event.stopImmediatePropagation();
+
+            const post = allPosts.find(p => p.id === id);
+            if (!post) return;
+
+            // If already playing this post, toggle
+            if (currentPostId === id) {
+                togglePlayPause();
+            } else {
+                startAudio(post);
             }
         }
 
@@ -550,7 +1112,14 @@
                 const card = document.createElement('div');
                 card.className = 'blog-card';
                 card.id = `post-${post.id}`;
+
+                const hasAudio = post.content && post.content.length > 50;
+                const readTime = calculateReadTime(extractTextContent(post.content));
+
                 card.innerHTML = `
+                    ${hasAudio ? `<button onclick="playAudioFromCard(${post.id}, event)" class="audio-btn-card" data-audio-id="${post.id}" title="Listen to this article">
+                        <i class="material-icons">headphones</i>
+                    </button>` : ''}
                     ${post.image ? `<img src="${post.image}" alt="${post.title}">` : `<div style="height:200px;background:linear-gradient(135deg,#4361ee,#3a0ca3);color:white;display:flex;align-items:center;justify-content:center;font-size:3rem;"><i class="material-icons">article</i></div>`}
                     <div class="blog-card-content">
                         <div class="blog-card-meta">
@@ -560,14 +1129,15 @@
                         <h3>${post.title}</h3>
                         <p>${post.excerpt}</p>
                         <div class="blog-card-footer">
-                            <span style="font-size:0.85rem;color:var(--gray-color);">Read more →</span>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span style="font-size:0.85rem;color:var(--gray-color);">Read more →</span>
+                                ${readTime > 0 ? `<span style="font-size:0.75rem;color:var(--gray-color);">• ${readTime} min read</span>` : ''}
+                            </div>
                             <div style="display:flex; gap:12px; align-items:center;">
                                 <div class="share-buttons">
-                                    <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-x" title="Share on X">𝕏</button>
-                                    <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-facebook" title="Share on Facebook">f</button>
-                                    <button onclick="sharePost('linkedin', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-linkedin" title="Share on LinkedIn">in</button>
-                                    <button onclick="sharePost('whatsapp', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-whatsapp" title="Share on WhatsApp">💬</button>
-                                    <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-copy" title="Copy Link">🔗</button>
+                                    <button onclick="openShareModal(${post.id}, event)" class="share-btn share-copy" title="Share">
+                                        <i class="material-icons">share</i>
+                                    </button>
                                 </div>
                                 ${isAdminMode() ? `
                                 <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-left:auto;">✏️</button>
@@ -610,14 +1180,44 @@
         function viewPost(id) {
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
+
+            // Update meta tags for sharing
+            updateMetaTags(post);
+
             document.getElementById('modalTitle').textContent = post.title;
-            document.getElementById('modalMeta').innerHTML = `${post.date} • ${post.category}`;
+            document.getElementById('modalMeta').innerHTML = `${post.date} • ${post.category}${post.topics ? ' • ' + post.topics.split(',').map(t => t.trim()).join(', ') : ''}`;
             document.getElementById('modalImage').innerHTML = post.image ? `<img src="${post.image}" style="width:100%;border-radius:12px;margin-bottom:20px;">` : '';
             document.getElementById('modalContent').innerHTML = post.content || '<p>No content available.</p>';
+
+            // Setup share buttons in modal
+            const shareHtml = `
+                <button onclick="openShareModal(${post.id}, event)" class="share-btn share-copy" title="Share" style="width:40px;height:40px;font-size:1rem;">
+                    <i class="material-icons">share</i>
+                </button>
+                <button onclick="sharePost('twitter', ${post.id}, event)" class="share-btn share-x" title="Share on X">𝕏</button>
+                <button onclick="sharePost('facebook', ${post.id}, event)" class="share-btn share-facebook" title="Facebook">f</button>
+                <button onclick="sharePost('linkedin', ${post.id}, event)" class="share-btn share-linkedin" title="LinkedIn">in</button>
+            `;
+            document.getElementById('modalShareButtons').innerHTML = shareHtml;
+
+            // Setup audio player if content exists
+            const hasAudio = post.content && post.content.length > 50;
+            if (hasAudio) {
+                document.getElementById('audioPlayer').style.display = 'block';
+                document.getElementById('audioPlayer').querySelector('.audio-player-title span').textContent =
+                    `Listen to: "${post.title.substring(0, 30)}${post.title.length > 30 ? '...' : ''}"`;
+            } else {
+                document.getElementById('audioPlayer').style.display = 'none';
+            }
+
             document.getElementById('readModal').style.display = 'flex';
         }
 
-        function closeReadModal() { document.getElementById('readModal').style.display = 'none'; }
+        function closeReadModal() {
+            document.getElementById('readModal').style.display = 'none';
+            stopAudio();
+            resetMetaTags();
+        }
 
         function showAddPostModal() {
             editingId = null;
@@ -640,6 +1240,7 @@
             document.getElementById('postCategory').value = post.category;
             document.getElementById('postDate').value = post.date;
             document.getElementById('postImage').value = post.image || '';
+            document.getElementById('postTopics').value = post.topics || '';
             document.getElementById('postExcerpt').value = post.excerpt;
             document.getElementById('postContent').innerHTML = post.content || '';
             if (post.image) {
@@ -705,6 +1306,7 @@
                 category: document.getElementById('postCategory').value,
                 date: document.getElementById('postDate').value,
                 image: document.getElementById('postImage').value,
+                topics: document.getElementById('postTopics').value,
                 excerpt: document.getElementById('postExcerpt').value,
                 content: document.getElementById('postContent').innerHTML
             };
@@ -719,6 +1321,7 @@
             document.getElementById('postCategory').value = draft.category || 'Tutorials';
             document.getElementById('postDate').value = draft.date || new Date().toISOString().slice(0,10);
             document.getElementById('postImage').value = draft.image || '';
+            document.getElementById('postTopics').value = draft.topics || '';
             document.getElementById('postExcerpt').value = draft.excerpt || '';
             document.getElementById('postContent').innerHTML = draft.content || '';
             if (draft.image) {
@@ -735,6 +1338,7 @@
             const category = document.getElementById('postCategory').value;
             const date = document.getElementById('postDate').value || new Date().toISOString().slice(0,10);
             const image = document.getElementById('postImage').value.trim();
+            const topics = document.getElementById('postTopics').value.trim();
             const excerpt = document.getElementById('postExcerpt').value.trim();
             const content = document.getElementById('postContent').innerHTML.trim();
 
@@ -745,11 +1349,12 @@
                     post.category = category;
                     post.date = date;
                     post.image = image;
+                    post.topics = topics;
                     post.excerpt = excerpt;
                     post.content = content;
                 }
             } else {
-                const newPost = { id: Date.now(), title, category, date, image, excerpt, content };
+                const newPost = { id: Date.now(), title, category, date, image, topics, excerpt, content };
                 allPosts.unshift(newPost);
             }
 
@@ -778,6 +1383,24 @@
             cancelDelete();
         }
 
+        // Close modals on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeReadModal();
+                closeShareModal();
+                closePostModal();
+                cancelDelete();
+            }
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('readModal').addEventListener('click', (e) => {
+            if (e.target.id === 'readModal') closeReadModal();
+        });
+        document.getElementById('shareModal').addEventListener('click', (e) => {
+            if (e.target.id === 'shareModal') closeShareModal();
+        });
+
         // Theme + Mobile
         document.addEventListener('DOMContentLoaded', () => {
             loadPosts();
@@ -804,7 +1427,7 @@
             });
             observer.observe(postModal, { attributes: true, attributeFilter: ['style'] });
 
-            console.log('%c✅ ToolsHub Blog Final Version - Secret: ?sumon2026tools', 'color:#4361ee; font-weight:bold');
+            console.log('%c✅ ToolsHub Blog Enhanced - Smart Sharing & Audio', 'color:#4361ee; font-weight:bold');
         });
     </script>
 </body>
