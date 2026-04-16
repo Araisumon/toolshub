@@ -17,10 +17,64 @@
     <meta property="og:title" content="ToolsHub Blog | Insights, Tips &amp; Tool Updates">
     <meta property="og:description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
     <meta property="og:image" content="https://toolshub.cam/tools-illustration.webp">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://toolshub.cam/blog">
+    <meta property="og:site_name" content="ToolsHub Blog">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@toolshub">
+    <meta name="twitter:title" content="ToolsHub Blog | Insights, Tips & Tool Updates">
+    <meta name="twitter:description" content="Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.">
+    <meta name="twitter:image" content="https://toolshub.cam/tools-illustration.webp">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="keywords" content="tools, blog, tutorials, tips, online tools, free tools, productivity, web tools, software tools">
+    <meta name="author" content="ToolsHub Team">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="google-site-verification" content="your-verification-code-here">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://toolshub.cam/blog">
+    
+    <!-- Favicon and App Icons -->
     <link rel="icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#4361ee">
+    
+    <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ToolsHub Blog",
+      "url": "https://toolshub.cam/blog",
+      "description": "Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "ToolsHub",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://toolshub.cam/tools-illustration.webp"
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://toolshub.cam/blog?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
 
     <style>
         :root {
@@ -153,6 +207,37 @@
 
         .share-copy { color: #6c757d; }
         .share-copy:hover { background: #6c757d; color: white; }
+
+        /* Like button styles */
+        .like-btn {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #e74c3c;
+        }
+        .like-btn:hover {
+            transform: scale(1.15);
+            background: #e74c3c;
+            color: white;
+        }
+        .like-btn.liked {
+            background: #e74c3c;
+            color: white;
+            animation: like-pulse 0.5s;
+        }
+        @keyframes like-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
 
         /* Audio functionality styles */
         .audio-btn {
@@ -577,6 +662,28 @@
         <span id="toastMessage"></span>
     </div>
 
+    <!-- Newsletter Subscription -->
+    <section class="newsletter-section" style="background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; padding: 60px 0;">
+        <div class="container">
+            <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 15px;">Stay Updated</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 30px; opacity: 0.9;">
+                    Get the latest blog posts, tool updates, and productivity tips directly in your inbox.
+                </p>
+                <form id="newsletterForm" onsubmit="handleNewsletterSubmit(event)" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <input type="email" id="newsletterEmail" placeholder="Your email address" required style="flex: 1; min-width: 250px; padding: 16px 20px; border: none; border-radius: 12px; font-size: 1rem;">
+                    <button type="submit" class="cta-btn" style="background: white; color: #4361ee; font-weight: 600; padding: 16px 32px; border-radius: 12px; border: none; cursor: pointer;">
+                        Subscribe
+                    </button>
+                </form>
+                <p style="font-size: 0.9rem; margin-top: 20px; opacity: 0.7;">
+                    No spam. Unsubscribe anytime.
+                </p>
+                <div id="newsletterMessage" style="margin-top: 20px; display: none;"></div>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <div class="container">
             <div class="footer-bottom">
@@ -629,12 +736,48 @@
             });
         }
 
+        // Newsletter subscription
+        function handleNewsletterSubmit(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('newsletterEmail');
+            const email = emailInput.value.trim();
+            if (!email) return;
+            // Simple validation
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showToast("⚠️ Please enter a valid email address");
+                return;
+            }
+            // Store in localStorage (simulate subscription)
+            const subscriptions = JSON.parse(localStorage.getItem('blog_newsletter_subscriptions') || '[]');
+            if (!subscriptions.includes(email)) {
+                subscriptions.push(email);
+                localStorage.setItem('blog_newsletter_subscriptions', JSON.stringify(subscriptions));
+            }
+            // Show success message
+            showToast("✅ Thank you for subscribing!");
+            emailInput.value = '';
+            // Update UI
+            const messageEl = document.getElementById('newsletterMessage');
+            messageEl.textContent = `You're subscribed with ${email}. Check your inbox for updates!`;
+            messageEl.style.display = 'block';
+            messageEl.style.color = 'white';
+            messageEl.style.background = '#28a745';
+            messageEl.style.padding = '10px 20px';
+            messageEl.style.borderRadius = '8px';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
         // Audio functionality for text-to-speech
         let speechSynthesis = window.speechSynthesis;
         let currentUtterance = null;
         let isPlaying = false;
         let currentPostId = null;
         let speechProgress = 0;
+        let speechStartTime = 0;
+        let speechDurationEstimate = 0;
+        let progressInterval = null;
 
         // Check browser support
         function checkSpeechSupport() {
@@ -755,6 +898,38 @@
             const tmp = document.createElement('div');
             tmp.innerHTML = html;
             return tmp.textContent || tmp.innerText || '';
+        }
+
+        // Update audio progress bar and status
+        function updateAudioProgress() {
+            if (!speechStartTime || !speechDurationEstimate) return;
+            const now = Date.now();
+            const elapsed = now - speechStartTime;
+            let progress = Math.min(elapsed / speechDurationEstimate, 1);
+            const progressBar = document.getElementById('audioProgressBar');
+            if (progressBar) {
+                progressBar.style.width = (progress * 100) + '%';
+            }
+            const statusEl = document.getElementById('audioStatus');
+            if (statusEl) {
+                const totalSec = Math.floor(speechDurationEstimate / 1000);
+                const currentSec = Math.floor(elapsed / 1000);
+                const totalMin = Math.floor(totalSec / 60);
+                const totalSecRem = totalSec % 60;
+                const currentMin = Math.floor(currentSec / 60);
+                const currentSecRem = currentSec % 60;
+                statusEl.textContent =
+                    `${currentMin}:${currentSecRem.toString().padStart(2, '0')} / ${totalMin}:${totalSecRem.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Estimate speech duration based on text length (characters per second)
+        function estimateSpeechDuration(text) {
+            if (!text) return 60000; // default 1 minute
+            const charsPerSecond = 13; // average speech rate
+            const totalChars = text.length;
+            const seconds = totalChars / charsPerSecond;
+            return Math.max(seconds * 1000, 10000); // at least 10 seconds
         }
 
         // Update Open Graph and Twitter Card meta tags for social sharing
@@ -891,6 +1066,53 @@
             }
         }
 
+        // Like management functions
+        function toggleLike(postId) {
+            const likes = JSON.parse(localStorage.getItem('blog_likes') || '{}');
+            const current = likes[postId] || 0;
+            const liked = localStorage.getItem(`blog_liked_${postId}`) === 'true';
+            if (liked) {
+                // Unlike
+                likes[postId] = Math.max(0, current - 1);
+                localStorage.setItem(`blog_liked_${postId}`, 'false');
+                showToast("💔 Like removed");
+            } else {
+                // Like
+                likes[postId] = current + 1;
+                localStorage.setItem(`blog_liked_${postId}`, 'true');
+                showToast("❤️ Liked!");
+            }
+            localStorage.setItem('blog_likes', JSON.stringify(likes));
+            updateLikeButton(postId);
+        }
+
+        function getLikeCount(postId) {
+            const likes = JSON.parse(localStorage.getItem('blog_likes') || '{}');
+            return likes[postId] || 0;
+        }
+
+        function isLiked(postId) {
+            return localStorage.getItem(`blog_liked_${postId}`) === 'true';
+        }
+
+        function updateLikeButton(postId, element = null) {
+            const btn = element || document.querySelector(`.like-btn[data-post-id="${postId}"]`);
+            if (!btn) return;
+            const countEl = btn.querySelector('.like-count');
+            const liked = isLiked(postId);
+            const count = getLikeCount(postId);
+            if (liked) {
+                btn.classList.add('liked');
+                btn.title = 'Unlike this post';
+            } else {
+                btn.classList.remove('liked');
+                btn.title = 'Like this post';
+            }
+            if (countEl) {
+                countEl.textContent = count > 0 ? count : '';
+            }
+        }
+
         // Get related posts based on category and title similarity
         function getRelatedPosts(postId, limit = 3) {
             const currentPost = allPosts.find(p => p.id === postId);
@@ -988,6 +1210,8 @@
             posts.forEach(post => {
                 const readingTime = calculateReadingTime(post.content);
                 const isBookmarkedPost = isBookmarked(post.id);
+                const likeCount = getLikeCount(post.id);
+                const isLikedPost = isLiked(post.id);
                 
                 const card = document.createElement('div');
                 card.className = 'blog-card';
@@ -1008,6 +1232,9 @@
                                 <div class="share-buttons">
                                     <button onclick="toggleAudio(${post.id}); event.stopImmediatePropagation();" class="audio-btn" data-post-id="${post.id}" title="Listen to this post">🔊</button>
                                     <button onclick="toggleBookmark(${post.id}); event.stopImmediatePropagation();" class="bookmark-btn ${isBookmarkedPost ? 'bookmarked' : ''}" data-post-id="${post.id}" title="${isBookmarkedPost ? 'Remove bookmark' : 'Bookmark this post'}">${isBookmarkedPost ? '🔖' : '📌'}</button>
+                                    <button onclick="toggleLike(${post.id}); event.stopImmediatePropagation();" class="like-btn ${isLikedPost ? 'liked' : ''}" data-post-id="${post.id}" title="${isLikedPost ? 'Unlike this post' : 'Like this post'}">
+                                        ❤️<span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
+                                    </button>
                                     <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-x" title="Share on X">𝕏</button>
                                     <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-facebook" title="Share on Facebook">f</button>
                                     <button onclick="sharePost('linkedin', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-linkedin" title="Share on LinkedIn">in</button>
