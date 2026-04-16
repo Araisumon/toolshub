@@ -26,6 +26,8 @@ const compressionStats = document.getElementById('compressionStats');
 const qualityValue = document.getElementById('qualityValue');
 const advancedSettings = document.getElementById('advancedSettings');
 const toggleAdvanced = document.getElementById('toggleAdvanced');
+const preserveMetadata = document.getElementById('preserveMetadata');
+const aggressiveCompression = document.getElementById('aggressiveCompression');
 
 // Global variables
 let compressedImageBlob = null;
@@ -40,7 +42,8 @@ let userSettings = {};
 // Initialize Web Worker
 function initWorker() {
     if (typeof Worker !== 'undefined') {
-        compressionWorker = new Worker('compression-worker.js');
+        // Use the advanced compression worker for better compression
+        compressionWorker = new Worker('advanced-compression-worker.js');
         compressionWorker.onmessage = handleWorkerMessage;
         compressionWorker.onerror = handleWorkerError;
     } else {
@@ -394,7 +397,8 @@ function compressImageWithWorker(file, imageData) {
         maxWidth: maxWidthInput ? parseInt(maxWidthInput.value) || 2000 : 2000,
         maxHeight: maxHeightInput ? parseInt(maxHeightInput.value) || 2000 : 2000,
         format: formatSelect ? formatSelect.value : 'original',
-        intelligentCompression: intelligentCompression ? intelligentCompression.checked : true,
+        preserveMetadata: preserveMetadata ? preserveMetadata.checked : true,
+        aggressiveCompression: aggressiveCompression ? aggressiveCompression.checked : false,
         originalSize: file.size
     };
     
