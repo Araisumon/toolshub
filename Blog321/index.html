@@ -211,6 +211,52 @@
             transition: width 0.1s linear;
         }
 
+        /* Reading time styles */
+        .reading-time {
+            font-size: 0.85rem;
+            color: var(--gray-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Bookmark button styles */
+        .bookmark-btn {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #ffc107;
+        }
+        .bookmark-btn:hover {
+            transform: scale(1.15);
+            background: #ffc107;
+            color: white;
+        }
+        .bookmark-btn.bookmarked {
+            background: #ffc107;
+            color: white;
+            animation: bookmark-pulse 2s infinite;
+        }
+        @keyframes bookmark-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+
+        /* Related posts styles */
+        .related-post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -346,6 +392,7 @@
                     <li><a href="/blog" class="active">Blog</a></li>
                     <li><a href="/about">About</a></li>
                     <li><a href="/contact">Contact</a></li>
+                    <li><button onclick="showBookmarks()" style="background: none; border: none; color: white; font-weight: 500; cursor: pointer; padding: 0; font-size: 1rem; display: flex; align-items: center; gap: 4px;">🔖 Bookmarks</button></li>
                 </ul>
             </nav>
             <div>
@@ -407,13 +454,14 @@
                 <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
                     <div id="modalTitle" style="font-size:1.8rem; font-weight:600; flex: 1;"></div>
                     <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="modalBookmarkBtn" class="bookmark-btn" title="Bookmark this post" style="font-size: 1.5rem; background: none; border: none; cursor: pointer;">📌</button>
                         <button id="modalAudioBtn" class="audio-btn" title="Listen to this post" style="font-size: 1.5rem;">🔊</button>
                         <button onclick="closeReadModal()" style="font-size:2rem; background:none; border:none; cursor:pointer;">×</button>
                     </div>
                 </div>
             </div>
             <div class="modal-body">
-                <div id="modalMeta" style="color:var(--gray-color); margin-bottom:20px;"></div>
+                <div id="modalMeta" style="color:var(--gray-color); margin-bottom:20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;"></div>
                 <div id="modalImage"></div>
                 <div class="audio-controls" id="modalAudioControls" style="display: none;">
                     <button onclick="pauseAudio()" class="audio-btn" style="font-size: 1.2rem;">⏸️</button>
@@ -425,6 +473,12 @@
                     <span id="audioStatus" style="font-size: 0.9rem; color: var(--gray-color);">Stopped</span>
                 </div>
                 <div id="modalContent" style="line-height:1.8; font-size:1.1rem; margin-top: 20px;"></div>
+                
+                <!-- Related Posts Section -->
+                <div id="relatedPosts" style="margin-top: 40px; border-top: 2px solid var(--border-color); padding-top: 25px; display: none;">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">📚 Related Posts</h3>
+                    <div id="relatedPostsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -703,6 +757,44 @@
             return tmp.textContent || tmp.innerText || '';
         }
 
+        // Update Open Graph and Twitter Card meta tags for social sharing
+        function updateMetaTagsForPost(post) {
+            if (!post) return;
+            
+            // Create or update meta tags
+            const properties = [
+                { property: 'og:title', content: post.title },
+                { property: 'og:description', content: post.excerpt },
+                { property: 'og:image', content: post.image || 'https://toolshub.cam/tools-illustration.webp' },
+                { property: 'og:url', content: `${SITE_URL}/blog#post-${post.id}` },
+                { name: 'twitter:card', content: 'summary_large_image' },
+                { name: 'twitter:title', content: post.title },
+                { name: 'twitter:description', content: post.excerpt },
+                { name: 'twitter:image', content: post.image || 'https://toolshub.cam/tools-illustration.webp' }
+            ];
+            
+            properties.forEach(({ property, name, content }) => {
+                let selector;
+                if (property) {
+                    selector = `meta[property="${property}"]`;
+                } else if (name) {
+                    selector = `meta[name="${name}"]`;
+                }
+                
+                let meta = document.querySelector(selector);
+                if (!meta) {
+                    meta = document.createElement('meta');
+                    if (property) meta.setAttribute('property', property);
+                    if (name) meta.setAttribute('name', name);
+                    document.head.appendChild(meta);
+                }
+                meta.setAttribute('content', content);
+            });
+            
+            // Also update page title
+            document.title = `${post.title} | ToolsHub Blog`;
+        }
+
         function sharePost(platform, id) {
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
@@ -744,6 +836,143 @@
             }
         }
 
+        // Calculate reading time in minutes
+        function calculateReadingTime(text) {
+            if (!text) return 1;
+            // Remove HTML tags and count words
+            const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            const wordCount = cleanText.split(/\s+/).length;
+            // Average reading speed: 200-250 words per minute
+            const wordsPerMinute = 200;
+            const minutes = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+            return minutes;
+        }
+
+        // Bookmark management functions
+        function toggleBookmark(postId) {
+            const bookmarks = JSON.parse(localStorage.getItem('blog_bookmarks') || '[]');
+            const index = bookmarks.indexOf(postId);
+            
+            if (index === -1) {
+                bookmarks.push(postId);
+                showToast("✅ Post bookmarked!");
+            } else {
+                bookmarks.splice(index, 1);
+                showToast("📌 Bookmark removed");
+            }
+            
+            localStorage.setItem('blog_bookmarks', JSON.stringify(bookmarks));
+            updateBookmarkButton(postId);
+            
+            // If we're in the modal view, also update the modal bookmark button
+            const modalBookmarkBtn = document.getElementById('modalBookmarkBtn');
+            if (modalBookmarkBtn && modalBookmarkBtn.dataset.postId == postId) {
+                updateBookmarkButton(postId, modalBookmarkBtn);
+            }
+        }
+
+        function isBookmarked(postId) {
+            const bookmarks = JSON.parse(localStorage.getItem('blog_bookmarks') || '[]');
+            return bookmarks.includes(postId);
+        }
+
+        function updateBookmarkButton(postId, element = null) {
+            const btn = element || document.querySelector(`.bookmark-btn[data-post-id="${postId}"]`);
+            if (!btn) return;
+            
+            if (isBookmarked(postId)) {
+                btn.innerHTML = '🔖';
+                btn.title = 'Remove bookmark';
+                btn.classList.add('bookmarked');
+            } else {
+                btn.innerHTML = '📌';
+                btn.title = 'Bookmark this post';
+                btn.classList.remove('bookmarked');
+            }
+        }
+
+        // Get related posts based on category and title similarity
+        function getRelatedPosts(postId, limit = 3) {
+            const currentPost = allPosts.find(p => p.id === postId);
+            if (!currentPost) return [];
+            
+            // Score posts based on category match and title similarity
+            const scoredPosts = allPosts
+                .filter(p => p.id !== postId)
+                .map(p => {
+                    let score = 0;
+                    
+                    // Category match: +2 points
+                    if (p.category === currentPost.category) score += 2;
+                    
+                    // Title similarity: +1 point for each matching word (case-insensitive)
+                    const currentWords = currentPost.title.toLowerCase().split(/\W+/);
+                    const postWords = p.title.toLowerCase().split(/\W+/);
+                    const commonWords = currentWords.filter(word =>
+                        word.length > 3 && postWords.includes(word)
+                    );
+                    score += commonWords.length;
+                    
+                    return { post: p, score };
+                })
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, limit)
+                .map(item => item.post);
+            
+            return scoredPosts;
+        }
+
+        function renderRelatedPosts(postId) {
+            const relatedPosts = getRelatedPosts(postId);
+            const container = document.getElementById('relatedPostsContainer');
+            const section = document.getElementById('relatedPosts');
+            
+            if (!relatedPosts.length) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            container.innerHTML = '';
+            relatedPosts.forEach(post => {
+                const readingTime = calculateReadingTime(post.content);
+                const card = document.createElement('div');
+                card.className = 'related-post-card';
+                card.style.cssText = `
+                    border: 1px solid var(--border-color);
+                    border-radius: 12px;
+                    padding: 15px;
+                    background: var(--card-bg);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    cursor: pointer;
+                `;
+                card.onmouseenter = () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                };
+                card.onmouseleave = () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+                };
+                card.onclick = () => viewPost(post.id);
+                
+                card.innerHTML = `
+                    <div style="font-size: 0.9rem; color: var(--gray-color); margin-bottom: 8px; display: flex; gap: 10px; align-items: center;">
+                        <span>${post.date}</span>
+                        <span>•</span>
+                        <span class="category">${post.category}</span>
+                        <span>•</span>
+                        <span>⏱️ ${readingTime} min</span>
+                    </div>
+                    <h4 style="margin: 0 0 8px 0; font-size: 1.1rem; line-height: 1.4;">${post.title}</h4>
+                    <p style="font-size: 0.95rem; color: var(--gray-color); margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${post.excerpt}</p>
+                `;
+                container.appendChild(card);
+            });
+            
+            section.style.display = 'block';
+        }
+
         function renderPosts(filtered = null) {
             const container = document.getElementById('postsContainer');
             const empty = document.getElementById('emptyState');
@@ -757,6 +986,9 @@
             empty.style.display = 'none';
 
             posts.forEach(post => {
+                const readingTime = calculateReadingTime(post.content);
+                const isBookmarkedPost = isBookmarked(post.id);
+                
                 const card = document.createElement('div');
                 card.className = 'blog-card';
                 card.id = `post-${post.id}`;
@@ -766,6 +998,7 @@
                         <div class="blog-card-meta">
                             <span>${post.date}</span>
                             <span class="category">${post.category}</span>
+                            <span class="reading-time">⏱️ ${readingTime} min read</span>
                         </div>
                         <h3>${post.title}</h3>
                         <p>${post.excerpt}</p>
@@ -774,6 +1007,7 @@
                             <div style="display:flex; gap:12px; align-items:center;">
                                 <div class="share-buttons">
                                     <button onclick="toggleAudio(${post.id}); event.stopImmediatePropagation();" class="audio-btn" data-post-id="${post.id}" title="Listen to this post">🔊</button>
+                                    <button onclick="toggleBookmark(${post.id}); event.stopImmediatePropagation();" class="bookmark-btn ${isBookmarkedPost ? 'bookmarked' : ''}" data-post-id="${post.id}" title="${isBookmarkedPost ? 'Remove bookmark' : 'Bookmark this post'}">${isBookmarkedPost ? '🔖' : '📌'}</button>
                                     <button onclick="sharePost('twitter', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-x" title="Share on X">𝕏</button>
                                     <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-facebook" title="Share on Facebook">f</button>
                                     <button onclick="sharePost('linkedin', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-linkedin" title="Share on LinkedIn">in</button>
@@ -821,10 +1055,24 @@
         function viewPost(id) {
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
+            
+            // Calculate reading time
+            const readingTime = calculateReadingTime(post.content);
+            
+            // Update modal content
             document.getElementById('modalTitle').textContent = post.title;
-            document.getElementById('modalMeta').innerHTML = `${post.date} • ${post.category}`;
+            document.getElementById('modalMeta').innerHTML = `
+                <span>${post.date}</span>
+                <span>•</span>
+                <span class="category">${post.category}</span>
+                <span>•</span>
+                <span class="reading-time">⏱️ ${readingTime} min read</span>
+            `;
             document.getElementById('modalImage').innerHTML = post.image ? `<img src="${post.image}" style="width:100%;border-radius:12px;margin-bottom:20px;">` : '';
             document.getElementById('modalContent').innerHTML = post.content || '<p>No content available.</p>';
+            
+            // Update meta tags for social sharing with post image
+            updateMetaTagsForPost(post);
             
             // Setup audio button for modal
             const audioBtn = document.getElementById('modalAudioBtn');
@@ -834,8 +1082,20 @@
                 toggleAudio(post.id);
             };
             
+            // Setup bookmark button for modal
+            const bookmarkBtn = document.getElementById('modalBookmarkBtn');
+            bookmarkBtn.setAttribute('data-post-id', post.id);
+            bookmarkBtn.onclick = (e) => {
+                e.stopPropagation();
+                toggleBookmark(post.id);
+            };
+            updateBookmarkButton(post.id, bookmarkBtn);
+            
             // Update audio button state
             updateModalAudioButton();
+            
+            // Render related posts
+            renderRelatedPosts(post.id);
             
             document.getElementById('readModal').style.display = 'flex';
         }
@@ -859,7 +1119,45 @@
             }
         }
 
-        function closeReadModal() { document.getElementById('readModal').style.display = 'none'; }
+        function closeReadModal() {
+            document.getElementById('readModal').style.display = 'none';
+            // Restore default meta tags
+            restoreDefaultMetaTags();
+        }
+        
+        function restoreDefaultMetaTags() {
+            const defaultTitle = "ToolsHub Blog | Insights, Tips & Tool Updates";
+            const defaultDescription = "Latest articles, tutorials, tips, and updates about ToolsHub's 100+ free online tools.";
+            const defaultImage = "https://toolshub.cam/tools-illustration.webp";
+            const defaultUrl = SITE_URL + "/blog";
+            
+            document.title = defaultTitle;
+            
+            const properties = [
+                { property: 'og:title', content: defaultTitle },
+                { property: 'og:description', content: defaultDescription },
+                { property: 'og:image', content: defaultImage },
+                { property: 'og:url', content: defaultUrl },
+                { name: 'twitter:card', content: 'summary_large_image' },
+                { name: 'twitter:title', content: defaultTitle },
+                { name: 'twitter:description', content: defaultDescription },
+                { name: 'twitter:image', content: defaultImage }
+            ];
+            
+            properties.forEach(({ property, name, content }) => {
+                let selector;
+                if (property) {
+                    selector = `meta[property="${property}"]`;
+                } else if (name) {
+                    selector = `meta[name="${name}"]`;
+                }
+                
+                let meta = document.querySelector(selector);
+                if (meta) {
+                    meta.setAttribute('content', content);
+                }
+            });
+        }
 
         function showAddPostModal() {
             editingId = null;
@@ -1018,6 +1316,48 @@
                 renderPosts();
             }
             cancelDelete();
+        }
+
+        // Show bookmarked posts
+        function showBookmarks() {
+            const bookmarks = JSON.parse(localStorage.getItem('blog_bookmarks') || '[]');
+            if (bookmarks.length === 0) {
+                showToast("📌 You haven't bookmarked any posts yet!");
+                return;
+            }
+            
+            const bookmarkedPosts = allPosts.filter(post => bookmarks.includes(post.id));
+            renderPosts(bookmarkedPosts);
+            
+            // Update the page title to indicate we're viewing bookmarks
+            document.title = `Bookmarks (${bookmarkedPosts.length}) | ToolsHub Blog`;
+            
+            // Add a clear filter button
+            const blogHeader = document.querySelector('.blog-header');
+            let clearBtn = document.getElementById('clearBookmarksFilter');
+            if (!clearBtn) {
+                clearBtn = document.createElement('button');
+                clearBtn.id = 'clearBookmarksFilter';
+                clearBtn.innerHTML = 'Clear Filter ×';
+                clearBtn.style.cssText = `
+                    background: #ffc107;
+                    color: #000;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    margin-left: 10px;
+                `;
+                clearBtn.onclick = () => {
+                    document.title = "ToolsHub Blog | Insights, Tips & Tool Updates";
+                    renderPosts();
+                    clearBtn.remove();
+                };
+                blogHeader.appendChild(clearBtn);
+            }
+            
+            showToast(`🔖 Showing ${bookmarkedPosts.length} bookmarked posts`);
         }
 
         // Theme + Mobile
