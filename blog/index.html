@@ -1419,7 +1419,11 @@
         }
 
         function closePostModal() {
-            saveCurrentDraft();
+            try {
+                saveCurrentDraft();
+            } catch (err) {
+                console.warn('Failed to save draft:', err);
+            }
             document.getElementById('postModal').style.display = 'none';
         }
 
