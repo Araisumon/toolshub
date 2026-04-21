@@ -208,6 +208,15 @@
         .share-copy { color: #6c757d; }
         .share-copy:hover { background: #6c757d; color: white; }
 
+        .share-reddit { color: #FF4500; }
+        .share-reddit:hover { background: #FF4500; color: white; }
+
+        .share-telegram { color: #0088cc; }
+        .share-telegram:hover { background: #0088cc; color: white; }
+
+        .share-email { color: #6c757d; }
+        .share-email:hover { background: #6c757d; color: white; }
+
         /* Like button styles */
         .like-btn {
             background: none;
@@ -1008,6 +1017,19 @@
                 const message = encodeURIComponent(`${shareText} ${staticPostUrl}`);
                 const shareUrl = `https://wa.me/?text=${message}`;
                 window.open(shareUrl, '_blank', 'width=600,height=500');
+            } else if (platform === 'reddit') {
+                const title = encodeURIComponent(post.title);
+                const shareUrl = `https://www.reddit.com/submit?url=${postUrl}&title=${title}`;
+                window.open(shareUrl, '_blank', 'width=600,height=500');
+            } else if (platform === 'telegram') {
+                const message = encodeURIComponent(`${shareText} ${staticPostUrl}`);
+                const shareUrl = `https://t.me/share/url?url=${postUrl}&text=${message}`;
+                window.open(shareUrl, '_blank', 'width=600,height=500');
+            } else if (platform === 'email') {
+                const subject = encodeURIComponent(post.title);
+                const body = encodeURIComponent(`${shareText}\n\nRead more: ${staticPostUrl}`);
+                const shareUrl = `mailto:?subject=${subject}&body=${body}`;
+                window.open(shareUrl, '_blank');
             } else if (platform === 'copy') {
                 const fullText = `${shareText}\n\nRead more: ${staticPostUrl}`;
                 navigator.clipboard.writeText(fullText).then(() => {
@@ -1245,6 +1267,9 @@
                                     <button onclick="sharePost('facebook', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-facebook" title="Share on Facebook">f</button>
                                     <button onclick="sharePost('linkedin', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-linkedin" title="Share on LinkedIn">in</button>
                                     <button onclick="sharePost('whatsapp', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-whatsapp" title="Share on WhatsApp">💬</button>
+                                    <button onclick="sharePost('reddit', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-reddit" title="Share on Reddit">📌</button>
+                                    <button onclick="sharePost('telegram', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-telegram" title="Share on Telegram">📨</button>
+                                    <button onclick="sharePost('email', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-email" title="Share via Email">✉️</button>
                                     <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-copy" title="Copy Link">🔗</button>
                                 </div>
                                 ${isAdminMode() ? `

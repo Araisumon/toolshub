@@ -247,6 +247,15 @@ const CSS = `
     .share-whatsapp { color: #25D366; }
     .share-whatsapp:hover { background: #25D366; color: white; }
 
+    .share-reddit { color: #FF4500; }
+    .share-reddit:hover { background: #FF4500; color: white; }
+
+    .share-telegram { color: #0088cc; }
+    .share-telegram:hover { background: #0088cc; color: white; }
+
+    .share-email { color: #6c757d; }
+    .share-email:hover { background: #6c757d; color: white; }
+
     footer {
         background: #212529;
         color: #adb5bd;
@@ -371,6 +380,15 @@ function generatePostHTML(post) {
                     <button class="share-btn share-whatsapp" onclick="shareOnWhatsApp()" title="Share on WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                     </button>
+                    <button class="share-btn share-reddit" onclick="shareOnReddit()" title="Share on Reddit">
+                        <i class="fab fa-reddit"></i>
+                    </button>
+                    <button class="share-btn share-telegram" onclick="shareOnTelegram()" title="Share on Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </button>
+                    <button class="share-btn share-email" onclick="shareOnEmail()" title="Share via Email">
+                        <i class="fas fa-envelope"></i>
+                    </button>
                 </div>
 
                 <a href="${SITE_URL}/blog" class="back-link">
@@ -413,6 +431,25 @@ function generatePostHTML(post) {
             const url = encodeURIComponent(window.location.href);
             const text = encodeURIComponent("${post.title} - Check out this article!");
             window.open(\`https://wa.me/?text=\${text}%20\${url}\`, '_blank');
+        }
+
+        function shareOnReddit() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent("${post.title}");
+            window.open(\`https://www.reddit.com/submit?url=\${url}&title=\${title}\`, '_blank');
+        }
+
+        function shareOnTelegram() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent("${post.title} - Check out this article!");
+            window.open(\`https://t.me/share/url?url=\${url}&text=\${text}\`, '_blank');
+        }
+
+        function shareOnEmail() {
+            const url = window.location.href;
+            const subject = encodeURIComponent("${post.title}");
+            const body = encodeURIComponent(\`Check out this article: \${url}\`);
+            window.open(\`mailto:?subject=\${subject}&body=\${body}\`, '_blank');
         }
 
         // Copy URL to clipboard
