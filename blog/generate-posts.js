@@ -256,6 +256,101 @@ const CSS = `
     .share-email { color: #6c757d; }
     .share-email:hover { background: #6c757d; color: white; }
 
+    .audio-controls {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        align-items: center;
+    }
+
+    .audio-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .audio-btn:hover {
+        background: var(--secondary-color);
+        transform: scale(1.05);
+    }
+
+    .audio-btn.playing {
+        background: #e74c3c;
+    }
+
+    .audio-btn.paused {
+        background: #f39c12;
+    }
+
+    .related-posts-section {
+        margin-top: 60px;
+        border-top: 2px solid var(--border-color);
+        padding-top: 30px;
+    }
+
+    .related-posts-section h3 {
+        margin-bottom: 25px;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+    }
+
+    .related-posts-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .related-post-card {
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        background: var(--card-background);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+
+    .related-post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .related-post-meta {
+        font-size: 0.9rem;
+        color: var(--gray-color);
+        margin-bottom: 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .related-post-title {
+        margin: 0 0 10px 0;
+        font-size: 1.2rem;
+        line-height: 1.4;
+        color: var(--text-color);
+    }
+
+    .related-post-excerpt {
+        font-size: 0.95rem;
+        color: var(--gray-color);
+        margin: 0;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
     footer {
         background: #212529;
         color: #adb5bd;
@@ -360,6 +455,22 @@ function generatePostHTML(post) {
                         <span><i class="fas fa-clock"></i> ${Math.ceil(post.content.length / 1000)} min read</span>
                     </div>
                     
+                    <!-- Audio Read Controls -->
+                    <div class="audio-controls">
+                        <button class="audio-btn" onclick="toggleAudio('${post.id}')" id="audioBtn-${post.id}" title="Listen to this article">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="audio-btn" onclick="pauseAudio()" title="Pause">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="audio-btn" onclick="stopAudio()" title="Stop">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                        <span id="audioStatus" style="font-size: 0.9rem; color: var(--gray-color); margin-left: 10px;">
+                            Click play to listen
+                        </span>
+                    </div>
+                    
                     ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image" loading="lazy">` : ''}
                 </div>
 
@@ -389,6 +500,14 @@ function generatePostHTML(post) {
                     <button class="share-btn share-email" onclick="shareOnEmail()" title="Share via Email">
                         <i class="fas fa-envelope"></i>
                     </button>
+                </div>
+
+                <!-- Related Posts Section -->
+                <div class="related-posts-section">
+                    <h3>📚 Related Posts</h3>
+                    <div id="relatedPostsContainer" class="related-posts-container">
+                        <!-- Related posts will be dynamically inserted here -->
+                    </div>
                 </div>
 
                 <a href="${SITE_URL}/blog" class="back-link">
@@ -474,12 +593,211 @@ function generatePostHTML(post) {
             }
         }
 
-        // Apply saved theme on load
+        // Audio functions
+        let currentUtterance = null;
+        let currentPostId = null;
+        let isPlaying = false;
+
+        function toggleAudio(postId) {
+            if (!window.speechSynthesis) {
+                alert("⚠️ Audio playback not supported in your browser");
+                return;
+            }
+
+            const postTitle = document.querySelector('.post-title')?.textContent || '';
+            const postContent = document.querySelector('.post-content')?.textContent || '';
+            
+            // If already playing this post, toggle pause/resume
+            if (currentPostId === postId && isPlaying) {
+                pauseAudio();
+                return;
+            } else if (currentPostId === postId && !isPlaying) {
+                resumeAudio();
+                return;
+            }
+
+            // Stop any current speech
+            stopAudio();
+
+            // Start new speech
+            currentPostId = postId;
+            const textToSpeak = \`\${postTitle}. \${postContent}\`;
+            
+            currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
+            currentUtterance.rate = 1.0;
+            currentUtterance.pitch = 1.0;
+            currentUtterance.volume = 1.0;
+
+            currentUtterance.onstart = () => {
+                isPlaying = true;
+                updateAudioButtonState('playing');
+            };
+
+            currentUtterance.onend = () => {
+                isPlaying = false;
+                currentPostId = null;
+                updateAudioButtonState('stopped');
+            };
+
+            currentUtterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                isPlaying = false;
+                currentPostId = null;
+                updateAudioButtonState('stopped');
+                alert("⚠️ Audio playback failed");
+            };
+
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        function pauseAudio() {
+            if (speechSynthesis.speaking && !speechSynthesis.paused) {
+                speechSynthesis.pause();
+                isPlaying = false;
+                updateAudioButtonState('paused');
+            }
+        }
+
+        function resumeAudio() {
+            if (speechSynthesis.speaking && speechSynthesis.paused) {
+                speechSynthesis.resume();
+                isPlaying = true;
+                updateAudioButtonState('playing');
+            }
+        }
+
+        function stopAudio() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            isPlaying = false;
+            currentPostId = null;
+            updateAudioButtonState('stopped');
+        }
+
+        function updateAudioButtonState(state) {
+            const button = document.getElementById('audioControlBtn');
+            if (!button) return;
+            
+            button.classList.remove('playing', 'paused');
+            if (state === 'playing') {
+                button.classList.add('playing');
+                button.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            } else if (state === 'paused') {
+                button.classList.add('paused');
+                button.innerHTML = '<i class="fas fa-play"></i> Resume';
+            } else {
+                button.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+            }
+        }
+
+        // Related posts functions
+        function getRelatedPosts(currentPost, allPosts, limit = 3) {
+            if (!currentPost || !allPosts) return [];
+            
+            // Score posts based on category match and title similarity
+            const scoredPosts = allPosts
+                .filter(p => p.id !== currentPost.id)
+                .map(p => {
+                    let score = 0;
+                    
+                    // Category match: +2 points
+                    if (p.category === currentPost.category) score += 2;
+                    
+                    // Title similarity: +1 point for each matching word (case-insensitive)
+                    const currentWords = currentPost.title.toLowerCase().split(/\W+/);
+                    const postWords = p.title.toLowerCase().split(/\W+/);
+                    const commonWords = currentWords.filter(word =>
+                        word.length > 3 && postWords.includes(word)
+                    );
+                    score += commonWords.length;
+                    
+                    return { post: p, score };
+                })
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, limit)
+                .map(item => item.post);
+            
+            return scoredPosts;
+        }
+
+        function renderRelatedPosts(currentPost, allPosts) {
+            const container = document.getElementById('relatedPostsContainer');
+            const section = document.getElementById('relatedPosts');
+            
+            if (!container || !section) return;
+            
+            const relatedPosts = getRelatedPosts(currentPost, allPosts);
+            
+            if (!relatedPosts.length) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            container.innerHTML = '';
+            relatedPosts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'related-post-card';
+                card.style.cssText = \`
+                    border: 1px solid var(--border-color);
+                    border-radius: 12px;
+                    padding: 15px;
+                    background: var(--card-bg);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    cursor: pointer;
+                \`;
+                card.onmouseenter = () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                };
+                card.onmouseleave = () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+                };
+                card.onclick = () => window.location.href = \`post-\${post.id}.html\`;
+                
+                card.innerHTML = \`
+                    <div style="font-size: 0.9rem; color: var(--gray-color); margin-bottom: 8px; display: flex; gap: 10px; align-items: center;">
+                        <span>\${post.date}</span>
+                        <span>•</span>
+                        <span class="category">\${post.category}</span>
+                    </div>
+                    <h4 style="margin: 0 0 8px 0; font-size: 1.1rem; line-height: 1.4;">\${post.title}</h4>
+                    <p style="font-size: 0.95rem; color: var(--gray-color); margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">\${post.excerpt}</p>
+                \`;
+                container.appendChild(card);
+            });
+            
+            section.style.display = 'block';
+        }
+
+        // Initialize related posts when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.classList.remove('theme-light', 'theme-dark');
             document.body.classList.add(\`theme-\${savedTheme}\`);
+            
+            // Get current post data from the page
+            const postDataScript = document.getElementById('postData');
+            if (postDataScript) {
+                try {
+                    const postData = JSON.parse(postDataScript.textContent);
+                    const allPosts = window.allPosts || [];
+                    renderRelatedPosts(postData, allPosts);
+                } catch (e) {
+                    console.error('Failed to load post data for related posts:', e);
+                }
+            }
         });
+    </script>
+    
+    <script id="postData" type="application/json">
+        ${JSON.stringify(post)}
+    </script>
+    <script>
+        // Make all posts available for related posts functionality
+        window.allPosts = ${JSON.stringify(postsData)};
     </script>
 </body>
 </html>`;
