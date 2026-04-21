@@ -475,9 +475,37 @@
         .admin-mode #adminActions {
             display: flex !important;
         }
+        /* Force admin buttons to be visible and styled */
         .admin-mode .blog-card-footer button[onclick*="editPost"],
-        .admin-mode .blog-card-footer button[onclick*="showDeleteConfirm"] {
+        .admin-mode .blog-card-footer button[onclick*="showDeleteConfirm"],
+        .admin-mode .blog-card-footer button[onclick*="editPost"][style],
+        .admin-mode .blog-card-footer button[onclick*="showDeleteConfirm"][style],
+        .admin-mode .blog-card-footer .admin-edit-btn,
+        .admin-mode .blog-card-footer .admin-delete-btn {
             display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background-color: #4361ee !important;
+            color: white !important;
+            border: 2px solid #3a0ca3 !important;
+            border-radius: 50% !important;
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 1.2rem !important;
+            margin-left: auto !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+            z-index: 1000 !important;
+            position: relative !important;
+        }
+
+        /* Ensure admin buttons are not hidden by any parent */
+        .admin-mode .blog-card-footer {
+            position: relative !important;
+        }
+        .admin-mode .blog-card-footer > div {
+            display: flex !important;
+            align-items: center !important;
         }
 
         .admin-indicator {
@@ -489,6 +517,7 @@
             padding: 8px 16px;
             border-radius: 8px;
             font-size: 0.9rem;
+            z-index: 9999;
             font-weight: bold;
             z-index: 9999;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
@@ -1316,8 +1345,8 @@
                                     <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-copy" title="Copy Link">🔗</button>
                                 </div>
                                 ${isAdminMode() ? `
-                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-left:auto;">✏️</button>
-                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:#e74c3c;">🗑️</button>
+                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" class="admin-edit-btn">✏️</button>
+                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" class="admin-delete-btn">🗑️</button>
                                 ` : ''}
                             </div>
                         </div>
