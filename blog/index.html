@@ -508,6 +508,61 @@
             align-items: center !important;
         }
 
+        /* Direct targeting for admin buttons - highest priority */
+        .admin-edit-btn,
+        .admin-delete-btn {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background-color: #4361ee !important;
+            color: white !important;
+            border: 2px solid #3a0ca3 !important;
+            border-radius: 50% !important;
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 1.2rem !important;
+            margin-left: auto !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+            z-index: 1000 !important;
+            position: relative !important;
+        }
+
+        /* Force display even if parent is hidden */
+        body .blog-card-footer .admin-edit-btn,
+        body .blog-card-footer .admin-delete-btn {
+            display: inline-block !important;
+        }
+
+        /* ULTIMATE OVERRIDE - targets any admin button anywhere */
+        button.admin-edit-btn,
+        button.admin-delete-btn,
+        .blog-card-footer button.admin-edit-btn,
+        .blog-card-footer button.admin-delete-btn,
+        div[style*="display:flex"] button.admin-edit-btn,
+        div[style*="display:flex"] button.admin-delete-btn,
+        #postsContainer button.admin-edit-btn,
+        #postsContainer button.admin-delete-btn {
+            all: unset !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background-color: #4361ee !important;
+            color: white !important;
+            border: 2px solid #3a0ca3 !important;
+            border-radius: 50% !important;
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 1.2rem !important;
+            margin-left: auto !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+            z-index: 1000 !important;
+            position: relative !important;
+            text-align: center !important;
+            line-height: 36px !important;
+        }
+
         .admin-indicator {
             position: fixed;
             top: 10px;
@@ -1316,6 +1371,14 @@
                 const card = document.createElement('div');
                 card.className = 'blog-card';
                 card.id = `post-${post.id}`;
+                
+                // Check if admin mode is active for this post
+                const adminModeActive = isAdminMode();
+                const adminButtonsHTML = adminModeActive ? `
+                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" class="admin-edit-btn">✏️</button>
+                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" class="admin-delete-btn">🗑️</button>
+                                ` : '';
+                
                 card.innerHTML = `
                     ${post.image ? `<img src="${post.image}" alt="${post.title}">` : `<div style="height:200px;background:linear-gradient(135deg,#4361ee,#3a0ca3);color:white;display:flex;align-items:center;justify-content:center;font-size:3rem;"><i class="material-icons">article</i></div>`}
                     <div class="blog-card-content">
@@ -1344,16 +1407,62 @@
                                     <button onclick="sharePost('email', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-email" title="Share via Email">✉️</button>
                                     <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-copy" title="Copy Link">🔗</button>
                                 </div>
-                                ${isAdminMode() ? `
-                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" class="admin-edit-btn">✏️</button>
-                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" class="admin-delete-btn">🗑️</button>
-                                ` : ''}
+                                ${adminButtonsHTML}
                             </div>
                         </div>
                     </div>
                 `;
                 card.onclick = () => viewPost(post.id);
                 container.appendChild(card);
+                
+                // Debug: Log admin buttons if they exist
+                if (adminModeActive) {
+                    const editBtn = card.querySelector('.admin-edit-btn');
+                    const deleteBtn = card.querySelector('.admin-delete-btn');
+                    console.log(`Post ${post.id} admin buttons:`, {
+                        editBtnExists: !!editBtn,
+                        deleteBtnExists: !!deleteBtn,
+                        editBtnHTML: editBtn ? editBtn.outerHTML : 'none',
+                        deleteBtnHTML: deleteBtn ? deleteBtn.outerHTML : 'none'
+                    });
+                }
+            });
+            
+            // Also log total admin buttons found
+            const allAdminButtons = document.querySelectorAll('.admin-edit-btn, .admin-delete-btn');
+            console.log(`Total admin buttons in DOM: ${allAdminButtons.length}`);
+            
+            // Force apply styles to admin buttons
+            if (isAdminMode()) {
+                setTimeout(() => forceAdminButtonStyles(), 100);
+            }
+        }
+        
+        function forceAdminButtonStyles() {
+            const adminButtons = document.querySelectorAll('.admin-edit-btn, .admin-delete-btn');
+            console.log(`Applying forced styles to ${adminButtons.length} admin buttons`);
+            
+            adminButtons.forEach(btn => {
+                // Apply inline styles directly (highest specificity)
+                btn.style.display = 'inline-block';
+                btn.style.visibility = 'visible';
+                btn.style.opacity = '1';
+                btn.style.backgroundColor = '#4361ee';
+                btn.style.color = 'white';
+                btn.style.border = '2px solid #3a0ca3';
+                btn.style.borderRadius = '50%';
+                btn.style.width = '36px';
+                btn.style.height = '36px';
+                btn.style.fontSize = '1.2rem';
+                btn.style.marginLeft = 'auto';
+                btn.style.cursor = 'pointer';
+                btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                btn.style.zIndex = '1000';
+                btn.style.position = 'relative';
+                btn.style.textAlign = 'center';
+                btn.style.lineHeight = '36px';
+                
+                console.log(`Applied styles to button: ${btn.className}`);
             });
         }
 
