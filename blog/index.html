@@ -470,6 +470,15 @@
             .filters { flex-direction: column; align-items: stretch; }
             .blog-header { flex-direction: column; align-items: stretch; }
         }
+
+        /* Admin mode styles */
+        .admin-mode #adminActions {
+            display: flex !important;
+        }
+        .admin-mode .blog-card-footer button[onclick*="editPost"],
+        .admin-mode .blog-card-footer button[onclick*="showDeleteConfirm"] {
+            display: inline-block !important;
+        }
     </style>
 </head>
 <body class="theme-light">
@@ -713,7 +722,18 @@
         let draftTimer = null;
 
         function isAdminMode() {
-            return window.location.search.includes(SECRET_PARAM);
+            const search = window.location.search;
+            const href = window.location.href;
+            const hash = window.location.hash;
+            console.log('Admin mode check:', { search, href, hash, SECRET_PARAM });
+            // Check in search, hash, or href (case-insensitive)
+            const paramLower = SECRET_PARAM.toLowerCase();
+            const searchLower = search.toLowerCase();
+            const hrefLower = href.toLowerCase();
+            const hashLower = hash.toLowerCase();
+            const detected = searchLower.includes(paramLower) || hrefLower.includes(paramLower) || hashLower.includes(paramLower);
+            console.log('Admin mode detected:', detected);
+            return detected;
         }
 
         async function loadPosts() {
@@ -729,6 +749,7 @@
 
             if (isAdminMode()) {
                 document.getElementById('adminActions').style.display = 'flex';
+                document.body.classList.add('admin-mode');
             }
         }
 
