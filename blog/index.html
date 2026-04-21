@@ -714,7 +714,6 @@
                 allPosts = [];
             }
             renderPosts();
-            handleHash();
 
             if (isAdminMode()) {
                 document.getElementById('adminActions').style.display = 'flex';
@@ -974,9 +973,6 @@
         function sharePost(platform, id) {
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
-
-            // Update meta tags for this post to improve social sharing preview
-            updateMetaTagsForPost(post);
 
             const postUrl = encodeURIComponent(`${SITE_URL}/blog#post-${post.id}`);
             
@@ -1390,20 +1386,6 @@
             });
         }
 
-        // Handle hash fragment to update meta tags and optionally open post modal
-        function handleHash() {
-            const hash = window.location.hash;
-            if (!hash.startsWith('#post-')) return;
-            const postId = parseInt(hash.substring(6), 10);
-            if (!postId) return;
-            const post = allPosts.find(p => p.id === postId);
-            if (post) {
-                updateMetaTagsForPost(post);
-                // Optionally open the modal automatically
-                // viewPost(postId);
-            }
-        }
-
         function showAddPostModal() {
             editingId = null;
             document.getElementById('modalFormTitle').textContent = 'Create New Post';
@@ -1628,9 +1610,6 @@
             document.getElementById('mobileMenuBtn').addEventListener('click', () => {
                 document.getElementById('navbar').classList.toggle('active');
             });
-
-            // Handle hash changes for sharing
-            window.addEventListener('hashchange', handleHash);
 
             const postModal = document.getElementById('postModal');
             const observer = new MutationObserver(() => {
