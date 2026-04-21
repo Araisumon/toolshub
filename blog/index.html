@@ -479,6 +479,20 @@
         .admin-mode .blog-card-footer button[onclick*="showDeleteConfirm"] {
             display: inline-block !important;
         }
+
+        .admin-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body class="theme-light">
@@ -750,6 +764,11 @@
             if (isAdminMode()) {
                 document.getElementById('adminActions').style.display = 'flex';
                 document.body.classList.add('admin-mode');
+                // Add visible admin indicator
+                const indicator = document.createElement('div');
+                indicator.className = 'admin-indicator';
+                indicator.textContent = 'Admin Mode Active';
+                document.body.appendChild(indicator);
             }
         }
 
@@ -1247,6 +1266,7 @@
         }
 
         function renderPosts(filtered = null) {
+            console.log('renderPosts called, admin mode?', isAdminMode());
             const container = document.getElementById('postsContainer');
             const empty = document.getElementById('emptyState');
             container.innerHTML = '';
