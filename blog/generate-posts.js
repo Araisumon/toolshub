@@ -31,6 +31,8 @@ const CSS = `
         --border-radius: 12px;
         --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --border-color: #e0e0e0;
+        --card-bg: var(--card-background);
     }
 
     .theme-light { 
@@ -424,6 +426,16 @@ function generatePostHTML(post) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     ${CSS}
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
 </head>
 <body class="theme-light">
     <header>
@@ -503,7 +515,7 @@ function generatePostHTML(post) {
                 </div>
 
                 <!-- Related Posts Section -->
-                <div class="related-posts-section">
+                <div id="relatedPosts" class="related-posts-section">
                     <h3>📚 Related Posts</h3>
                     <div id="relatedPostsContainer" class="related-posts-container">
                         <!-- Related posts will be dynamically inserted here -->
@@ -705,8 +717,8 @@ function generatePostHTML(post) {
                     if (p.category === currentPost.category) score += 2;
                     
                     // Title similarity: +1 point for each matching word (case-insensitive)
-                    const currentWords = currentPost.title.toLowerCase().split(/\W+/);
-                    const postWords = p.title.toLowerCase().split(/\W+/);
+                    const currentWords = currentPost.title.toLowerCase().split(/\\W+/);
+                    const postWords = p.title.toLowerCase().split(/\\W+/);
                     const commonWords = currentWords.filter(word =>
                         word.length > 3 && postWords.includes(word)
                     );
