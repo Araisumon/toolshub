@@ -722,7 +722,20 @@
         let draftTimer = null;
 
         function isAdminMode() {
-            return window.location.search.includes(SECRET_PARAM);
+            const query = window.location.search;
+            console.log('Admin mode check:', { query, SECRET_PARAM });
+            // Check if the secret param appears as a query parameter (allowing for extra spaces, trailing characters)
+            const params = new URLSearchParams(query);
+            for (let key of params.keys()) {
+                if (key === SECRET_PARAM || params.get(key) === SECRET_PARAM) {
+                    console.log('Admin mode enabled via parameter:', key);
+                    return true;
+                }
+            }
+            // Fallback to substring match for backward compatibility
+            const includes = query.includes(SECRET_PARAM);
+            console.log('Admin mode substring match:', includes);
+            return includes;
         }
 
         async function loadPosts() {
@@ -736,7 +749,10 @@
             renderPosts();
 
             if (isAdminMode()) {
+                console.log('Admin mode active, showing admin actions');
                 document.getElementById('adminActions').style.display = 'flex';
+            } else {
+                console.log('Admin mode inactive');
             }
         }
 
@@ -1262,8 +1278,8 @@
                                     <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-copy" title="Copy Link">🔗</button>
                                 </div>
                                 ${isAdminMode() ? `
-                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-left:auto;">✏️</button>
-                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:#e74c3c;">🗑️</button>
+                                <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-left:auto;" title="Edit post">✏️</button>
+                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:#e74c3c;font-size:1.1em;" title="Delete post">🗑️</button>
                                 ` : ''}
                             </div>
                         </div>
