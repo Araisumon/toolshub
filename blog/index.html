@@ -499,6 +499,9 @@
                     <button onclick="copyUpdatedJSON()" class="cta-btn" style="background:#28a745;">
                         <i class="material-icons">content_copy</i> Copy Updated JSON
                     </button>
+                    <button onclick="showDeleteAllConfirm()" class="cta-btn" style="background:#e74c3c;">
+                        <i class="material-icons">delete_forever</i> Delete All Posts
+                    </button>
                 </div>
             </div>
 
@@ -651,6 +654,23 @@
                 <div class="delete-actions">
                     <button onclick="cancelDelete()" class="btn-cancel">Cancel</button>
                     <button onclick="confirmDelete()" class="btn-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete All Confirmation -->
+    <div id="deleteAllConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color:#e74c3c;">Delete All Posts?</h2>
+                <button onclick="cancelDeleteAll()" style="font-size:2rem;background:none;border:none;cursor:pointer;">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteAllMessage" style="font-size:1.1rem;">Are you sure you want to delete ALL posts? This action cannot be undone and will remove every post from the list. Make sure you have copied the JSON backup if needed.</p>
+                <div class="delete-actions">
+                    <button onclick="cancelDeleteAll()" class="btn-cancel">Cancel</button>
+                    <button onclick="confirmDeleteAll()" class="btn-delete">Delete All</button>
                 </div>
             </div>
         </div>
@@ -1547,6 +1567,21 @@
                 renderPosts();
             }
             cancelDelete();
+        }
+
+        function showDeleteAllConfirm() {
+            document.getElementById('deleteAllConfirmModal').style.display = 'flex';
+        }
+
+        function cancelDeleteAll() {
+            document.getElementById('deleteAllConfirmModal').style.display = 'none';
+        }
+
+        function confirmDeleteAll() {
+            allPosts = [];
+            renderPosts();
+            document.getElementById('deleteAllConfirmModal').style.display = 'none';
+            showToast("🗑️ All posts deleted. Copy updated JSON to make it permanent.");
         }
 
         // Show bookmarked posts
