@@ -460,6 +460,7 @@
             .blog-header { flex-direction: column; align-items: stretch; }
         }
     </style>
+<base target="_blank">
 </head>
 <body class="theme-light">
 
@@ -498,6 +499,9 @@
                     </button>
                     <button onclick="copyUpdatedJSON()" class="cta-btn" style="background:#28a745;">
                         <i class="material-icons">content_copy</i> Copy Updated JSON
+                    </button>
+                    <button onclick="toggleDeleteMode()" id="deleteModeBtn" class="cta-btn" style="background:#e74c3c;">
+                        <i class="material-icons">delete</i> Delete Mode: Off
                     </button>
                 </div>
             </div>
@@ -630,9 +634,10 @@
                     </div>
                     <div id="postContent" contenteditable="true" style="min-height:340px; border:1px solid #ddd; padding:16px; border-radius:8px; outline:none;"></div>
 
-                    <div style="margin-top:25px; text-align:right;">
-                        <button type="button" onclick="closePostModal()" style="padding:12px 24px; margin-right:10px; background:#ccc; border:none; border-radius:8px;">Cancel</button>
-                        <button type="button" onclick="generatePostHTMLFile()" style="padding:12px 24px; margin-right:10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius:8px; font-weight:600; cursor:pointer;">Generate-Posts</button>
+                    <div style="margin-top:25px; text-align:right; display:flex; gap:10px; justify-content:flex-end; align-items:center; flex-wrap:wrap;">
+                        <button type="button" onclick="closePostModal()" style="padding:12px 24px; background:#ccc; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
+                        <button type="button" id="deletePostBtn" onclick="deleteCurrentPost()" style="padding:12px 24px; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer; display:none;">🗑️ Delete Post</button>
+                        <button type="button" onclick="generateStaticPosts()" class="cta-btn" style="background:#6c757d;">📄 Generate Posts</button>
                         <button type="submit" id="saveBtn" class="cta-btn">Publish Post</button>
                     </div>
                 </form>
@@ -696,6 +701,7 @@
     <script>
         const SECRET_PARAM = "sumon2026tools";
         const SITE_URL = "https://toolshub.cam";
+        const DEFAULT_IMAGE = "https://toolshub.cam/tools-illustration.webp";
 
         let allPosts = [];
         let editingId = null;
@@ -704,6 +710,23 @@
 
         function isAdminMode() {
             return window.location.search.includes(SECRET_PARAM);
+        }
+
+        let deleteModeActive = false;
+
+        function toggleDeleteMode() {
+            deleteModeActive = !deleteModeActive;
+            const btn = document.getElementById('deleteModeBtn');
+            if (deleteModeActive) {
+                btn.innerHTML = '<i class="material-icons">delete</i> Delete Mode: On';
+                btn.style.background = '#c0392b';
+                showToast('🗑️ Delete mode ON — click 🗑️ on any post to delete');
+            } else {
+                btn.innerHTML = '<i class="material-icons">delete</i> Delete Mode: Off';
+                btn.style.background = '#e74c3c';
+                showToast('✅ Delete mode OFF');
+            }
+            renderPosts();
         }
 
         async function loadPosts() {
@@ -1248,9 +1271,9 @@
                                     <button onclick="sharePost('whatsapp', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-whatsapp" title="Share on WhatsApp">💬</button>
                                     <button onclick="sharePost('copy', ${post.id}); event.stopImmediatePropagation();" class="share-btn share-copy" title="Copy Link">🔗</button>
                                 </div>
-                                ${isAdminMode() ? `
+                                ${isAdminMode() || deleteModeActive ? `
                                 <button onclick="editPost(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:var(--gray-color);margin-left:auto;">✏️</button>
-                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:#e74c3c;">🗑️</button>
+                                <button onclick="showDeleteConfirm(${post.id}); event.stopImmediatePropagation();" style="background:none;border:none;color:#e74c3c; ${deleteModeActive ? 'animation: pulse 1s infinite;' : ''}">🗑️</button>
                                 ` : ''}
                             </div>
                         </div>
@@ -1414,6 +1437,7 @@
         function showAddPostModal() {
             editingId = null;
             document.getElementById('modalFormTitle').textContent = 'Create New Post';
+            document.getElementById('deletePostBtn').style.display = 'none';
             document.getElementById('postForm').reset();
             document.getElementById('postContent').innerHTML = '';
             document.getElementById('imagePreview').style.display = 'none';
@@ -1428,6 +1452,7 @@
             if (!post) return;
             editingId = id;
             document.getElementById('modalFormTitle').textContent = 'Edit Post';
+            document.getElementById('deletePostBtn').style.display = 'inline-block';
             document.getElementById('postTitle').value = post.title;
             document.getElementById('postCategory').value = post.category;
             document.getElementById('postDate').value = post.date;
@@ -1450,6 +1475,7 @@
                 console.warn('Failed to save draft:', err);
             }
             document.getElementById('postModal').style.display = 'none';
+            document.getElementById('deletePostBtn').style.display = 'none';
         }
 
         // Image Preview Only
@@ -1556,135 +1582,372 @@
             showToast("✅ Post saved! Click 'Copy Updated JSON' to make it permanent.");
         }
 
-        function generatePostHTMLFile() {
-            const title = document.getElementById('postTitle').value.trim();
-            if (!title) return alert("Please enter a title before generating the post");
+        function showDeleteConfirm(id) {
+            postToDelete = id;
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
 
-            const category = document.getElementById('postCategory').value;
-            const date = document.getElementById('postDate').value || new Date().toISOString().slice(0,10);
-            const image = document.getElementById('postImage').value.trim();
-            const excerpt = document.getElementById('postExcerpt').value.trim();
-            const content = document.getElementById('postContent').innerHTML.trim();
-            
-            // Generate a unique ID if not editing
-            const id = editingId || Date.now();
-            
-            // Create post object
-            const post = { id, title, category, date, image, excerpt, content };
-            
-            // Generate HTML using similar template to generate-posts.js
-            const SITE_URL = "https://toolshub.cam";
+        function cancelDelete() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            postToDelete = null;
+        }
+
+        function confirmDelete() {
+            if (postToDelete) {
+                allPosts = allPosts.filter(p => p.id !== postToDelete);
+                renderPosts();
+            }
+            cancelDelete();
+        }
+
+        // Delete the post currently being edited
+        function deleteCurrentPost() {
+            if (!editingId) return;
+            const post = allPosts.find(p => p.id === editingId);
+            if (!post) return;
+
+            if (confirm(`Are you sure you want to delete "${post.title}"? This cannot be undone.`)) {
+                allPosts = allPosts.filter(p => p.id !== editingId);
+                editingId = null;
+                localStorage.removeItem('blogCurrentDraft');
+                if (draftTimer) clearInterval(draftTimer);
+                closePostModal();
+                renderPosts();
+                showToast("✅ Post deleted successfully!");
+            }
+        }
+
+        // Generate static HTML files for all posts
+        function generateStaticPosts() {
+            if (allPosts.length === 0) {
+                showToast("⚠️ No posts to generate!");
+                return;
+            }
+
+            let successCount = 0;
+
+            allPosts.forEach(post => {
+                try {
+                    const postHtml = generatePostHTML(post);
+                    const blob = new Blob([postHtml], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `post-${post.id}.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    successCount++;
+                } catch (err) {
+                    console.error(`Failed to generate post-${post.id}:`, err);
+                }
+            });
+
+            showToast(`✅ Generated ${successCount} static post page(s)! Check your downloads.`);
+        }
+
+        // HTML template generator for static post pages
+        function generatePostHTML(post) {
             const postUrl = `${SITE_URL}/blog/posts/post-${post.id}.html`;
-            const imageUrl = post.image || "https://toolshub.cam/tools-illustration.webp";
-            const description = post.excerpt || post.content.substring(0, 200).replace(/<[^>]*>/g, '') + '...';
-            
-            // Simplified CSS from generate-posts.js
-            const CSS = `
-                <style>
-                    :root {
-                        --primary-color: #4361ee;
-                        --secondary-color: #3a0ca3;
-                        --border-radius: 12px;
-                        --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-                        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    }
-                    .theme-light {
-                        --background-color: #ffffff;
-                        --text-color: #212529;
-                        --gray-color: #6c757d;
-                        --card-background: #ffffff;
-                        --hero-background: linear-gradient(135deg, #e6ebff 0%, #d8e0ff 100%);
-                    }
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body {
-                        font-family: 'Inter', sans-serif;
-                        line-height: 1.6;
-                        color: var(--text-color);
-                        background-color: var(--background-color);
-                        transition: var(--transition);
-                    }
-                    .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
-                    header {
-                        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-                        color: white;
-                        padding: 15px 0;
-                        position: sticky;
-                        top: 0;
-                        z-index: 100;
-                    }
-                    .header-container { display: flex; justify-content: space-between; align-items: center; }
-                    .brand { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; }
-                    .brand i { margin-right: 10px; font-size: 1.8rem; }
-                    .navbar ul { display: flex; list-style: none; gap: 20px; }
-                    .navbar a { color: white; text-decoration: none; font-weight: 500; }
-                    .navbar a:hover, .navbar a.active { text-decoration: underline; }
-                    .post-container { max-width: 800px; margin: 60px auto; padding: 0 20px; }
-                    .post-header { margin-bottom: 40px; text-align: center; }
-                    .post-title { font-size: 2.5rem; margin-bottom: 20px; color: var(--text-color); }
-                    .post-meta { display: flex; justify-content: center; gap: 20px; color: var(--gray-color); font-size: 0.9rem; margin-bottom: 30px; flex-wrap: wrap; }
-                    .post-category { background: #e0e7ff; color: #4361ee; padding: 4px 12px; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; }
-                    .post-image { width: 100%; max-height: 500px; object-fit: cover; border-radius: var(--border-radius); margin-bottom: 30px; box-shadow: var(--box-shadow); }
-                    .post-content { font-size: 1.1rem; line-height: 1.8; color: var(--text-color); }
-                    .post-content h1, .post-content h2, .post-content h3, .post-content h4 { margin-top: 2rem; margin-bottom: 1rem; color: var(--text-color); }
-                    .post-content p { margin-bottom: 1.5rem; }
-                    .post-content img { max-width: 100%; height: auto; border-radius: var(--border-radius); margin: 1.5rem 0; }
-                    .post-content ul, .post-content ol { margin-left: 2rem; margin-bottom: 1.5rem; }
-                    .post-content li { margin-bottom: 0.5rem; }
-                    .post-content blockquote { border-left: 4px solid var(--primary-color); padding-left: 1.5rem; margin: 1.5rem 0; font-style: italic; color: var(--gray-color); }
-                    .post-content code { background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; }
-                    .post-content pre { background: #1a1a1a; color: #f8f9fa; padding: 1.5rem; border-radius: var(--border-radius); overflow-x: auto; margin: 1.5rem 0; }
-                    .share-buttons { display: flex; gap: 10px; margin: 30px 0; }
-                    .share-btn { background: none; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; }
-                    .share-btn:hover { transform: scale(1.1); }
-                    .share-x { color: #000000; }
-                    .share-x:hover { background: #000000; color: white; }
-                    .share-facebook { color: #1877F2; }
-                    .share-facebook:hover { background: #1877F2; color: white; }
-                    .share-linkedin { color: #0A66C2; }
-                    .share-linkedin:hover { background: #0A66C2; color: white; }
-                    .share-whatsapp { color: #25D366; }
-                    .share-whatsapp:hover { background: #25D366; color: white; }
-                    .back-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 30px; color: var(--primary-color); text-decoration: none; font-weight: 600; }
-                    footer { margin-top: 60px; padding: 30px 0; text-align: center; border-top: 1px solid #eee; color: var(--gray-color); }
-                </style>
-            `;
-            
-            const html = `<!DOCTYPE html>
+            const imageUrl = post.image || DEFAULT_IMAGE;
+            const description = post.excerpt || (post.content ? post.content.substring(0, 200).replace(/<[^>]*>/g, '') + '...' : '');
+            const readingTime = Math.ceil((post.content || '').length / 1000);
+
+            return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${post.title} - ToolsHub Blog</title>
-    <meta name="description" content="${description.replace(/"/g, '"')}">
-    
+    <title>${escapeHtml(post.title)} - ToolsHub Blog</title>
+    <meta name="description" content="${escapeHtml(description)}">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article">
     <meta property="og:url" content="${postUrl}">
-    <meta property="og:title" content="${post.title}">
-    <meta property="og:description" content="${description.replace(/"/g, '"')}">
+    <meta property="og:title" content="${escapeHtml(post.title)}">
+    <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:image" content="${imageUrl}">
     <meta property="og:site_name" content="ToolsHub Blog">
-    
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="${postUrl}">
-    <meta name="twitter:title" content="${post.title}">
-    <meta name="twitter:description" content="${description.replace(/"/g, '"')}">
+    <meta name="twitter:title" content="${escapeHtml(post.title)}">
+    <meta name="twitter:description" content="${escapeHtml(description)}">
     <meta name="twitter:image" content="${imageUrl}">
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="${postUrl}">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    ${CSS}
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .theme-light { 
+            --background-color: #ffffff; 
+            --text-color: #212529; 
+            --gray-color: #6c757d; 
+            --card-background: #ffffff; 
+            --hero-background: linear-gradient(135deg, #e6ebff 0%, #d8e0ff 100%); 
+        }
+        .theme-dark { 
+            --background-color: #1a1a1a; 
+            --text-color: #e0e0e0; 
+            --gray-color: #a0a0a0; 
+            --card-background: #2c2c2c; 
+            --hero-background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%); 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            transition: var(--transition);
+        }
+        .container { 
+            max-width: 1280px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+        }
+
+        header {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-container { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .brand { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+        }
+        .brand i { 
+            margin-right: 10px; 
+            font-size: 1.8rem; 
+        }
+        .navbar ul { 
+            display: flex; 
+            list-style: none; 
+            gap: 20px; 
+        }
+        .navbar a { 
+            color: white; 
+            text-decoration: none; 
+            font-weight: 500; 
+        }
+        .navbar a:hover, .navbar a.active { 
+            text-decoration: underline; 
+        }
+
+        .post-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .post-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .post-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            color: var(--gray-color);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .post-category {
+            background: #e0e7ff;
+            color: #4361ee;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .post-content h1,
+        .post-content h2,
+        .post-content h3,
+        .post-content h4 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .post-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin: 1.5rem 0;
+        }
+
+        .post-content ul,
+        .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: var(--gray-color);
+        }
+
+        .post-content code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .post-content pre {
+            background: #1a1a1a;
+            color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 40px;
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+
+        .share-btn {
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .share-x { color: #000000; }
+        .share-x:hover { background: #000000; color: white; }
+        .share-facebook { color: #1877F2; }
+        .share-facebook:hover { background: #1877F2; color: white; }
+        .share-linkedin { color: #0A66C2; }
+        .share-linkedin:hover { background: #0A66C2; color: white; }
+        .share-whatsapp { color: #25D366; }
+        .share-whatsapp:hover { background: #25D366; color: white; }
+
+        footer {
+            background: #212529;
+            color: #adb5bd;
+            padding: 50px 0 20px;
+            margin-top: 80px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .post-title {
+                font-size: 2rem;
+            }
+
+            .post-meta {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .navbar ul {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body class="theme-light">
     <header>
@@ -1709,18 +1972,18 @@
         <div class="post-container">
             <article>
                 <div class="post-header">
-                    <h1 class="post-title">${post.title}</h1>
+                    <h1 class="post-title">${escapeHtml(post.title)}</h1>
                     <div class="post-meta">
-                        <span class="post-category">${post.category}</span>
+                        <span class="post-category">${escapeHtml(post.category)}</span>
                         <span><i class="fas fa-calendar-alt"></i> ${post.date}</span>
-                        <span><i class="fas fa-clock"></i> ${Math.ceil(post.content.length / 1000)} min read</span>
+                        <span><i class="fas fa-clock"></i> ${readingTime} min read</span>
                     </div>
-                    
-                    ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image" loading="lazy">` : ''}
+
+                    ${post.image ? `<img src="${post.image}" alt="${escapeHtml(post.title)}" class="post-image" loading="lazy">` : ''}
                 </div>
 
                 <div class="post-content">
-                    ${post.content}
+                    ${post.content || '<p>No content available.</p>'}
                 </div>
 
                 <div class="share-buttons">
@@ -1758,34 +2021,26 @@
         // Share functions
         function shareOnTwitter() {
             const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent("${post.title}");
-            window.open(\`https://twitter.com/intent/tweet?url=\${url}&text=\${text}\`, '_blank');
+            const text = encodeURIComponent("${escapeHtml(post.title)}");
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
         }
 
         function shareOnFacebook() {
             const url = encodeURIComponent(window.location.href);
-            window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank');
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
         }
 
         function shareOnLinkedIn() {
             const url = encodeURIComponent(window.location.href);
-            const title = encodeURIComponent("${post.title}");
-            const summary = encodeURIComponent("${description}");
-            window.open(\`https://www.linkedin.com/shareArticle?mini=true&url=\${url}&title=\${title}&summary=\${summary}\`, '_blank');
+            const title = encodeURIComponent("${escapeHtml(post.title)}");
+            const summary = encodeURIComponent("${escapeHtml(description)}");
+            window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}&summary=${summary}`, '_blank');
         }
 
         function shareOnWhatsApp() {
             const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent("${post.title} - Check out this article!");
-            window.open(\`https://wa.me/?text=\${text}%20\${url}\`, '_blank');
-        }
-
-        // Copy URL to clipboard
-        function copyToClipboard() {
-            const url = window.location.href;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('URL copied to clipboard!');
-            });
+            const text = encodeURIComponent("${escapeHtml(post.title)} - Check out this article!");
+            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
         }
 
         // Theme toggle (simplified)
@@ -1806,42 +2061,19 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.classList.remove('theme-light', 'theme-dark');
-            document.body.classList.add(\`theme-\${savedTheme}\`);
+            document.body.classList.add(`theme-${savedTheme}`);
         });
     </script>
 </body>
 </html>`;
-            
-            // Create a download link for the HTML file
-            const blob = new Blob([html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = \`post-\${post.id}.html\`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast(\`✅ Generated post-\${post.id}.html - File downloaded!\`);
         }
 
-        function showDeleteConfirm(id) {
-            postToDelete = id;
-            document.getElementById('deleteConfirmModal').style.display = 'flex';
-        }
-
-        function cancelDelete() {
-            document.getElementById('deleteConfirmModal').style.display = 'none';
-            postToDelete = null;
-        }
-
-        function confirmDelete() {
-            if (postToDelete) {
-                allPosts = allPosts.filter(p => p.id !== postToDelete);
-                renderPosts();
-            }
-            cancelDelete();
+        // Helper function to escape HTML for safe insertion
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Show bookmarked posts
