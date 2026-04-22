@@ -703,19 +703,35 @@
 
         function isAdminMode() {
             const query = window.location.search;
-            console.log('Admin mode check:', { query, SECRET_PARAM });
+            const hash = window.location.hash;
+            const href = window.location.href;
+            console.log('Admin mode check:', { query, hash, href, SECRET_PARAM });
+            
             // Check if the secret param appears as a query parameter (allowing for extra spaces, trailing characters)
             const params = new URLSearchParams(query);
             for (let key of params.keys()) {
-                if (key === SECRET_PARAM || params.get(key) === SECRET_PARAM) {
-                    console.log('Admin mode enabled via parameter:', key);
+                const trimmedKey = key.trim();
+                const value = params.get(key);
+                const trimmedValue = value ? value.trim() : '';
+                if (trimmedKey === SECRET_PARAM || trimmedValue === SECRET_PARAM) {
+                    console.log('Admin mode enabled via parameter:', { key, trimmedKey, value, trimmedValue });
                     return true;
                 }
             }
-            // Fallback to substring match for backward compatibility
-            const includes = query.includes(SECRET_PARAM);
-            console.log('Admin mode substring match:', includes);
-            return includes;
+            // Fallback to substring match for backward compatibility (handles trailing spaces, encoded spaces)
+            const normalizedQuery = query.replace(/%20/g, ' ').trim();
+            const includesQuery = normalizedQuery.includes(SECRET_PARAM);
+            if (includesQuery) {
+                console.log('Admin mode substring match in query:', includesQuery, 'normalizedQuery:', normalizedQuery);
+                return true;
+            }
+            // Also check hash and full href (just in case)
+            if (hash.includes(SECRET_PARAM) || href.includes(SECRET_PARAM)) {
+                console.log('Admin mode matched in hash or href');
+                return true;
+            }
+            console.log('Admin mode not detected');
+            return false;
         }
 
         async function loadPosts() {
