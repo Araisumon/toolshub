@@ -750,6 +750,24 @@
             } else {
                 console.log('Admin mode inactive');
             }
+            // After loading posts, check if there's a hash to open a specific post
+            setTimeout(() => parseHashAndOpenPost(), 0);
+        }
+
+        function parseHashAndOpenPost() {
+            const hash = window.location.hash;
+            if (!hash) return;
+            // Expected format: #post-123
+            const match = hash.match(/^#post-(\d+)$/);
+            if (match) {
+                const postId = parseInt(match[1], 10);
+                const post = allPosts.find(p => p.id === postId);
+                if (post) {
+                    viewPost(postId);
+                } else {
+                    console.warn('Post not found for hash:', hash);
+                }
+            }
         }
 
         function showToast(message) {
@@ -1315,6 +1333,9 @@
             const post = allPosts.find(p => p.id === id);
             if (!post) return;
             
+            // Update URL hash for shareable link
+            window.location.hash = 'post-' + id;
+            
             // Calculate reading time
             const readingTime = calculateReadingTime(post.content);
             
@@ -1626,6 +1647,9 @@
         // Theme + Mobile
         document.addEventListener('DOMContentLoaded', () => {
             loadPosts();
+
+            // Listen for hash changes to open posts when URL changes (e.g., browser back/forward)
+            window.addEventListener('hashchange', parseHashAndOpenPost);
 
             const themeBtn = document.getElementById('themeToggleBtn');
             const themes = ['light','dark','high-contrast','modern'];
