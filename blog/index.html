@@ -492,11 +492,15 @@
             width: 36px !important;
             height: 36px !important;
             font-size: 1.2rem !important;
-            margin-left: auto !important;
+            margin-left: 8px !important;
+            margin-right: 0 !important;
             cursor: pointer !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
             z-index: 1000 !important;
             position: relative !important;
+            padding: 0 !important;
+            line-height: 36px !important;
+            text-align: center !important;
         }
 
         /* Ensure admin buttons are not hidden by any parent */
@@ -521,11 +525,15 @@
             width: 36px !important;
             height: 36px !important;
             font-size: 1.2rem !important;
-            margin-left: auto !important;
+            margin-left: 8px !important;
+            margin-right: 0 !important;
             cursor: pointer !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
             z-index: 1000 !important;
             position: relative !important;
+            padding: 0 !important;
+            line-height: 36px !important;
+            text-align: center !important;
         }
 
         /* Force display even if parent is hidden */
@@ -543,24 +551,32 @@
         div[style*="display:flex"] button.admin-delete-btn,
         #postsContainer button.admin-edit-btn,
         #postsContainer button.admin-delete-btn {
-            all: unset !important;
             display: inline-block !important;
             visibility: visible !important;
             opacity: 1 !important;
-            background-color: #4361ee !important;
+            background-color: #ff0000 !important; /* Bright red for debugging */
             color: white !important;
-            border: 2px solid #3a0ca3 !important;
+            border: 3px solid yellow !important; /* Bright yellow border */
             border-radius: 50% !important;
-            width: 36px !important;
-            height: 36px !important;
-            font-size: 1.2rem !important;
-            margin-left: auto !important;
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 1.5rem !important;
+            margin-left: 8px !important;
             cursor: pointer !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
-            z-index: 1000 !important;
+            box-shadow: 0 0 10px rgba(255,0,0,0.8) !important;
+            z-index: 9999 !important;
             position: relative !important;
             text-align: center !important;
-            line-height: 36px !important;
+            line-height: 40px !important;
+            padding: 0 !important;
+            margin-right: 0 !important;
+            min-width: 40px !important;
+            min-height: 40px !important;
+        }
+        
+        /* Debug highlight for admin mode */
+        .admin-mode .blog-card {
+            border: 2px dashed #00ff00 !important;
         }
 
         .admin-indicator {
@@ -1443,26 +1459,62 @@
             console.log(`Applying forced styles to ${adminButtons.length} admin buttons`);
             
             adminButtons.forEach(btn => {
-                // Apply inline styles directly (highest specificity)
+                // Apply inline styles directly (highest specificity) - DEBUG VERSION
                 btn.style.display = 'inline-block';
                 btn.style.visibility = 'visible';
                 btn.style.opacity = '1';
-                btn.style.backgroundColor = '#4361ee';
+                btn.style.backgroundColor = '#ff0000'; // Bright red
                 btn.style.color = 'white';
-                btn.style.border = '2px solid #3a0ca3';
+                btn.style.border = '3px solid yellow';
                 btn.style.borderRadius = '50%';
-                btn.style.width = '36px';
-                btn.style.height = '36px';
-                btn.style.fontSize = '1.2rem';
-                btn.style.marginLeft = 'auto';
+                btn.style.width = '40px';
+                btn.style.height = '40px';
+                btn.style.fontSize = '1.5rem';
+                btn.style.marginLeft = '8px';
+                btn.style.marginRight = '0';
                 btn.style.cursor = 'pointer';
-                btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
-                btn.style.zIndex = '1000';
+                btn.style.boxShadow = '0 0 10px rgba(255,0,0,0.8)';
+                btn.style.zIndex = '9999';
                 btn.style.position = 'relative';
                 btn.style.textAlign = 'center';
-                btn.style.lineHeight = '36px';
+                btn.style.lineHeight = '40px';
+                btn.style.padding = '0';
+                btn.style.minWidth = '40px';
+                btn.style.minHeight = '40px';
+                btn.style.overflow = 'visible';
                 
-                console.log(`Applied styles to button: ${btn.className}`);
+                // Log button position and dimensions for debugging
+                const rect = btn.getBoundingClientRect();
+                console.log(`Button ${btn.className}:`, {
+                    width: rect.width,
+                    height: rect.height,
+                    top: rect.top,
+                    left: rect.left,
+                    display: window.getComputedStyle(btn).display,
+                    visibility: window.getComputedStyle(btn).visibility,
+                    opacity: window.getComputedStyle(btn).opacity
+                });
+                
+                // Ensure parent containers don't hide the button
+                let parent = btn.parentElement;
+                while (parent && parent !== document.body) {
+                    parent.style.overflow = 'visible';
+                    parent.style.position = 'relative';
+                    parent = parent.parentElement;
+                }
+                
+                console.log(`Applied DEBUG styles to button: ${btn.className}`);
+            });
+            
+            // Also ensure the blog-card-footer container displays buttons properly
+            const footers = document.querySelectorAll('.blog-card-footer');
+            footers.forEach(footer => {
+                footer.style.display = 'flex';
+                footer.style.justifyContent = 'space-between';
+                footer.style.alignItems = 'center';
+                footer.style.overflow = 'visible';
+                footer.style.position = 'relative';
+                footer.style.border = '1px solid #00ff00'; // Green border for debugging
             });
         }
 
