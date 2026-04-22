@@ -44,7 +44,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="manifest" href="site.webmanifest">
     <meta name="theme-color" content="#4361ee">
     
     <!-- Fonts and Icons -->
@@ -556,27 +556,47 @@
             opacity: 1 !important;
             background-color: #ff0000 !important; /* Bright red for debugging */
             color: white !important;
-            border: 3px solid yellow !important; /* Bright yellow border */
+            border: 4px solid yellow !important; /* Bright yellow border */
             border-radius: 50% !important;
-            width: 40px !important;
-            height: 40px !important;
-            font-size: 1.5rem !important;
+            width: 50px !important;
+            height: 50px !important;
+            font-size: 1.8rem !important;
             margin-left: 8px !important;
             cursor: pointer !important;
-            box-shadow: 0 0 10px rgba(255,0,0,0.8) !important;
+            box-shadow: 0 0 15px rgba(255,0,0,0.9) !important;
             z-index: 9999 !important;
             position: relative !important;
             text-align: center !important;
-            line-height: 40px !important;
+            line-height: 50px !important;
             padding: 0 !important;
             margin-right: 0 !important;
-            min-width: 40px !important;
-            min-height: 40px !important;
+            min-width: 50px !important;
+            min-height: 50px !important;
+            animation: admin-button-pulse 1s infinite !important;
+        }
+        
+        @keyframes admin-button-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
         }
         
         /* Debug highlight for admin mode */
         .admin-mode .blog-card {
-            border: 2px dashed #00ff00 !important;
+            border: 3px dashed #00ff00 !important;
+            position: relative !important;
+        }
+        
+        /* Ensure admin buttons are on top of everything */
+        .admin-mode .blog-card-footer {
+            position: relative !important;
+            z-index: 10000 !important;
+        }
+        
+        /* Make sure share buttons don't overlap admin buttons */
+        .share-buttons {
+            position: relative !important;
+            z-index: 1 !important;
         }
 
         .admin-indicator {
@@ -1465,23 +1485,26 @@
                 btn.style.opacity = '1';
                 btn.style.backgroundColor = '#ff0000'; // Bright red
                 btn.style.color = 'white';
-                btn.style.border = '3px solid yellow';
+                btn.style.border = '4px solid yellow';
                 btn.style.borderRadius = '50%';
-                btn.style.width = '40px';
-                btn.style.height = '40px';
-                btn.style.fontSize = '1.5rem';
+                btn.style.width = '50px';
+                btn.style.height = '50px';
+                btn.style.fontSize = '1.8rem';
                 btn.style.marginLeft = '8px';
                 btn.style.marginRight = '0';
                 btn.style.cursor = 'pointer';
-                btn.style.boxShadow = '0 0 10px rgba(255,0,0,0.8)';
-                btn.style.zIndex = '9999';
+                btn.style.boxShadow = '0 0 15px rgba(255,0,0,0.9)';
+                btn.style.zIndex = '99999';
                 btn.style.position = 'relative';
                 btn.style.textAlign = 'center';
-                btn.style.lineHeight = '40px';
+                btn.style.lineHeight = '50px';
                 btn.style.padding = '0';
-                btn.style.minWidth = '40px';
-                btn.style.minHeight = '40px';
+                btn.style.minWidth = '50px';
+                btn.style.minHeight = '50px';
                 btn.style.overflow = 'visible';
+                
+                // Add animation
+                btn.style.animation = 'admin-button-pulse 1s infinite';
                 
                 // Log button position and dimensions for debugging
                 const rect = btn.getBoundingClientRect();
@@ -1490,16 +1513,37 @@
                     height: rect.height,
                     top: rect.top,
                     left: rect.left,
+                    right: rect.right,
+                    bottom: rect.bottom,
                     display: window.getComputedStyle(btn).display,
                     visibility: window.getComputedStyle(btn).visibility,
-                    opacity: window.getComputedStyle(btn).opacity
+                    opacity: window.getComputedStyle(btn).opacity,
+                    zIndex: window.getComputedStyle(btn).zIndex
                 });
+                
+                // If button has zero dimensions, log parent styles
+                if (rect.width === 0 || rect.height === 0) {
+                    console.warn(`Button ${btn.className} has zero dimensions!`);
+                    let parent = btn.parentElement;
+                    let level = 0;
+                    while (parent && level < 5) {
+                        console.log(`Parent ${level} (${parent.tagName}.${parent.className}):`, {
+                            display: window.getComputedStyle(parent).display,
+                            visibility: window.getComputedStyle(parent).visibility,
+                            overflow: window.getComputedStyle(parent).overflow,
+                            position: window.getComputedStyle(parent).position
+                        });
+                        parent = parent.parentElement;
+                        level++;
+                    }
+                }
                 
                 // Ensure parent containers don't hide the button
                 let parent = btn.parentElement;
                 while (parent && parent !== document.body) {
                     parent.style.overflow = 'visible';
                     parent.style.position = 'relative';
+                    parent.style.zIndex = '9999';
                     parent = parent.parentElement;
                 }
                 
@@ -1514,7 +1558,8 @@
                 footer.style.alignItems = 'center';
                 footer.style.overflow = 'visible';
                 footer.style.position = 'relative';
-                footer.style.border = '1px solid #00ff00'; // Green border for debugging
+                footer.style.zIndex = '9999';
+                footer.style.border = '2px solid #00ff00'; // Green border for debugging
             });
         }
 
