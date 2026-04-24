@@ -167,8 +167,264 @@
             transform: translateY(-2px);
         }
 
+        /* Mode Selector - Enhanced Visibility */
+        .mode-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .mode-label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background-color: white;
+            color: var(--text-dark);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .mode-btn:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        .mode-btn.active:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .mode-btn i {
+            font-size: 0.9rem;
+        }
+
         main {
             padding: 2rem 0;
+        }
+
+        /* View Mode Styles */
+        .view-mode-normal {
+            /* Default - no changes */
+        }
+
+        .view-mode-compact .calculator-container,
+        .view-mode-compact .results-container,
+        .view-mode-compact .next-birthday,
+        .view-mode-compact .life-expectancy,
+        .view-mode-compact .fun-facts,
+        .view-mode-compact .visual-charts,
+        .view-mode-compact .personalized-recommendations,
+        .view-mode-compact .engagement-section,
+        .view-mode-compact .share-section {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .view-mode-compact .intro h1 {
+            font-size: 2rem;
+        }
+
+        .view-mode-compact .intro p {
+            font-size: 1rem;
+        }
+
+        .view-mode-compact .action-buttons {
+            flex-wrap: wrap;
+        }
+
+        .view-mode-compact .quick-age-buttons {
+            display: none;
+        }
+
+        .view-mode-tile .calculator-container,
+        .view-mode-tile .results-container,
+        .view-mode-tile .next-birthday,
+        .view-mode-tile .life-expectancy,
+        .view-mode-tile .fun-facts,
+        .view-mode-tile .visual-charts,
+        .view-mode-tile .personalized-recommendations,
+        .view-mode-tile .engagement-section,
+        .view-mode-tile .share-section {
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        .view-mode-tile .life-stats,
+        .view-mode-tile .unit-cards-grid,
+        .view-mode-tile .celebrity-comparison-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+
+        .view-mode-tile .unit-card,
+        .view-mode-tile .celebrity-card,
+        .view-mode-tile .life-stat {
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .view-mode-list .calculator-container,
+        .view-mode-list .results-container,
+        .view-mode-list .next-birthday,
+        .view-mode-list .life-expectancy,
+        .view-mode-list .fun-facts,
+        .view-mode-list .visual-charts,
+        .view-mode-list .personalized-recommendations,
+        .view-mode-list .engagement-section,
+        .view-mode-list .share-section {
+            border-radius: 0;
+            box-shadow: none;
+            border-left: 4px solid var(--primary-color);
+            border-right: none;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 0.5rem;
+        }
+
+        .view-mode-list .input-group {
+            flex-direction: column;
+        }
+
+        .view-mode-list .input-field {
+            width: 100%;
+        }
+
+        .view-mode-list .life-stats,
+        .view-mode-list .unit-cards-grid,
+        .view-mode-list .celebrity-comparison-grid {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+
+        .view-mode-list .countdown {
+            flex-direction: column;
+        }
+
+        /* Collapsible Sections */
+        .collapsible-section {
+            position: relative;
+        }
+
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 1rem 1.5rem;
+            margin: -1.5rem -1.5rem 0 -1.5rem;
+            border-radius: 8px 8px 0 0;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .collapsible-header h2 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.3s ease;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            max-height: 5000px;
+            opacity: 1;
+        }
+
+        .collapsible-section.collapsed .collapsible-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .collapsible-section.collapsed .collapsible-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Compact mode specific collapsible styles */
+        .view-mode-compact .collapsible-section {
+            margin-bottom: 0.5rem;
+        }
+
+        .view-mode-compact .collapsible-header {
+            padding: 0.8rem 1rem;
+            margin: -1rem -1rem 0 -1rem;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .view-mode-compact .collapsible-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .view-mode-compact .collapsible-section.collapsed .collapsible-header {
+            border-bottom: none;
+            border-radius: 8px;
+        }
+
+        /* Tile mode collapsible */
+        .view-mode-tile .collapsible-header {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-radius: 15px 15px 0 0;
+        }
+
+        /* List mode collapsible */
+        .view-mode-list .collapsible-header {
+            border-left: 4px solid var(--primary-color);
+            margin-left: -1.5rem;
+            padding-left: 1.5rem;
         }
 
         .intro {
@@ -316,6 +572,18 @@
 
         .btn-danger:hover {
             background-color: #e53935;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
             transform: translateY(-2px);
         }
 
@@ -504,6 +772,744 @@
             color: var(--primary-color);
             margin-bottom: 0.5rem;
         }
+
+        .fun-facts {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            background-color: var(--light-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .fun-facts h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .fun-facts-note {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--highlight-bg);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            opacity: 0.9;
+        }
+
+        .fun-facts-note i {
+            color: var(--warning-color);
+            margin-right: 0.5rem;
+        }
+
+        /* Engagement Features */
+        .engagement-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            background-color: var(--light-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .engagement-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .engagement-section h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .age-timeline {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: var(--highlight-bg);
+            border-radius: 10px;
+        }
+
+        .timeline-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .timeline-marker {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .timeline-line {
+            flex: 1;
+            height: 4px;
+            background-color: var(--primary-color);
+            opacity: 0.3;
+        }
+
+        .timeline-label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-top: 0.5rem;
+        }
+
+        .unit-cards,
+        .unit-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .unit-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            background-color: var(--light-color);
+        }
+
+        .unit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .unit-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .unit-label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            opacity: 0.8;
+        }
+
+        .celebrity-comparison {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .celebrity-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            background-color: var(--light-color);
+        }
+
+        .celebrity-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .celebrity-age {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+        }
+
+        .quote-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: var(--highlight-bg);
+            border-radius: 10px;
+            font-style: italic;
+            position: relative;
+        }
+
+        .quote-section:before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--primary-color);
+            opacity: 0.2;
+            position: absolute;
+            top: -10px;
+            left: 10px;
+        }
+
+        .quote-text {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .quote-author {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            opacity: 0.7;
+        }
+
+        .save-age-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--highlight-bg);
+            border-radius: 8px;
+        }
+
+        .save-age-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .save-age-btn:hover {
+            background-color: #3a9c35;
+            transform: translateY(-2px);
+        }
+
+        .saved-ages-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .saved-age-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background-color: white;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Game styles removed as requested */
+
+        .visual-charts {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            background-color: var(--light-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .visual-charts h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .charts-intro {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .charts-intro p {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-container h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-container h3 i {
+            color: var(--accent-color);
+        }
+
+        .chart-container p {
+            margin-bottom: 1.5rem;
+            color: var(--text-color-light);
+        }
+
+        .pie-chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .pie-chart-container canvas {
+            max-width: 300px;
+            max-height: 300px;
+        }
+
+        .pie-chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pie-legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .chart-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .chart-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-stat {
+            padding: 1rem;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-color-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .timeline-chart {
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-bar {
+            position: relative;
+            height: 40px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 20px;
+            width: 30%;
+            transition: width 0.5s ease;
+        }
+
+        .timeline-milestones {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .milestone {
+            position: absolute;
+            top: -25px;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--text-color-light);
+            white-space: nowrap;
+        }
+
+        .milestone::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 15px;
+            background-color: #999;
+        }
+
+        .timeline-current {
+            position: absolute;
+            top: -40px;
+            transform: translateX(-50%);
+            left: 30%;
+            text-align: center;
+        }
+
+        .current-marker {
+            width: 20px;
+            height: 20px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            margin: 0 auto 5px;
+            border: 3px solid white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .current-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            white-space: nowrap;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-color-light);
+        }
+
+        .milestone-info {
+            padding: 1rem;
+            background-color: rgba(40, 167, 69, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .milestone-info h4 {
+            margin-top: 0;
+            color: #155724;
+        }
+
+        .milestone-info p {
+            margin-bottom: 0;
+            color: #155724;
+        }
+
+        .year-progression {
+            margin-bottom: 1.5rem;
+        }
+
+        .year-slider-container {
+            margin-bottom: 2rem;
+        }
+
+        .year-slider {
+            width: 100%;
+            height: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .year-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-color-light);
+        }
+
+        .year-display {
+            margin-top: 1.5rem;
+        }
+
+        .year-card {
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .year-facts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .year-facts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .year-fact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            padding: 1rem;
+            background-color: rgba(0, 123, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .year-fact i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .year-fact span:first-of-type {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .year-fact span:last-of-type {
+            color: var(--text-color-light);
+            font-size: 0.9rem;
+        }
+
+        .comparison-chart {
+            margin-bottom: 1.5rem;
+            height: 250px;
+        }
+
+        .comparison-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .comparison-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-stat {
+            padding: 1rem;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .charts-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .charts-actions .btn {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .personalized-recommendations {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            background-color: var(--light-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .personalized-recommendations h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .recommendations-intro {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .recommendations-intro p {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .recommendation-category {
+            margin-bottom: 2rem;
+        }
+
+        .recommendation-category h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendation-category h3 i {
+            color: var(--accent-color);
+        }
+
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .recommendation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .recommendation-card {
+            display: flex;
+            gap: 1rem;
+            padding: 1.2rem;
+            background-color: white;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .recommendation-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .recommendation-icon i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .recommendation-content {
+            flex: 1;
+        }
+
+        .recommendation-content h4 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+
+        .recommendation-content p {
+            margin: 0;
+            color: var(--text-color-light);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .recommendations-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .recommendations-actions .btn {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .recommendations-disclaimer {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: rgba(255, 193, 7, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .recommendations-disclaimer p {
+            margin: 0;
+            color: #856404;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .recommendations-disclaimer i {
+            color: #ffc107;
+            margin-top: 0.2rem;
+        }
+
+        /* Achievement styles removed as requested */
 
         .share-section {
             background-color: white;
@@ -728,6 +1734,26 @@
                 justify-content: center;
             }
 
+            .mode-selector {
+                width: 100%;
+                justify-content: center;
+                margin: 0.5rem 0;
+                padding: 0.5rem;
+                background-color: rgba(255, 255, 255, 0.95);
+                border-radius: 10px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .mode-buttons {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .mode-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
             .intro h1 {
                 font-size: 2rem;
             }
@@ -739,6 +1765,18 @@
 
             .countdown-item {
                 min-width: 80px;
+            }
+
+            .chart-container {
+                flex-direction: column;
+            }
+
+            .pie-chart-container,
+            .timeline-chart,
+            .year-progression,
+            .comparison-stats {
+                width: 100%;
+                margin-bottom: 1.5rem;
             }
         }
 
@@ -755,9 +1793,40 @@
                 width: 100%;
             }
 
+            .mode-selector {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.8rem;
+            }
+
+            .mode-label {
+                font-size: 0.85rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .mode-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .mode-btn {
+                flex: 1;
+                min-width: 0;
+                padding: 0.6rem 0.5rem;
+                font-size: 0.75rem;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .mode-btn span {
+                display: none; /* Hide icon text on very small screens */
+            }
+
             .result-table th,
             .result-table td {
-                font-size: 1rem;
+                font-size: 0.9rem;
+                padding: 0.5rem;
             }
 
             .countdown {
@@ -766,13 +1835,119 @@
 
             .countdown-item {
                 width: 100%;
+                margin-bottom: 0.5rem;
             }
 
             .custom-date {
                 flex-direction: column;
             }
+
+            .collapsible-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .recommendation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .life-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .footer-links, .social-icons {
+                justify-content: center;
+            }
+
+            /* Improve touch targets */
+            input, select, button {
+                min-height: 44px; /* Minimum touch target size */
+            }
+
+            .btn {
+                padding: 0.8rem 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
         }
     </style>
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="Advanced Age Calculator | Calculate Your Exact Age">
+    <meta property="og:description" content="Free advanced age calculator with detailed breakdown, life expectancy insights, fun facts, and multiple view modes. Calculate your age in years, months, days, hours, minutes, and seconds.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://buzzagecalculator.com">
+    <meta property="og:image" content="https://buzzagecalculator.com/images/age-calculator-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Buzz Age Calculator">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Advanced Age Calculator | Calculate Your Exact Age">
+    <meta name="twitter:description" content="Free advanced age calculator with detailed breakdown, life expectancy insights, fun facts, and multiple view modes.">
+    <meta name="twitter:image" content="https://buzzagecalculator.com/images/age-calculator-preview.png">
+    
+    <!-- Structured Data (JSON-LD) for Rich Results -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Advanced Age Calculator",
+        "description": "Free advanced age calculator tool with detailed breakdown, life expectancy insights, and multiple date formats.",
+        "url": "https://buzzagecalculator.com",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "Buzz Tools"
+        },
+        "featureList": [
+            "Age calculation in multiple units",
+            "Life expectancy insights",
+            "Fun facts and zodiac signs",
+            "Multiple view modes",
+            "Social sharing",
+            "Dark/light theme"
+        ]
+    }
+    </script>
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="author" content="Buzz Tools">
+    <link rel="canonical" href="https://buzzagecalculator.com">
 </head>
 <body>
     <header>
@@ -783,6 +1958,23 @@
             </div>
             <div class="header-title">
                 Age Calculator
+            </div>
+            <div class="mode-selector">
+                <span class="mode-label">View:</span>
+                <div class="mode-buttons" role="toolbar" aria-label="View mode selector">
+                    <button class="mode-btn active" data-mode="normal" aria-label="Normal view mode" aria-pressed="true">
+                        <i class="fas fa-th-large"></i> Normal
+                    </button>
+                    <button class="mode-btn" data-mode="compact" aria-label="Compact view mode" aria-pressed="false">
+                        <i class="fas fa-compress"></i> Compact
+                    </button>
+                    <button class="mode-btn" data-mode="tile" aria-label="Tile view mode" aria-pressed="false">
+                        <i class="fas fa-th"></i> Tile
+                    </button>
+                    <button class="mode-btn" data-mode="list" aria-label="List view mode" aria-pressed="false">
+                        <i class="fas fa-list"></i> List
+                    </button>
+                </div>
             </div>
             <a href="/" class="nav-button">
                 <i class="fas fa-home"></i>
@@ -802,6 +1994,29 @@
                 <button class="btn btn-secondary" id="quickBirthday" aria-label="Calculate next birthday">
                     <i class="fas fa-birthday-cake"></i> Next Birthday
                 </button>
+            </div>
+            <div class="quick-age-buttons">
+                <p style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-dark); opacity: 0.8;">Quick set your age:</p>
+                <div class="action-buttons">
+                    <button class="btn btn-outline" id="quickAge20" aria-label="Set age to 20 years">
+                        <i class="fas fa-user"></i> I'm 20
+                    </button>
+                    <button class="btn btn-outline" id="quickAge30" aria-label="Set age to 30 years">
+                        <i class="fas fa-user"></i> I'm 30
+                    </button>
+                    <button class="btn btn-outline" id="quickAge40" aria-label="Set age to 40 years">
+                        <i class="fas fa-user"></i> I'm 40
+                    </button>
+                    <button class="btn btn-outline" id="quickAge50" aria-label="Set age to 50 years">
+                        <i class="fas fa-user"></i> I'm 50
+                    </button>
+                    <button class="btn btn-outline" id="quickAge60" aria-label="Set age to 60 years">
+                        <i class="fas fa-user"></i> I'm 60
+                    </button>
+                </div>
+            </div>
+            <div class="view-mode-note" style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-dark); opacity: 0.7;">
+                <p><i class="fas fa-eye"></i> <strong>Tip:</strong> Try different view modes (Normal, Compact, Tile, List) using the buttons in the header to customize your experience.</p>
             </div>
         </section>
 
@@ -944,141 +2159,565 @@
             </div>
         </section>
 
-        <section class="results-container" id="resultsSection" style="display: none;">
-            <div class="results-header">
-                <h2>Your Age Results</h2>
-                <div class="action-buttons">
+        <section class="results-container collapsible-section" id="resultsSection" style="display: none;" aria-live="polite" aria-atomic="true">
+            <div class="collapsible-header" data-section="results">
+                <h2>
+                    <i class="fas fa-calculator"></i> Your Age Results
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="userName" aria-label="Name: Enter your full name">
+                            Name
+                            <span class="tooltip">ⓘ
+                                <span class="tooltiptext">Enter your full name</span>
+                            </span>
+                        </label>
+                        <input type="text" id="userName" placeholder="Enter your name">
+                    </div>
+                    <div class="input-field">
+                        <label for="userNid" aria-label="NID/ID: Enter your National ID or other identification number">
+                            NID/ID
+                            <span class="tooltip">ⓘ
+                                <span class="tooltiptext">Enter your National ID or other identification number</span>
+                            </span>
+                        </label>
+                        <input type="text" id="userNid" placeholder="Enter your NID/ID">
+                    </div>
+                </div>
+                <table class="result-table" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Age Breakdown</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                </table>
+                <div class="detailed-results" id="detailedResults" style="display: none;">
+                    <h3>Detailed Breakdown</h3>
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th>Measurement</th>
+                                <th>Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailedResultsBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="action-buttons" style="margin-top: 1rem; justify-content: flex-end;">
                     <span class="live-indicator" id="liveIndicator" style="display: none;">Live</span>
                     <button class="btn btn-secondary" id="toggleDetails" aria-label="Toggle detailed results">
                         <i class="fas fa-list"></i> Toggle Details
                     </button>
                 </div>
             </div>
-            <div class="input-group">
-                <div class="input-field">
-                    <label for="userName" aria-label="Name: Enter your full name">
-                        Name
-                        <span class="tooltip">ⓘ
-                            <span class="tooltiptext">Enter your full name</span>
-                        </span>
-                    </label>
-                    <input type="text" id="userName" placeholder="Enter your name">
-                </div>
-                <div class="input-field">
-                    <label for="userNid" aria-label="NID/ID: Enter your National ID or other identification number">
-                        NID/ID
-                        <span class="tooltip">ⓘ
-                            <span class="tooltiptext">Enter your National ID or other identification number</span>
-                        </span>
-                    </label>
-                    <input type="text" id="userNid" placeholder="Enter your NID/ID">
-                </div>
-            </div>
-            <table class="result-table" id="resultsTable">
-                <thead>
-                    <tr>
-                        <th>Age Breakdown</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsTableBody">
-                </tbody>
-            </table>
-            <div class="detailed-results" id="detailedResults" style="display: none;">
-                <h3>Detailed Breakdown</h3>
-                <table class="result-table">
-                    <thead>
-                        <tr>
-                            <th>Measurement</th>
-                            <th>Value</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody id="detailedResultsBody">
-                    </tbody>
-                </table>
-            </div>
         </section>
 
-        <section class="next-birthday" id="nextBirthdaySection" style="display: none;">
-            <h2>Your Next Birthday</h2>
-            <div class="countdown" id="birthdayCountdown">
-                <div class="countdown-item">
-                    <span class="number" id="bdayMonths">0</span>
-                    <span class="label">Months</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="number" id="bdayDays">0</span>
-                    <span class="label">Days</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="number" id="bdayHours">0</span>
-                    <span class="label">Hours</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="number" id="bdayMinutes">0</span>
-                    <span class="label">Minutes</span>
-                </div>
+        <section class="next-birthday collapsible-section" id="nextBirthdaySection" style="display: none;">
+            <div class="collapsible-header" data-section="next-birthday">
+                <h2>
+                    <i class="fas fa-birthday-cake"></i> Your Next Birthday
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
             </div>
-            <div id="birthdayInfo">
-            </div>
-        </section>
-
-        <section class="life-expectancy" id="lifeExpectancySection" style="display: none;">
-            <h2>Life Expectancy Insights</h2>
-            <div class="progress-container">
-                <div class="progress-info">
-                    <span id="lifeLived">0 years</span>
-                    <span id="lifeRemaining">0 years remaining</span>
+            <div class="collapsible-content">
+                <div class="countdown" id="birthdayCountdown">
+                    <div class="countdown-item">
+                        <span class="number" id="bdayMonths">0</span>
+                        <span class="label">Months</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="number" id="bdayDays">0</span>
+                        <span class="label">Days</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="number" id="bdayHours">0</span>
+                        <span class="label">Hours</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="number" id="bdayMinutes">0</span>
+                        <span class="label">Minutes</span>
+                    </div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress" id="lifeProgress" style="width: 0%"></div>
-                </div>
-            </div>
-            <div class="life-stats">
-                <div class="life-stat">
-                    <h4>Average Life Expectancy</h4>
-                    <p id="avgExpectancy">Loading...</p>
-                </div>
-                <div class="life-stat">
-                    <h4>Years Lived</h4>
-                    <p id="yearsLived">0</p>
-                </div>
-                <div class="life-stat">
-                    <h4>Years Remaining</h4>
-                    <p id="yearsRemaining">0</p>
-                </div>
-                <div class="life-stat">
-                    <h4>Percentage Lived</h4>
-                    <p id="percentLived">0%</p>
+                <div id="birthdayInfo">
                 </div>
             </div>
         </section>
 
-        <section class="share-section">
-            <h2>Share Your Results</h2>
-            <div class="share-buttons">
-                <a href="#" class="share-button facebook" id="shareFacebook" target="_blank">
-                    <i class="fab fa-facebook-f"></i> Facebook
-                </a>
-                <a href="#" class="share-button twitter" id="shareTwitter" target="_blank">
-                    <i class="fab fa-twitter"></i> Twitter
-                </a>
-                <a href="#" class="share-button linkedin" id="shareLinkedIn" target="_blank">
-                    <i class="fab fa-linkedin-in"></i> LinkedIn
-                </a>
-                <a href="#" class="share-button whatsapp" id="shareWhatsApp" target="_blank">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </a>
-                <a href="#" class="share-button pinterest" id="sharePinterest" target="_blank">
-                    <i class="fab fa-pinterest-p"></i> Pinterest
-                </a>
-                <a href="#" class="share-button reddit" id="shareReddit" target="_blank">
-                    <i class="fab fa-reddit-alien"></i> Reddit
-                </a>
-                <a href="#" class="share-button email" id="shareEmail" target="_blank">
-                    <i class="fas fa-envelope"></i> Email
-                </a>
+        <section class="life-expectancy collapsible-section" id="lifeExpectancySection" style="display: none;">
+            <div class="collapsible-header" data-section="life-expectancy">
+                <h2>
+                    <i class="fas fa-heartbeat"></i> Life Expectancy Insights
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span id="lifeLived">0 years</span>
+                        <span id="lifeRemaining">0 years remaining</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" id="lifeProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="life-stats">
+                    <div class="life-stat">
+                        <h4>Average Life Expectancy</h4>
+                        <p id="avgExpectancy">Loading...</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Years Lived</h4>
+                        <p id="yearsLived">0</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Years Remaining</h4>
+                        <p id="yearsRemaining">0</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Percentage Lived</h4>
+                        <p id="percentLived">0%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="fun-facts collapsible-section" id="funFactsSection" style="display: none;" aria-live="polite" aria-atomic="true">
+            <div class="collapsible-header" data-section="fun-facts">
+                <h2>
+                    <i class="fas fa-lightbulb"></i> Fun Facts & Insights
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <div class="life-stats">
+                    <div class="life-stat">
+                        <h4>Zodiac Sign</h4>
+                        <p id="zodiacSign">-</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Chinese Zodiac</h4>
+                        <p id="chineseZodiac">-</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Day of the Week</h4>
+                        <p id="dayOfWeek">-</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Age Milestone</h4>
+                        <p id="ageMilestone">-</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Historical Event</h4>
+                        <p id="historicalEvent">-</p>
+                    </div>
+                    <div class="life-stat">
+                        <h4>Next Big Birthday</h4>
+                        <p id="nextBigBirthday">-</p>
+                    </div>
+                </div>
+                <div class="fun-facts-note">
+                    <p><i class="fas fa-lightbulb"></i> These insights are based on your birth date. More facts will appear as you explore!</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="visual-charts collapsible-section" id="visualChartsSection" style="display: none;" aria-live="polite" aria-atomic="true">
+            <div class="collapsible-header" data-section="visual-charts">
+                <h2>
+                    <i class="fas fa-chart-bar"></i> Visual Age Progress Charts
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <div class="charts-intro">
+                    <p>Visualize your age progression through interactive charts and graphs. See how your age compares to milestones and life stages.</p>
+                </div>
+                
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-pie"></i> Age Distribution Pie Chart</h3>
+                    <p>See how your lived years compare to your remaining years based on average life expectancy.</p>
+                    <div class="pie-chart-container">
+                        <canvas id="agePieChart" width="300" height="300"></canvas>
+                        <div class="pie-chart-legend" id="pieChartLegend">
+                            <!-- Legend will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="chart-stats">
+                        <div class="chart-stat">
+                            <span class="stat-label">Years Lived:</span>
+                            <span class="stat-value" id="pieYearsLived">0</span>
+                        </div>
+                        <div class="chart-stat">
+                            <span class="stat-label">Years Remaining:</span>
+                            <span class="stat-value" id="pieYearsRemaining">0</span>
+                        </div>
+                        <div class="chart-stat">
+                            <span class="stat-label">Percentage Lived:</span>
+                            <span class="stat-value" id="piePercentLived">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-line"></i> Age Timeline Progress Bar</h3>
+                    <p>See your position on a 0-100 year timeline with major life milestones marked.</p>
+                    <div class="timeline-chart">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" id="timelineProgress"></div>
+                            <div class="timeline-milestones">
+                                <div class="milestone" style="left: 10%;" data-age="10">Teen</div>
+                                <div class="milestone" style="left: 18%;" data-age="18">Adult</div>
+                                <div class="milestone" style="left: 30%;" data-age="30">30s</div>
+                                <div class="milestone" style="left: 40%;" data-age="40">Midlife</div>
+                                <div class="milestone" style="left: 50%;" data-age="50">50s</div>
+                                <div class="milestone" style="left: 65%;" data-age="65">Retirement</div>
+                                <div class="milestone" style="left: 80%;" data-age="80">80s</div>
+                            </div>
+                            <div class="timeline-current" id="timelineCurrent">
+                                <div class="current-marker"></div>
+                                <div class="current-label" id="currentAgeLabelChart">Current Age</div>
+                            </div>
+                        </div>
+                        <div class="timeline-labels">
+                            <span>0</span>
+                            <span>25</span>
+                            <span>50</span>
+                            <span>75</span>
+                            <span>100</span>
+                        </div>
+                    </div>
+                    <div class="milestone-info">
+                        <h4>Next Milestone: <span id="nextMilestoneAge">30</span> years</h4>
+                        <p id="nextMilestoneDescription">You'll reach your next major life milestone at age 30.</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-calendar-alt"></i> Year-by-Year Age Progression</h3>
+                    <p>See how your age has progressed year by year from birth to present.</p>
+                    <div class="year-progression">
+                        <div class="year-slider-container">
+                            <input type="range" id="yearSlider" min="0" max="100" value="30" class="year-slider">
+                            <div class="slider-labels">
+                                <span>Birth (0)</span>
+                                <span id="sliderCurrentYear">Current (30)</span>
+                                <span>Future (100)</span>
+                            </div>
+                        </div>
+                        <div class="year-display">
+                            <div class="year-card">
+                                <h4>Selected Year: <span id="selectedYear">30</span></h4>
+                                <p id="yearDescription">You are 30 years old. This is a significant milestone in life.</p>
+                                <div class="year-facts">
+                                    <div class="year-fact">
+                                        <i class="fas fa-history"></i>
+                                        <span>Historical Context:</span>
+                                        <span id="historicalContext">The year you were born...</span>
+                                    </div>
+                                    <div class="year-fact">
+                                        <i class="fas fa-globe"></i>
+                                        <span>World Population:</span>
+                                        <span id="worldPopulation">~7.9 billion</span>
+                                    </div>
+                                    <div class="year-fact">
+                                        <i class="fas fa-user-friends"></i>
+                                        <span>Life Stage:</span>
+                                        <span id="lifeStage">Young Adult</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-balance-scale"></i> Age Comparison Chart</h3>
+                    <p>Compare your age with average ages for different life events and achievements.</p>
+                    <div class="comparison-chart">
+                        <canvas id="ageComparisonChart" width="400" height="250"></canvas>
+                    </div>
+                    <div class="comparison-stats">
+                        <div class="comparison-stat">
+                            <span class="stat-label">Your Age:</span>
+                            <span class="stat-value" id="comparisonYourAge">30</span>
+                        </div>
+                        <div class="comparison-stat">
+                            <span class="stat-label">Average Marriage Age:</span>
+                            <span class="stat-value">29</span>
+                        </div>
+                        <div class="comparison-stat">
+                            <span class="stat-label">Average First Child Age:</span>
+                            <span class="stat-value">31</span>
+                        </div>
+                        <div class="comparison-stat">
+                            <span class="stat-label">Average Retirement Age:</span>
+                            <span class="stat-value">65</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-actions">
+                    <button class="btn btn-primary" id="refreshChartsBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh Charts
+                    </button>
+                    <button class="btn btn-secondary" id="exportChartsBtn">
+                        <i class="fas fa-download"></i> Export Charts as Image
+                    </button>
+                    <button class="btn btn-info" id="chartHelpBtn">
+                        <i class="fas fa-question-circle"></i> Chart Help
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="personalized-recommendations collapsible-section" id="recommendationsSection" style="display: none;" aria-live="polite" aria-atomic="true">
+            <div class="collapsible-header" data-section="recommendations">
+                <h2>
+                    <i class="fas fa-user-check"></i> Personalized Age-Based Recommendations
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <div class="recommendations-intro">
+                    <p>Get personalized recommendations based on your age! These suggestions are tailored to help you make the most of your current life stage.</p>
+                </div>
+                
+                <div class="recommendation-category">
+                    <h3><i class="fas fa-heartbeat"></i> Health & Wellness</h3>
+                    <div class="recommendation-grid" id="healthRecommendations">
+                        <!-- Health recommendations will be populated by JavaScript -->
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-running"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Regular Exercise</h4>
+                                <p>At your age, aim for at least 150 minutes of moderate aerobic activity per week.</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-apple-alt"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Balanced Nutrition</h4>
+                                <p>Focus on a diet rich in fruits, vegetables, lean proteins, and whole grains.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendation-category">
+                    <h3><i class="fas fa-graduation-cap"></i> Learning & Development</h3>
+                    <div class="recommendation-grid" id="learningRecommendations">
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Skill Development</h4>
+                                <p>Consider learning a new language or technical skill to stay competitive.</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Mental Fitness</h4>
+                                <p>Engage in puzzles, reading, or learning new things to keep your mind sharp.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendation-category">
+                    <h3><i class="fas fa-money-bill-wave"></i> Financial Planning</h3>
+                    <div class="recommendation-grid" id="financialRecommendations">
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Retirement Savings</h4>
+                                <p>If you haven't started, now is the perfect time to begin retirement planning.</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Investment Strategy</h4>
+                                <p>Consider diversifying your investments based on your age and risk tolerance.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendation-category">
+                    <h3><i class="fas fa-users"></i> Social & Relationships</h3>
+                    <div class="recommendation-grid" id="socialRecommendations">
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-hands-helping"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Community Engagement</h4>
+                                <p>Consider volunteering or joining community groups to build social connections.</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Networking</h4>
+                                <p>Build and maintain professional networks for career growth opportunities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendation-category">
+                    <h3><i class="fas fa-plane"></i> Travel & Experiences</h3>
+                    <div class="recommendation-grid" id="travelRecommendations">
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-globe-americas"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Cultural Exploration</h4>
+                                <p>Consider visiting destinations that offer unique cultural experiences.</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-card">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-hiking"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Adventure Travel</h4>
+                                <p>Now is a great time for physically demanding adventures while you're at your peak.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendations-actions">
+                    <button class="btn btn-primary" id="refreshRecommendationsBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh Recommendations
+                    </button>
+                    <button class="btn btn-secondary" id="saveRecommendationsBtn">
+                        <i class="fas fa-save"></i> Save to Profile
+                    </button>
+                    <button class="btn btn-info" id="shareRecommendationsBtn">
+                        <i class="fas fa-share-alt"></i> Share Recommendations
+                    </button>
+                </div>
+
+                <div class="recommendations-disclaimer">
+                    <p><i class="fas fa-info-circle"></i> <strong>Note:</strong> These are general recommendations based on age ranges. Always consult with professionals for personalized advice regarding health, finance, or major life decisions.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="engagement-section collapsible-section" id="engagementSection" style="display: none;" aria-live="polite" aria-atomic="true">
+            <div class="collapsible-header" data-section="engagement">
+                <h2>
+                    <i class="fas fa-chart-line"></i> More Insights & Engagement
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <div class="age-timeline">
+                    <h3>Your Age Timeline</h3>
+                    <div class="timeline-container">
+                        <div class="timeline-marker">0</div>
+                        <div class="timeline-line"></div>
+                        <div class="timeline-marker" id="currentAgeMarker">30</div>
+                        <div class="timeline-line"></div>
+                        <div class="timeline-marker">100</div>
+                    </div>
+                    <div class="timeline-container">
+                        <div class="timeline-label">Birth</div>
+                        <div class="timeline-label" id="currentAgeLabel">Current Age</div>
+                        <div class="timeline-label">Century</div>
+                    </div>
+                </div>
+
+                <div class="unit-cards">
+                    <h3>Your Age in Different Units</h3>
+                    <div class="unit-cards-grid" id="unitCards">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="celebrity-comparison">
+                    <h3>Celebrity Age Comparison</h3>
+                    <div class="celebrity-comparison-grid" id="celebrityComparison">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="quote-section">
+                    <h3>Age-Related Wisdom</h3>
+                    <div class="quote-text" id="ageQuote">Age is an issue of mind over matter. If you don't mind, it doesn't matter.</div>
+                    <div class="quote-author" id="quoteAuthor">- Mark Twain</div>
+                </div>
+
+                <div class="save-age-section">
+                    <h3>Save Your Age Profile</h3>
+                    <p>Save your current age calculation to compare later or share with friends.</p>
+                    <button class="save-age-btn" id="saveAgeBtn">
+                        <i class="fas fa-save"></i> Save Current Age
+                    </button>
+                    <div class="saved-ages-list" id="savedAgesList" style="display: none;">
+                        <h4>Saved Ages</h4>
+                        <!-- Saved ages will appear here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="share-section collapsible-section">
+            <div class="collapsible-header" data-section="share">
+                <h2>
+                    <i class="fas fa-share-alt"></i> Share Your Results
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <div class="share-buttons">
+                    <a href="#" class="share-button facebook" id="shareFacebook" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="#" class="share-button twitter" id="shareTwitter" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-twitter"></i> Twitter
+                    </a>
+                    <a href="#" class="share-button linkedin" id="shareLinkedIn" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin-in"></i> LinkedIn
+                    </a>
+                    <a href="#" class="share-button whatsapp" id="shareWhatsApp" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="#" class="share-button pinterest" id="sharePinterest" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-pinterest-p"></i> Pinterest
+                    </a>
+                    <a href="#" class="share-button reddit" id="shareReddit" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-reddit-alien"></i> Reddit
+                    </a>
+                    <a href="#" class="share-button email" id="shareEmail" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-envelope"></i> Email
+                    </a>
+                </div>
             </div>
         </section>
     </main>
@@ -1153,12 +2792,149 @@
             const scrollBottomBtn = document.getElementById('scrollBottomBtn');
             const liveIndicator = document.getElementById('liveIndicator');
 
+            // Achievement system removed as requested
+
+            // View mode state
+            let currentViewMode = 'normal';
+
             // Clock state
             let clockInterval = null;
             // Flag to track if we've already scrolled to results
             let hasScrolledToResults = false;
             // Flag to track if results are calculated
             let isResultsCalculated = false;
+
+            // View mode switching
+            function switchViewMode(mode) {
+                // Remove all view mode classes from body
+                document.body.classList.remove(
+                    'view-mode-normal',
+                    'view-mode-compact',
+                    'view-mode-tile',
+                    'view-mode-list'
+                );
+                
+                // Add the selected view mode class
+                document.body.classList.add(`view-mode-${mode}`);
+                
+                // Update active button and aria-pressed attributes
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.mode === mode) {
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-pressed', 'true');
+                    } else {
+                        btn.setAttribute('aria-pressed', 'false');
+                    }
+                });
+                
+                // Update current mode
+                currentViewMode = mode;
+                
+                // Save to localStorage
+                localStorage.setItem('ageCalculatorViewMode', mode);
+                
+                // Show notification for mode change (except for normal)
+                if (mode !== 'normal') {
+                    showNotification(`Switched to ${mode.charAt(0).toUpperCase() + mode.slice(1)} view mode`, 'info');
+                    
+                    // Achievement tracking removed
+                }
+            }
+
+            // Initialize view mode from localStorage or default
+            function initializeViewMode() {
+                const savedMode = localStorage.getItem('ageCalculatorViewMode') || 'normal';
+                switchViewMode(savedMode);
+                
+                // Add event listeners to mode buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        switchViewMode(btn.dataset.mode);
+                    });
+                });
+            }
+
+            // Collapsible sections functionality
+            function initializeCollapsibleSections() {
+                // Add click event listeners to all collapsible headers
+                document.querySelectorAll('.collapsible-header').forEach(header => {
+                    header.addEventListener('click', function() {
+                        const section = this.closest('.collapsible-section');
+                        section.classList.toggle('collapsed');
+                        
+                        // Update aria-expanded attribute for accessibility
+                        const isExpanded = !section.classList.contains('collapsed');
+                        this.setAttribute('aria-expanded', isExpanded);
+                        
+                        // Save collapsed state to localStorage for each section
+                        const sectionId = this.dataset.section;
+                        if (sectionId) {
+                            localStorage.setItem(`collapsible_${sectionId}`, !isExpanded);
+                            
+                            // Achievement tracking removed
+                        }
+                    });
+                    
+                    // Set initial aria-expanded attribute
+                    const section = header.closest('.collapsible-section');
+                    header.setAttribute('aria-expanded', !section.classList.contains('collapsed'));
+                });
+                
+                // Load saved collapsed states from localStorage
+                document.querySelectorAll('.collapsible-header').forEach(header => {
+                    const sectionId = header.dataset.section;
+                    if (sectionId) {
+                        const isCollapsed = localStorage.getItem(`collapsible_${sectionId}`) === 'true';
+                        const section = header.closest('.collapsible-section');
+                        if (isCollapsed) {
+                            section.classList.add('collapsed');
+                            header.setAttribute('aria-expanded', false);
+                        }
+                    }
+                });
+            }
+
+            // Update view mode switching to handle collapsible sections
+            const originalSwitchViewMode = switchViewMode;
+            switchViewMode = function(mode) {
+                originalSwitchViewMode.call(this, mode);
+                
+                // Handle collapsible sections based on mode
+                const sections = document.querySelectorAll('.collapsible-section');
+                
+                if (mode === 'compact') {
+                    // In compact mode, collapse all sections by default (unless user has saved preferences)
+                    sections.forEach(section => {
+                        const header = section.querySelector('.collapsible-header');
+                        const sectionId = header?.dataset.section;
+                        if (sectionId) {
+                            // Check if user has saved preference for this section
+                            const savedState = localStorage.getItem(`collapsible_${sectionId}`);
+                            if (savedState === null) {
+                                // No saved preference, collapse by default in compact mode
+                                section.classList.add('collapsed');
+                                header.setAttribute('aria-expanded', false);
+                            }
+                        }
+                    });
+                } else if (mode === 'normal') {
+                    // In normal mode, expand all sections by default (unless user has saved preferences)
+                    sections.forEach(section => {
+                        const header = section.querySelector('.collapsible-header');
+                        const sectionId = header?.dataset.section;
+                        if (sectionId) {
+                            const savedState = localStorage.getItem(`collapsible_${sectionId}`);
+                            if (savedState === null) {
+                                // No saved preference, expand by default in normal mode
+                                section.classList.remove('collapsed');
+                                header.setAttribute('aria-expanded', true);
+                            }
+                        }
+                    });
+                }
+                // Tile and List modes keep whatever state they have (user preferences)
+            };
 
             // Fallback time zones
             const fallbackTimeZones = {
@@ -1330,12 +3106,17 @@
 
             // Set default dates
             const today = new Date();
+            // Default birth date: 30 years ago, day 15 (mid-month) for safety
+            const defaultBirthYear = today.getFullYear() - 30;
             birthMonthSelect.value = today.getMonth() + 1;
-            birthDaySelect.value = today.getDate();
-            birthYearSelect.value = today.getFullYear();
+            birthDaySelect.value = 15; // neutral day
+            birthYearSelect.value = defaultBirthYear;
             compareMonthSelect.value = today.getMonth() + 1;
             compareDaySelect.value = today.getDate();
             compareYearSelect.value = today.getFullYear();
+            // Update day dropdowns to reflect correct days for selected month/year
+            updateDays('birthDay', birthMonthSelect, birthYearSelect);
+            updateDays('compareDay', compareMonthSelect, compareYearSelect);
 
             // Theme toggle
             const body = document.body;
@@ -1345,6 +3126,13 @@
                 themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
                 themeToggle.setAttribute('aria-label', 'Switch to light theme');
             }
+
+            // Initialize view mode
+            initializeViewMode();
+            
+            // Initialize collapsible sections
+            initializeCollapsibleSections();
+
 
             themeToggle.addEventListener('click', () => {
                 // Disable transitions during theme switch
@@ -1422,6 +3210,277 @@
                 'SA': 76.2
             };
 
+            // Fun facts helper functions
+            function getZodiacSign(month, day) {
+                // Western zodiac signs based on month and day
+                if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return "Aquarius";
+                if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return "Pisces";
+                if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries";
+                if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return "Taurus";
+                if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return "Gemini";
+                if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return "Cancer";
+                if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return "Leo";
+                if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return "Virgo";
+                if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return "Libra";
+                if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return "Scorpio";
+                if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return "Sagittarius";
+                if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return "Capricorn";
+                return "Unknown";
+            }
+
+            function getChineseZodiac(year) {
+                // Chinese zodiac cycle starting from 1924 (Rat)
+                const zodiacs = ["Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"];
+                const startYear = 1924;
+                if (year < startYear) return "Unknown";
+                const index = (year - startYear) % 12;
+                return zodiacs[index];
+            }
+
+            function getDayOfWeek(year, month, day) {
+                const date = new Date(year, month - 1, day);
+                return date.toLocaleDateString('en-US', { weekday: 'long' });
+            }
+
+            function getAgeMilestone(years) {
+                const milestones = [
+                    { age: 1, text: "First birthday!" },
+                    { age: 5, text: "Started school" },
+                    { age: 13, text: "Became a teenager" },
+                    { age: 16, text: "Sweet sixteen" },
+                    { age: 18, text: "Became an adult" },
+                    { age: 21, text: "Legal drinking age (in many countries)" },
+                    { age: 30, text: "Welcome to your thirties" },
+                    { age: 40, text: "Over the hill" },
+                    { age: 50, text: "Half a century!" },
+                    { age: 60, text: "Senior citizen" },
+                    { age: 65, text: "Retirement age" },
+                    { age: 70, text: "Septuagenarian" },
+                    { age: 80, text: "Octogenarian" },
+                    { age: 90, text: "Nonagenarian" },
+                    { age: 100, text: "Centenarian!" }
+                ];
+                // Find the next milestone
+                for (let milestone of milestones) {
+                    if (years < milestone.age) {
+                        return `Next milestone: ${milestone.age} (${milestone.text}) in ${milestone.age - years} years`;
+                    }
+                }
+                return "You've passed all common milestones!";
+            }
+
+            function getHistoricalEvent(year) {
+                // Simple placeholder - in a real app you'd fetch from an API
+                const events = {
+                    1990: "World Wide Web invented",
+                    1995: "Windows 95 released",
+                    2000: "New Millennium",
+                    2005: "YouTube launched",
+                    2010: "Instagram founded",
+                    2015: "Paris Agreement signed",
+                    2020: "COVID-19 pandemic"
+                };
+                // Find closest year
+                const years = Object.keys(events).map(y => parseInt(y));
+                let closest = years.reduce((prev, curr) => Math.abs(curr - year) < Math.abs(prev - year) ? curr : prev);
+                return events[closest] || "Many historical events happened that year.";
+            }
+
+            function getNextBigBirthday(years) {
+                const bigBirthdays = [18, 21, 30, 40, 50, 60, 65, 70, 80, 90, 100];
+                for (let age of bigBirthdays) {
+                    if (years < age) {
+                        return `${age} in ${age - years} years`;
+                    }
+                }
+                return "You've passed all big birthdays!";
+            }
+
+            // Engagement features helper functions
+            function updateAgeTimeline(years) {
+                const currentAgeMarker = document.getElementById('currentAgeMarker');
+                const currentAgeLabel = document.getElementById('currentAgeLabel');
+                
+                if (currentAgeMarker && currentAgeLabel) {
+                    currentAgeMarker.textContent = years;
+                    currentAgeLabel.textContent = `Current Age (${years})`;
+                    
+                    // Position marker on timeline (0-100 scale)
+                    const markerPosition = Math.min(years, 100);
+                    currentAgeMarker.style.marginLeft = `${markerPosition}%`;
+                }
+            }
+
+            function updateUnitCards(totalDays, totalHours, totalMinutes, totalSeconds) {
+                const unitCardsContainer = document.getElementById('unitCards');
+                if (!unitCardsContainer) return;
+                
+                const units = [
+                    { value: totalDays.toLocaleString(), label: 'Days' },
+                    { value: totalHours.toLocaleString(), label: 'Hours' },
+                    { value: totalMinutes.toLocaleString(), label: 'Minutes' },
+                    { value: totalSeconds.toLocaleString(), label: 'Seconds' },
+                    { value: Math.floor(totalDays / 7).toLocaleString(), label: 'Weeks' },
+                    { value: Math.floor(totalDays / 30.44).toLocaleString(), label: 'Months' }
+                ];
+                
+                unitCardsContainer.innerHTML = '';
+                units.forEach(unit => {
+                    const card = document.createElement('div');
+                    card.className = 'unit-card';
+                    card.innerHTML = `
+                        <div class="unit-value">${unit.value}</div>
+                        <div class="unit-label">${unit.label}</div>
+                    `;
+                    unitCardsContainer.appendChild(card);
+                });
+            }
+
+            function updateCelebrityComparison(years) {
+                const celebrityContainer = document.getElementById('celebrityComparison');
+                if (!celebrityContainer) return;
+                
+                const celebrities = [
+                    { name: 'Taylor Swift', age: 34, born: 1989 },
+                    { name: 'Leonardo DiCaprio', age: 49, born: 1974 },
+                    { name: 'Beyoncé', age: 42, born: 1981 },
+                    { name: 'Tom Cruise', age: 61, born: 1962 },
+                    { name: 'Emma Watson', age: 33, born: 1990 },
+                    { name: 'Dwayne Johnson', age: 51, born: 1972 }
+                ];
+                
+                celebrityContainer.innerHTML = '';
+                celebrities.forEach(celebrity => {
+                    const diff = Math.abs(celebrity.age - years);
+                    const comparison = years > celebrity.age ? 'older' : 'younger';
+                    const card = document.createElement('div');
+                    card.className = 'celebrity-card';
+                    card.innerHTML = `
+                        <div class="celebrity-name">${celebrity.name}</div>
+                        <div class="celebrity-age">Age: ${celebrity.age}</div>
+                        <div class="celebrity-comparison">You are ${diff} years ${comparison}</div>
+                    `;
+                    celebrityContainer.appendChild(card);
+                });
+            }
+
+            function updateAgeQuote() {
+                const quotes = [
+                    { text: "Age is an issue of mind over matter. If you don't mind, it doesn't matter.", author: "Mark Twain" },
+                    { text: "The older I get, the greater power I seem to have to help the world.", author: "Louisa May Alcott" },
+                    { text: "Age is not how old you are, but how many years of fun you've had.", author: "Matt Maldre" },
+                    { text: "With age comes wisdom, but sometimes age comes alone.", author: "Oscar Wilde" },
+                    { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+                    { text: "The secret of staying young is to live honestly, eat slowly, and lie about your age.", author: "Lucille Ball" }
+                ];
+                
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                document.getElementById('ageQuote').textContent = randomQuote.text;
+                document.getElementById('quoteAuthor').textContent = `- ${randomQuote.author}`;
+            }
+
+            function setupSaveAgeFeature() {
+                const saveBtn = document.getElementById('saveAgeBtn');
+                const savedAgesList = document.getElementById('savedAgesList');
+                
+                if (!saveBtn) return;
+                
+                saveBtn.addEventListener('click', function() {
+                    const birthDate = `${birthMonthSelect.value}/${birthDaySelect.value}/${birthYearSelect.value}`;
+                    const compareDate = `${compareMonthSelect.value}/${compareDaySelect.value}/${compareYearSelect.value}`;
+                    const age = document.querySelector('#resultsTable td:first-child')?.textContent || 'Unknown';
+                    
+                    const savedAge = {
+                        id: Date.now(),
+                        birthDate,
+                        compareDate,
+                        age,
+                        timestamp: new Date().toLocaleString()
+                    };
+                    
+                    // Get existing saved ages
+                    let savedAges = JSON.parse(localStorage.getItem('ageCalculatorSavedAges') || '[]');
+                    savedAges.unshift(savedAge); // Add to beginning
+                    
+                    // Keep only last 5 saved ages
+                    if (savedAges.length > 5) {
+                        savedAges = savedAges.slice(0, 5);
+                    }
+                    
+                    localStorage.setItem('ageCalculatorSavedAges', JSON.stringify(savedAges));
+                    
+                    // Update UI
+                    updateSavedAgesList();
+                    
+                    // Show confirmation
+                    showNotification('Age saved successfully!', 'success');
+                });
+                
+                // Load saved ages on page load
+                updateSavedAgesList();
+            }
+
+            function updateSavedAgesList() {
+                const savedAgesList = document.getElementById('savedAgesList');
+                if (!savedAgesList) return;
+                
+                const savedAges = JSON.parse(localStorage.getItem('ageCalculatorSavedAges') || '[]');
+                
+                if (savedAges.length === 0) {
+                    savedAgesList.style.display = 'none';
+                    return;
+                }
+                
+                savedAgesList.style.display = 'block';
+                savedAgesList.innerHTML = '<h4>Saved Ages</h4>';
+                
+                savedAges.forEach(item => {
+                    const ageItem = document.createElement('div');
+                    ageItem.className = 'saved-age-item';
+                    ageItem.innerHTML = `
+                        <div>
+                            <strong>Age: ${item.age}</strong><br>
+                            <small>Born: ${item.birthDate} | Compared: ${item.compareDate}</small>
+                        </div>
+                        <div>
+                            <small>${item.timestamp}</small>
+                        </div>
+                    `;
+                    savedAgesList.appendChild(ageItem);
+                });
+            }
+
+            function showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 1rem 1.5rem;
+                    background-color: ${type === 'success' ? '#4bb543' : '#4361ee'};
+                    color: white;
+                    border-radius: 5px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
             // Inline error display
             function showError(fieldId, message) {
                 const field = document.getElementById(fieldId);
@@ -1429,10 +3488,19 @@
                 if (!errorDiv) {
                     errorDiv = document.createElement('div');
                     errorDiv.className = 'error';
+                    errorDiv.id = fieldId + '-error';
                     field.parentElement.appendChild(errorDiv);
                 }
                 errorDiv.textContent = message;
-                setTimeout(() => errorDiv.remove(), 5000);
+                field.setAttribute('aria-invalid', 'true');
+                field.setAttribute('aria-describedby', errorDiv.id);
+                setTimeout(() => {
+                    if (errorDiv.parentElement) {
+                        errorDiv.remove();
+                    }
+                    field.removeAttribute('aria-invalid');
+                    field.removeAttribute('aria-describedby');
+                }, 5000);
             }
 
             // Validate birth date
@@ -1538,8 +3606,36 @@
                 }
 
                 const timeZone = timeZoneSelect.value === 'local' ? Intl.DateTimeFormat().resolvedOptions().timeZone : timeZoneSelect.value;
-                const birthDateInZone = new Date(birthDate.toLocaleString('en-US', { timeZone }));
-                const compareDateInZone = new Date(compareDate.toLocaleString('en-US', { timeZone }));
+                
+                // Helper function to convert date to a specific timezone
+                function convertDateToTimeZone(date, targetTimeZone) {
+                    // Use Intl.DateTimeFormat to get date components in target timezone
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                        timeZone: targetTimeZone,
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        second: 'numeric',
+                        hour12: false
+                    });
+                    
+                    const parts = formatter.formatToParts(date);
+                    const getPart = (type) => parts.find(part => part.type === type)?.value;
+                    
+                    const year = parseInt(getPart('year'));
+                    const month = parseInt(getPart('month')) - 1; // JavaScript months are 0-indexed
+                    const day = parseInt(getPart('day'));
+                    const hour = parseInt(getPart('hour') || '0');
+                    const minute = parseInt(getPart('minute') || '0');
+                    const second = parseInt(getPart('second') || '0');
+                    
+                    return new Date(year, month, day, hour, minute, second);
+                }
+                
+                const birthDateInZone = convertDateToTimeZone(birthDate, timeZone);
+                const compareDateInZone = convertDateToTimeZone(compareDate, timeZone);
 
                 if (birthDateInZone > compareDateInZone) {
                     showError('birthYear', 'Birth date cannot be after comparison date');
@@ -1644,6 +3740,22 @@
                     lifeExpectancySection.style.display = 'none';
                 }
 
+                // Fun facts
+                document.getElementById('zodiacSign').textContent = getZodiacSign(birthMonth, birthDay);
+                document.getElementById('chineseZodiac').textContent = getChineseZodiac(birthYear);
+                document.getElementById('dayOfWeek').textContent = getDayOfWeek(birthYear, birthMonth, birthDay);
+                document.getElementById('ageMilestone').textContent = getAgeMilestone(years);
+                document.getElementById('historicalEvent').textContent = getHistoricalEvent(birthYear);
+                document.getElementById('nextBigBirthday').textContent = getNextBigBirthday(years);
+                document.getElementById('funFactsSection').style.display = 'block';
+
+                // Engagement features
+                updateAgeTimeline(years);
+                updateUnitCards(totalDays, totalHours, totalMinutes, totalSeconds);
+                updateCelebrityComparison(years);
+                updateAgeQuote();
+                document.getElementById('engagementSection').style.display = 'block';
+
                 // Update share links
                 const shareUrl = window.location.href;
                 const shareText = `I'm ${years} years old! Calculate your age at ${shareUrl}`;
@@ -1663,6 +3775,8 @@
                 } else {
                     stopClock();
                 }
+
+                // Achievement tracking removed
 
                 isResultsCalculated = true; // Mark results as calculated
             }
@@ -1696,6 +3810,25 @@
                 calculateAge();
                 window.scrollTo({ top: nextBirthdaySection.offsetTop - 100, behavior: 'smooth' });
             });
+
+            // Quick age buttons
+            document.getElementById('quickAge20').addEventListener('click', () => setAge(20));
+            document.getElementById('quickAge30').addEventListener('click', () => setAge(30));
+            document.getElementById('quickAge40').addEventListener('click', () => setAge(40));
+            document.getElementById('quickAge50').addEventListener('click', () => setAge(50));
+            document.getElementById('quickAge60').addEventListener('click', () => setAge(60));
+
+            function setAge(age) {
+                const today = new Date();
+                const birthYear = today.getFullYear() - age;
+                birthMonthSelect.value = today.getMonth() + 1;
+                birthDaySelect.value = 15; // neutral day
+                birthYearSelect.value = birthYear;
+                updateDays('birthDay', birthMonthSelect, birthYearSelect);
+                // Optionally calculate age immediately
+                hasScrolledToResults = false;
+                calculateAge();
+            }
 
             resetBtn.addEventListener('click', () => {
                 birthMonthSelect.value = today.getMonth() + 1;
@@ -1868,6 +4001,27 @@
                     exportPdfBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Export to PDF';
                 }, 2000);
             });
+
+            // Initialize share buttons with default values
+            function initializeShareButtons() {
+                const shareUrl = window.location.href;
+                const defaultShareText = 'Check out this cool Age Calculator! Calculate your exact age in years, months, days, and more.';
+                const defaultShareTitle = 'Advanced Age Calculator';
+                
+                document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+                document.getElementById('shareTwitter').href = `https://x.com/intent/tweet?text=${encodeURIComponent(defaultShareText + ' ' + shareUrl)}`;
+                document.getElementById('shareLinkedIn').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+                document.getElementById('shareWhatsApp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(defaultShareText + ' ' + shareUrl)}`;
+                document.getElementById('sharePinterest').href = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&description=${encodeURIComponent(defaultShareText)}`;
+                document.getElementById('shareReddit').href = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(defaultShareTitle)}`;
+                document.getElementById('shareEmail').href = `mailto:?subject=${encodeURIComponent(defaultShareTitle)}&body=${encodeURIComponent(defaultShareText + ' ' + shareUrl)}`;
+            }
+            
+            // Call initialization
+            initializeShareButtons();
+
+            // Initialize engagement features
+            setupSaveAgeFeature();
         });
     </script>
 </body>
