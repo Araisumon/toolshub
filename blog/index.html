@@ -626,12 +626,6 @@
                         <button type="button" onclick="formatText('insertUnorderedList')" title="Bullet List">• List</button>
                         <button type="button" onclick="formatText('insertOrderedList')" title="Numbered List">1. List</button>
                         <button type="button" onclick="formatText('formatBlock', 'h2')" title="Heading 2">H2</button>
-                        <button type="button" onclick="formatText('formatBlock', 'h3')" title="Heading 3">H3</button>
-                        <button type="button" onclick="formatText('formatBlock', 'blockquote')" title="Blockquote">❝ Quote</button>
-                        <button type="button" onclick="formatText('formatBlock', 'pre')" title="Code Block"></> Code Block</button>
-                        <button type="button" onclick="insertCodeInline()" title="Inline Code"><code></></code></button>
-                        <button type="button" onclick="formatText('insertHorizontalRule')" title="Horizontal Rule">― HR</button>
-                        <button type="button" onclick="insertImage()" title="Insert Image">🖼️ Image</button>
                         <button type="button" onclick="formatText('createLink')" title="Insert Link">🔗 Link</button>
                     </div>
                     <div id="postContent" contenteditable="true" style="min-height:340px; border:1px solid #ddd; padding:16px; border-radius:8px; outline:none;"></div>
@@ -1495,31 +1489,6 @@
             document.getElementById('postContent').focus();
         }
 
-        function insertCodeInline() {
-            const sel = window.getSelection();
-            if (sel.rangeCount) {
-                const range = sel.getRangeAt(0);
-                const code = document.createElement('code');
-                code.textContent = sel.toString() || 'code';
-                range.deleteContents();
-                range.insertNode(code);
-            }
-            document.getElementById('postContent').focus();
-        }
-
-        function insertImage() {
-            const url = prompt('Enter image URL:');
-            if (!url) return;
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = 'Image';
-            img.style.maxWidth = '100%';
-            img.style.borderRadius = '12px';
-            img.style.margin = '10px 0';
-            document.execCommand('insertHTML', false, img.outerHTML);
-            document.getElementById('postContent').focus();
-        }
-
         // Auto-save Draft
         function startAutoSave() {
             if (draftTimer) clearInterval(draftTimer);
@@ -1685,15 +1654,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-QX6N41VY5J');
-    </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9959787693675083" crossorigin="anonymous"></script>
     <title>${post.title} - ToolsHub Blog</title>
     <meta name="description" content="${description}">
     
@@ -1756,7 +1716,7 @@
                         <span><i class="fas fa-clock"></i> ${Math.ceil(post.content.length / 1000)} min read</span>
                     </div>
                     
-                    ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image" loading="lazy">` : ''}
+                    ${post.image ? '<img src="' + post.image + '" alt="' + post.title + '" class="post-image" loading="lazy">' : ''}
                 </div>
 
                 <div class="post-content">
