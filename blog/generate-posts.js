@@ -289,6 +289,15 @@ function generatePostHTML(post) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9959787693675083" crossorigin="anonymous"></script>
     <title>${post.title} - ToolsHub Blog</title>
     <meta name="description" content="${description}">
     
@@ -453,6 +462,10 @@ console.log(`Generating static pages for ${postsData.length} posts...`);
 
 let generatedCount = 0;
 postsData.forEach(post => {
+    // Validate that the post ID is consistent (Publish Post ID == Generate Posts ID)
+    if (typeof post.id !== 'number') {
+        console.warn(`⚠️  Post "${post.title}" has non-numeric ID: ${post.id}`);
+    }
     const html = generatePostHTML(post);
     const filename = `post-${post.id}.html`;
     const filepath = path.join(OUTPUT_DIR, filename);
