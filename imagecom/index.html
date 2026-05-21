@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-QX6N41VY5J');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9959787693675083"
+     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="BuzzCompressor">
+    <meta name="description" content="Free online tool to compress JPG, PNG, SVG, GIF, WebP and AVIF images. Reduce file size with quality slider or target file size mode. Compare before/after, download as ZIP.">
+    <meta name="keywords" content="image compressor, compress jpg, reduce png size, optimize images, free image tool, webp converter, avif converter, svg optimizer, bulk image compressor">
+    <link rel="manifest" href="/manifest.json">
+    <!-- Anti-flash: apply dark mode immediately on <html> before CSS paints -->
+    <script>
+        (function() {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'dark-mode') {
+                document.documentElement.classList.add('dark-mode');
+            } else if (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
+    <meta name="author" content="Buzz">
+    <title>Image Compress Tool | Reduce Image Size Online - Buzz</title>
+    <link rel="icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/toolshub.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Compressor.js CDN -->
+    <script src="https://unpkg.com/compressorjs@1.2.1/dist/compressor.min.js"></script>
+    <!-- img-comparison-slider for before/after view -->
+    <script defer src="https://unpkg.com/img-comparison-slider@8/dist/index.js"></script>
+    <!-- JSZip for bulk ZIP download -->
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+    <!-- JSON-LD Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Buzz Image Compressor",
+      "url": "https://buzz.com/image-compress",
+      "description": "Free online tool to compress JPG, PNG, SVG, GIF and WebP images while maintaining quality. Reduce image file size for websites and social media.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Organization", "name": "Buzz" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How does image compression work?", "acceptedAnswer": { "@type": "Answer", "text": "Our tool uses smart algorithms to reduce file size by removing unnecessary metadata, optimizing color profiles, and adjusting quality settings while preserving visual appearance." } },
+        { "@type": "Question", "name": "Is it safe to compress images online?", "acceptedAnswer": { "@type": "Answer", "text": "Yes! All processing happens directly in your browser. Your images are never uploaded to any server, ensuring complete privacy and security." } },
+        { "@type": "Question", "name": "What image formats are supported?", "acceptedAnswer": { "@type": "Answer", "text": "We support JPEG, PNG, SVG, GIF, and WebP formats. You can also convert between formats — for example, convert PNG to WebP for better web performance." } },
+        { "@type": "Question", "name": "Can I compress multiple images at once?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely! You can upload multiple images via drag-and-drop or file selection. Each image is compressed individually, and you can download them all as a single ZIP file." } }
+      ]
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="brand">
+                <i class="material-icons">image</i>
+                <span>Buzz</span>
+            </div>
+            <h1 class="header-title">Image Compress</h1>
+            <div class="header-actions">
+                <button id="themeToggle" data-tooltip="Toggle Light/Dark Mode" aria-label="Toggle theme" aria-pressed="false">
+                    <i class="material-icons" id="themeIcon">brightness_6</i>
+                </button>
+                <a href="/" class="home-btn" data-tooltip="Return to Homepage" aria-label="Go to homepage">Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Tool Container -->
+            <div class="tool-container">
+                <h2 class="tool-title">Compress Images Online for Free</h2>
+                <p class="supported-formats">Supports: JPG, PNG, SVG, GIF, WebP, AVIF (Batch Upload Supported)</p>
+                
+                <!-- Live Stats Counter — Social Proof Banner -->
+                <div class="live-stats-banner" id="liveStatsBanner">
+                    <div class="live-stat-item">
+                        <span class="live-stat-icon">🗜️</span>
+                        <span class="live-stat-value" id="liveTotalImages">0</span>
+                        <span class="live-stat-label">images compressed</span>
+                    </div>
+                    <div class="live-stat-divider"></div>
+                    <div class="live-stat-item">
+                        <span class="live-stat-icon">💾</span>
+                        <span class="live-stat-value" id="liveTotalSaved">0 KB</span>
+                        <span class="live-stat-label">total saved</span>
+                    </div>
+                    <div class="live-stat-divider"></div>
+                    <div class="live-stat-item">
+                        <span class="live-stat-icon">⚡</span>
+                        <span class="live-stat-value" id="liveSessionCount">0</span>
+                        <span class="live-stat-label">this session</span>
+                    </div>
+                </div>
+                
+                <div class="upload-section" id="dropArea" data-tooltip="Drag and drop images or click to upload">
+                    <div class="upload-icon">
+                        <i class="material-icons">cloud_upload</i>
+                    </div>
+                    <p class="upload-text">Drag & Drop your images here</p>
+                    <p class="upload-subtext">or</p>
+                    <div>
+                        <button class="upload-btn" id="fileInputBtn" data-tooltip="Select images from your device" aria-label="Select images">
+                            <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">upload</i>
+                            Select from Computer
+                        </button>
+                    </div>
+    
+                    <!-- Thumbnail Preview Strip -->
+                    <div class="thumbnail-strip" id="thumbnailStrip">
+                        <div class="thumbnail-list" id="thumbnailList"></div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/svg+xml,image/gif,image/webp" multiple style="display: none;">
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="settings-title">Compression Settings</h3>
+
+                    <!-- Compression Mode Toggle -->
+                    <div class="setting-group">
+                        <label class="setting-label">Compression Mode</label>
+                        <div class="mode-toggle-group">
+                            <label class="mode-option" data-tooltip="Adjust quality with a slider">
+                                <input type="radio" name="compressionMode" value="quality" checked>
+                                <span class="mode-label">Quality Slider</span>
+                            </label>
+                            <label class="mode-option" data-tooltip="Set a target file size and we'll find the best quality">
+                                <input type="radio" name="compressionMode" value="target">
+                                <span class="mode-label">Target File Size</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Compression Level (Quality Mode) -->
+                    <div class="setting-group" id="qualityGroup">
+                        <label class="setting-label">Compression Quality</label>
+                        <input type="range" id="compressionLevel" class="compression-level" min="0" max="100" value="50" data-tooltip="Adjust compression level (0 = low, 100 = high)" aria-label="Compression level">
+                        <div class="level-labels">
+                            <span>Low Compression</span>
+                            <span>Balanced</span>
+                            <span>High Compression</span>
+                        </div>
+                        <!-- Smart Preset Buttons -->
+                        <div class="preset-group" data-tooltip="Quick quality presets for instant results">
+                            <span class="preset-label">Presets:</span>
+                            <button class="preset-btn" data-preset="best">Best Quality</button>
+                            <button class="preset-btn" data-preset="balanced">Balanced</button>
+                            <button class="preset-btn" data-preset="smallest">Smallest File</button>
+                            <button class="preset-btn preset-auto" data-preset="auto">✨ Auto</button>
+                        </div>
+                    </div>
+
+                    <!-- Target File Size (Target Mode) -->
+                    <div class="setting-group hidden" id="targetSizeGroup">
+                        <label class="setting-label">Target File Size (KB)</label>
+                        <div class="target-size-row">
+                            <input type="number" id="targetSizeKB" class="target-size-input" min="1" max="50000" value="100" step="1" inputmode="numeric" enterkeyhint="done" data-tooltip="Enter desired output file size in KB" aria-label="Target file size in KB">
+                            <span class="target-size-unit">KB</span>
+                        </div>
+                        <p class="setting-hint">We'll find the optimal quality to match this size</p>
+                    </div>
+
+                    <!-- Image Resize: Width × Height with Aspect-Ratio Lock -->
+                    <div class="setting-group">
+                        <label class="setting-label">Resize Dimensions (px) <span class="setting-hint-text">— leave blank to keep original</span></label>
+                        <div class="resize-row">
+                            <div class="resize-input-group">
+                                <label class="resize-sub-label">Width</label>
+                                <input type="number" id="resizeWidth" class="resize-input" min="1" max="10000" placeholder="auto" inputmode="numeric" enterkeyhint="done" data-tooltip="Target width in pixels" aria-label="Resize width">
+                            </div>
+                            <span class="resize-separator">×</span>
+                            <div class="resize-input-group">
+                                <label class="resize-sub-label">Height</label>
+                                <input type="number" id="resizeHeight" class="resize-input" min="1" max="10000" placeholder="auto" inputmode="numeric" enterkeyhint="done" data-tooltip="Target height in pixels" aria-label="Resize height">
+                            </div>
+                            <button class="aspect-lock-btn" id="aspectLockBtn" data-tooltip="Lock aspect ratio — changing one dimension auto-adjusts the other" aria-label="Toggle aspect ratio lock" aria-pressed="true">
+                                <i class="material-icons">link</i>
+                            </button>
+                        </div>
+                        <p class="setting-hint">Enter width, height, or both. Aspect ratio lock keeps proportions.</p>
+                    </div>
+
+                    <!-- Output Format -->
+                    <div class="setting-group">
+                        <label class="setting-label">Output Format</label>
+                        <select id="outputFormat" class="format-select" data-tooltip="Choose the output image format" aria-label="Output format">
+                            <option value="original" selected>Original Format</option>
+                            <option value="image/jpeg">JPEG</option>
+                            <option value="image/png">PNG</option>
+                            <option value="image/webp">WebP (Recommended)</option>
+                            <option value="image/avif">AVIF</option>
+                        </select>
+                    </div>
+
+                    <!-- SVG Optimization -->
+                    <div class="setting-group">
+                        <label class="setting-label checkbox-label">
+                            <input type="checkbox" id="svgOptimize" data-tooltip="Strip unnecessary metadata and whitespace from SVG files for smaller size" aria-label="Enable SVG optimization">
+                            Enable SVG Optimization (smaller SVGs)
+                        </label>
+                    </div>
+
+                    <!-- Live Preview -->
+                    <div class="setting-group">
+                        <label class="setting-label checkbox-label">
+                            <input type="checkbox" id="qualityPreview" data-tooltip="Preview compressed image quality in real-time" aria-label="Enable live quality preview">
+                            Enable Live Quality Preview
+                        </label>
+                    </div>
+
+                    <button class="reset-btn" id="resetBtn" data-tooltip="Clear all images and reset settings" aria-label="Reset tool">
+                        <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">refresh</i>
+                        Reset
+                    </button>
+                </div>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress" id="progressBar"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">Compressing images...</p>
+                    <p class="progress-detail" id="progressDetail"></p>
+                </div>
+
+                <div class="output-section" id="outputSection">
+                    <div class="output-actions">
+                        <button class="zip-btn" id="downloadZipBtn" data-tooltip="Download all compressed images as a single ZIP file" aria-label="Download all as ZIP" disabled>
+                            <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">folder_zip</i>
+                            Download All as ZIP
+                        </button>
+                    </div>
+                    <div class="image-container" id="imageContainer"></div>
+                    <div class="share-buttons">
+                        <a href="#" class="share-btn" id="shareTwitter" data-tooltip="Share on Twitter" aria-label="Share on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="share-btn" id="shareFacebook" data-tooltip="Share on Facebook" aria-label="Share on Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="share-btn" id="shareLinkedIn" data-tooltip="Share on LinkedIn" aria-label="Share on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="share-btn" id="shareWhatsApp" data-tooltip="Share on WhatsApp" aria-label="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="share-btn" id="shareEmail" data-tooltip="Share via Email" aria-label="Share via Email"><i class="fas fa-envelope"></i></a>
+                    </div>
+                    <button class="history-btn" id="historyBtn" data-tooltip="View previously compressed images" aria-label="View compression history">
+                        <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">history</i>
+                        View History
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========== SEO Content Hub ========== -->
+            <section class="seo-hub">
+                <h2 class="seo-title">Why Use Buzz Image Compressor?</h2>
+                <p class="seo-subtitle">The fastest, privacy-first image compression tool — no uploads, all processing happens in your browser.</p>
+
+                <!-- Format Comparison Table -->
+                <div class="seo-card">
+                    <h3 class="seo-card-title">Image Format Comparison</h3>
+                    <div class="table-wrapper">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Format</th>
+                                    <th>Best For</th>
+                                    <th>Compression</th>
+                                    <th>Transparency</th>
+                                    <th>Animation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>JPEG</strong></td>
+                                    <td>Photos, screenshots</td>
+                                    <td>Lossy</td>
+                                    <td><i class="material-icons" style="color:#f44336;">close</i></td>
+                                    <td><i class="material-icons" style="color:#f44336;">close</i></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>PNG</strong></td>
+                                    <td>Logos, icons, graphics</td>
+                                    <td>Lossless</td>
+                                    <td><i class="material-icons" style="color:#4bb543;">check</i></td>
+                                    <td><i class="material-icons" style="color:#f44336;">close</i></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>WebP</strong></td>
+                                    <td>Web images (all types)</td>
+                                    <td>Both</td>
+                                    <td><i class="material-icons" style="color:#4bb543;">check</i></td>
+                                    <td><i class="material-icons" style="color:#4bb543;">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>SVG</strong></td>
+                                    <td>Icons, illustrations</td>
+                                    <td>Vector (scalable)</td>
+                                    <td><i class="material-icons" style="color:#4bb543;">check</i></td>
+                                    <td><i class="material-icons" style="color:#4bb543;">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>GIF</strong></td>
+                                    <td>Simple animations</td>
+                                    <td>Lossless</td>
+                                    <td><i class="material-icons" style="color:#4bb543;">check</i></td>
+                                    <td><i class="material-icons" style="color:#4bb543;">check</i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- How-To Guide -->
+                <div class="seo-card">
+                    <h3 class="seo-card-title">How to Compress Images in 3 Easy Steps</h3>
+                    <ol class="how-to-steps">
+                        <li>
+                            <strong>Upload Your Images</strong>
+                            <p>Drag and drop your JPG, PNG, SVG, GIF, or WebP files into the upload area, or click "Select from Computer" to browse. You can upload multiple files at once.</p>
+                        </li>
+                        <li>
+                            <strong>Choose Your Settings</strong>
+                            <p>Use the Quality Slider for simple compression, or switch to Target File Size mode to hit an exact size. Pick your output format (WebP recommended for web), set max dimensions, and enable SVG optimization if needed.</p>
+                        </li>
+                        <li>
+                            <strong>Download Compressed Files</strong>
+                            <p>Each image shows a before/after comparison slider. Download individual images or grab everything at once with the "Download All as ZIP" button.</p>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="seo-card">
+                    <h3 class="seo-card-title">Frequently Asked Questions</h3>
+                    <div class="faq-list">
+                        <details class="faq-item">
+                            <summary>How does image compression work?</summary>
+                            <p>Our tool uses the Compressor.js library to reduce file size by adjusting quality parameters, removing EXIF metadata, and optimizing color profiles. For SVGs, we strip unnecessary whitespace, comments, and metadata. All processing happens locally in your browser — your images are never uploaded to any server.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Is it safe to compress images online?</summary>
+                            <p>Yes, completely safe! Unlike other tools that upload your images to remote servers, Buzz Image Compressor does 100% of the work in your browser using JavaScript. Your files never leave your device, ensuring total privacy and security.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary>What's the difference between Quality Slider and Target File Size mode?</summary>
+                            <p><strong>Quality Slider</strong> lets you visually pick a compression level (0–100%). <strong>Target File Size</strong> mode uses binary search to automatically find the optimal quality setting that produces an output close to your desired file size in KB. This is great when you have strict size limits (e.g., for email attachments or website performance budgets).</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Which output format should I choose?</summary>
+                            <p><strong>WebP</strong> is recommended for web use — it offers 25–35% smaller files than JPEG/PNG at the same quality. <strong>JPEG</strong> is best for photographs. <strong>PNG</strong> is ideal for images needing transparency (logos, icons). Choose <strong>Original Format</strong> to keep the same format while still reducing file size.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Can I compress multiple images at once?</summary>
+                            <p>Absolutely! You can upload as many images as you want via drag-and-drop or file selection. Each image is compressed individually with your chosen settings. Use the "Download All as ZIP" button to get everything in one convenient file.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Does compression reduce image quality?</summary>
+                            <p>Some quality loss is inevitable with lossy compression (JPEG, WebP), but our tool is designed to find the best balance. Use the before/after comparison slider to see the difference. For lossless formats (PNG, SVG), we optimize without any visual quality loss.</p>
+                        </details>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">Buzz</div>
+            <div class="stats-dashboard">
+                <h3>Compression Stats</h3>
+                <p>Total Images Compressed: <span id="totalImages">0</span></p>
+                <p>Total Size Saved: <span id="totalSizeSaved">0 KB</span></p>
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link" aria-label="About page">About</a>
+                <a href="#" class="footer-link" aria-label="Privacy Policy">Privacy Policy</a>
+                <a href="#" class="footer-link" aria-label="Terms of Service">Terms of Service</a>
+                <a href="#" class="footer-link" aria-label="Contact page">Contact</a>
+            </div>
+            <p class="footer-copyright">&copy; 2025 Buzz. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button id="backToTop" data-tooltip="Back to Top" aria-label="Scroll to top">
+        <i class="material-icons">arrow_upward</i>
+    </button>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('[SW] Registered:', reg.scope);
+                }).catch(function(err) {
+                    console.warn('[SW] Registration failed:', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
