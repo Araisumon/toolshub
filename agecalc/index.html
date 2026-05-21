@@ -498,6 +498,193 @@
             gap: 0.5rem;
         }
 
+        /* Time Input for Birth Time */
+        .time-input {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .time-input select {
+            flex: 1;
+            padding: 0.85rem 0.5rem;
+            border: 2px solid var(--border, #e0e0e0);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-secondary, #fff);
+            color: var(--text-primary, #333);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.3rem center;
+            padding-right: 1.2rem;
+        }
+        .time-input select:focus {
+            border-color: var(--primary, #4361ee);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            outline: none;
+        }
+        .time-input-separator {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--text-secondary, #666);
+        }
+        .time-input-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary, #666);
+            margin-top: 0.25rem;
+            text-align: center;
+        }
+
+        /* Age Result Card */
+        .age-result-card {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(67, 97, 238, 0.25);
+            animation: fadeInUp 0.6s ease;
+        }
+        .age-big {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .age-big .age-unit {
+            font-size: 1.5rem;
+            font-weight: 400;
+            opacity: 0.85;
+            margin-left: 0.25rem;
+        }
+        .age-detail {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1.25rem;
+        }
+        .age-subunits {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+        .age-subunit {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            backdrop-filter: blur(4px);
+            min-width: 70px;
+        }
+        .sub-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .sub-label {
+            font-size: 0.7rem;
+            opacity: 0.75;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Alternative Age Cards */
+        .alt-age-cards {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .alt-age-card {
+            flex: 1;
+            min-width: 140px;
+            background: var(--bg-secondary, #f8f9fa);
+            border: 1px solid var(--border, #e0e0e0);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .alt-age-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        .alt-age-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.4rem;
+        }
+        .alt-age-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary, #4361ee);
+        }
+        .alt-age-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary, #666);
+            margin-top: 0.15rem;
+        }
+        .alt-age-desc {
+            font-size: 0.7rem;
+            color: var(--text-secondary, #888);
+            margin-top: 0.25rem;
+        }
+
+        /* Multi-Person Section */
+        .multi-person-section {
+            margin-top: 1rem;
+        }
+        .person-inputs {
+            display: flex;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .person-card {
+            flex: 1;
+            min-width: 220px;
+            max-width: 300px;
+            background: var(--bg-secondary, #f8f9fa);
+            border: 2px solid var(--border, #e0e0e0);
+            border-radius: 14px;
+            padding: 1.25rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .person-card.active-person {
+            border-color: var(--primary, #4361ee);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        .person-card .custom-date select {
+            padding: 0.6rem 0.4rem;
+            font-size: 0.85rem;
+        }
+        .age-diff-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary, #f8f9fa);
+            border-radius: 12px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .age-big { font-size: 2.8rem; }
+            .age-subunits { gap: 0.6rem; }
+            .age-subunit { padding: 0.5rem 0.6rem; min-width: 55px; }
+            .sub-value { font-size: 1.1rem; }
+            .person-inputs { flex-direction: column; align-items: center; }
+            .person-card { max-width: 100%; width: 100%; }
+            .alt-age-cards { flex-direction: column; }
+        }
+
         .error {
             color: var(--danger-color);
             font-size: 0.9rem;
@@ -2054,6 +2241,23 @@
                         </select>
                     </div>
                 </div>
+                <div class="input-field" id="birthTimeField">
+                    <label for="birthHour" aria-label="Exact Birth Time: Optional hour and minute of birth">
+                        Birth Time
+                        <span class="tooltip">ⓘ
+                            <span class="tooltiptext">Enter your exact birth time for more precise age calculation</span>
+                        </span>
+                    </label>
+                    <div class="time-input">
+                        <select id="birthHour" aria-label="Birth Hour">
+                            <option value="">Hour</option>
+                        </select>
+                        <span class="time-input-separator">:</span>
+                        <select id="birthMinute" aria-label="Birth Minute">
+                            <option value="">Min</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="input-field">
                     <label for="timeZone" aria-label="Time Zone: Select your birth time zone for more accurate calculations">
                         Time Zone
@@ -2167,6 +2371,50 @@
                 </h2>
             </div>
             <div class="collapsible-content">
+                <!-- Calendar-style age result card -->
+                <div class="age-result-card" id="ageResultCard" style="display: none;">
+                    <div class="age-big" id="ageBigYears">0</div>
+                    <div class="age-detail" id="ageDetailDate"></div>
+                    <div class="age-subunits">
+                        <div class="age-subunit">
+                            <span class="sub-value" id="subMonths">0</span>
+                            <span class="sub-label">Months</span>
+                        </div>
+                        <div class="age-subunit">
+                            <span class="sub-value" id="subWeeks">0</span>
+                            <span class="sub-label">Weeks</span>
+                        </div>
+                        <div class="age-subunit">
+                            <span class="sub-value" id="subDays">0</span>
+                            <span class="sub-label">Days</span>
+                        </div>
+                        <div class="age-subunit">
+                            <span class="sub-value" id="subHours">0</span>
+                            <span class="sub-label">Hours</span>
+                        </div>
+                        <div class="age-subunit">
+                            <span class="sub-value" id="subMinutes">0</span>
+                            <span class="sub-label">Minutes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Korean & Lunar Age cards -->
+                <div class="alt-age-cards" id="altAgeCards" style="display: none;">
+                    <div class="alt-age-card">
+                        <div class="alt-age-icon">🇰🇷</div>
+                        <div class="alt-age-value" id="koreanAge">--</div>
+                        <div class="alt-age-label">Korean Age</div>
+                        <div class="alt-age-desc">You are 1 year old at birth, and gain a year every New Year's Day</div>
+                    </div>
+                    <div class="alt-age-card">
+                        <div class="alt-age-icon">🌙</div>
+                        <div class="alt-age-value" id="lunarAge">--</div>
+                        <div class="alt-age-label">Lunar Age</div>
+                        <div class="alt-age-desc">Based on the lunar calendar (approx. 354 days). You may be 1-2 years older</div>
+                    </div>
+                </div>
+
                 <div class="input-group">
                     <div class="input-field">
                         <label for="userName" aria-label="Name: Enter your full name">
@@ -2687,6 +2935,90 @@
             </div>
         </section>
 
+        <!-- Multi-Person Age Comparison -->
+        <section class="multi-person-section collapsible-section" id="multiPersonSection" style="display: none;" aria-live="polite" aria-atomic="true">
+            <div class="collapsible-header" data-section="multi-person">
+                <h2>
+                    <i class="fas fa-users"></i> Compare Ages
+                    <span class="collapsible-icon"><i class="fas fa-chevron-down"></i></span>
+                </h2>
+            </div>
+            <div class="collapsible-content">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Enter up to 3 birth dates to compare ages side by side.</p>
+                <div class="person-inputs" id="personInputs">
+                    <div class="person-card active-person" id="personCard1">
+                        <h4><i class="fas fa-user"></i> Person 1</h4>
+                        <div class="input-field">
+                            <label for="person1Name">Name</label>
+                            <input type="text" id="person1Name" placeholder="Enter name">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-field">
+                                <label for="person1Month">Month</label>
+                                <select id="person1Month"><option value="">Month</option></select>
+                            </div>
+                            <div class="input-field">
+                                <label for="person1Day">Day</label>
+                                <select id="person1Day"><option value="">Day</option></select>
+                            </div>
+                            <div class="input-field">
+                                <label for="person1Year">Year</label>
+                                <select id="person1Year"><option value="">Year</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-card" id="personCard2">
+                        <h4><i class="fas fa-user"></i> Person 2</h4>
+                        <div class="input-field">
+                            <label for="person2Name">Name</label>
+                            <input type="text" id="person2Name" placeholder="Enter name">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-field">
+                                <label for="person2Month">Month</label>
+                                <select id="person2Month"><option value="">Month</option></select>
+                            </div>
+                            <div class="input-field">
+                                <label for="person2Day">Day</label>
+                                <select id="person2Day"><option value="">Day</option></select>
+                            </div>
+                            <div class="input-field">
+                                <label for="person2Year">Year</label>
+                                <select id="person2Year"><option value="">Year</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-card" id="personCard3">
+                        <h4><i class="fas fa-user"></i> Person 3</h4>
+                        <div class="input-field">
+                            <label for="person3Name">Name</label>
+                            <input type="text" id="person3Name" placeholder="Enter name">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-field">
+                                <label for="person3Month">Month</label>
+                                <select id="person3Month"><option value="">Month</option></select>
+                            </div>
+                            <div class="input-field">
+                                <label for="person3Day">Day</label>
+                                <select id="person3Day"><option value="">Day</option></select>
+                            </div>
+                            <div class="input-field">
+                                <label for="person3Year">Year</label>
+                                <select id="person3Year"><option value="">Year</option></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons" style="margin-top: 1rem;">
+                    <button class="btn btn-primary" id="comparePersonsBtn">
+                        <i class="fas fa-balance-scale"></i> Compare Ages
+                    </button>
+                </div>
+                <div class="age-diff-result" id="ageDiffResult" style="display: none;"></div>
+            </div>
+        </section>
+
         <section class="share-section collapsible-section">
             <div class="collapsible-header" data-section="share">
                 <h2>
@@ -2791,6 +3123,13 @@
             const scrollTopBtn = document.getElementById('scrollTopBtn');
             const scrollBottomBtn = document.getElementById('scrollBottomBtn');
             const liveIndicator = document.getElementById('liveIndicator');
+            const birthHourSelect = document.getElementById('birthHour');
+            const birthMinuteSelect = document.getElementById('birthMinute');
+            const ageResultCard = document.getElementById('ageResultCard');
+            const altAgeCards = document.getElementById('altAgeCards');
+            const multiPersonSection = document.getElementById('multiPersonSection');
+            const comparePersonsBtn = document.getElementById('comparePersonsBtn');
+            const ageDiffResult = document.getElementById('ageDiffResult');
 
             // Achievement system removed as requested
 
@@ -3117,6 +3456,63 @@
             // Update day dropdowns to reflect correct days for selected month/year
             updateDays('birthDay', birthMonthSelect, birthYearSelect);
             updateDays('compareDay', compareMonthSelect, compareYearSelect);
+
+            // Populate birth hour (0-23) and minute (0-59) selects
+            for (let i = 0; i < 24; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i.toString().padStart(2, '0');
+                birthHourSelect.appendChild(option);
+            }
+            for (let i = 0; i < 60; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i.toString().padStart(2, '0');
+                birthMinuteSelect.appendChild(option);
+            }
+
+            // Helper: update days for person comparison selects
+            function updatePersonDays(personNum) {
+                const monthSelect = document.getElementById('person' + personNum + 'Month');
+                const yearSelect = document.getElementById('person' + personNum + 'Year');
+                const daySelect = document.getElementById('person' + personNum + 'Day');
+                const month = parseInt(monthSelect.value, 10);
+                const year = parseInt(yearSelect.value, 10);
+                const daysInMonth = month ? new Date(year || 2025, month, 0).getDate() : 31;
+                const currentValue = daySelect.value;
+                daySelect.innerHTML = '<option value="">Day</option>';
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    daySelect.appendChild(option);
+                }
+                if (currentValue && parseInt(currentValue, 10) <= daysInMonth) {
+                    daySelect.value = currentValue;
+                }
+            }
+
+            // Populate person comparison selects
+            for (let p = 1; p <= 3; p++) {
+                const monthSelect = document.getElementById('person' + p + 'Month');
+                const yearSelect = document.getElementById('person' + p + 'Year');
+                const daySelect = document.getElementById('person' + p + 'Day');
+                for (let m = 1; m <= 12; m++) {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = new Date(2025, m - 1, 1).toLocaleDateString('en-US', { month: 'long' });
+                    monthSelect.appendChild(opt);
+                }
+                for (let y = 1800; y <= new Date().getFullYear(); y++) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = y;
+                    yearSelect.appendChild(opt);
+                }
+                updatePersonDays(p);
+                monthSelect.addEventListener('change', () => updatePersonDays(p));
+                yearSelect.addEventListener('change', () => updatePersonDays(p));
+            }
 
             // Theme toggle
             const body = document.body;
@@ -3637,6 +4033,15 @@
                 const birthDateInZone = convertDateToTimeZone(birthDate, timeZone);
                 const compareDateInZone = convertDateToTimeZone(compareDate, timeZone);
 
+                // Apply birth hour/minute to the timezone-converted birth date for precision
+                const birthHourVal = parseInt(birthHourSelect.value);
+                const birthMinuteVal = parseInt(birthMinuteSelect.value);
+                if (!isNaN(birthHourVal) && !isNaN(birthMinuteVal)) {
+                    birthDateInZone.setHours(birthHourVal, birthMinuteVal, 0, 0);
+                } else if (!isNaN(birthHourVal)) {
+                    birthDateInZone.setHours(birthHourVal, 0, 0, 0);
+                }
+
                 if (birthDateInZone > compareDateInZone) {
                     showError('birthYear', 'Birth date cannot be after comparison date');
                     stopClock();
@@ -3686,6 +4091,30 @@
                 copyBtn.disabled = false;
                 exportTxtBtn.disabled = false;
                 exportPdfBtn.disabled = false;
+
+                // Calendar-card result display
+                ageResultCard.style.display = 'block';
+                document.getElementById('ageBigYears').textContent = years;
+                document.getElementById('ageDetailDate').textContent = formatDate(birthDateInZone) + ' - ' + formatDate(compareDateInZone);
+                document.getElementById('subMonths').textContent = months;
+                document.getElementById('subWeeks').textContent = weeks;
+                document.getElementById('subDays').textContent = days;
+                document.getElementById('subHours').textContent = hours;
+                document.getElementById('subMinutes').textContent = minutes;
+
+                // Korean Age (timezone-corrected: use compareDateInZone and birthDateInZone)
+                const koreanAge = compareDateInZone.getFullYear() - birthDateInZone.getFullYear() + 1;
+                document.getElementById('koreanAge').textContent = koreanAge;
+
+                // Lunar Age (approximate: if birthday hasn't passed yet, add 1 extra year)
+                const lunarBirthdayThisYear = new Date(compareDateInZone.getFullYear(), birthMonth - 1, birthDay);
+                const lunarAgeBase = compareDateInZone.getFullYear() - birthDateInZone.getFullYear() + 1;
+                const lunarAge = compareDateInZone >= lunarBirthdayThisYear ? lunarAgeBase + 1 : lunarAgeBase;
+                document.getElementById('lunarAge').textContent = lunarAge;
+                altAgeCards.style.display = 'flex';
+
+                // Multi-person comparison section
+                multiPersonSection.style.display = 'block';
 
                 // Scroll to results section only if we haven't already scrolled
                 if (!hasScrolledToResults) {
@@ -3824,6 +4253,8 @@
                 birthMonthSelect.value = today.getMonth() + 1;
                 birthDaySelect.value = 15; // neutral day
                 birthYearSelect.value = birthYear;
+                birthHourSelect.value = '';
+                birthMinuteSelect.value = '';
                 updateDays('birthDay', birthMonthSelect, birthYearSelect);
                 // Optionally calculate age immediately
                 hasScrolledToResults = false;
@@ -3831,12 +4262,15 @@
             }
 
             resetBtn.addEventListener('click', () => {
-                birthMonthSelect.value = today.getMonth() + 1;
-                birthDaySelect.value = today.getDate();
-                birthYearSelect.value = today.getFullYear();
-                compareMonthSelect.value = today.getMonth() + 1;
-                compareDaySelect.value = today.getDate();
-                compareYearSelect.value = today.getFullYear();
+                const now = new Date();
+                birthMonthSelect.value = now.getMonth() + 1;
+                birthDaySelect.value = now.getDate();
+                birthYearSelect.value = now.getFullYear();
+                birthHourSelect.value = '';
+                birthMinuteSelect.value = '';
+                compareMonthSelect.value = now.getMonth() + 1;
+                compareDaySelect.value = now.getDate();
+                compareYearSelect.value = now.getFullYear();
                 timeZoneSelect.value = 'local';
                 countrySelect.value = '';
                 userNameInput.value = '';
@@ -3847,6 +4281,9 @@
                 nextBirthdaySection.style.display = 'none';
                 lifeExpectancySection.style.display = 'none';
                 detailedResults.style.display = 'none';
+                ageResultCard.style.display = 'none';
+                altAgeCards.style.display = 'none';
+                multiPersonSection.style.display = 'none';
                 copyBtn.disabled = true;
                 exportTxtBtn.disabled = true;
                 exportPdfBtn.disabled = true;
@@ -4022,6 +4459,47 @@
 
             // Initialize engagement features
             setupSaveAgeFeature();
+
+            // Multi-person comparison
+            comparePersonsBtn.addEventListener('click', () => {
+                const persons = [];
+                for (let p = 1; p <= 3; p++) {
+                    const name = document.getElementById('person' + p + 'Name').value.trim();
+                    const month = parseInt(document.getElementById('person' + p + 'Month').value);
+                    const day = parseInt(document.getElementById('person' + p + 'Day').value);
+                    const year = parseInt(document.getElementById('person' + p + 'Year').value);
+                    if (name && !isNaN(month) && !isNaN(day) && !isNaN(year)) {
+                        const birthDate = new Date(year, month - 1, day);
+                        if (!isNaN(birthDate.getTime())) {
+                            const ageMs = new Date() - birthDate;
+                            const ageYears = Math.floor(ageMs / (365.25 * 24 * 60 * 60 * 1000));
+                            persons.push({ name, age: ageYears, birthDate: birthDate });
+                        }
+                    }
+                }
+                if (persons.length < 2) {
+                    ageDiffResult.style.display = 'block';
+                    ageDiffResult.innerHTML = '<p style="color: #f44336;">Please enter at least 2 valid persons to compare.</p>';
+                    return;
+                }
+                persons.sort((a, b) => b.age - a.age);
+                let html = '<h3 style="margin-bottom: 0.75rem;">Comparison Results</h3><div class="life-stats">';
+                persons.forEach((person, idx) => {
+                    html += '<div class="life-stat"><span>' + person.name + '</span><strong>' + person.age + ' years</strong></div>';
+                });
+                html += '</div>';
+                const oldest = persons[0];
+                const youngest = persons[persons.length - 1];
+                const ageGap = oldest.age - youngest.age;
+                html += '<p style="margin-top: 0.75rem;">' + oldest.name + ' is <strong>' + ageGap + ' years</strong> older than ' + youngest.name + '.</p>';
+                ageDiffResult.style.display = 'block';
+                ageDiffResult.innerHTML = html;
+            });
+
+            // Auto-calculate on page load if birth date is valid
+            if (isValidBirthDate()) {
+                calculateAge();
+            }
         });
     </script>
 </body>
