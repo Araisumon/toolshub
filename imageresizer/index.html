@@ -550,6 +550,102 @@
             color: var(--success);
         }
 
+        /* --------------------------------------------------
+           SCROLL TOGGLE (TOP/BOTTOM) - ADVANCED
+           -------------------------------------------------- */
+        #scrollToggleBtn {
+            position: fixed;
+            right: 20px;
+            bottom: 130px;
+            z-index: 50;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 0 0 0 rgba(102, 126, 234, 0.7);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.7);
+            overflow: visible;
+        }
+        #scrollToggleBtn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+            animation: scroll-btn-pulse 2.5s ease-in-out infinite;
+        }
+        #scrollToggleBtn:hover {
+            transform: scale(1.12);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6), 0 0 0 8px rgba(102, 126, 234, 0.15);
+            animation: none;
+        }
+        #scrollToggleBtn:active {
+            transform: scale(0.92);
+            transition: transform 0.15s ease;
+        }
+        @keyframes scroll-btn-pulse {
+            0%, 100% { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 0 0 0 rgba(102, 126, 234, 0.5); }
+            50% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.55), 0 0 0 10px rgba(102, 126, 234, 0); }
+        }
+        #scrollToggleBtn .scroll-icon {
+            position: relative;
+            z-index: 2;
+            font-size: 1.3rem;
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #scrollToggleBtn .scroll-ring {
+            position: absolute;
+            inset: -5px;
+            transform: rotate(-90deg);
+        }
+        #scrollToggleBtn .scroll-ring circle {
+            fill: none;
+            stroke: rgba(255,255,255,0.3);
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+        #scrollToggleBtn .scroll-ring .progress-fill {
+            stroke: rgba(255,255,255,0.8);
+            stroke-dasharray: 0 1000;
+            transition: stroke-dasharray 0.35s ease;
+        }
+        #scrollToggleBtn .tooltip-hint {
+            position: absolute;
+            right: 60px;
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            transform: translateY(-50%);
+            top: 50%;
+        }
+        #scrollToggleBtn:hover .tooltip-hint {
+            opacity: 1;
+        }
+        @media (max-width: 640px) {
+            #scrollToggleBtn {
+                right: 12px;
+                bottom: 100px;
+                width: 42px;
+                height: 42px;
+            }
+            #scrollToggleBtn .scroll-icon { font-size: 1.1rem; }
+            #scrollToggleBtn .tooltip-hint { display: none; }
+        }
+
         /* ========================================
            SCROLLBAR STYLING
            ======================================== */
@@ -596,7 +692,6 @@
                 gap: 4px;
                 padding: 10px 12px;
             }
-            header > div:first-child { width: 100%; }
             header > div:nth-child(2) { font-size: 1.1rem !important; width: 100%; }
             #dropZone { padding: 18px 10px; }
             #dropZone .drop-icon { font-size: 2rem; }
@@ -706,15 +801,17 @@
     <!-- ========================================
          HEADER
          ======================================== -->
-    <header class="text-white p-4 flex justify-between items-center shadow-lg" role="banner">
+    <header class="text-white p-4 flex items-center shadow-lg" role="banner">
         <nav class="flex items-center gap-3" aria-label="Main navigation">
-        <div class="text-2xl font-bold flex items-center gap-3">
-            Image Buzz
-            <button id="darkModeToggle" class="text-xl bg-white/20 hover:bg-white/30 rounded-full w-9 h-9 flex items-center justify-center transition" title="Toggle Dark Mode" aria-label="Toggle dark mode">🌙</button>
-        </div>
-        <div class="text-3xl font-semibold hidden sm:block">Easy Image Resizer</div>
-        <a href="/" class="bg-white text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm font-semibold" aria-label="Return to homepage">Home</a>
+            <div class="text-2xl font-bold">
+                Image Buzz
+            </div>
         </nav>
+        <div class="text-2xl sm:text-3xl font-semibold mx-auto">Easy Image Resizer</div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <button id="darkModeToggle" class="text-xl bg-white/20 hover:bg-white/30 rounded-full w-9 h-9 flex items-center justify-center transition" title="Toggle Dark Mode" aria-label="Toggle dark mode">🌙</button>
+            <a href="/" class="bg-white text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm font-semibold" aria-label="Return to homepage">Home</a>
+        </div>
     </header>
 
     <!-- ========================================
@@ -1062,6 +1159,18 @@
         <button class="fab-btn tooltip-fab" data-tip="Download ZIP" id="fabDownload" title="Download ZIP">📥</button>
     </div>
 
+    <!-- ========================================
+         FLOATING SCROLL TOGGLE (TOP/BOTTOM)
+         ======================================== -->
+    <button id="scrollToggleBtn" title="Scroll to Bottom" aria-label="Scroll to bottom">
+        <svg class="scroll-ring" viewBox="0 0 60 60" width="60" height="60">
+            <circle cx="30" cy="30" r="26"/>
+            <circle class="progress-fill" cx="30" cy="30" r="26"/>
+        </svg>
+        <span class="scroll-icon">⬇</span>
+        <span class="tooltip-hint">Bottom</span>
+    </button>
+
     <!-- Footer -->
     <footer class="text-center p-5 text-sm" role="contentinfo" aria-label="Site footer">
         <div class="max-w-4xl mx-auto">
@@ -1185,6 +1294,66 @@
                 applyTheme(current === 'dark' ? 'light' : 'dark');
                 showToast(current === 'dark' ? 'Light mode activated' : 'Dark mode activated', 'info', 1500);
             });
+        }
+
+        // ========================================
+        // SCROLL TOGGLE (TOP/BOTTOM) - ADVANCED
+        // ========================================
+        const scrollToggleBtn = $('scrollToggleBtn');
+        if (scrollToggleBtn) {
+            const scrollIcon = scrollToggleBtn.querySelector('.scroll-icon');
+            const tooltipHint = scrollToggleBtn.querySelector('.tooltip-hint');
+            const progressFill = scrollToggleBtn.querySelector('.progress-fill');
+            const ringLength = 2 * Math.PI * 26; // r=26 from SVG
+            let isNearBottom = false;
+
+            function updateScrollBtnState() {
+                const scrollY = window.scrollY;
+                const docH = document.body.scrollHeight;
+                const winH = window.innerHeight;
+                const maxScroll = docH - winH;
+                const scrollPct = maxScroll > 0 ? Math.min(100, (scrollY / maxScroll) * 100) : 0;
+
+                // Show/hide with visible class
+                const scrolled = scrollY > 300;
+                isNearBottom = scrollY + winH >= docH - 100;
+
+                if (scrolled || isNearBottom) {
+                    scrollToggleBtn.classList.add('visible');
+                } else {
+                    scrollToggleBtn.classList.remove('visible');
+                }
+
+                // Update progress ring
+                if (progressFill) {
+                    const dashLen = (scrollPct / 100) * ringLength;
+                    progressFill.setAttribute('stroke-dasharray', `${dashLen} ${ringLength}`);
+                }
+
+                // Update icon + tooltip
+                if (isNearBottom) {
+                    scrollIcon.textContent = '⬆';
+                    scrollToggleBtn.title = 'Scroll to Top';
+                    scrollToggleBtn.setAttribute('aria-label', 'Scroll to top');
+                    if (tooltipHint) tooltipHint.textContent = 'Top';
+                } else {
+                    scrollIcon.textContent = '⬇';
+                    scrollToggleBtn.title = 'Scroll to Bottom';
+                    scrollToggleBtn.setAttribute('aria-label', 'Scroll to bottom');
+                    if (tooltipHint) tooltipHint.textContent = 'Bottom';
+                }
+            }
+
+            scrollToggleBtn.addEventListener('click', () => {
+                if (isNearBottom) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }
+            });
+
+            window.addEventListener('scroll', updateScrollBtnState, { passive: true });
+            updateScrollBtnState();
         }
 
         // ========================================
@@ -1387,6 +1556,10 @@
                         originalImages.splice(toIdx, 0, moved);
                         renderGallery();
                         updatePreviewFromFiles();
+                        // If in crop mode, update crop canvas to match new first image
+                        if (currentMode === 'crop' && originalImages.length > 0) {
+                            updateCropCanvas(originalImages[0]);
+                        }
                         showToast('File reordered', 'success', 1500);
                     }
                 });
@@ -1425,6 +1598,7 @@
         }
 
         function removeFile(index) {
+            if (index < 0 || index >= originalImages.length) return;
             const name = originalImages[index].name;
             originalImages.splice(index, 1);
             renderGallery();
@@ -1456,9 +1630,7 @@
 
         if (clearAllFiles) {
             clearAllFiles.addEventListener('click', () => {
-                originalImages = [];
                 resetState();
-                renderGallery();
                 showToast('All files cleared', 'info', 2000);
             });
         }
@@ -1703,6 +1875,10 @@
             originalImages = Array.from(files);
             renderGallery();
             updatePreviewFromFiles();
+            // If in crop mode, initialize crop canvas with first image
+            if (currentMode === 'crop' && originalImages.length > 0) {
+                updateCropCanvas(originalImages[0]);
+            }
             processTimes.innerHTML = '';
             cropCanvas.classList.add('hidden');
             cropSize.textContent = '';
@@ -1879,7 +2055,8 @@
         // ========================================
         function showCompressResult(origKB, outKB) {
             if (currentMode !== 'compress') { compressResult.classList.add('hidden'); return; }
-            const reduction = origKB > 0 ? ((1 - outKB / origKB) * 100) : 0;
+            const safeOrig = origKB > 0 ? origKB : 1;
+            const reduction = ((1 - outKB / safeOrig) * 100);
             compressPercent.textContent = reduction > 0 ? `${reduction.toFixed(1)}%` : '0%';
             compressDetail.textContent = reduction > 0 ? `smaller · ${origKB.toFixed(1)} KB → ${outKB.toFixed(1)} KB` : `no significant change · ${outKB.toFixed(1)} KB`;
             compressResult.classList.remove('hidden');
@@ -2020,7 +2197,7 @@
                 ctx.drawImage(img, -img.width / 2, -img.height / 2);
 
                 const tc = document.createElement('canvas'), tctx = tc.getContext('2d');
-                if (currentMode === 'crop') {
+                if (currentMode === 'crop' && cropCanvas && cropCanvas.width > 0 && cropCanvas.height > 0) {
                     let cx = cropBox.x * (img.width / cropCanvas.width), cy = cropBox.y * (img.height / cropCanvas.height);
                     let cw = cropBox.width * (img.width / cropCanvas.width), ch = cropBox.height * (img.height / cropCanvas.height);
                     tc.width = cw; tc.height = ch; tctx.drawImage(canvas, -cx, -cy, img.width, img.height);
@@ -2072,7 +2249,7 @@
                         tctx.drawImage(canvas, 0, 0, img.width, img.height);
                     } else {
                         let nw = settings.width, nh = settings.height;
-                        if (settings.mode === 'fit' && settings.aspectRatio) {
+                        if (settings.mode === 'fit' && settings.aspectRatio && settings.height > 0) {
                             const ratio = img.width / img.height;
                             if (settings.width / settings.height > ratio) nw = Math.round(settings.height * ratio);
                             else nh = Math.round(settings.width / ratio);
@@ -2082,7 +2259,10 @@
                     drawWatermark(tctx, tc.width, tc.height);
 
                     let quality = settings.quality, format = settings.format;
+                    // HEIC encoding is not supported by canvas; always fall back to JPEG
                     if (format === 'image/heic') format = 'image/jpeg';
+                    // HEIF support check
+                    if (format === 'image/heif') format = 'image/jpeg';
                     const maxAttempts = 10; let attempts = maxAttempts;
                     function tryExport(q) {
                         tc.toBlob((blob) => {
@@ -2112,6 +2292,11 @@
             processButton.classList.add('loading'); processButton.disabled = true;
 
             if (mode === 'crop') {
+                if (!cropCanvas || cropCanvas.width === 0 || cropCanvas.height === 0) {
+                    showToast('Please open the Crop panel and adjust the crop area first!', 'error', 3000);
+                    processButton.classList.remove('loading'); processButton.disabled = false;
+                    return;
+                }
                 format = cropExportFormat.value === 'original' ? originalImages[0].type : cropExportFormat.value;
                 quality = parseInt(qualityInput.value) / 100;
                 targetSizeValue = parseInt(cropTargetSize.value) || null;
