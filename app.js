@@ -996,7 +996,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Parse URL parameter first to set proper active category on load
     const urlParams = new URLSearchParams(window.location.search);
     const catParam = urlParams.get('cat');
-    if (catParam) {
+    
+    // Check if running on the Blog route path (inside /blog/ folder)
+    const isBlogRoute = window.location.pathname.includes('/blog/') || window.location.pathname.endsWith('/blog');
+    
+    if (isBlogRoute) {
+        state.activeCategory = "blog";
+        updateCategoryActiveUI("blog");
+    } else if (catParam) {
         state.activeCategory = catParam;
         updateCategoryActiveUI(catParam);
     }
@@ -1004,8 +1011,27 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTools();
     generatePassword(); // Initialise password output
     
-    if (catParam) {
-        // Smooth scroll to search section if filtering by query param
+    // Intercept Blog navigation links on the landing page for smooth client-side filtering
+    const isHomePage = document.getElementById("search-section");
+    if (isHomePage) {
+        document.querySelectorAll('a[href="blog"], a[href="../blog"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (!isExtension) {
+                    e.preventDefault();
+                    state.activeCategory = "blog";
+                    updateCategoryActiveUI("blog");
+                    renderTools();
+                    closeDrawer();
+                    
+                    const searchSec = document.getElementById("search-section");
+                    if (searchSec) searchSec.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    }
+    
+    if (isBlogRoute || catParam) {
+        // Smooth scroll to search section if filtering by query param or on blog path
         setTimeout(() => {
             const searchSec = document.getElementById("search-section");
             if (searchSec) searchSec.scrollIntoView({ behavior: 'smooth' });
