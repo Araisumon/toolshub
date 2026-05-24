@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
+    <!-- Schema.org JSON-LD Structured Data for Search Engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "ToolsHub",
+      "url": "https://toolshub.cam/",
+      "description": "Access 45+ free online tools for developers, designers, and creators. Compress images, merge PDFs, generate QR codes, calculate ages, and more locally in-browser.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolsHub | Free Online Tools for Developers & Creators</title>
+    <meta name="description" content="ToolsHub offers 100+ free online tools for developers, designers, and marketers. Compress images, merge PDFs, generate QR codes, calculate ages, generate passwords, and more in seconds—no signup needed!">
+    <meta name="keywords" content="image tools, PDF tools, developer tools, calculators, generators, tools hub, static tools, browser based tools">
+    <meta name="author" content="ToolsHub">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://toolshub.cam/">
+    <meta property="og:title" content="ToolsHub - Free Online Tools for Everyone">
+    <meta property="og:description" content="Compress images, merge PDFs, generate QR codes, generate passwords, and more with ToolsHub's free tools. No signup required!">
+    <meta property="og:image" content="https://toolshub.cam/tools-illustration.webp">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://toolshub.cam/">
+    <meta property="twitter:title" content="ToolsHub - Free Online Tools for Everyone">
+    <meta property="twitter:description" content="Compress images, merge PDFs, generate QR codes, generate passwords, and more with ToolsHub's free tools. No signup required!">
+    <meta property="twitter:image" content="https://toolshub.cam/tools-illustration.webp">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="/" class="logo">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>ToolsHub</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html" class="nav-item">Home</a>
+                    <a href="about.html" class="nav-item">About</a>
+                    <a href="blog" class="nav-item">Blog</a>
+                    <a href="contact.html" class="nav-item">Contact</a>
+                </nav>
+                <div class="nav-actions">
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-moon"></i>
+                        <span style="display: none;">Dark</span>
+                    </button>
+                    <button id="menu-toggle" class="icon-btn mobile-menu-btn" aria-label="Toggle Menu" title="Menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Header Section -->
+    <section class="hero">
+        <div class="hero-glow-1"></div>
+        <div class="hero-glow-2"></div>
+        <div class="container">
+            <h1>All-in-One Utility Toolkit</h1>
+            <p>Access over 100+ free browser-based tools for developers, designers, and creators. Your files remain secure as processing happens locally on your device.</p>
+            
+            <!-- Global Interactive Search Engine -->
+            <div class="search-wrapper">
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search tools (e.g., pdf, compressor, json, qr)..." autocomplete="off" aria-label="Search tools">
+                    <button id="search-clear" class="search-clear" aria-label="Clear search" title="Clear">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button class="search-btn" aria-label="Search button">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Search</span>
+                    </button>
+                </div>
+                
+                <!-- Hero Quick Search Tags -->
+                <div class="quick-tags">
+                    <button class="tag-btn" data-term="pdf">PDF</button>
+                    <button class="tag-btn" data-term="compress">Compress</button>
+                    <button class="tag-btn" data-term="json">JSON</button>
+                    <button class="tag-btn" data-term="password">Password</button>
+                    <button class="tag-btn" data-term="qr">QR Code</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Swipe Pill Tabs (Sticky Navigation) -->
+    <section class="categories-section" id="search-section">
+        <div class="container">
+            <div class="categories-scroll">
+                <button class="category-pill active" data-category="all" aria-label="All Tools Category">
+                    <i class="fa-solid fa-border-all"></i> All Tools
+                </button>
+                <button class="category-pill" data-category="favorites" aria-label="Favorites Category">
+                    <i class="fa-solid fa-star" style="color: var(--accent);"></i> Favorites
+                </button>
+                <button class="category-pill" data-category="blog" aria-label="Blog Category">
+                    <i class="fa-solid fa-newspaper"></i> Blog
+                </button>
+                <button class="category-pill" data-category="pdf" aria-label="PDF Tools Category">
+                    <i class="fa-solid fa-file-pdf"></i> PDF & Docs
+                </button>
+                <button class="category-pill" data-category="image" aria-label="Image Tools Category">
+                    <i class="fa-solid fa-image"></i> Images
+                </button>
+                <button class="category-pill" data-category="dev" aria-label="Developer Tools Category">
+                    <i class="fa-solid fa-code"></i> Developer
+                </button>
+                <button class="category-pill" data-category="text" aria-label="Text Tools Category">
+                    <i class="fa-solid fa-file-lines"></i> Writing & Text
+                </button>
+                <button class="category-pill" data-category="calc" aria-label="Calculator Tools Category">
+                    <i class="fa-solid fa-calculator"></i> Calculators
+                </button>
+                <button class="category-pill" data-category="fun" aria-label="Productivity Tools Category">
+                    <i class="fa-solid fa-rocket"></i> Productivity
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Grid Content Area -->
+    <main class="tools-section">
+        <div class="container">
+            
+            <!-- Bookmarked Favorite Tools Ribbon Alert -->
+            <div id="bookmarks-bar" class="bookmarks-bar">
+                <div class="bookmarks-info">
+                    <i class="fa-solid fa-star"></i>
+                    <span>You have bookmarked <strong id="bookmarks-count">0 tools</strong> for quick access.</span>
+                </div>
+                <button id="bookmarks-clear" class="bookmarks-clear">Clear Bookmarks</button>
+            </div>
+
+            <!-- Header counters -->
+            <div class="section-header">
+                <h2 class="section-title">Explore Tools</h2>
+                <span id="results-count" class="results-count">Showing 0 tools</span>
+            </div>
+
+            <!-- Dynamic Tools Cards Grid -->
+            <div id="tools-grid" class="tools-grid">
+                <!-- Skeleton cards while JavaScript loads data -->
+                <div class="skeleton-card">
+                    <div class="skeleton-circle"></div>
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line text-1"></div>
+                    <div class="skeleton-line text-2"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-circle"></div>
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line text-1"></div>
+                    <div class="skeleton-line text-2"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-circle"></div>
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line text-1"></div>
+                    <div class="skeleton-line text-2"></div>
+                </div>
+            </div>
+
+            <!-- Empty Search Results State -->
+            <div id="empty-state" class="empty-state">
+                <i class="fa-solid fa-face-frown-open"></i>
+                <h3>No Tools Found</h3>
+                <p>We couldn't find any tool matching your search. Please check your keywords or filter categories.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Embedded Instant Play Mini-Tools Section -->
+    <section class="interactive-section" id="interactive-section">
+        <div class="container">
+            <div class="interactive-grid">
+                
+                <div class="interactive-info">
+                    <h2 class="section-title">Instant Play Utilities</h2>
+                    <p>Try these fully functional tools directly on the landing page! No page jumps, no load times—zero-latency utility, 100% locally in your browser.</p>
+                    
+                    <div class="interactive-tabs">
+                        <button id="tab-password" class="interactive-tab-btn active" data-pane="pane-password" aria-label="Password Generator Tab">Password Gen</button>
+                        <button id="tab-qr" class="interactive-tab-btn" data-pane="pane-qr" aria-label="QR Code Generator Tab">QR Code</button>
+                        <button id="tab-word" class="interactive-tab-btn" data-pane="pane-word" aria-label="Word Counter Tab">Word Counter</button>
+                    </div>
+                </div>
+
+                <div class="interactive-widget-box">
+                    
+                    <!-- Pane 1: Password Generator -->
+                    <div id="pane-password" class="widget-pane active">
+                        <div class="widget-group">
+                            <label class="widget-label">Password Length: <strong id="pass-length-val">12</strong></label>
+                            <input type="range" id="pass-length" min="6" max="32" value="12" style="width: 100%; accent-color: var(--primary);">
+                        </div>
+                        <div class="widget-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-upper" checked> Include Uppercase Letters (A-Z)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-lower" checked> Include Lowercase Letters (a-z)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-number" checked> Include Numbers (0-9)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="pass-symbol" checked> Include Symbols (!@#$)
+                            </label>
+                        </div>
+                        <button id="pass-generate-btn" class="widget-action-btn">Generate Password</button>
+                        <div class="widget-result-box">
+                            <div id="pass-output" class="widget-result-text">Select at least 1 option!</div>
+                            <button id="pass-copy-btn" class="widget-copy-btn" title="Copy to Clipboard" aria-label="Copy Result">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pane 2: QR Code Generator -->
+                    <div id="pane-qr" class="widget-pane">
+                        <div class="widget-group">
+                            <label for="qr-input" class="widget-label">Enter Link or Text</label>
+                            <input type="text" id="qr-input" class="widget-input" placeholder="https://toolshub.cam" aria-label="QR Input Text">
+                        </div>
+                        <button id="qr-generate-btn" class="widget-action-btn">Create QR Code</button>
+                        <div id="qr-output-container">
+                            <div class="qr-placeholder">Your QR Code will appear here.</div>
+                        </div>
+                    </div>
+
+                    <!-- Pane 3: Word Counter -->
+                    <div id="pane-word" class="widget-pane">
+                        <div class="widget-group">
+                            <label for="word-input" class="widget-label">Type or Paste Text Below</label>
+                            <textarea id="word-input" class="widget-input" rows="5" placeholder="Start typing here..." style="resize: vertical; font-family: var(--font-sans);" aria-label="Word counter textarea"></textarea>
+                        </div>
+                        <div class="word-stats">
+                            <div class="stat-item">
+                                <div id="stat-words" class="stat-val">0</div>
+                                <div class="stat-lbl">Words</div>
+                            </div>
+                            <div class="stat-item">
+                                <div id="stat-chars" class="stat-val">0</div>
+                                <div class="stat-lbl">Characters</div>
+                            </div>
+                            <div class="stat-item">
+                                <div id="stat-sentences" class="stat-val">0</div>
+                                <div class="stat-lbl">Sentences</div>
+                            </div>
+                            <div class="stat-item">
+                                <div id="stat-readtime" class="stat-val">0m</div>
+                                <div class="stat-lbl">Read Time</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Why ToolsHub / Privacy Assurance -->
+    <section class="features" id="about-section">
+        <div class="container">
+            <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Premium Features Built for Privacy</h2>
+            <div class="features-grid">
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3>100% Privacy Focused</h3>
+                    <p>All calculations, conversions, and processing happen locally inside your web browser. No files are ever sent to remote servers.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <h3>Zero Latency Speeds</h3>
+                    <p>Since data is computed on your local device, files process instantly without network bottlenecks or upload queues.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-user-xmark"></i>
+                    </div>
+                    <h3>No Signup or Installs</h3>
+                    <p>Access our premium services completely free, 24/7. No credits cards, signups, accounts, or software installs required.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Area -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo">
+                        <i class="fa-solid fa-cubes"></i>
+                        <span>ToolsHub</span>
+                    </a>
+                    <p>ToolsHub.cam is a premier online portal featuring over 100+ secure, local, in-browser static utilities built for absolute performance.</p>
+                    <div class="social-links">
+                        <a href="#" class="icon-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="icon-btn" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="icon-btn" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Utility Categories</h4>
+                    <ul>
+                        <li><a href="#" data-category="pdf">PDF Utilities</a></li>
+                        <li><a href="#" data-category="image">Image Editors</a></li>
+                        <li><a href="#" data-category="dev">Developer Syntax</a></li>
+                        <li><a href="#" data-category="text">Writing helpers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">API docs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 ToolsHub. All rights reserved. Made with ❤️ locally in browser.</span>
+                <span>Version 2.0 (Premium Update)</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile-Only Floating Bottom Navigation Bar (Holds Search, Categories, Widgets) -->
+    <nav class="bottom-nav" aria-label="Mobile Navigation Bar">
+        <div class="bottom-nav-wrapper">
+            <div class="bottom-nav-item active" data-category="all" aria-label="All Tools">
+                <i class="fa-solid fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="bottom-nav-item" data-category="favorites" aria-label="Favorites">
+                <i class="fa-solid fa-star"></i>
+                <span>Favs</span>
+            </div>
+            <div class="bottom-nav-item" data-action="widget" aria-label="Instant Play Widgets">
+                <i class="fa-solid fa-cubes"></i>
+                <span>Instant</span>
+            </div>
+            <div class="bottom-nav-item" data-category="dev" aria-label="Developer category">
+                <i class="fa-solid fa-code"></i>
+                <span>Dev</span>
+            </div>
+            <div class="bottom-nav-item" id="theme-toggle-mobile" data-action="theme" aria-label="Toggle Theme mobile">
+                <i class="fa-solid fa-moon"></i>
+                <span>Theme</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Drawer Overlay Menu -->
+    <div id="mobile-drawer" class="mobile-drawer">
+        <div class="drawer-header">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-cubes"></i>
+                <span>ToolsHub</span>
+            </a>
+            <button id="drawer-close" class="icon-btn" aria-label="Close Menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <nav class="drawer-links">
+            <a href="index.html" class="drawer-item"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="about.html" class="drawer-item"><i class="fa-solid fa-circle-info"></i> About</a>
+            <a href="blog" class="drawer-item"><i class="fa-solid fa-newspaper"></i> Blog</a>
+            <a href="contact.html" class="drawer-item"><i class="fa-solid fa-envelope"></i> Contact</a>
+        </nav>
+    </div>
+
+    <!-- Floating Scroll Toggle Button (Top/Bottom) -->
+    <button id="scroll-toggle" class="scroll-toggle-btn" aria-label="Toggle Scroll Position" title="Scroll to Bottom">
+        <i class="fa-solid fa-arrow-down"></i>
+    </button>
+
+    <!-- Blog Reader Modal Overlay -->
+    <div id="blog-modal" class="blog-modal" aria-hidden="true" role="dialog">
+        <div class="blog-modal-backdrop"></div>
+        <div class="blog-modal-container">
+            <div class="blog-modal-header">
+                <div class="blog-modal-meta">
+                    <span id="blog-modal-badge" class="blog-modal-badge">Category</span>
+                    <span id="blog-modal-date" class="blog-modal-date">Date</span>
+                </div>
+                <button id="blog-modal-close" class="icon-btn" aria-label="Close Article">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="blog-modal-body">
+                <h1 id="blog-modal-title">Article Title</h1>
+                <div id="blog-modal-content" class="blog-content-area">
+                    <!-- Content injected dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Logic Script -->
+    <script src="app.js"></script>
+</body>
+</html>
