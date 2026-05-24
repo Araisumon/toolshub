@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | ToolsHub</title>
+    <meta name="description" content="ToolsHub Privacy Policy. Learn how we protect your files and data with 100% browser-local client-side processing. No data is ever sent to our servers.">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
     <script>
@@ -10,10 +14,6 @@
 
       gtag('config', 'G-QX6N41VY5J');
     </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us | ToolsHub</title>
-    <meta name="description" content="Learn more about ToolsHub—a privacy-focused platform offering 100+ free local, in-browser tools for creators and developers. No files uploaded.">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,114 +21,81 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <style>
-        .about-hero {
+        .privacy-hero {
             padding: 5rem 0 3rem;
             text-align: center;
             background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.03) 0%, rgba(var(--secondary-rgb), 0.03) 100%);
         }
-        .about-hero h1 {
+        .privacy-hero h1 {
             font-size: 2.8rem;
             margin-bottom: 1rem;
             background: linear-gradient(135deg, var(--text-primary) 30%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .about-hero p {
+        .privacy-hero p {
             color: var(--text-secondary);
             font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
         }
-        .content-section {
-            padding: 4rem 0;
+        .privacy-section {
+            padding: 4rem 0 6rem;
         }
-        .grid-two {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-            margin-bottom: 4rem;
+        .privacy-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            box-shadow: var(--shadow-premium);
         }
-        @media (max-width: 768px) {
-            .grid-two {
-                grid-template-columns: 1fr;
-                gap: 2rem;
+        @media (max-width: 640px) {
+            .privacy-card {
+                padding: 1.5rem;
             }
         }
-        .content-block h2 {
-            font-size: 2rem;
-            margin-bottom: 1.25rem;
+        .privacy-card h2 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .content-block p {
+        .privacy-card h2 i {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+        .privacy-card h2:first-of-type {
+            margin-top: 0;
+        }
+        .privacy-card p {
             color: var(--text-secondary);
             font-size: 1rem;
             line-height: 1.7;
             margin-bottom: 1.25rem;
         }
-        .value-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow-sm);
-        }
-        .value-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-md);
-            background: rgba(var(--primary-rgb), 0.08);
-            color: var(--primary);
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .value-info h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.25rem;
-        }
-        .value-info p {
-            font-size: 0.9rem;
+        .privacy-card ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1.25rem;
             color: var(--text-secondary);
-            line-height: 1.5;
         }
-        .category-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 1.25rem;
-            margin-top: 2rem;
+        .privacy-card li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
         }
-        .cat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+        .highlight-box {
+            background: rgba(var(--primary-rgb), 0.04);
+            border-left: 4px solid var(--primary);
             padding: 1.5rem;
-            border-radius: var(--radius-md);
-            text-align: center;
-            transition: var(--transition);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin-bottom: 2rem;
         }
-        .cat-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-            box-shadow: var(--shadow-md);
-        }
-        .cat-card i {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-        .cat-card h3 {
-            font-size: 1rem;
-            margin-bottom: 0.25rem;
-        }
-        .cat-card span {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 600;
+        .highlight-box p {
+            margin-bottom: 0;
+            font-weight: 500;
+            color: var(--text-primary);
         }
     </style>
 </head>
@@ -144,7 +111,7 @@
                 </a>
                 <nav class="nav-links">
                     <a href="index.html" class="nav-item">Home</a>
-                    <a href="about.html" class="nav-item active">About</a>
+                    <a href="about.html" class="nav-item">About</a>
                     <a href="index.html?cat=blog" class="nav-item">Blog</a>
                     <a href="contact.html" class="nav-item">Contact</a>
                 </nav>
@@ -162,88 +129,56 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="about-hero">
+    <section class="privacy-hero">
         <div class="container">
-            <h1>Our Mission & Vision</h1>
-            <p>Providing safe, fast, and completely private browser-based utilities to help you accomplish your daily digital tasks without hassle.</p>
+            <h1>Privacy Policy</h1>
+            <p>Your privacy is our core feature. Learn how we guarantee complete security using browser-local execution.</p>
         </div>
     </section>
 
-    <!-- Main Content Section -->
-    <section class="content-section">
+    <!-- Content Section -->
+    <section class="privacy-section">
         <div class="container">
-            
-            <div class="grid-two">
-                <div class="content-block">
-                    <h2>Why ToolsHub Was Created</h2>
-                    <p>In today's digital landscape, simple tasks like converting a PDF, resizing an image, or formatting a JSON code snippet often require uploading files to remote servers. This introduces security risks, bandwidth lags, and privacy concerns.</p>
-                    <p>ToolsHub was built as an answer to this problem. Our platform utilizes advanced HTML5, CSS3, and JavaScript modern APIs to carry out all calculations and processing <strong>locally in your browser</strong>. Your private data never leaves your device.</p>
-                    <p>No downloads, no installations, and absolutely no registration required. Just instant, free utilities available 24/7 at your fingertips.</p>
-                </div>
-                <div class="values-list">
-                    <div class="value-card">
-                        <div class="value-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                        <div class="value-info">
-                            <h3>Absolute Privacy</h3>
-                            <p>All tool scripts are executed client-side. We do not host your uploaded data, guaranteeing 100% security.</p>
-                        </div>
-                    </div>
-                    <div class="value-card">
-                        <div class="value-icon"><i class="fa-solid fa-gauge-high"></i></div>
-                        <div class="value-info">
-                            <h3>Lightning Speeds</h3>
-                            <p>No upload latency or server queues. Files process instantly utilizing your CPU's native speed.</p>
-                        </div>
-                    </div>
-                    <div class="value-card">
-                        <div class="value-icon"><i class="fa-solid fa-circle-xmark"></i></div>
-                        <div class="value-info">
-                            <h3>No Signup Required</h3>
-                            <p>Enjoy our entire suite of developer and creator utilities completely free without creating any accounts.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Categories Overview -->
-            <div style="text-align: center; margin-top: 5rem;">
-                <h2>Explore Our Utilities Suite</h2>
-                <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;">Discover 45+ specialized tools carefully optimized for mobile and desktop devices alike.</p>
+            <div class="privacy-card">
                 
-                <div class="category-summary-grid">
-                    <a href="index.html" class="cat-card">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <h3>PDF & Docs</h3>
-                        <span>7 Tools</span>
-                    </a>
-                    <a href="index.html" class="cat-card">
-                        <i class="fa-solid fa-image"></i>
-                        <h3>Image & Graphics</h3>
-                        <span>8 Tools</span>
-                    </a>
-                    <a href="index.html" class="cat-card">
-                        <i class="fa-solid fa-code"></i>
-                        <h3>Developer Specs</h3>
-                        <span>7 Tools</span>
-                    </a>
-                    <a href="index.html" class="cat-card">
-                        <i class="fa-solid fa-file-lines"></i>
-                        <h3>Writing Helpers</h3>
-                        <span>5 Tools</span>
-                    </a>
-                    <a href="index.html" class="cat-card">
-                        <i class="fa-solid fa-calculator"></i>
-                        <h3>Calculators</h3>
-                        <span>9 Tools</span>
-                    </a>
-                    <a href="index.html" class="cat-card">
-                        <i class="fa-solid fa-rocket"></i>
-                        <h3>Productivity</h3>
-                        <span>8 Tools</span>
-                    </a>
+                <div class="highlight-box">
+                    <p><i class="fa-solid fa-shield-halved"></i> <strong>Zero File Uploads:</strong> ToolsHub is designed so that your files, codes, inputs, and documents never touch our servers. Processing occurs entirely in your browser.</p>
                 </div>
-            </div>
 
+                <h2><i class="fa-solid fa-computer"></i> 1. Browser-Local (Client-Side) Processing</h2>
+                <p>Unlike standard utility portals that upload files to cloud servers to compress, convert, or parse them, ToolsHub operates on a **100% client-side** architecture. When you upload a PDF to merge, a JPEG to compress, or a password to generate:</p>
+                <ul>
+                    <li>The action is executed locally in your browser sandbox using HTML5 File APIs and JavaScript engine compilers.</li>
+                    <li>No file data is uploaded to our servers, hosted, or cached remotely.</li>
+                    <li>Your source files never travel over the network, ensuring absolute protection from data interception.</li>
+                </ul>
+
+                <h2><i class="fa-solid fa-database"></i> 2. No Data Collection or Logging</h2>
+                <p>We do not maintain user accounts, profiles, database credentials, or logging systems. Because we do not upload your documents:</p>
+                <ul>
+                    <li>We cannot view, share, sell, or inspect the content of your documents.</li>
+                    <li>We do not record the inputs, parameters, or outputs of the calculations you perform.</li>
+                    <li>We do not log transaction histories or user activities.</li>
+                </ul>
+
+                <h2><i class="fa-solid fa-cookie-bite"></i> 3. Cookies and Local Storage</h2>
+                <p>ToolsHub does not use cookies for tracking or user profiling. We utilize standard browser **LocalStorage** strictly to preserve your customized settings:</p>
+                <ul>
+                    <li><strong>`toolshub_bookmarks`</strong>: Stored to save the list of your favorite tools for quick dashboard access.</li>
+                    <li><strong>`toolshub_theme`</strong>: Stored to remember your theme preference (Dark or Light mode).</li>
+                </ul>
+                <p>This data remains localized on your hard drive and is never transmitted to us or any third party.</p>
+
+                <h2><i class="fa-solid fa-chart-line"></i> 4. Traffic Analytics</h2>
+                <p>We use Google Analytics (gtag.js) to monitor high-level website traffic metrics (such as page views, device types, and geographic regions). This script does not collect any document contents, keys, passwords, or personal inputs. It collects anonymized network parameters to help us optimize page layout performance for our mobile users.</p>
+
+                <h2><i class="fa-solid fa-file-shield"></i> 5. Third-Party Services</h2>
+                <p>Some of our visual features may load scripts from reliable Content Delivery Networks (CDNs) like FontAwesome or Google Fonts to render design assets. These CDNs do not have access to any files or processing actions executed inside our tools.</p>
+
+                <h2><i class="fa-solid fa-envelope"></i> 6. Contact & Support</h2>
+                <p>If you choose to contact us via the contact form on `contact.html`, we will receive the email address and message content you provide. We use this information strictly to resolve your query and never share your contact details for marketing purposes.</p>
+
+            </div>
         </div>
     </section>
 

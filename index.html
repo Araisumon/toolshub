@@ -76,7 +76,7 @@
                 <nav class="nav-links">
                     <a href="index.html" class="nav-item">Home</a>
                     <a href="about.html" class="nav-item">About</a>
-                    <a href="blog" class="nav-item">Blog</a>
+                    <a href="index.html?cat=blog" class="nav-item">Blog</a>
                     <a href="contact.html" class="nav-item">Contact</a>
                 </nav>
                 <div class="nav-actions">
@@ -135,6 +135,9 @@
                 </button>
                 <button class="category-pill" data-category="favorites" aria-label="Favorites Category">
                     <i class="fa-solid fa-star" style="color: var(--accent);"></i> Favorites
+                </button>
+                <button class="category-pill" data-category="blog" aria-label="Blog Category">
+                    <i class="fa-solid fa-newspaper"></i> Blog
                 </button>
                 <button class="category-pill" data-category="pdf" aria-label="PDF Tools Category">
                     <i class="fa-solid fa-file-pdf"></i> PDF & Docs
@@ -363,9 +366,9 @@
                 <div class="footer-links-col">
                     <h4>Company</h4>
                     <ul>
-                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
                         <li><a href="#">Terms of Use</a></li>
-                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
                         <li><a href="#">API docs</a></li>
                     </ul>
                 </div>
@@ -417,7 +420,7 @@
         <nav class="drawer-links">
             <a href="index.html" class="drawer-item"><i class="fa-solid fa-house"></i> Home</a>
             <a href="about.html" class="drawer-item"><i class="fa-solid fa-circle-info"></i> About</a>
-            <a href="blog" class="drawer-item"><i class="fa-solid fa-newspaper"></i> Blog</a>
+            <a href="index.html?cat=blog" class="drawer-item"><i class="fa-solid fa-newspaper"></i> Blog</a>
             <a href="contact.html" class="drawer-item"><i class="fa-solid fa-envelope"></i> Contact</a>
         </nav>
     </div>
@@ -426,6 +429,28 @@
     <button id="scroll-toggle" class="scroll-toggle-btn" aria-label="Toggle Scroll Position" title="Scroll to Bottom">
         <i class="fa-solid fa-arrow-down"></i>
     </button>
+
+    <!-- Blog Reader Modal Overlay -->
+    <div id="blog-modal" class="blog-modal" aria-hidden="true" role="dialog">
+        <div class="blog-modal-backdrop"></div>
+        <div class="blog-modal-container">
+            <div class="blog-modal-header">
+                <div class="blog-modal-meta">
+                    <span id="blog-modal-badge" class="blog-modal-badge">Category</span>
+                    <span id="blog-modal-date" class="blog-modal-date">Date</span>
+                </div>
+                <button id="blog-modal-close" class="icon-btn" aria-label="Close Article">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="blog-modal-body">
+                <h1 id="blog-modal-title">Article Title</h1>
+                <div id="blog-modal-content" class="blog-content-area">
+                    <!-- Content injected dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Logic Script -->
     <script src="app.js"></script>

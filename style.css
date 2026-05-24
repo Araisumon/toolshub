@@ -1412,3 +1412,154 @@ footer {
 .btn-secondary:hover {
     background: var(--border-color);
 }
+
+/* Blog Reader Modal Overlay */
+.blog-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.blog-modal.active {
+    display: flex;
+}
+
+.blog-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease;
+}
+
+.blog-modal-container {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-premium);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.blog-modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(var(--primary-rgb), 0.02);
+}
+
+.blog-modal-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.blog-modal-badge {
+    background: var(--primary);
+    color: #ffffff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.blog-modal-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.blog-modal-body {
+    padding: 2.5rem 3rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+@media (max-width: 640px) {
+    .blog-modal {
+        padding: 0;
+    }
+    .blog-modal-container {
+        max-height: 100vh;
+        height: 100%;
+        border-radius: 0;
+        border: none;
+    }
+    .blog-modal-body {
+        padding: 1.5rem 1.5rem 6rem;
+    }
+}
+
+.blog-modal-body h1 {
+    font-size: 2.2rem;
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.blog-content-area {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+
+.blog-content-area p {
+    margin-bottom: 1.5rem;
+}
+
+.blog-content-area h3 {
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.blog-content-area ul, .blog-content-area ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.blog-content-area li {
+    margin-bottom: 0.5rem;
+}
+
+.blog-content-area blockquote {
+    border-left: 4px solid var(--primary);
+    background: rgba(var(--primary-rgb), 0.04);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-style: italic;
+}
+

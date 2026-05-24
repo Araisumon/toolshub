@@ -2,6 +2,97 @@
 
 // Complete, Scraped Tools Database from toolshub.cam
 const TOOLS_DB = [
+    // Blog & Tech Guides
+    {
+        id: "blog-privacy",
+        title: "Why Browser-Local Processing is the Future of Web Privacy",
+        category: "blog",
+        badge: "Security",
+        icon: "fa-solid fa-shield-cat",
+        link: "#",
+        keywords: ["privacy", "security", "client-side", "local processing", "data safety"],
+        date: "May 20, 2026",
+        description: "Discover how modern client-side APIs are making it possible to convert files, compile code, and generate security certificates directly on user hardware, bypassing the need for cloud servers completely.",
+        content: `<p>In the early days of the web, server-side processing was the default architectural paradigm. If you wanted to compress an image, merge two documents, or parse a syntax tree, your browser had to bundle that data, upload it over the network to a remote cloud server, wait for a worker instance to execute the utility script, and download the resulting file. This architecture is not only bandwidth-heavy, but it also creates deep privacy and security vulnerabilities.</p>
+<h3>The Shift to Client-Side Execution</h3>
+<p>With the release of modern HTML5 capabilities, browser sandboxing, and high-performance compilation targets (like WebAssembly and V8 Engine optimization), the browser has transformed into a highly efficient environment for local computation. We can now write utility scripts that execute entirely on client CPU threads, bypassing the network layer entirely.</p>
+<blockquote>
+    "Browser-local processing means your files and credentials never traverse the internet. Absolute security is guaranteed because the data never leaves your device."
+</blockquote>
+<h3>Key Technical Advantages</h3>
+<ul>
+    <li><strong>Zero Server Storage:</strong> Since data is kept in memory structures, there is no threat of server database breaches exposing sensitive intellectual property or files.</li>
+    <li><strong>Latency Reductions:</strong> Bypassing the upload and download cycles means processing times are limited only by your device's native CPU cores.</li>
+    <li><strong>Offline Functionality:</strong> Once the static page and JS bundles are cached by your browser, these utility tools can run without an internet connection.</li>
+</ul>
+<p>At ToolsHub, our ultimate goal is to move 100% of standard web utility tools into browser-local environments. The future of the internet is decentralized, private, and localized.</p>`
+    },
+    {
+        id: "blog-webp",
+        title: "How to Optimize WebP Image Formats for Fast Site Performance",
+        category: "blog",
+        badge: "SEO",
+        icon: "fa-solid fa-file-image",
+        link: "#",
+        keywords: ["webp", "image optimization", "compression", "speed", "seo"],
+        date: "May 14, 2026",
+        description: "Struggling with slow page loading times? Learn how to configure your compression rates, remove metadata tags, and leverage client-side converters to compress PNG/JPG files to WebP instantly.",
+        content: `<p>Page loading speed is one of the most critical factors in modern Search Engine Optimization (SEO) and user experience. Study after study shows that if a page takes more than 3 seconds to load on mobile, over 50% of visitors will bounce. Images are almost always the biggest culprit behind bloated payloads.</p>
+<h3>Enter WebP: Next-Gen Image Compression</h3>
+<p>Developed by Google, the WebP format offers superior lossless and lossy compression for images on the web. Using predictive coding, WebP creates files that are on average 26% smaller in size compared to PNGs and 25-34% smaller than equivalent JPEG files, while maintaining identical visual fidelity.</p>
+<h3>Optimization Best Practices</h3>
+<ol>
+    <li><strong>Discard Metadata:</strong> Camera profiles, geotags, and editing history can account for up to 10% of a raw image's file size. Ensure your converter removes EXIF data during compilation.</li>
+    <li><strong>Target 75-80% Quality:</strong> For most web layouts, a quality factor of 75-80% provides the optimal sweet spot between image crispness and small file sizes.</li>
+    <li><strong>Client-Side Processing:</strong> Using standard HTML5 Canvas APIs, you can draw a JPEG/PNG image locally in-browser and export it as an optimized WebP format image dynamically.</li>
+</ol>
+<p>By leveraging local tools like the ToolsHub Image Converter, you can prepare all of your asset directories in WebP format without wasting hours uploading assets to remote portals.</p>`
+    },
+    {
+        id: "blog-base64",
+        title: "Base64 Encoding vs Encryption: Understanding the Difference",
+        category: "blog",
+        badge: "Developer",
+        icon: "fa-solid fa-code",
+        link: "#",
+        keywords: ["base64", "encryption", "obfuscation", "security", "encoding"],
+        date: "Apr 28, 2026",
+        description: "Many developers confuse Base64 obfuscation with military-grade encryption. We break down the structural differences, parsing pipelines, and ideal use cases for both standards.",
+        content: `<p>A common point of confusion among junior web developers is the difference between encoding and encryption. It is not uncommon to see codebases that attempt to "protect" user credentials by simply converting plain text to Base64 strings. In this guide, we break down why this is an unsafe practice.</p>
+<h3>What is Base64 Encoding?</h3>
+<p>Base64 is a binary-to-text encoding scheme. It takes raw binary data and represents it using a set of 64 printable ASCII characters (A-Z, a-z, 0-9, +, /, and padding =). Its primary purpose is transmission integrity—it ensures data is not corrupted when sent over networks or text-based protocols (like email headers or JSON objects) that might misinterpret raw binary streams. Anyone can reverse a Base64 string back to its original value instantly with no key required (using commands like \`atob\` in JS).</p>
+<h3>What is Encryption?</h3>
+<p>Encryption, on the other hand, is a mathematical mechanism designed to hide the meaning of data. It transforms plaintext into ciphertext using a specific algorithm (like AES-256) and a cryptographic key. Without the key, it is mathematically impossible to reverse the ciphertext back to plaintext. It is built strictly for security and access authorization, rather than data transmission compatibility.</p>
+<blockquote>
+    "Encoding formatting secures data against corruption during transfer. Cryptographic encryption secures data against unauthorized viewing."
+</blockquote>
+<h3>Ideal Use Cases</h3>
+<ul>
+    <li><strong>Base64:</strong> Inline images in CSS files, transmitting file attachments inside JSON payloads, formatting binary headers.</li>
+    <li><strong>Encryption:</strong> Protecting user passwords (using hashing algorithms like bcrypt), securing data payloads (AES-GCM), and HTTPS network tunnels (TLS/SSL).</li>
+</ul>`
+    },
+    {
+        id: "blog-pdf",
+        title: "The Ultimate Guide to PDF Compression without Quality Loss",
+        category: "blog",
+        badge: "Productivity",
+        icon: "fa-solid fa-file-zipper",
+        link: "#",
+        keywords: ["pdf", "compression", "optimize pdf", "document quality", "file size"],
+        date: "Apr 11, 2026",
+        description: "Need to email a large report but blocked by file attachment size limits? Explore our guide on dpi ratios, embedded fonts, and how browser compressors optimize PDF layout layers.",
+        content: `<p>PDF documents are the universal standard for corporate brochures, manuals, and reports. However, because they are designed to support high-fidelity print layouts, they often contain heavy embedded assets that make them too large for email attachments or fast web browsing downloads.</p>
+<h3>The Anatomy of PDF Bloat</h3>
+<p>A typical high-resolution PDF contains three primary elements that contribute to its size: high-dpi raster images (often 300+ DPI designed for physical printing), uncompressed vector paths, and fully embedded fonts (which include weights and character subsets you might not even use).</p>
+<h3>How PDF Compression Works</h3>
+<ol>
+    <li><strong>Image Downsampling:</strong> Reducing image resolution from 300 DPI to 150 or 72 DPI (which is standard for screen display) significantly reduces storage.</li>
+    <li><strong>Font Subsetting:</strong> Stripping unused glyphs from embedded font files so that only the characters actually present in the text are stored.</li>
+    <li><strong>Object Streams Compress:</strong> Compiling structural layout objects (margins, borders, tables) into compressed streams using deflate algorithms.</li>
+</ol>
+<p>Using local utilities like the ToolsHub PDF Compressor, you can adjust these compression parameters inside your browser context using modules like pdf-lib, reducing your PDF files by up to 80% without sacrificing text readability.</p>`
+    },
     // PDF & Document Tools
     {
         id: "pdf-merger",
@@ -562,6 +653,11 @@ function renderTools() {
                 // If clicked star bookmark, do not trigger navigation
                 if (e.target.closest(".bookmark-btn")) return;
                 
+                if (tool.category === "blog") {
+                    openBlogModal(tool.id);
+                    return;
+                }
+                
                 // If the tool has custom interactive preview on page (like password gen or qr gen), scroll to it.
                 // Otherwise navigate to the path.
                 const isEmbedded = (tool.id === "password-generator" || tool.id === "qr-generator" || tool.id === "word-counter");
@@ -599,7 +695,7 @@ function renderTools() {
                 </div>
                 <div class="card-footer">
                     ${badgeHTML}
-                    <span class="arrow-link">Open <i class="fa-solid fa-arrow-right-long"></i></span>
+                    <span class="arrow-link">${tool.category === 'blog' ? 'Read Article' : 'Open'} <i class="fa-solid fa-arrow-right-long"></i></span>
                 </div>
             `;
             
@@ -897,11 +993,24 @@ if (wordInput) {
 
 /* --- Run Initial Render --- */
 document.addEventListener("DOMContentLoaded", () => {
+    // Parse URL parameter first to set proper active category on load
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('cat');
+    if (catParam) {
+        state.activeCategory = catParam;
+        updateCategoryActiveUI(catParam);
+    }
+    
     renderTools();
     generatePassword(); // Initialise password output
     
-    // Smart Shareable Widget Links (Parse Query Parameters)
-    const urlParams = new URLSearchParams(window.location.search);
+    if (catParam) {
+        // Smooth scroll to search section if filtering by query param
+        setTimeout(() => {
+            const searchSec = document.getElementById("search-section");
+            if (searchSec) searchSec.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+    }
     
     // 1. QR Code Query Parameter (?qr=your_text_here)
     const qrParam = urlParams.get('qr');
@@ -1018,6 +1127,58 @@ function closeDrawer() {
 if (drawerCloseBtn) {
     drawerCloseBtn.addEventListener("click", closeDrawer);
 }
+
+/* --- Blog Reader Modal Logic --- */
+function openBlogModal(blogId) {
+    const article = TOOLS_DB.find(tool => tool.id === blogId);
+    if (!article) return;
+    
+    const modal = document.getElementById("blog-modal");
+    const modalTitle = document.getElementById("blog-modal-title");
+    const modalBadge = document.getElementById("blog-modal-badge");
+    const modalDate = document.getElementById("blog-modal-date");
+    const modalContent = document.getElementById("blog-modal-content");
+    
+    if (modal && modalTitle && modalBadge && modalDate && modalContent) {
+        modalTitle.textContent = article.title;
+        modalBadge.textContent = article.badge || "Blog";
+        modalDate.textContent = article.date || "Tech Insights";
+        modalContent.innerHTML = article.content || `<p>${article.description}</p>`;
+        
+        modal.classList.add("active");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden"; // Prevent background scroll
+    }
+}
+
+function closeBlogModal() {
+    const modal = document.getElementById("blog-modal");
+    if (modal) {
+        modal.classList.remove("active");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = ""; // Enable background scroll
+    }
+}
+
+// Bind modal closing actions
+window.addEventListener("DOMContentLoaded", () => {
+    const modalCloseBtn = document.getElementById("blog-modal-close");
+    const modalBackdrop = document.querySelector(".blog-modal-backdrop");
+    
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener("click", closeBlogModal);
+    }
+    if (modalBackdrop) {
+        modalBackdrop.addEventListener("click", closeBlogModal);
+    }
+    
+    // Close modal on escape key
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeBlogModal();
+        }
+    });
+});
 
 drawerBackdrop.addEventListener("click", closeDrawer);
 
