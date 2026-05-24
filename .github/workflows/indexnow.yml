@@ -64,9 +64,9 @@ jobs:
               "https://toolshub.cam/gpacalc/",
               "https://toolshub.cam/favicongen/",
               "https://toolshub.cam/loremipsumgen/",
-              "https://toolshub.cam/about/",
-              "https://toolshub.cam/contact/",
-              "https://toolshub.cam/privacy/",
+              "https://toolshub.cam/about.html/",
+              "https://toolshub.cam/contact.html/",
+              "https://toolshub.cam/privacy.html/",
               "https://toolshub.cam/blog/"
             ]
           }'
