@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | ToolsHub</title>
+    <meta name="description" content="Learn more about ToolsHub—a privacy-focused platform offering 100+ free local, in-browser tools for creators and developers. No files uploaded.">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .about-hero {
+            padding: 5rem 0 3rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.03) 0%, rgba(var(--secondary-rgb), 0.03) 100%);
+        }
+        .about-hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .about-hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .content-section {
+            padding: 4rem 0;
+        }
+        .grid-two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+        @media (max-width: 768px) {
+            .grid-two {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+        .content-block h2 {
+            font-size: 2rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
+        }
+        .content-block p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1.25rem;
+        }
+        .value-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .value-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: rgba(var(--primary-rgb), 0.08);
+            color: var(--primary);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .value-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        .value-info p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .category-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+        .cat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            transition: var(--transition);
+        }
+        .cat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+        .cat-card i {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .cat-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .cat-card span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>ToolsHub</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html" class="nav-item">Home</a>
+                    <a href="about.html" class="nav-item active">About</a>
+                    <a href="blog.html" class="nav-item">Blog</a>
+                    <a href="contact.html" class="nav-item">Contact</a>
+                </nav>
+                <div class="nav-actions">
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-moon"></i>
+                        <span style="display: none;">Dark</span>
+                    </button>
+                    <button id="menu-toggle" class="icon-btn mobile-menu-btn" aria-label="Toggle Menu" title="Menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="container">
+            <h1>Our Mission & Vision</h1>
+            <p>Providing safe, fast, and completely private browser-based utilities to help you accomplish your daily digital tasks without hassle.</p>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <section class="content-section">
+        <div class="container">
+            
+            <div class="grid-two">
+                <div class="content-block">
+                    <h2>Why ToolsHub Was Created</h2>
+                    <p>In today's digital landscape, simple tasks like converting a PDF, resizing an image, or formatting a JSON code snippet often require uploading files to remote servers. This introduces security risks, bandwidth lags, and privacy concerns.</p>
+                    <p>ToolsHub was built as an answer to this problem. Our platform utilizes advanced HTML5, CSS3, and JavaScript modern APIs to carry out all calculations and processing <strong>locally in your browser</strong>. Your private data never leaves your device.</p>
+                    <p>No downloads, no installations, and absolutely no registration required. Just instant, free utilities available 24/7 at your fingertips.</p>
+                </div>
+                <div class="values-list">
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="value-info">
+                            <h3>Absolute Privacy</h3>
+                            <p>All tool scripts are executed client-side. We do not host your uploaded data, guaranteeing 100% security.</p>
+                        </div>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                        <div class="value-info">
+                            <h3>Lightning Speeds</h3>
+                            <p>No upload latency or server queues. Files process instantly utilizing your CPU's native speed.</p>
+                        </div>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+                        <div class="value-info">
+                            <h3>No Signup Required</h3>
+                            <p>Enjoy our entire suite of developer and creator utilities completely free without creating any accounts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Overview -->
+            <div style="text-align: center; margin-top: 5rem;">
+                <h2>Explore Our Utilities Suite</h2>
+                <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;">Discover 45+ specialized tools carefully optimized for mobile and desktop devices alike.</p>
+                
+                <div class="category-summary-grid">
+                    <a href="index.html" class="cat-card">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <h3>PDF & Docs</h3>
+                        <span>7 Tools</span>
+                    </a>
+                    <a href="index.html" class="cat-card">
+                        <i class="fa-solid fa-image"></i>
+                        <h3>Image & Graphics</h3>
+                        <span>8 Tools</span>
+                    </a>
+                    <a href="index.html" class="cat-card">
+                        <i class="fa-solid fa-code"></i>
+                        <h3>Developer Specs</h3>
+                        <span>7 Tools</span>
+                    </a>
+                    <a href="index.html" class="cat-card">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <h3>Writing Helpers</h3>
+                        <span>5 Tools</span>
+                    </a>
+                    <a href="index.html" class="cat-card">
+                        <i class="fa-solid fa-calculator"></i>
+                        <h3>Calculators</h3>
+                        <span>9 Tools</span>
+                    </a>
+                    <a href="index.html" class="cat-card">
+                        <i class="fa-solid fa-rocket"></i>
+                        <h3>Productivity</h3>
+                        <span>8 Tools</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer Area -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-cubes"></i>
+                        <span>ToolsHub</span>
+                    </a>
+                    <p>ToolsHub.cam is a premier online portal featuring over 100+ secure, local, in-browser static utilities built for absolute performance.</p>
+                    <div class="social-links">
+                        <a href="#" class="icon-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="icon-btn" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="icon-btn" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Utility Categories</h4>
+                    <ul>
+                        <li><a href="index.html">PDF Utilities</a></li>
+                        <li><a href="index.html">Image Editors</a></li>
+                        <li><a href="index.html">Developer Syntax</a></li>
+                        <li><a href="index.html">Writing helpers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">API docs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 ToolsHub. All rights reserved. Made with ❤️ locally in browser.</span>
+                <span>Version 2.0 (Premium Update)</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-drawer" class="mobile-drawer">
+        <div class="drawer-header">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-cubes"></i>
+                <span>ToolsHub</span>
+            </a>
+            <button id="drawer-close" class="icon-btn" aria-label="Close Menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <nav class="drawer-links">
+            <a href="index.html" class="drawer-item"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="about.html" class="drawer-item"><i class="fa-solid fa-circle-info"></i> About</a>
+            <a href="blog.html" class="drawer-item"><i class="fa-solid fa-newspaper"></i> Blog</a>
+            <a href="contact.html" class="drawer-item"><i class="fa-solid fa-envelope"></i> Contact</a>
+        </nav>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="bottom-nav" aria-label="Mobile Navigation Bar">
+        <div class="bottom-nav-wrapper">
+            <a href="index.html" class="bottom-nav-item" aria-label="All Tools">
+                <i class="fa-solid fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Favorites">
+                <i class="fa-solid fa-star"></i>
+                <span>Favs</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Instant Play Widgets">
+                <i class="fa-solid fa-cubes"></i>
+                <span>Instant</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Developer category">
+                <i class="fa-solid fa-code"></i>
+                <span>Dev</span>
+            </a>
+            <div class="bottom-nav-item" id="theme-toggle-mobile" data-action="theme" aria-label="Toggle Theme mobile">
+                <i class="fa-solid fa-moon"></i>
+                <span>Theme</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Scroll Toggle Button -->
+    <button id="scroll-toggle" class="scroll-toggle-btn" aria-label="Toggle Scroll Position" title="Scroll to Bottom">
+        <i class="fa-solid fa-arrow-down"></i>
+    </button>
+
+    <!-- JavaScript Script -->
+    <script src="app.js"></script>
+</body>
+</html>

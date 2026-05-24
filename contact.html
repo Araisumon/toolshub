@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | ToolsHub</title>
+    <meta name="description" content="Get in touch with ToolsHub support. Ask questions, report bugs, request new browser-based tools, or provide feedback. We reply within 24 hours.">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .contact-hero {
+            padding: 5rem 0 3rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.03) 0%, rgba(var(--secondary-rgb), 0.03) 100%);
+        }
+        .contact-hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .contact-hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .contact-section {
+            padding: 4rem 0;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.25fr;
+            gap: 3rem;
+            align-items: flex-start;
+        }
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+        .info-panel h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        .info-panel p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        .contact-channel {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .channel-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(var(--primary-rgb), 0.08);
+            color: var(--primary);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .channel-details h3 {
+            font-size: 0.95rem;
+            margin-bottom: 0.1rem;
+            color: var(--text-primary);
+        }
+        .channel-details a, .channel-details p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .channel-details a:hover {
+            color: var(--primary);
+        }
+        .form-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-premium);
+        }
+        @media (max-width: 640px) {
+            .form-panel {
+                padding: 1.5rem;
+            }
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            background: var(--bg-card);
+        }
+        .form-btn {
+            width: 100%;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 0.85rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 0.5rem;
+        }
+        .form-btn:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>ToolsHub</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html" class="nav-item">Home</a>
+                    <a href="about.html" class="nav-item">About</a>
+                    <a href="blog.html" class="nav-item">Blog</a>
+                    <a href="contact.html" class="nav-item active">Contact</a>
+                </nav>
+                <div class="nav-actions">
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-moon"></i>
+                        <span style="display: none;">Dark</span>
+                    </button>
+                    <button id="menu-toggle" class="icon-btn mobile-menu-btn" aria-label="Toggle Menu" title="Menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="contact-hero">
+        <div class="container">
+            <h1>Get In Touch</h1>
+            <p>Have questions, ideas, or tool requests? Contact our team. We're here to help you build safer workflows.</p>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="contact-section">
+        <div class="container">
+            
+            <div class="contact-grid">
+                
+                <!-- Left Column -->
+                <div class="info-panel">
+                    <h2>Reach Out Directly</h2>
+                    <p>Interested in partnering or requesting a custom in-browser tool? Send us a message or contact us through our digital support channels. We read and respond to all feedback within 24 hours.</p>
+                    
+                    <div class="contact-channel">
+                        <div class="channel-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="channel-details">
+                            <h3>Email Support</h3>
+                            <a href="mailto:support@toolshub.cam">support@toolshub.cam</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-channel">
+                        <div class="channel-icon"><i class="fa-solid fa-bug"></i></div>
+                        <div class="channel-details">
+                            <h3>Bug Reports</h3>
+                            <a href="https://github.com/toolshub/issues" target="_blank">github.com/toolshub/issues</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-channel">
+                        <div class="channel-icon"><i class="fa-solid fa-business-time"></i></div>
+                        <div class="channel-details">
+                            <h3>Response Time</h3>
+                            <p>Monday - Friday, 9:00 AM - 6:00 PM GMT</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="form-panel">
+                    <form id="contact-form" onsubmit="event.preventDefault(); alert('Thank you! Your message has been sent successfully (simulated static submission).'); this.reset();">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" id="name" class="form-input" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" id="email" class="form-input" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" id="subject" class="form-input" placeholder="Tool request / Partnership" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea id="message" class="form-input" rows="5" placeholder="How can we help you?" style="resize: vertical;" required></textarea>
+                        </div>
+                        <button type="submit" class="form-btn">Send Message</button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer Area -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-cubes"></i>
+                        <span>ToolsHub</span>
+                    </a>
+                    <p>ToolsHub.cam is a premier online portal featuring over 100+ secure, local, in-browser static utilities built for absolute performance.</p>
+                    <div class="social-links">
+                        <a href="#" class="icon-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="icon-btn" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="icon-btn" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Utility Categories</h4>
+                    <ul>
+                        <li><a href="index.html">PDF Utilities</a></li>
+                        <li><a href="index.html">Image Editors</a></li>
+                        <li><a href="index.html">Developer Syntax</a></li>
+                        <li><a href="index.html">Writing helpers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">API docs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 ToolsHub. All rights reserved. Made with ❤️ locally in browser.</span>
+                <span>Version 2.0 (Premium Update)</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-drawer" class="mobile-drawer">
+        <div class="drawer-header">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-cubes"></i>
+                <span>ToolsHub</span>
+            </a>
+            <button id="drawer-close" class="icon-btn" aria-label="Close Menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <nav class="drawer-links">
+            <a href="index.html" class="drawer-item"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="about.html" class="drawer-item"><i class="fa-solid fa-circle-info"></i> About</a>
+            <a href="blog.html" class="drawer-item"><i class="fa-solid fa-newspaper"></i> Blog</a>
+            <a href="contact.html" class="drawer-item"><i class="fa-solid fa-envelope"></i> Contact</a>
+        </nav>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="bottom-nav" aria-label="Mobile Navigation Bar">
+        <div class="bottom-nav-wrapper">
+            <a href="index.html" class="bottom-nav-item" aria-label="All Tools">
+                <i class="fa-solid fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Favorites">
+                <i class="fa-solid fa-star"></i>
+                <span>Favs</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Instant Play Widgets">
+                <i class="fa-solid fa-cubes"></i>
+                <span>Instant</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Developer category">
+                <i class="fa-solid fa-code"></i>
+                <span>Dev</span>
+            </a>
+            <div class="bottom-nav-item" id="theme-toggle-mobile" data-action="theme" aria-label="Toggle Theme mobile">
+                <i class="fa-solid fa-moon"></i>
+                <span>Theme</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Scroll Toggle Button -->
+    <button id="scroll-toggle" class="scroll-toggle-btn" aria-label="Toggle Scroll Position" title="Scroll to Bottom">
+        <i class="fa-solid fa-arrow-down"></i>
+    </button>
+
+    <!-- JavaScript Script -->
+    <script src="app.js"></script>
+</body>
+</html>
