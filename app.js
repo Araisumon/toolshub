@@ -593,6 +593,11 @@ function renderTools() {
     
     // Filter logic
     let filteredTools = TOOLS_DB.filter(tool => {
+        // Exclude blog articles from the Explore section and searches on all non-blog pages
+        if (state.activeCategory !== "blog" && tool.category === "blog") {
+            return false;
+        }
+
         // Category Filter
         if (state.activeCategory === "favorites") {
             if (!state.bookmarkedIds.includes(tool.id)) return false;
