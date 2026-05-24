@@ -1011,25 +1011,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTools();
     generatePassword(); // Initialise password output
     
-    // Intercept Blog navigation links on the landing page for smooth client-side filtering
-    const isHomePage = document.getElementById("search-section");
-    if (isHomePage) {
-        document.querySelectorAll('a[href="blog"], a[href="../blog"]').forEach(link => {
-            link.addEventListener('click', (e) => {
-                if (!isExtension) {
-                    e.preventDefault();
-                    state.activeCategory = "blog";
-                    updateCategoryActiveUI("blog");
-                    renderTools();
-                    closeDrawer();
-                    
-                    const searchSec = document.getElementById("search-section");
-                    if (searchSec) searchSec.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-    }
-    
     if (isBlogRoute || catParam) {
         // Smooth scroll to search section if filtering by query param or on blog path
         setTimeout(() => {
