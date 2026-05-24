@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "ToolsHub | Free Browser Utilities",
+  "version": "2.0.0",
+  "description": "Access 45+ free, privacy-first online tools directly in your browser pop-up. All tools run 100% locally.",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Open ToolsHub Tools Panel"
+  },
+  "icons": {
+    "16": "favicon.ico",
+    "48": "favicon.ico",
+    "128": "favicon.ico"
+  },
+  "permissions": []
+}

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QX6N41VY5J');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | ToolsHub</title>
+    <meta name="description" content="ToolsHub Secure Static Admin Panel. Manage and publish new browser-local utilities directly to your GitHub repository.">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>ToolsHub</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html" class="nav-item">Home</a>
+                    <a href="about.html" class="nav-item">About</a>
+                    <a href="blog.html" class="nav-item">Blog</a>
+                    <a href="contact.html" class="nav-item">Contact</a>
+                </nav>
+                <div class="nav-actions">
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-moon"></i>
+                        <span style="display: none;">Dark</span>
+                    </button>
+                    <button id="menu-toggle" class="icon-btn mobile-menu-btn" aria-label="Toggle Menu" title="Menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Section -->
+    <section class="admin-section">
+        <div class="container">
+            
+            <h1 class="section-title" style="margin-bottom: 2rem;">Secure Static Admin Panel</h1>
+
+            <div class="admin-grid">
+                
+                <!-- Left Column: Git Configuration -->
+                <div class="left-col">
+                    <div class="admin-card">
+                        <h2><i class="fa-brands fa-github"></i> GitHub Config</h2>
+                        <form id="git-config-form" onsubmit="event.preventDefault(); saveGitConfig();">
+                            <div class="form-group">
+                                <label for="git-user" class="form-label">GitHub Username / Owner</label>
+                                <input type="text" id="git-user" class="form-input" placeholder="e.g., github-user" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="git-repo" class="form-label">Repository Name</label>
+                                <input type="text" id="git-repo" class="form-input" placeholder="e.g., toolshub-cam" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="git-branch" class="form-label">Branch Name</label>
+                                <input type="text" id="git-branch" class="form-input" value="main" placeholder="e.g., main" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="git-token" class="form-label">Personal Access Token (PAT)</label>
+                                <input type="password" id="git-token" class="form-input" placeholder="ghp_********************" required autocomplete="current-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="git-path" class="form-label">DB File Path</label>
+                                <input type="text" id="git-path" class="form-input" value="app.js" placeholder="e.g., app.js" required>
+                            </div>
+                            <button type="submit" class="widget-action-btn">Save Configuration</button>
+                            <button type="button" id="btn-test-connection" class="btn-secondary" style="margin-top: 0.75rem;">
+                                <i class="fa-solid fa-circle-nodes"></i> Test Git Connection
+                            </button>
+                        </form>
+                        
+                        <div id="connection-status" class="connection-status" style="display: none;">
+                            <i class="fa-solid fa-circle-question"></i> <span>Unchecked</span>
+                        </div>
+                    </div>
+
+                    <!-- Console logs panel -->
+                    <div class="admin-card">
+                        <h2><i class="fa-solid fa-terminal"></i> Terminal Logs</h2>
+                        <div id="terminal-console" class="terminal-console">
+                            <div class="terminal-line info">[SYSTEM] Admin portal loaded. Ready to receive commands.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Add Tool Form -->
+                <div class="right-col">
+                    <div class="admin-card">
+                        <h2><i class="fa-solid fa-circle-plus"></i> Add New Tool</h2>
+                        <form id="add-tool-form" onsubmit="event.preventDefault(); publishNewTool();">
+                            <div class="widget-row">
+                                <div class="widget-col form-group">
+                                    <label for="tool-title" class="form-label">Tool Title</label>
+                                    <input type="text" id="tool-title" class="form-input" placeholder="e.g., PNG Compressor" required>
+                                </div>
+                                <div class="widget-col form-group">
+                                    <label for="tool-id" class="form-label">Unique ID</label>
+                                    <input type="text" id="tool-id" class="form-input" placeholder="e.g., png-compressor" required>
+                                </div>
+                            </div>
+
+                            <div class="widget-row">
+                                <div class="widget-col form-group">
+                                    <label for="tool-category" class="form-label">Category</label>
+                                    <select id="tool-category" class="form-input" style="height: auto;" required>
+                                        <option value="pdf">PDF & Docs (pdf)</option>
+                                        <option value="image">Images (image)</option>
+                                        <option value="dev">Developer & Security (dev)</option>
+                                        <option value="text">Writing & Text (text)</option>
+                                        <option value="calc">Calculators (calc)</option>
+                                        <option value="fun">Productivity (fun)</option>
+                                    </select>
+                                </div>
+                                <div class="widget-col form-group">
+                                    <label for="tool-badge" class="form-label">Feature Badge</label>
+                                    <select id="tool-badge" class="form-input" style="height: auto;">
+                                        <option value="">None</option>
+                                        <option value="popular">Popular</option>
+                                        <option value="new">New</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tool-desc" class="form-label">Description (Brief Copy)</label>
+                                <textarea id="tool-desc" class="form-input" rows="3" placeholder="Explain what the tool accomplishes locally in-browser..." required></textarea>
+                            </div>
+
+                            <div class="widget-row">
+                                <div class="widget-col form-group">
+                                    <label for="tool-icon" class="form-label">FontAwesome Icon Class</label>
+                                    <input type="text" id="tool-icon" class="form-input" placeholder="e.g., fa-solid fa-compress" required>
+                                </div>
+                                <div class="widget-col form-group">
+                                    <label for="tool-link" class="form-label">Route Link / Path</label>
+                                    <input type="text" id="tool-link" class="form-input" placeholder="e.g., /pngcompress/" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tool-keywords" class="form-label">Keywords (Comma separated for search engine index)</label>
+                                <input type="text" id="tool-keywords" class="form-input" placeholder="e.g., png compress, shrink photo, optimize size">
+                            </div>
+
+                            <button type="submit" class="widget-action-btn" style="padding: 1rem; font-size: 1.05rem;">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Publish Tool to Repository
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer Area -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-cubes"></i>
+                        <span>ToolsHub</span>
+                    </a>
+                    <p>ToolsHub.cam is a premier online portal featuring over 100+ secure, local, in-browser static utilities built for absolute performance.</p>
+                    <div class="social-links">
+                        <a href="#" class="icon-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="icon-btn" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="icon-btn" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Utility Categories</h4>
+                    <ul>
+                        <li><a href="index.html">PDF Utilities</a></li>
+                        <li><a href="index.html">Image Editors</a></li>
+                        <li><a href="index.html">Developer Syntax</a></li>
+                        <li><a href="index.html">Writing helpers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">API docs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 ToolsHub. All rights reserved. Made with ❤️ locally in browser.</span>
+                <span>Version 2.0 (Premium Update)</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-drawer" class="mobile-drawer">
+        <div class="drawer-header">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-cubes"></i>
+                <span>ToolsHub</span>
+            </a>
+            <button id="drawer-close" class="icon-btn" aria-label="Close Menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <nav class="drawer-links">
+            <a href="index.html" class="drawer-item"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="about.html" class="drawer-item"><i class="fa-solid fa-circle-info"></i> About</a>
+            <a href="blog.html" class="drawer-item"><i class="fa-solid fa-newspaper"></i> Blog</a>
+            <a href="contact.html" class="drawer-item"><i class="fa-solid fa-envelope"></i> Contact</a>
+        </nav>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="bottom-nav" aria-label="Mobile Navigation Bar">
+        <div class="bottom-nav-wrapper">
+            <a href="index.html" class="bottom-nav-item" aria-label="All Tools">
+                <i class="fa-solid fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Favorites">
+                <i class="fa-solid fa-star"></i>
+                <span>Favs</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Instant Play Widgets">
+                <i class="fa-solid fa-cubes"></i>
+                <span>Instant</span>
+            </a>
+            <a href="index.html" class="bottom-nav-item" aria-label="Developer category">
+                <i class="fa-solid fa-code"></i>
+                <span>Dev</span>
+            </a>
+            <div class="bottom-nav-item" id="theme-toggle-mobile" data-action="theme" aria-label="Toggle Theme mobile">
+                <i class="fa-solid fa-moon"></i>
+                <span>Theme</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Scroll Toggle Button -->
+    <button id="scroll-toggle" class="scroll-toggle-btn" aria-label="Toggle Scroll Position" title="Scroll to Bottom">
+        <i class="fa-solid fa-arrow-down"></i>
+    </button>
+
+    <!-- JavaScript Script -->
+    <script src="app.js"></script>
+
+    <!-- Admin Interactive Logic and Git Commit Script -->
+    <script>
+        // Log handler
+        const terminal = document.getElementById("terminal-console");
+        function log(msg, type = "info") {
+            if (!terminal) return;
+            const line = document.createElement("div");
+            line.className = `terminal-line ${type}`;
+            const time = new Date().toLocaleTimeString();
+            line.textContent = `[${time}] [${type.toUpperCase()}] ${msg}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
+        }
+
+        // Save and Load credentials from LocalStorage
+        function loadGitConfig() {
+            document.getElementById("git-user").value = localStorage.getItem("th_git_user") || "";
+            document.getElementById("git-repo").value = localStorage.getItem("th_git_repo") || "";
+            document.getElementById("git-branch").value = localStorage.getItem("th_git_branch") || "main";
+            document.getElementById("git-token").value = localStorage.getItem("th_git_token") || "";
+            document.getElementById("git-path").value = localStorage.getItem("th_git_path") || "app.js";
+            log("Loaded credentials configuration from local cache.");
+        }
+
+        function saveGitConfig() {
+            const user = document.getElementById("git-user").value.trim();
+            const repo = document.getElementById("git-repo").value.trim();
+            const branch = document.getElementById("git-branch").value.trim();
+            const token = document.getElementById("git-token").value.trim();
+            const path = document.getElementById("git-path").value.trim();
+
+            localStorage.setItem("th_git_user", user);
+            localStorage.setItem("th_git_repo", repo);
+            localStorage.setItem("th_git_branch", branch);
+            localStorage.setItem("th_git_token", token);
+            localStorage.setItem("th_git_path", path);
+
+            log("Configuration saved successfully to localStorage.", "success");
+            alert("Configuration Saved!");
+        }
+
+        // Test GitHub Connection
+        const testConnBtn = document.getElementById("btn-test-connection");
+        const statusBox = document.getElementById("connection-status");
+
+        async function testGitHubConnection() {
+            const user = document.getElementById("git-user").value.trim();
+            const repo = document.getElementById("git-repo").value.trim();
+            const token = document.getElementById("git-token").value.trim();
+            const branch = document.getElementById("git-branch").value.trim();
+            const path = document.getElementById("git-path").value.trim();
+
+            if (!user || !repo || !token) {
+                log("Cannot connect. Please fill Owner, Repository, and Token first.", "warning");
+                return false;
+            }
+
+            log(`Connecting to api.github.com/repos/${user}/${repo}...`);
+            testConnBtn.disabled = true;
+            statusBox.style.display = "flex";
+            statusBox.className = "connection-status";
+            statusBox.querySelector("span").textContent = "Connecting...";
+
+            try {
+                // Step 1: Validate repository details
+                const repoRes = await fetch(`https://api.github.com/repos/${user}/${repo}`, {
+                    headers: {
+                        "Authorization": `token ${token}`,
+                        "Accept": "application/vnd.github.v3+json"
+                    }
+                });
+
+                if (!repoRes.ok) {
+                    throw new Error(`Repository request failed with status: ${repoRes.status}`);
+                }
+
+                const repoData = await repoRes.json();
+                log(`Repository access verified: ${repoData.full_name} (${repoData.private ? 'Private' : 'Public'})`, "success");
+
+                // Step 2: Validate branch and target file
+                log(`Fetching DB file metadata: ${path} (branch: ${branch})...`);
+                const fileRes = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}?ref=${branch}`, {
+                    headers: {
+                        "Authorization": `token ${token}`,
+                        "Accept": "application/vnd.github.v3+json"
+                    }
+                });
+
+                if (!fileRes.ok) {
+                    throw new Error(`Target database file '${path}' not found on branch '${branch}'.`);
+                }
+
+                const fileData = await fileRes.json();
+                log(`Database file located. Git SHA: ${fileData.sha}`, "success");
+                log("Connection verified. Read & Write pipeline ready.", "success");
+
+                statusBox.className = "connection-status connected";
+                statusBox.querySelector("span").textContent = "Connected";
+                testConnBtn.disabled = false;
+                return true;
+            } catch (err) {
+                log(`Connection failed: ${err.message}`, "error");
+                statusBox.className = "connection-status error";
+                statusBox.querySelector("span").textContent = "Connection Error";
+                testConnBtn.disabled = false;
+                return false;
+            }
+        }
+
+        testConnBtn.addEventListener("click", testGitHubConnection);
+
+        // Publish New Tool direct commit pipeline
+        async function publishNewTool() {
+            // Read credentials
+            const user = localStorage.getItem("th_git_user");
+            const repo = localStorage.getItem("th_git_repo");
+            const branch = localStorage.getItem("th_git_branch") || "main";
+            const token = localStorage.getItem("th_git_token");
+            const path = localStorage.getItem("th_git_path") || "app.js";
+
+            if (!user || !repo || !token) {
+                alert("Please save your GitHub Configuration details first!");
+                log("Publish aborted. Missing credentials configuration.", "error");
+                return;
+            }
+
+            // Read tool inputs
+            const id = document.getElementById("tool-id").value.trim();
+            const title = document.getElementById("tool-title").value.trim();
+            const category = document.getElementById("tool-category").value;
+            const badge = document.getElementById("tool-badge").value;
+            const description = document.getElementById("tool-desc").value.trim();
+            const icon = document.getElementById("tool-icon").value.trim();
+            const link = document.getElementById("tool-link").value.trim();
+            const kwInput = document.getElementById("tool-keywords").value.trim();
+            const keywords = kwInput ? kwInput.split(',').map(k => k.trim()) : [];
+
+            const newTool = {
+                id,
+                title,
+                category,
+                description,
+                icon,
+                link,
+                keywords
+            };
+
+            if (badge) {
+                newTool.badge = badge;
+            }
+
+            log(`Initiating Direct Commit Pipeline for: '${title}'...`);
+            
+            try {
+                // Step 1: Fetch target database file configuration
+                log(`Fetching latest file contents from repository...`);
+                const getRes = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}?ref=${branch}`, {
+                    headers: {
+                        "Authorization": `token ${token}`,
+                        "Accept": "application/vnd.github.v3+json"
+                    }
+                });
+
+                if (!getRes.ok) {
+                    throw new Error(`Failed to fetch file contents. HTTP status ${getRes.status}`);
+                }
+
+                const fileInfo = await getRes.json();
+                const fileSha = fileInfo.sha;
+                log(`File downloaded. SHA verified: ${fileSha}`, "success");
+
+                // Decode base64 contents
+                // Handle UTF-8 safely with decodeURIComponent and window.atob
+                const rawContent = decodeURIComponent(escape(window.atob(fileInfo.content.replace(/\s/g, ''))));
+                
+                // Step 2: Inject tool into code
+                log(`Compiling and parsing target database file...`);
+                const marker = "const TOOLS_DB = [";
+                const markerIndex = rawContent.indexOf(marker);
+                
+                if (markerIndex === -1) {
+                    throw new Error("Could not find array header 'const TOOLS_DB = [' inside your JS code.");
+                }
+
+                log(`Injecting new tool data object at start of TOOLS_DB array...`);
+                const insertPosition = markerIndex + marker.length;
+                
+                // Formatted JSON chunk to insert
+                const formattedToolJSON = "\n    " + JSON.stringify(newTool, null, 4).replace(/\n/g, "\n    ") + ",";
+                
+                const updatedCode = rawContent.slice(0, insertPosition) + formattedToolJSON + rawContent.slice(insertPosition);
+                
+                // Encode updated content to base64 safely supporting unicode characters
+                const encodedContent = window.btoa(unescape(encodeURIComponent(updatedCode)));
+                
+                // Step 3: Put commit to repository
+                log(`Pushing direct commit to repository...`);
+                const putRes = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `token ${token}`,
+                        "Content-Type": "application/json",
+                        "Accept": "application/vnd.github.v3+json"
+                    },
+                    body: JSON.stringify({
+                        message: `Add tool: ${title} via ToolsHub Admin`,
+                        content: encodedContent,
+                        sha: fileSha,
+                        branch: branch
+                    })
+                });
+
+                if (!putRes.ok) {
+                    const errorText = await putRes.text();
+                    throw new Error(`GitHub Commit request failed. status ${putRes.status}: ${errorText}`);
+                }
+
+                log(`[SUCCESS] Commit successfully pushed! Tool '${title}' is now registered.`, "success");
+                log(`Redeployment triggered on branch '${branch}'. Changes will reflect in a few minutes.`, "info");
+                
+                alert(`SUCCESS!\nTool "${title}" has been successfully published to your GitHub repository.`);
+                document.getElementById("add-tool-form").reset();
+            } catch (err) {
+                log(`Pipeline failed: ${err.message}`, "error");
+                alert(`ERROR!\nFailed to publish tool: ${err.message}`);
+            }
+        }
+
+        // Initialize configs
+        window.addEventListener("DOMContentLoaded", () => {
+            loadGitConfig();
+        });
+    </script>
+</body>
+</html>
