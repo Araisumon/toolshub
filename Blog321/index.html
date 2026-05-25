@@ -40,11 +40,10 @@
     <link rel="canonical" href="https://toolshub.cam/blog">
     
     <!-- Favicon and App Icons -->
-    <link rel="icon" href="/toolshub.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" href="../icon.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icon.png">
     <meta name="theme-color" content="#4361ee">
     
     <!-- Fonts and Icons -->
@@ -2871,13 +2870,13 @@
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX6N41VY5J">${'</scr' + 'ipt>'}
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-QX6N41VY5J');
-    </script>
+    ${'</scr' + 'ipt>'}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${post.title} - ToolsHub Blog</title>
@@ -3041,7 +3040,7 @@
                 });
             }
         });
-    <\/script>
+    ${'</scr' + 'ipt>'}
 </body>
 </html>`;
             return html;
@@ -3438,6 +3437,14 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Dynamically inject webmanifest to prevent CORS errors on file://
+            if (window.location.protocol !== 'file:') {
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = '../manifest.json';
+                document.head.appendChild(link);
+            }
+
             loadPosts();
 
             // Load and update active voice dropdown if supports speechSynthesis
