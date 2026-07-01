@@ -299,5 +299,19 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+    </url>
+     <url>
+    <loc>https://toolshub.cam/blog/posts/ai-voice-cloning.html/</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+    </url>
+     <url>
+    <loc>https://toolshub.cam/blog/posts/passive-income-myths-what-actually-works-vs-whats-just-get-rich-quick-noise.html/</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
 
