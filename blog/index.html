@@ -3344,7 +3344,7 @@
 </head>
 <body>
     <p>This page has moved. If you are not redirected automatically, <a href="${post.slug}.html">click here</a>.</p>
-    <script>window.location.replace("${post.slug}.html");</script>
+    <script>window.location.replace("${post.slug}.html");${'</scr' + 'ipt>'}
 </body>
 </html>`;
                 const redirectBase64 = btoa(unescape(encodeURIComponent(redirectContent)));
